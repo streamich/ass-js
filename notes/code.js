@@ -1,0 +1,21 @@
+"use strict";
+var o = require('../x86/operand');
+var code_1 = require('../x64/code');
+var code = code_1.Code.create();
+// code.mov(o.rax.ref(), o.rbx);
+// code.movq(o.rax, o.rbx);
+// code.int(0x80);
+// code.movq(o.rdx, o.rbx.ref());
+// code.incq(o.rax.ref());
+// code.add(o.al, 0x11);
+code.add(o.bl, 0x11);
+// code.add(o.ax, 0x11);
+// code.add(o.eax, 0x11);
+// code.add(o.rax, 0x11);
+// code.add(o.rax, 25);
+// code.add(o.rax, o.rax);
+// code.add(o.rbx, o.rsp);
+// code.add(o.rcx, o.rbx.ref());
+// code.add(o.rcx, o.rcx.ref().ind(o.rdx, 1)); // (%rcx,%rdx,1),%rcx
+// console.log(code);
+console.log(code.toString());

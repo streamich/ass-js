@@ -1,0 +1,23 @@
+{
+  "name": "rgasm",
+  "description": "Generates x86 machine code from assembly instructions",
+  "version": "1.0.0",
+  "keywords": [
+    "x86",
+    "x64",
+    "x86_64",
+    "arm",
+    "arm64",
+    "native",
+    "native-code",
+    "machine-code",
+    "asm",
+    "compiler",
+    "assembler"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/streamich/rgasm"
+  },
+  "main": "index.js"
+}

@@ -1,0 +1,15 @@
+
+notes/nasm.o:     file format binary
+
+
+Disassembly of section .data:
+
+00000000 <.data>:
+   0:	0f 05                	syscall 
+   2:	cd 80                	int    0x80
+   4:	48                   	dec    ax
+   5:	89 c3                	mov    bx,ax
+   7:	48                   	dec    ax
+   8:	89 c6                	mov    si,ax
+   a:	b8 01 00             	mov    ax,0x1
+	...
