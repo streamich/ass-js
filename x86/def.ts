@@ -32,6 +32,7 @@ export class Def {
     useModrm: boolean;
     rep: boolean;
     repne: boolean;
+    prefixes: number[];
 
     constructor(group: DefGroup, def: t.Definition) {
         this.group = group;
@@ -48,6 +49,7 @@ export class Def {
         this.useModrm           = def.mr;
         this.rep                = def.rep;
         this.repne              = def.repne;
+        this.prefixes           = def.pfx;
 
         // Operand template.
         this.operands = [];

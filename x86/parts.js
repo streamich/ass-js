@@ -36,8 +36,9 @@ var Prefix = (function (_super) {
 exports.Prefix = Prefix;
 (function (PREFIX) {
     PREFIX[PREFIX["LOCK"] = 240] = "LOCK";
-    PREFIX[PREFIX["REPNE"] = 242] = "REPNE";
     PREFIX[PREFIX["REP"] = 243] = "REP";
+    PREFIX[PREFIX["REPE"] = 243] = "REPE";
+    PREFIX[PREFIX["REPNE"] = 242] = "REPNE";
     PREFIX[PREFIX["CS"] = 46] = "CS";
     PREFIX[PREFIX["SS"] = 54] = "SS";
     PREFIX[PREFIX["DS"] = 62] = "DS";
@@ -84,12 +85,41 @@ var PrefixAddressSizeOverride = (function (_super) {
     return PrefixAddressSizeOverride;
 }(PrefixStatic));
 exports.PrefixAddressSizeOverride = PrefixAddressSizeOverride;
+var PrefixRep = (function (_super) {
+    __extends(PrefixRep, _super);
+    function PrefixRep() {
+        _super.call(this, PREFIX.REP);
+    }
+    PrefixRep.supported = ['ins', 'lods', 'movs', 'outs', 'stos'];
+    return PrefixRep;
+}(PrefixStatic));
+exports.PrefixRep = PrefixRep;
+var PrefixRepe = (function (_super) {
+    __extends(PrefixRepe, _super);
+    function PrefixRepe() {
+        _super.call(this, PREFIX.REPE);
+    }
+    PrefixRepe.supported = ['cmps', 'cmpsb', 'cmpbd', 'cmpsw', 'scas', 'scasb', 'scasd', 'scasw'];
+    return PrefixRepe;
+}(PrefixStatic));
+exports.PrefixRepe = PrefixRepe;
+var PrefixRepne = (function (_super) {
+    __extends(PrefixRepne, _super);
+    function PrefixRepne() {
+        _super.call(this, PREFIX.REPNE);
+    }
+    PrefixRepne.supported = ['cmps', 'cmpsb', 'cmpsd', 'cmpsw', 'scas', 'scasb', 'scasd', 'scasw'];
+    return PrefixRepne;
+}(PrefixStatic));
+exports.PrefixRepne = PrefixRepne;
 // Lock prefix for performing atomic memory operations.
 var PrefixLock = (function (_super) {
     __extends(PrefixLock, _super);
     function PrefixLock() {
         _super.call(this, PREFIX.LOCK);
     }
+    PrefixLock.supported = ['adc', 'add', 'and', 'btc', 'btr', 'bts', 'cmpxchg', 'cmpxchg8b', 'cmpxchg16b',
+        'dec', 'inc', 'neg', 'not', 'or', 'sbb', 'sub', 'xadd', 'xchg', 'xor'];
     return PrefixLock;
 }(PrefixStatic));
 exports.PrefixLock = PrefixLock;
@@ -119,8 +149,7 @@ var PrefixRex = (function (_super) {
         this.B = B;
     }
     PrefixRex.prototype.write = function (arr) {
-        if (this.W || this.R || this.X || this.B)
-            arr.push(PREFIX.REX | (this.W << 3) | (this.R << 2) | (this.X << 1) | this.B);
+        arr.push(PREFIX.REX | (this.W << 3) | (this.R << 2) | (this.X << 1) | this.B);
         return arr;
     };
     return PrefixRex;

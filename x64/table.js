@@ -49,9 +49,11 @@ exports.table = {
     // MOVZX Move and zero extend
     // ## Binary Arithmetic
     // ADCX Unsigned integer add with carry
+    adcx: [{ o: 0x0F38F6, pfx: [0x66], ops: [table_1.r64, table_1.rm64] }],
     // ADOX Unsigned integer add with overflow
+    adox: [{ o: 0x0F38F6, pfx: [0xF3], ops: [table_1.r64, table_1.rm64] }],
     // ADD Integer add
-    add: [{},
+    add: [{ lock: true },
         // REX.W + 83 /0 ib ADD r/m64, imm8 MI Valid N.E. Add sign-extended imm8 to r/m64.
         { o: 0x83, or: 0, ops: [table_1.rm64, table_1.imm8] },
         // 04 ib ADD AL, imm8 I Valid Valid Add imm8 to AL.
@@ -63,35 +65,294 @@ exports.table = {
         // REX.W + 05 id ADD RAX, imm32 I Valid N.E. Add imm32 sign-extended to 64-bits to RAX.
         { o: 0x05, ops: [o.rax, table_1.imm32], mr: false },
         // 80 /0 ib ADD r/m8, imm8 MI Valid Valid Add imm8 to r/m8.
-        { o: 0x80, or: 0, ops: [table_1.rm8, table_1.imm8] },
         // REX + 80 /0 ib ADD r/m8*, imm8 MI Valid N.E. Add sign-extended imm8 to r/m64.
-        // TODO: implement this.
+        { o: 0x80, or: 0, ops: [table_1.rm8, table_1.imm8] },
+        // 83 /0 ib ADD r/m16, imm8 MI Valid Valid Add sign-extended imm8 to r/m16.
+        { o: 0x83, or: 0, ops: [table_1.rm16, table_1.imm8] },
         // 81 /0 iw ADD r/m16, imm16 MI Valid Valid Add imm16 to r/m16.
         { o: 0x81, or: 0, ops: [table_1.rm16, table_1.imm16] },
+        // 83 /0 ib ADD r/m32, imm8 MI Valid Valid Add sign-extended imm8 to r/m32.
+        { o: 0x83, or: 0, ops: [table_1.rm32, table_1.imm8] },
         // 81 /0 id ADD r/m32, imm32 MI Valid Valid Add imm32 to r/m32.
         { o: 0x81, or: 0, ops: [table_1.rm32, table_1.imm32] },
         // REX.W + 81 /0 id ADD r/m64, imm32 MI Valid N.E. Add imm32 sign-extended to 64-bits to r/m64.
         { o: 0x81, or: 0, ops: [table_1.rm64, table_1.imm32] },
-        // 83 /0 ib ADD r/m16, imm8 MI Valid Valid Add sign-extended imm8 to r/m16.
-        { o: 0x83, or: 0, ops: [table_1.rm16, table_1.imm8] },
-        { o: 0x81, or: 0, ops: [table_1.rm64, table_1.imm32] },
-        { o: 0x01, ops: [table_1.rm64, table_1.r64] },
-        { o: 0x03, ops: [table_1.r64, table_1.rm64] },
-        { o: 0x03, ops: [table_1.rm32, table_1.r32] },
+        // 00 /r ADD r/m8, r8 MR Valid Valid Add r8 to r/m8.
+        // REX + 00 /r ADD r/m8*, r8* MR Valid N.E. Add r8 to r/m8.
+        // 02 /r ADD r8, r/m8 RM Valid Valid Add r/m8 to r8.
+        // REX + 02 /r ADD r8*, r/m8* RM Valid N.E. Add r/m8 to r8.
+        { o: 0x00, ops: [table_1.rm8, table_1.rm8], dbit: true },
+        // 01 /r ADD r/m16, r16 MR Valid Valid Add r16 to r/m16.
+        // 03 /r ADD r16, r/m16 RM Valid Valid Add r/m16 to r16.
+        { o: 0x01, ops: [table_1.rm16, table_1.rm16], dbit: true },
+        // 01 /r ADD r/m32, r32 MR Valid Valid Add r32 to r/m32.
+        // 03 /r ADD r32, r/m32 RM Valid Valid Add r/m32 to r32.
+        { o: 0x01, ops: [table_1.rm32, table_1.rm32], dbit: true },
+        // REX.W + 01 /r ADD r/m64, r64 MR Valid N.E. Add r64 to r/m64.
+        // REX.W + 03 /r ADD r64, r/m64 RM Valid N.E. Add r/m64 to r64.
+        { o: 0x01, ops: [table_1.rm64, table_1.rm64], dbit: true },
     ],
     // ADC Add with carry
+    adc: [{ lock: true },
+        // 14 ib ADC AL, imm8 I Valid Valid Add with carry imm8 to AL.
+        { o: 0x14, ops: [o.al, table_1.imm8] },
+        // 15 iw ADC AX, imm16 I Valid Valid Add with carry imm16 to AX.
+        { o: 0x15, ops: [o.ax, table_1.imm16] },
+        // 15 id ADC EAX, imm32 I Valid Valid Add with carry imm32 to EAX.
+        { o: 0x15, ops: [o.eax, table_1.imm32] },
+        // REX.W + 15 id ADC RAX, imm32 I Valid N.E. Add with carry imm32 sign extended to 64-bits to RAX.
+        { o: 0x15, ops: [o.rax, table_1.imm32] },
+        // 80 /2 ib ADC r/m8, imm8 MI Valid Valid Add with carry imm8 to r/m8.
+        // REX + 80 /2 ib ADC r/m8*, imm8 MI Valid N.E. Add with carry imm8 to r/m8.
+        { o: 0x80, or: 2, ops: [table_1.rm8, table_1.imm8] },
+        // 81 /2 iw ADC r/m16, imm16 MI Valid Valid Add with carry imm16 to r/m16.
+        { o: 0x81, or: 2, ops: [table_1.rm16, table_1.imm16] },
+        // 81 /2 id ADC r/m32, imm32 MI Valid Valid Add with CF imm32 to r/m32.
+        { o: 0x81, or: 2, ops: [table_1.rm32, table_1.imm32] },
+        // REX.W + 81 /2 id ADC r/m64, imm32 MI Valid N.E. Add with CF imm32 sign extended to 64-bits to r/m64.
+        { o: 0x81, or: 2, ops: [table_1.rm64, table_1.imm32] },
+        // 83 /2 ib ADC r/m16, imm8 MI Valid Valid Add with CF sign-extended imm8 to r/m16.
+        { o: 0x83, or: 2, ops: [table_1.rm16, table_1.imm8] },
+        // 83 /2 ib ADC r/m32, imm8 MI Valid Valid Add with CF sign-extended imm8 into r/m32.
+        { o: 0x83, or: 2, ops: [table_1.rm32, table_1.imm8] },
+        // REX.W + 83 /2 ib ADC r/m64, imm8 MI Valid N.E. Add with CF sign-extended imm8 into r/m64.
+        { o: 0x83, or: 2, ops: [table_1.rm64, table_1.imm8] },
+        // 10 /r ADC r/m8, r8 MR Valid Valid Add with carry byte register to r/m8.
+        // REX + 10 /r ADC r/m8*, r8* MR Valid N.E. Add with carry byte register to r/m64.
+        // 12 /r ADC r8, r/m8 RM Valid Valid Add with carry r/m8 to byte register.
+        // REX + 12 /r ADC r8*, r/m8* RM Valid N.E. Add with carry r/m64 to byte register.
+        { o: 0x10, ops: [table_1.rm8, table_1.rm8], dbit: true },
+        // 11 /r ADC r/m16, r16 MR Valid Valid Add with carry r16 to r/m16.
+        // 13 /r ADC r16, r/m16 RM Valid Valid Add with carry r/m16 to r16.
+        { o: 0x11, ops: [table_1.rm16, table_1.rm16], dbit: true },
+        // 11 /r ADC r/m32, r32 MR Valid Valid Add with CF r32 to r/m32.
+        // 13 /r ADC r32, r/m32 RM Valid Valid Add with CF r/m32 to r32.
+        { o: 0x11, ops: [table_1.rm32, table_1.rm32], dbit: true },
+        // REX.W + 11 /r ADC r/m64, r64 MR Valid N.E. Add with CF r64 to r/m64.
+        // REX.W + 13 /r ADC r64, r/m64 RM Valid N.E. Add with CF r/m64 to r64.
+        { o: 0x11, ops: [table_1.rm64, table_1.rm64], dbit: true },
+    ],
     // SUB Subtract
+    sub: [{ lock: true },
+        // 2C ib SUB AL, imm8 I Valid Valid Subtract imm8 from AL.
+        { o: 0x2C, ops: [o.al, table_1.imm8] },
+        // 2D iw SUB AX, imm16 I Valid Valid Subtract imm16 from AX.
+        { o: 0x2D, ops: [o.ax, table_1.imm16] },
+        // 2D id SUB EAX, imm32 I Valid Valid Subtract imm32 from EAX.
+        { o: 0x2D, ops: [o.eax, table_1.imm32] },
+        // REX.W + 2D id SUB RAX, imm32 I Valid N.E. Subtract imm32 sign-extended to 64-bits from RAX.
+        { o: 0x2D, ops: [o.rax, table_1.imm32] },
+        // 80 /5 ib SUB r/m8, imm8 MI Valid Valid Subtract imm8 from r/m8.
+        // REX + 80 /5 ib SUB r/m8*, imm8 MI Valid N.E. Subtract imm8 from r/m8.
+        { o: 0x80, or: 5, ops: [table_1.rm8, table_1.imm8] },
+        // 83 /5 ib SUB r/m16, imm8 MI Valid Valid Subtract sign-extended imm8 from r/m16.
+        { o: 0x83, or: 5, ops: [table_1.rm16, table_1.imm8] },
+        // 81 /5 iw SUB r/m16, imm16 MI Valid Valid Subtract imm16 from r/m16.
+        { o: 0x81, or: 5, ops: [table_1.rm16, table_1.imm16] },
+        // 83 /5 ib SUB r/m32, imm8 MI Valid Valid Subtract sign-extended imm8 from r/m32.
+        { o: 0x83, or: 5, ops: [table_1.rm32, table_1.imm8] },
+        // 81 /5 id SUB r/m32, imm32 MI Valid Valid Subtract imm32 from r/m32.
+        { o: 0x81, or: 5, ops: [table_1.rm32, table_1.imm32] },
+        // REX.W + 83 /5 ib SUB r/m64, imm8 MI Valid N.E. Subtract sign-extended imm8 from r/m64.
+        { o: 0x83, or: 5, ops: [table_1.rm64, table_1.imm8] },
+        // REX.W + 81 /5 id SUB r/m64, imm32 MI Valid N.E. Subtract imm32 sign-extended to 64-bits from r/m64.
+        { o: 0x81, or: 5, ops: [table_1.rm64, table_1.imm32] },
+        // 28 /r SUB r/m8, r8 MR Valid Valid Subtract r8 from r/m8.
+        // REX + 28 /r SUB r/m8*, r8* MR Valid N.E. Subtract r8 from r/m8.
+        // 2A /r SUB r8, r/m8 RM Valid Valid Subtract r/m8 from r8.
+        // REX + 2A /r SUB r8*, r/m8* RM Valid N.E. Subtract r/m8 from r8.
+        { o: 0x28, ops: [table_1.rm8, table_1.rm8], dbit: true },
+        // 29 /r SUB r/m16, r16 MR Valid Valid Subtract r16 from r/m16.
+        // 2B /r SUB r16, r/m16 RM Valid Valid Subtract r/m16 from r16.
+        { o: 0x29, ops: [table_1.rm16, table_1.rm16], dbit: true },
+        // 29 /r SUB r/m32, r32 MR Valid Valid Subtract r32 from r/m32.
+        // 2B /r SUB r32, r/m32 RM Valid Valid Subtract r/m32 from r32.
+        { o: 0x29, ops: [table_1.rm32, table_1.rm32], dbit: true },
+        // REX.W + 29 /r SUB r/m64, r64 MR Valid N.E. Subtract r64 from r/m64.
+        // REX.W + 2B /r SUB r64, r/m64 RM Valid N.E. Subtract r/m64 from r64.
+        { o: 0x29, ops: [table_1.rm64, table_1.rm64], dbit: true },
+    ],
     // SBB Subtract with borrow
+    sbb: [{ lock: true },
+        // 1C ib SBB AL, imm8 I Valid Valid Subtract with borrow imm8 from AL.
+        { o: 0x1C, ops: [o.al, table_1.imm8] },
+        // 1D iw SBB AX, imm16 I Valid Valid Subtract with borrow imm16 from AX.
+        { o: 0x1D, ops: [o.ax, table_1.imm16] },
+        // 1D id SBB EAX, imm32 I Valid Valid Subtract with borrow imm32 from EAX.
+        { o: 0x1D, ops: [o.eax, table_1.imm32] },
+        // REX.W + 1D id SBB RAX, imm32 I Valid N.E. Subtract with borrow sign-extended imm.32 to 64-bits from RAX.
+        { o: 0x1D, ops: [o.rax, table_1.imm32] },
+        // 80 /3 ib SBB r/m8, imm8 MI Valid Valid Subtract with borrow imm8 from r/m8.
+        // REX + 80 /3 ib SBB r/m8*, imm8 MI Valid N.E. Subtract with borrow imm8 from r/m8.
+        { o: 0x80, or: 3, ops: [table_1.rm8, table_1.imm8] },
+        // 83 /3 ib SBB r/m16, imm8 MI Valid Valid Subtract with borrow sign-extended imm8 from r/m16.
+        { o: 0x83, or: 3, ops: [table_1.rm16, table_1.imm8] },
+        // 81 /3 iw SBB r/m16, imm16 MI Valid Valid Subtract with borrow imm16 from r/m16.
+        { o: 0x81, or: 3, ops: [table_1.rm16, table_1.imm16] },
+        // 83 /3 ib SBB r/m32, imm8 MI Valid Valid Subtract with borrow sign-extended imm8 from r/m32.
+        { o: 0x83, or: 3, ops: [table_1.rm32, table_1.imm8] },
+        // 81 /3 id SBB r/m32, imm32 MI Valid Valid Subtract with borrow imm32 from r/m32.
+        { o: 0x81, or: 3, ops: [table_1.rm32, table_1.imm32] },
+        // REX.W + 83 /3 ib SBB r/m64, imm8 MI Valid N.E. Subtract with borrow sign-extended imm8 from r/m64.
+        { o: 0x83, or: 3, ops: [table_1.rm64, table_1.imm8] },
+        // REX.W + 81 /3 id SBB r/m64, imm32 MI Valid N.E. Subtract with borrow sign-extended imm32 to 64-bits from r/m64.
+        { o: 0x81, or: 3, ops: [table_1.rm64, table_1.imm64] },
+        // 18 /r SBB r/m8, r8 MR Valid Valid Subtract with borrow r8 from r/m8.
+        // REX + 18 /r SBB r/m8*, r8 MR Valid N.E. Subtract with borrow r8 from r/m8.
+        // 1A /r SBB r8, r/m8 RM Valid Valid Subtract with borrow r/m8 from r8.
+        // REX + 1A /r SBB r8*, r/m8* RM Valid N.E. Subtract with borrow r/m8 from r8.
+        { o: 0x18, ops: [table_1.rm8, table_1.r8], dbit: true },
+        // 19 /r SBB r/m16, r16 MR Valid Valid Subtract with borrow r16 from r/m16.
+        // 1B /r SBB r16, r/m16 RM Valid Valid Subtract with borrow r/m16 from r16.
+        { o: 0x19, ops: [table_1.rm16, table_1.r16], dbit: true },
+        // 19 /r SBB r/m32, r32 MR Valid Valid Subtract with borrow r32 from r/m32.
+        // 1B /r SBB r32, r/m32 RM Valid Valid Subtract with borrow r/m32 from r32.
+        { o: 0x19, ops: [table_1.rm32, table_1.r32], dbit: true },
+        // REX.W + 19 /r SBB r/m64, r64 MR Valid N.E. Subtract with borrow r64 from r/m64.
+        // REX.W + 1B /r SBB r64, r/m64 RM Valid N.E. Subtract with borrow r/m64 from r64.
+        { o: 0x19, ops: [table_1.rm64, table_1.r64], dbit: true },
+    ],
     // IMUL Signed multiply
+    imul: [{},
+        // F6 /5 IMUL r/m8* M Valid Valid AX← AL ∗ r/m byte.
+        { o: 0xF6, or: 5, ops: [table_1.rm8] },
+        // F7 /5 IMUL r/m16 M Valid Valid DX:AX ← AX ∗ r/m word.
+        { o: 0xF7, or: 5, ops: [table_1.rm16] },
+        // F7 /5 IMUL r/m32 M Valid Valid EDX:EAX ← EAX ∗ r/m32.
+        { o: 0xF7, or: 5, ops: [table_1.rm32] },
+        // REX.W + F7 /5 IMUL r/m64 M Valid N.E. RDX:RAX ← RAX ∗ r/m64.
+        { o: 0xF7, or: 5, ops: [table_1.rm64] },
+        // 0F AF /r IMUL r16, r/m16 RM Valid Valid word register ← word register ∗ r/m16.
+        { o: 0x0FAF, ops: [table_1.r16, table_1.rm16] },
+        // 0F AF /r IMUL r32, r/m32 RM Valid Valid doubleword register ← doubleword register ∗ r/m32.
+        { o: 0x0FAF, ops: [table_1.r32, table_1.rm32] },
+        // REX.W + 0F AF /r IMUL r64, r/m64 RM Valid N.E. Quadword register ← Quadword register ∗ r/m64.
+        { o: 0x0FAF, ops: [table_1.r64, table_1.rm64] },
+        // 6B /r ib IMUL r16, r/m16, imm8 RMI Valid Valid word register ← r/m16 ∗ sign-extended immediate byte.
+        { o: 0x6B, ops: [table_1.r16, table_1.rm16, table_1.imm8] },
+        // 6B /r ib IMUL r32, r/m32, imm8 RMI Valid Valid doubleword register ← r/m32 ∗ signextended immediate byte.
+        { o: 0x6B, ops: [table_1.r32, table_1.rm32, table_1.imm8] },
+        // REX.W + 6B /r ib IMUL r64, r/m64, imm8 RMI Valid N.E. Quadword register ← r/m64 ∗ sign-extended immediate byte.
+        { o: 0x6B, ops: [table_1.r64, table_1.rm64, table_1.imm8] },
+        // 69 /r iw IMUL r16, r/m16, imm16 RMI Valid Valid word register ← r/m16 ∗ immediate word.
+        { o: 0x69, ops: [table_1.r16, table_1.rm16, table_1.imm16] },
+        // 69 /r id IMUL r32, r/m32, imm32 RMI Valid Valid doubleword register ← r/m32 ∗ immediate doubleword.
+        { o: 0x69, ops: [table_1.r32, table_1.rm32, table_1.imm32] },
+        // REX.W + 69 /r id IMUL r64, r/m64, imm32 RMI Valid N.E. Quadword register
+        { o: 0x69, ops: [table_1.r64, table_1.rm64, table_1.imm32] },
+    ],
     // MUL Unsigned multiply
+    mul: [{ o: 0xF7, or: 4 },
+        // F6 /4 MUL r/m8 M Valid Valid Unsigned multiply (AX ← AL ∗ r/m8).
+        // REX + F6 /4 MUL r/m8* M Valid N.E. Unsigned multiply (AX ← AL ∗ r/m8).
+        { o: 0xF6, ops: [table_1.rm8] },
+        // F7 /4 MUL r/m16 M Valid Valid Unsigned multiply (DX:AX ← AX ∗ r/m16).
+        // F7 /4 MUL r/m32 M Valid Valid Unsigned multiply (EDX:EAX ← EAX ∗ r/m32).
+        // REX.W + F7 /4 MUL r/m64 M Valid N.E. Unsigned multiply (RDX:RAX ← RAX ∗ r/m64).
+        { ops: [table_1.rm16] },
+        { ops: [table_1.rm32] },
+        { ops: [table_1.rm64] },
+    ],
     // IDIV Signed divide
+    idiv: [{},
+        // F6 /7 IDIV r/m8 M Valid Valid Signed divide AX by r/m8, with result stored in: AL← Quotient, AH ←Remainder.
+        // REX + F6 /7 IDIV r/m8* M Valid N.E. Signed divide AX by r/m8, with result stored in AL← Quotient, AH ←Remainder.
+        { o: 0xF6, or: 7, ops: [table_1.rm8] },
+        // F7 /7 IDIV r/m16 M Valid Valid Signed divide DX:AX by r/m16, with result stored in AX ←Quotient, DX ←Remainder.
+        { o: 0xF7, or: 7, ops: [table_1.rm16] },
+        // F7 /7 IDIV r/m32 M Valid Valid Signed divide EDX:EAX by r/m32, with result stored in EAX ←Quotient, EDX ←Remainder.
+        { o: 0xF7, or: 7, ops: [table_1.rm32] },
+        // REX.W + F7 /7 IDIV r/m64 M Valid N.E. Signed divide RDX:RAX by r/m64, with result stored in RAX ←Quotient, RDX ←Remainder.
+        { o: 0xF7, or: 7, ops: [table_1.rm64] },
+    ],
     // DIV Unsigned divide
+    div: [{ o: 0xF7, or: 6 },
+        // F6 /6 DIV r/m8 M Valid Valid Unsigned divide AX by r/m8, with result stored in AL ←Quotient, AH ←Remainder.
+        // REX + F6 /6 DIV r/m8* M Valid N.E. Unsigned divide AX by r/m8, with result stored in AL ←Quotient, AH ←Remainder.
+        { o: 0xF6, ops: [table_1.rm8] },
+        // F7 /6 DIV r/m16 M Valid Valid Unsigned divide DX:AX by r/m16, with result stored in AX ←Quotient, DX ←Remainder.
+        // F7 /6 DIV r/m32 M Valid Valid Unsigned divide EDX:EAX by r/m32, with result stored in EAX ←Quotient, EDX ← Remainder.
+        // REX.W + F7 /6 DIV r/m64 M Valid N.E. Unsigned divide RDX:RAX by r/m64, with result stored in
+        { ops: [table_1.rm16] },
+        { ops: [table_1.rm32] },
+        { ops: [table_1.rm64] },
+    ],
     // INC Increment
-    inc: [{ o: 0xFF, or: 0, ops: [table_1.rm64], lock: true }],
+    inc: [{ or: 0, lock: true },
+        // FE /0 INC r/m8 M Valid Valid Increment r/m byte by 1.
+        // REX + FE /0 INC r/m8* M Valid N.E. Increment r/m byte by 1.
+        { o: 0xFE, ops: [table_1.rm8] },
+        // FF /0 INC r/m16 M Valid Valid Increment r/m word by 1.
+        { o: 0xFF, ops: [table_1.rm16] },
+        // FF /0 INC r/m32 M Valid Valid Increment r/m doubleword by 1.
+        { o: 0xFF, ops: [table_1.rm32] },
+        // REX.W + FF /0 INC r/m64 M Valid N.E. Increment r/m quadword by 1.
+        { o: 0xFF, ops: [table_1.rm64] },
+    ],
     // DEC Decrement
-    dec: [{ o: 0xFF, or: 1, ops: [table_1.rm64], lock: true }],
+    dec: [{ or: 1, lock: true },
+        // FE /1 DEC r/m8 M Valid Valid Decrement r/m8 by 1.
+        // REX + FE /1 DEC r/m8* M Valid N.E. Decrement r/m8 by 1.
+        { o: 0xFE, ops: [table_1.rm8] },
+        // FF /1 DEC r/m16 M Valid Valid Decrement r/m16 by 1.
+        { o: 0xFF, ops: [table_1.rm16] },
+        // FF /1 DEC r/m32 M Valid Valid Decrement r/m32 by 1.
+        { o: 0xFF, ops: [table_1.rm32] },
+        // REX.W + FF /1 DEC r/m64 M Valid N.E. Decrement r/m64 by 1.
+        { o: 0xFF, ops: [table_1.rm64] },
+    ],
     // NEG Negate
+    neg: [{ or: 3, lock: true },
+        // F6 /3 NEG r/m8 M Valid Valid Two's complement negate r/m8.
+        // REX + F6 /3 NEG r/m8* M Valid N.E. Two's complement negate r/m8.
+        { o: 0xF6, ops: [table_1.rm8] },
+        // F7 /3 NEG r/m16 M Valid Valid Two's complement negate r/m16.
+        // F7 /3 NEG r/m32 M Valid Valid Two's complement negate r/m32.
+        // REX.W + F7 /3 NEG r/m64 M Valid N.E. Two's complement negate r/m64.
+        { o: 0xF7, ops: [table_1.rm16] },
+        { o: 0xF7, ops: [table_1.rm32] },
+        { o: 0xF7, ops: [table_1.rm64] },
+    ],
     // CMP Compare
+    cmp: [{},
+        // 3C ib CMP AL, imm8 I Valid Valid Compare imm8 with AL.
+        { o: 0x3C, ops: [o.al, table_1.imm8], mr: false },
+        // 3D iw CMP AX, imm16 I Valid Valid Compare imm16 with AX.
+        { o: 0x3D, ops: [o.ax, table_1.imm16], mr: false },
+        // 3D id CMP EAX, imm32 I Valid Valid Compare imm32 with EAX.
+        { o: 0x3D, ops: [o.eax, table_1.imm32], mr: false },
+        // REX.W + 3D id CMP RAX, imm32 I Valid N.E. Compare imm32 sign-extended to 64-bits with RAX.
+        { o: 0x3D, ops: [o.rax, table_1.imm32], mr: false },
+        // 80 /7 ib CMP r/m8, imm8 MI Valid Valid Compare imm8 with r/m8.
+        // REX + 80 /7 ib CMP r/m8*, imm8 MI Valid N.E. Compare imm8 with r/m8.
+        { o: 0x80, or: 7, ops: [table_1.rm8, table_1.imm8] },
+        // 83 /7 ib CMP r/m16, imm8 MI Valid Valid Compare imm8 with r/m16.
+        { o: 0x83, or: 7, ops: [table_1.rm16, table_1.imm8] },
+        // 81 /7 iw CMP r/m16, imm16 MI Valid Valid Compare imm16 with r/m16.
+        { o: 0x81, or: 7, ops: [table_1.rm16, table_1.imm16] },
+        // 83 /7 ib CMP r/m32, imm8 MI Valid Valid Compare imm8 with r/m32.
+        { o: 0x83, or: 7, ops: [table_1.rm32, table_1.imm8] },
+        // 81 /7 id CMP r/m32, imm32 MI Valid Valid Compare imm32 with r/m32.
+        { o: 0x81, or: 7, ops: [table_1.rm32, table_1.imm32] },
+        // REX.W + 83 /7 ib CMP r/m64, imm8 MI Valid N.E. Compare imm8 with r/m64.
+        { o: 0x83, or: 7, ops: [table_1.rm64, table_1.imm8] },
+        // REX.W + 81 /7 id CMP r/m64, imm32 MI Valid N.E. Compare imm32 sign-extended to 64-bits with r/m64.
+        { o: 0x81, or: 7, ops: [table_1.rm64, table_1.imm32] },
+        // 38 /r CMP r/m8, r8 MR Valid Valid Compare r8 with r/m8.
+        // REX + 38 /r CMP r/m8*, r8* MR Valid N.E. Compare r8 with r/m8.
+        // 3A /r CMP r8, r/m8 RM Valid Valid Compare r/m8 with r8.
+        // REX + 3A /r CMP r8*, r/m8* RM Valid N.E. Compare r/m8 with r8.
+        { o: 0x38, ops: [table_1.rm8, table_1.rm8] },
+        // 39 /r CMP r/m16, r16 MR Valid Valid Compare r16 with r/m16.
+        // 3B /r CMP r16, r/m16 RM Valid Valid Compare r/m16 with r16.
+        { o: 0x39, ops: [table_1.rm16, table_1.rm16] },
+        // 39 /r CMP r/m32, r32 MR Valid Valid Compare r32 with r/m32.
+        // 3B /r CMP r32, r/m32 RM Valid Valid Compare r/m32 with r32.
+        { o: 0x39, ops: [table_1.rm32, table_1.rm32] },
+        // REX.W + 39 /r CMP r/m64,r64 MR Valid N.E. Compare r64 with r/m64.
+        // REX.W + 3B /r CMP r64, r/m64 RM Valid N.E. Compare r/m64 with r64.
+        { o: 0x39, ops: [table_1.rm64, table_1.rm64] },
+    ],
     // ## Decimal Arithmetic
     // DAA Decimal adjust after addition
     // DAS Decimal adjust after subtraction
@@ -269,5 +530,5 @@ exports.table = {
     syscall: [{ o: 0x0F05 }],
     sysenter: [{ o: 0x0F34 }],
     sysexit: [{ o: 0x0F35 }],
-    int: [{ o: 0xCD, ops: [table_1.immu8], imms: false }],
+    int: [{ o: 0xCD, ops: [table_1.immu8] }],
 };

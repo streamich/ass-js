@@ -358,7 +358,11 @@ var Register = (function (_super) {
             case SIZE.Q: return regfile_1.R64[this.id];
             case SIZE.D: return regfile_1.R32[this.id];
             case SIZE.W: return regfile_1.R16[this.id];
-            case SIZE.B: return regfile_1.R8[this.id];
+            case SIZE.B:
+                if (this instanceof Register8High)
+                    return regfile_1.R8H[this.id];
+                else
+                    return regfile_1.R8[this.id];
             default: return 'REG';
         }
     };
@@ -484,10 +488,10 @@ exports.r12b = new Register8(regfile_1.R8.R12B);
 exports.r13b = new Register8(regfile_1.R8.R13B);
 exports.r14b = new Register8(regfile_1.R8.R14B);
 exports.r15b = new Register8(regfile_1.R8.R15B);
-exports.ah = new Register8High(regfile_1.R8.AH);
-exports.bh = new Register8High(regfile_1.R8.BH);
-exports.ch = new Register8High(regfile_1.R8.DH);
-exports.dh = new Register8High(regfile_1.R8.DH);
+exports.ah = new Register8High(regfile_1.R8H.AH);
+exports.bh = new Register8High(regfile_1.R8H.BH);
+exports.ch = new Register8High(regfile_1.R8H.CH);
+exports.dh = new Register8High(regfile_1.R8H.DH);
 // # Scale
 //
 // `Scale` used in SIB byte in two bit `SCALE` field.

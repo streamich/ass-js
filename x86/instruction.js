@@ -101,6 +101,7 @@ var Instruction = (function (_super) {
         this.pfxRep = null;
         this.pfxRepne = null;
         this.pfxSegment = null;
+        this.prefixes = [];
         this.opcode = new p.Opcode; // required
         this.modrm = null;
         this.sib = null;
@@ -126,6 +127,10 @@ var Instruction = (function (_super) {
             this.pfxSegment.write(arr);
         if (this.pfxOpSize)
             this.pfxOpSize.write(arr);
+        for (var _i = 0, _a = this.prefixes; _i < _a.length; _i++) {
+            var pfx = _a[_i];
+            pfx.write(arr);
+        }
     };
     Instruction.prototype.write = function (arr) {
         this.offset = arr.length;
@@ -155,6 +160,7 @@ var Instruction = (function (_super) {
             size++;
         if (this.pfxOpSize)
             size++;
+        size += this.prefixes.length;
         if (this.modrm)
             size++;
         if (this.sib)
@@ -171,28 +177,31 @@ var Instruction = (function (_super) {
         this.pfxLock = new p.PrefixLock;
         return this;
     };
-    Instruction.prototype.rep = function () {
-        if (!this.def.rep)
-            throw Error("Instruction \"" + this.def.mnemonic + "\" does not support REP prefix.");
-        this.pfxRep = new p.PrefixStatic(p.PREFIX.REP);
-        return this;
-    };
-    Instruction.prototype.repe = function () {
-        return this.rep();
-    };
-    Instruction.prototype.repz = function () {
-        return this.rep();
-    };
     Instruction.prototype.bt = function () {
         return this.ds();
     };
     Instruction.prototype.bnt = function () {
         return this.cs();
     };
+    Instruction.prototype.rep = function () {
+        if (p.PrefixRep.supported.indexOf(this.def.mnemonic) === -1)
+            throw Error("Instruction \"" + this.def.mnemonic + "\" does not support REP prefix.");
+        this.pfxRep = new p.PrefixRep;
+        return this;
+    };
+    Instruction.prototype.repe = function () {
+        if (p.PrefixRepe.supported.indexOf(this.def.mnemonic) === -1)
+            throw Error("Instruction \"" + this.def.mnemonic + "\" does not support REPE/REPZ prefix.");
+        this.pfxRep = new p.PrefixRepe;
+        return this;
+    };
+    Instruction.prototype.repz = function () {
+        return this.repe();
+    };
     Instruction.prototype.repne = function () {
-        if (!this.def.repne)
-            throw Error("Instruction \"" + this.def.mnemonic + "\" does not support REPNE prefix.");
-        this.pfxRepne = new p.PrefixStatic(p.PREFIX.REPNE);
+        if (p.PrefixRepne.supported.indexOf(this.def.mnemonic) === -1)
+            throw Error("Instruction \"" + this.def.mnemonic + "\" does not support REPNE/REPNZ prefix.");
+        this.pfxRepne = new p.PrefixRepne;
         return this;
     };
     Instruction.prototype.repnz = function () {
@@ -261,10 +270,9 @@ var Instruction = (function (_super) {
     Instruction.prototype.needsOperandSizeOverride = function () {
         if (!this.op.list.length)
             return false;
-        var def = this.code.operandSize, actual = this.op.size;
-        if ((def === o.SIZE.D) && (actual === o.SIZE.W))
+        if ((this.code.operandSize === o.SIZE.D) && (this.def.operandSize === o.SIZE.W))
             return true;
-        if ((def === o.SIZE.W) && (actual === o.SIZE.D))
+        if ((this.code.operandSize === o.SIZE.W) && (this.def.operandSize === o.SIZE.D))
             return true;
         return false;
     };
@@ -282,6 +290,13 @@ var Instruction = (function (_super) {
             this.pfxOpSize = new p.PrefixOperandSizeOverride;
         if (this.needsAddressSizeOverride())
             this.pfxAddrSize = new p.PrefixAddressSizeOverride;
+        // Mandatory prefixes required by op-code.
+        if (this.def.prefixes) {
+            for (var _i = 0, _a = this.def.prefixes; _i < _a.length; _i++) {
+                var val = _a[_i];
+                this.prefixes.push(new p.PrefixStatic(val));
+            }
+        }
     };
     Instruction.prototype.createOpcode = function () {
         var def = this.def;
@@ -322,6 +337,7 @@ var Instruction = (function (_super) {
         var dst_in_modrm = !this.def.regInOp && !!dst; // Destination operand is NOT encoded in main op-code byte.
         if (has_opreg || dst_in_modrm) {
             var mod = 0, reg = 0, rm = 0;
+            var reg_is_dst = !!(this.opcode.op & p.Opcode.DIRECTION.REG_IS_DST);
             if (has_opreg) {
                 // If we have `opreg`, then instruction has up to one operand.
                 reg = this.def.opreg;
@@ -334,7 +350,8 @@ var Instruction = (function (_super) {
                 }
             }
             else {
-                var r = this.op.getRegisterOperand(this.regToRegDirectionRegIsDst);
+                // var r: o.Register = this.op.getRegisterOperand(this.regToRegDirectionRegIsDst);
+                var r = this.op.getRegisterOperand(reg_is_dst);
                 if (r) {
                     mod = p.Modrm.MOD.REG_TO_REG;
                     reg = r.get3bitId();
@@ -347,7 +364,8 @@ var Instruction = (function (_super) {
             // Reg-to-reg instruction;
             if ((dst instanceof o.Register) && (src instanceof o.Register)) {
                 mod = p.Modrm.MOD.REG_TO_REG;
-                var rmreg = (this.regToRegDirectionRegIsDst ? src : dst);
+                // var rmreg: o.Register = (this.regToRegDirectionRegIsDst ? src : dst) as o.Register;
+                var rmreg = (reg_is_dst ? src : dst);
                 rm = rmreg.get3bitId();
                 this.modrm = new p.Modrm(mod, reg, rm);
                 return;

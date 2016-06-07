@@ -54,6 +54,7 @@ export interface Definition {
     mr?: boolean;                                   // Whether to include Mod-REG-R/M byte if deemed necessary.
     rep?: boolean;                                  // REP and REPE/REPZ prefix allowed.
     repne?: boolean;                                // REPNE/REPNZ prefix allowed.
+    pfx?: number[];                                 // List of mandatory prefixes.
 }
 export type GroupDefinition = Definition[];
 export type TableDefinition = {[s: string]: GroupDefinition};
@@ -61,7 +62,7 @@ export type TableDefinition = {[s: string]: GroupDefinition};
 
 // Global defaults
 export var defaults: Definition
-    = {s: S.NONE, ds: S.D, lock: false, ops: null, or: -1, r: false, dbit: false, rex: false, mr: true, rep: false, repne: false};
+    = {s: S.NONE, ds: S.D, lock: false, ops: null, or: -1, r: false, dbit: false, rex: false, mr: true, rep: false, repne: false, pfx: null};
 
 
 // Instruction are divided in groups, each group consists of list

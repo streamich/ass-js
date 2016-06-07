@@ -26,8 +26,9 @@ export abstract class Prefix extends InstructionPart {}
 
 export enum PREFIX {
     LOCK    = 0xF0,
+    REP     = 0xF3,         // REP prefix.
+    REPE    = 0xF3,         // REPE/REPZ prefix.
     REPNE   = 0xF2,         // REPNE/REPNZ prefix
-    REP     = 0xF3,         // REP or REPE/REPZ prefix.
     CS      = 0x2E,
     SS      = 0x36,
     DS      = 0x3E,
@@ -72,8 +73,35 @@ export class PrefixAddressSizeOverride extends PrefixStatic {
     }
 }
 
+export class PrefixRep extends PrefixStatic {
+    static supported = ['ins', 'lods', 'movs', 'outs', 'stos'];
+
+    constructor() {
+        super(PREFIX.REP);
+    }
+}
+
+export class PrefixRepe extends PrefixStatic {
+    static supported = ['cmps', 'cmpsb', 'cmpbd', 'cmpsw', 'scas', 'scasb', 'scasd', 'scasw'];
+
+    constructor() {
+        super(PREFIX.REPE);
+    }
+}
+
+export class PrefixRepne extends PrefixStatic {
+    static supported = ['cmps', 'cmpsb', 'cmpsd', 'cmpsw', 'scas', 'scasb', 'scasd', 'scasw'];
+
+    constructor() {
+        super(PREFIX.REPNE);
+    }
+}
+
 // Lock prefix for performing atomic memory operations.
 export class PrefixLock extends PrefixStatic {
+    static supported = ['adc', 'add', 'and', 'btc', 'btr', 'bts', 'cmpxchg', 'cmpxchg8b', 'cmpxchg16b',
+        'dec', 'inc', 'neg', 'not', 'or', 'sbb', 'sub', 'xadd', 'xchg', 'xor'];
+
     constructor() {
         super(PREFIX.LOCK);
     }
@@ -110,8 +138,7 @@ export class PrefixRex extends Prefix {
     }
 
     write(arr: number[]): number[] {
-        if(this.W || this.R || this.X || this.B)
-            arr.push(PREFIX.REX | (this.W << 3) | (this.R << 2) | (this.X << 1) | this.B);
+        arr.push(PREFIX.REX | (this.W << 3) | (this.R << 2) | (this.X << 1) | this.B);
         return arr;
     }
 }

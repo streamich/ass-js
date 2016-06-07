@@ -4,7 +4,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var r = require('../x86/regfile');
 var o = require('../x86/operand');
 var i = require('../x86/instruction');
 var p = require('../x86/parts');
@@ -40,11 +39,11 @@ var Instruction = (function (_super) {
             return true;
         var _a = this.op, dst = _a.dst, src = _a.src;
         // sil, dil, spl, bpl
-        if (((dst instanceof o.Register8) && (dst.id >= r.R8.SIL) && (dst.id <= r.R8.BPL)) ||
-            ((src instanceof o.Register8) && (src.id >= r.R8.SIL) && (src.id <= r.R8.BPL)))
+        // if(((dst instanceof o.Register8) && !(dst instanceof o.Register8High) && (dst.id >= r.R8.SPL) && (dst.id <= r.R8.DIL)) ||
+        //     ((src instanceof o.Register8) && !(src instanceof o.Register8High) && (src.id >= r.R8.SPL) && (src.id <= r.R8.DIL))) return true;
+        if ((dst === o.sil) || (dst === o.dil) || (dst === o.spl) || (dst === o.bpl) ||
+            (src === o.sil) || (src === o.dil) || (src === o.spl) || (src === o.bpl))
             return true;
-        // if((dst === o.sil) || (dst === o.dil) || (dst === o.spl) || (dst === o.bpl) ||
-        //     (src === o.sil) || (src === o.dil) || (src === o.spl) || (src === o.bpl)) return true;
         if (this.def.operandSizeDefault === o.SIZE.Q)
             return false;
         if (this.needs32To64OperandSizeChange())

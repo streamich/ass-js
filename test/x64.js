@@ -227,120 +227,535 @@ describe('x64', function () {
             chai_1.expect(bin).to.eql([0x48, 0xC7, 0xC5, 0xCD, 0xCC, 0xFF, 0xFF]);
         });
     });
-    describe('add', function () {
-        it('add rax, 0x19', function () {
-            var _ = code64();
-            _.add(operand_1.rax, 0x19);
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x48, 0x83, 0xC0, 0x19]);
+    describe('Binary Arithmetic', function () {
+        describe('adcx', function () {
+            it('adcx rcx, rbx', function () {
+                var _ = code64();
+                _.adcx(operand_1.rcx, operand_1.rbx);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x66, 0x48, 0x0F, 0x38, 0xF6, 0xCB]);
+            });
+            it('adcx rax, rax', function () {
+                var _ = code64();
+                _.adcx(operand_1.rax, operand_1.rax);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x66, 0x48, 0x0F, 0x38, 0xF6, 0xC0]);
+            });
         });
-        it('add rax, rax', function () {
-            var _ = code64();
-            _.add(operand_1.rax, operand_1.rax);
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x48, 0x01, 0xC0]);
+        describe('adox', function () {
+            it('adox r12, r9', function () {
+                var _ = code64();
+                _.adox(operand_1.r12, operand_1.r9);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0xF3, 0x4D, 0x0F, 0x38, 0xF6, 0xE1]);
+            });
         });
-        it('add rbx, rsp', function () {
-            var _ = code64();
-            _.add(operand_1.rbx, operand_1.rsp);
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x48, 0x01, 0xE3]);
+        describe('add', function () {
+            it('add rax, 0x19', function () {
+                var _ = code64();
+                _.add(operand_1.rax, 0x19);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x83, 0xC0, 0x19]);
+            });
+            it('add rax, rax', function () {
+                var _ = code64();
+                _.add(operand_1.rax, operand_1.rax);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x01, 0xC0]);
+            });
+            it('add rbx, rsp', function () {
+                var _ = code64();
+                _.add(operand_1.rbx, operand_1.rsp);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x01, 0xE3]);
+            });
+            it('add rcx, [rbx]', function () {
+                var _ = code64();
+                _.add(operand_1.rcx, operand_1.rbx.ref());
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x03, 0x0B]);
+            });
+            it('add rcx, [rcx + rdx]', function () {
+                var _ = code64();
+                _.add(operand_1.rcx, operand_1.rcx.ref().ind(operand_1.rdx));
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x03, 0x0C, 0x11]);
+            });
+            it('add rcx, [rcx + rbp * 4]', function () {
+                var _ = code64();
+                _.add(operand_1.rcx, operand_1.rcx.ref().ind(operand_1.rbp, 4));
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x03, 0x0C, 0xA9]);
+            });
+            it('add rcx, [rsp + rbp * 4 + 0x11]', function () {
+                var _ = code64();
+                _.add(operand_1.rcx, operand_1.rsp.ref().ind(operand_1.rbp, 4).disp(0x11));
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x03, 0x4C, 0xAC, 0x11]);
+            });
+            it('add rcx, [rsp + rbp * 4 + -0x11223344]', function () {
+                var _ = code64();
+                _.add(operand_1.rcx, operand_1.rsp.ref().ind(operand_1.rbp, 4).disp(-0x11223344));
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x03, 0x8C, 0xAC, 0xBC, 0xCC, 0xDD, 0xEE]);
+            });
+            it('add [rsp + rbp * 4 + -0x11223344], rax', function () {
+                var _ = code64();
+                _.add(operand_1.rsp.ref().ind(operand_1.rbp, 4).disp(-0x11223344), operand_1.rax);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x01, 0x84, 0xAC, 0xBC, 0xCC, 0xDD, 0xEE]);
+            });
+            it('add rbx, 1', function () {
+                var _ = code64();
+                _.add(operand_1.rbx, 1);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x83, 0xC3, 0x01]);
+            });
+            it('add rbx, [1]', function () {
+                var _ = code64();
+                _.add(operand_1.rbx, _.mem(1));
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x03, 0x1C, 0x25, 0x01, 0, 0, 0]);
+            });
+            it('add [1], rbx', function () {
+                var _ = code64();
+                _.add(_.mem(1), operand_1.rbx);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x01, 0x1C, 0x25, 0x01, 0, 0, 0]);
+            });
+            it('add al, 0x11', function () {
+                var _ = code64();
+                _.add(operand_1.al, 0x11);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x04, 0x11]);
+            });
+            it('add ax, 0x1122', function () {
+                var _ = code64();
+                _.add(operand_1.ax, 0x1122);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x66, 0x05, 0x22, 0x11]);
+            });
+            it('add eax, 0x11223344', function () {
+                var _ = code64();
+                _.add(operand_1.eax, 0x11223344);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x05, 0x44, 0x33, 0x22, 0x11]);
+            });
+            it('add rax, -0x11223344', function () {
+                var _ = code64();
+                _.add(operand_1.rax, -0x11223344);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x05, 0xbc, 0xcc, 0xdd, 0xee]);
+            });
+            it('add bl, 0x22', function () {
+                var _ = code64();
+                _.add(operand_1.bl, 0x22);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x80, 0xc3, 0x22]);
+            });
+            it('add ah, 0x22', function () {
+                var _ = code64();
+                _.add(operand_1.ah, 0x22);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x80, 0xc4, 0x22]);
+            });
+            it('add bx, 0x1122', function () {
+                var _ = code64();
+                _.add(operand_1.bx, 0x1122);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x66, 0x81, 0xC3, 0x22, 0x11]);
+            });
+            it('add bx, 0x11', function () {
+                var _ = code64();
+                _.add(operand_1.bx, 0x11);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x66, 0x83, 0xC3, 0x11]);
+            });
+            it('add ebx, 0x1122', function () {
+                var _ = code64();
+                _.add(operand_1.ebx, 0x1122);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x81, 0xC3, 0x22, 0x11, 0, 0]);
+            });
+            it('add ch, 0x22', function () {
+                var _ = code64();
+                _.add(operand_1.ch, 0x22);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x80, 0xC5, 0x22]);
+            });
+            it('add dil, 0x22', function () {
+                var _ = code64();
+                _.add(operand_1.dil, 0x22);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x40, 0x80, 0xC7, 0x22]);
+            });
+            it('add bpl, 0x22', function () {
+                var _ = code64();
+                _.add(operand_1.bpl, 0x22);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x40, 0x80, 0xC5, 0x22]);
+            });
+            it('add spl, 0x22', function () {
+                var _ = code64();
+                _.add(operand_1.spl, 0x22);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x40, 0x80, 0xC4, 0x22]);
+            });
+            it('add r8b, 0x22', function () {
+                var _ = code64();
+                _.add(operand_1.r8b, 0x22);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x41, 0x80, 0xC0, 0x22]);
+            });
+            it('add esp, 0x12', function () {
+                var _ = code64();
+                _.add(operand_1.esp, 0x12);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x83, 0xC4, 0x12]);
+            });
+            it('add dl, cl', function () {
+                var _ = code64();
+                _.add(operand_1.dl, operand_1.cl);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x00, 0xCA]);
+            });
+            it('add bx, ax', function () {
+                var _ = code64();
+                _.add(operand_1.bx, operand_1.ax);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x66, 0x01, 0xC3]);
+            });
+            it('add ecx, eax', function () {
+                var _ = code64();
+                _.add(operand_1.ecx, operand_1.eax);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x01, 0xC1]);
+            });
         });
-        it('add rcx, [rbx]', function () {
-            var _ = code64();
-            _.add(operand_1.rcx, operand_1.rbx.ref());
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x48, 0x03, 0x0B]);
+        describe('adc', function () {
+            it('adc [rbx + rcx * 4 + 0x11], rax', function () {
+                var _ = code64();
+                _.adc(operand_1.rbx.ref().ind(operand_1.rcx, 4).disp(0x11), operand_1.rax);
+                chai_1.expect(compile(_)).to.eql([0x48, 0x11, 0x44, 0x8B, 0x11]);
+            });
         });
-        it('add rcx, [rcx + rdx]', function () {
-            var _ = code64();
-            _.add(operand_1.rcx, operand_1.rcx.ref().ind(operand_1.rdx));
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x48, 0x03, 0x0C, 0x11]);
+        describe('mul', function () {
+            it('mul al', function () {
+                var _ = code64();
+                _.mul(operand_1.al);
+                chai_1.expect(compile(_)).to.eql([0xf6, 0xe0]);
+            });
+            it('mul ax', function () {
+                var _ = code64();
+                _.mul(operand_1.ax);
+                chai_1.expect(compile(_)).to.eql([0x66, 0xf7, 0xe0]);
+            });
+            it('mul eax', function () {
+                var _ = code64();
+                _.mul(operand_1.eax);
+                chai_1.expect(compile(_)).to.eql([0xf7, 0xe0]);
+            });
+            it('mul rax', function () {
+                var _ = code64();
+                _.mul(operand_1.rax);
+                chai_1.expect(compile(_)).to.eql([0x48, 0xf7, 0xe0]);
+            });
+            it('mulq [rax]', function () {
+                var _ = code64();
+                _.mulq(operand_1.rax.ref());
+                chai_1.expect(compile(_)).to.eql([0x48, 0xf7, 0x20]);
+            });
+            it('mulq [eax]', function () {
+                var _ = code64();
+                _.mulq(operand_1.eax.ref());
+                chai_1.expect(compile(_)).to.eql([0x67, 0x48, 0xf7, 0x20]);
+            });
+            it('muld [rax]', function () {
+                var _ = code64();
+                _.muld(operand_1.rax.ref());
+                chai_1.expect(compile(_)).to.eql([0xf7, 0x20]);
+            });
+            it('muld [eax]', function () {
+                var _ = code64();
+                _.muld(operand_1.eax.ref());
+                chai_1.expect(compile(_)).to.eql([0x67, 0xf7, 0x20]);
+            });
+            it('mulw [rax]', function () {
+                var _ = code64();
+                _.mulw(operand_1.rax.ref());
+                chai_1.expect(compile(_)).to.eql([0x66, 0xf7, 0x20]);
+            });
+            it('mulw [eax]', function () {
+                var _ = code64();
+                _.mulw(operand_1.eax.ref());
+                chai_1.expect(compile(_)).to.eql([0x67, 0x66, 0xf7, 0x20]);
+            });
+            it('mulb [rax]', function () {
+                var _ = code64();
+                _.mulb(operand_1.rax.ref());
+                chai_1.expect(compile(_)).to.eql([0xf6, 0x20]);
+            });
+            it('mulb [eax]', function () {
+                var _ = code64();
+                _.mulb(operand_1.eax.ref());
+                chai_1.expect(compile(_)).to.eql([0x67, 0xf6, 0x20]);
+            });
         });
-        it('add rcx, [rcx + rbp * 4]', function () {
-            var _ = code64();
-            _.add(operand_1.rcx, operand_1.rcx.ref().ind(operand_1.rbp, 4));
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x48, 0x03, 0x0C, 0xA9]);
+        describe('div', function () {
+            it('div bl', function () {
+                var _ = code64();
+                _.div(operand_1.bl);
+                chai_1.expect(compile(_)).to.eql([0xf6, 0xF3]);
+            });
+            it('div bx', function () {
+                var _ = code64();
+                _.div(operand_1.bx);
+                chai_1.expect(compile(_)).to.eql([0x66, 0xf7, 0xF3]);
+            });
+            it('div ebx', function () {
+                var _ = code64();
+                _.div(operand_1.ebx);
+                chai_1.expect(compile(_)).to.eql([0xf7, 0xF3]);
+            });
+            it('div rbx', function () {
+                var _ = code64();
+                _.div(operand_1.rbx);
+                chai_1.expect(compile(_)).to.eql([0x48, 0xf7, 0xF3]);
+            });
         });
-        it('add rcx, [rsp + rbp * 4 + 0x11]', function () {
-            var _ = code64();
-            _.add(operand_1.rcx, operand_1.rsp.ref().ind(operand_1.rbp, 4).disp(0x11));
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x48, 0x03, 0x4C, 0xAC, 0x11]);
+        describe('inc', function () {
+            it('incq rbx', function () {
+                var _ = code64();
+                _.incq(operand_1.rbx);
+                chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0xc3]);
+            });
+            it('incq [rax]', function () {
+                var _ = code64();
+                _.incq(operand_1.rax.ref());
+                chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x00]);
+            });
+            it('incq [rbx]', function () {
+                var _ = code64();
+                _.incq(operand_1.rbx.ref());
+                chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x03]);
+            });
+            it('incq [rbx + rcx]', function () {
+                var _ = code64();
+                _.incq(operand_1.rbx.ref().ind(operand_1.rcx));
+                chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x04, 0x0b]);
+            });
+            it('incq [rbx + rcx * 8]', function () {
+                var _ = code64();
+                _.incq(operand_1.rbx.ref().ind(operand_1.rcx, 8));
+                chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x04, 0xcb]);
+            });
+            it('incq [rax + rbx * 8 + 0x11]', function () {
+                var _ = code64();
+                _.incq(operand_1.rax.ref().ind(operand_1.rbx, 8).disp(0x11));
+                chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x44, 0xd8, 0x11]);
+            });
+            it('incq [rax + rbx * 8 + -0x11223344]', function () {
+                var _ = code64();
+                var ins = _.incq(operand_1.rax.ref().ind(operand_1.rbx, 8).disp(-0x11223344));
+                chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x84, 0xd8, 0xbc, 0xcc, 0xdd, 0xee]);
+            });
+            it('incq [rbx + r15 * 8 + -0x123]', function () {
+                var _ = code64();
+                var ins = _.incq(operand_1.rbx.ref().ind(operand_1.r15, 8).disp(-0x123));
+                chai_1.expect(compile(_)).to.eql([0x4a, 0xff, 0x84, 0xfb, 0xdd, 0xfe, 0xff, 0xff]);
+            });
+            it('incq [rbp + rbp * 8]', function () {
+                var _ = code64();
+                var ins = _.incq(operand_1.rbp.ref().ind(operand_1.rbp, 8));
+                chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x44, 0xed, 0x00]);
+            });
+            it('incq [rbp]', function () {
+                var _ = code64();
+                var ins = _.incq(operand_1.rbp.ref());
+                chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x45, 0x00]);
+            });
+            it('incq [rsp]', function () {
+                var _ = code64();
+                var ins = _.incq(operand_1.rsp.ref());
+                chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x04, 0x24]);
+            });
+            it('incq [r12]', function () {
+                var _ = code64();
+                var ins = _.incq(operand_1.r12.ref());
+                chai_1.expect(compile(_)).to.eql([0x49, 0xff, 0x04, 0x24]);
+            });
+            it('incq [r13]', function () {
+                var _ = code64();
+                var ins = _.incq(operand_1.r13.ref());
+                chai_1.expect(compile(_)).to.eql([0x49, 0xff, 0x45, 0x00]);
+            });
+            it('incq r15', function () {
+                var _ = code64();
+                var ins = _.incq(operand_1.r15);
+                chai_1.expect(compile(_)).to.eql([0x49, 0xff, 0xc7]);
+            });
+            it('incq [0x11]', function () {
+                var _ = code64();
+                var ins = _.incq(_.mem(0x11));
+                chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x04, 0x25, 0x11, 0x00, 0x00, 0x00]);
+            });
+            it('incq [0x11223344]', function () {
+                var _ = code64();
+                var ins = _.incq(_.mem(0x11223344));
+                chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x04, 0x25, 0x44, 0x33, 0x22, 0x11]);
+            });
         });
-        it('add rcx, [rsp + rbp * 4 + -0x11223344]', function () {
-            var _ = code64();
-            _.add(operand_1.rcx, operand_1.rsp.ref().ind(operand_1.rbp, 4).disp(-0x11223344));
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x48, 0x03, 0x8C, 0xAC, 0xBC, 0xCC, 0xDD, 0xEE]);
+        describe('dec', function () {
+            it('decq rbx', function () {
+                var _ = code64();
+                _.decq(operand_1.rax);
+                chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0xc8]);
+            });
+            it('dec r10b', function () {
+                var _ = code64();
+                _.dec(operand_1.r10b);
+                chai_1.expect(compile(_)).to.eql([0x41, 0xFE, 0xCA]);
+            });
+            it('dec ax', function () {
+                var _ = code64();
+                _.dec(operand_1.ax);
+                chai_1.expect(compile(_)).to.eql([0x66, 0xFF, 0xC8]);
+            });
+            it('dec eax', function () {
+                var _ = code64();
+                _.dec(operand_1.eax);
+                chai_1.expect(compile(_)).to.eql([0xFF, 0xC8]);
+            });
+            it('dec rax', function () {
+                var _ = code64();
+                _.dec(operand_1.rax);
+                chai_1.expect(compile(_)).to.eql([0x48, 0xFF, 0xC8]);
+            });
         });
-        it('add [rsp + rbp * 4 + -0x11223344], rax', function () {
-            var _ = code64();
-            _.add(operand_1.rsp.ref().ind(operand_1.rbp, 4).disp(-0x11223344), operand_1.rax);
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x48, 0x01, 0x84, 0xAC, 0xBC, 0xCC, 0xDD, 0xEE]);
+        describe('neg', function () {
+            it('neg al', function () {
+                var _ = code64();
+                _.neg(operand_1.al);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0xF6, 0xD8]);
+            });
+            it('neg dil', function () {
+                var _ = code64();
+                _.neg(operand_1.dil);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x40, 0xF6, 0xDF]);
+            });
+            it('neg bx', function () {
+                var _ = code64();
+                _.neg(operand_1.bx);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x66, 0xF7, 0xDB]);
+            });
+            it('neg ecx', function () {
+                var _ = code64();
+                _.neg(operand_1.ecx);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0xF7, 0xD9]);
+            });
+            it('neg rdx', function () {
+                var _ = code64();
+                _.neg(operand_1.rdx);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0xF7, 0xDA]);
+            });
         });
-        it('add rbx, 1', function () {
-            var _ = code64();
-            _.add(operand_1.rbx, 1);
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x48, 0x83, 0xC3, 0x01]);
+        describe('cmp', function () {
+            it('cmp al, 0x11', function () {
+                var _ = code64();
+                _.cmp(operand_1.al, 0x11);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x3C, 0x11]);
+            });
+            it('cmp ax, 0x1122', function () {
+                var _ = code64();
+                _.cmp(operand_1.ax, 0x1122);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x66, 0x3D, 0x22, 0x11]);
+            });
+            it('cmp eax, 0x11223344', function () {
+                var _ = code64();
+                _.cmp(operand_1.eax, 0x11223344);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x3D, 0x44, 0x33, 0x22, 0x11]);
+            });
+            it('cmp rax, 0x11223344', function () {
+                var _ = code64();
+                _.cmp(operand_1.rax, 0x11223344);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x3D, 0x44, 0x33, 0x22, 0x11]);
+            });
+            it('cmp bl, 0x11', function () {
+                var _ = code64();
+                _.cmp(operand_1.bl, 0x11);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x80, 0xFB, 0x11]);
+            });
+            it('cmp bx, 0x1122', function () {
+                var _ = code64();
+                _.cmp(operand_1.bx, 0x1122);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x66, 0x81, 0xFB, 0x22, 0x11]);
+            });
+            it('cmp ebx, 0x11223344', function () {
+                var _ = code64();
+                _.cmp(operand_1.ebx, 0x11223344);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x81, 0xFB, 0x44, 0x33, 0x22, 0x11]);
+            });
+            it('cmp rbx, 0x11223344', function () {
+                var _ = code64();
+                _.cmp(operand_1.rbx, 0x11223344);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x81, 0xFB, 0x44, 0x33, 0x22, 0x11]);
+            });
+            it('cmp cx, 0x11', function () {
+                var _ = code64();
+                _.cmp(operand_1.cx, 0x11);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x66, 0x83, 0xF9, 0x11]);
+            });
+            it('cmp ecx, 0x11', function () {
+                var _ = code64();
+                _.cmp(operand_1.ecx, 0x11);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x83, 0xF9, 0x11]);
+            });
+            it('cmp rcx, 0x11', function () {
+                var _ = code64();
+                _.cmp(operand_1.rcx, 0x11);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x83, 0xF9, 0x11]);
+            });
+            it('cmp al, bl', function () {
+                var _ = code64();
+                _.cmp(operand_1.al, operand_1.bl);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x38, 0xD8]);
+            });
+            it('cmp ax, bx', function () {
+                var _ = code64();
+                _.cmp(operand_1.ax, operand_1.bx);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x66, 0x39, 0xD8]);
+            });
+            it('cmp ebx, eax', function () {
+                var _ = code64();
+                _.cmp(operand_1.ebx, operand_1.eax);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x39, 0xC3]);
+            });
+            it('cmp rbx, rax', function () {
+                var _ = code64();
+                _.cmp(operand_1.rbx, operand_1.rax);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0x48, 0x39, 0xC3]);
+            });
         });
-        it('add rbx, [1]', function () {
-            var _ = code64();
-            _.add(operand_1.rbx, _.mem(1));
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x48, 0x03, 0x1C, 0x25, 0x01, 0, 0, 0]);
-        });
-        it('add [1], rbx', function () {
-            var _ = code64();
-            _.add(_.mem(1), operand_1.rbx);
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x48, 0x01, 0x1C, 0x25, 0x01, 0, 0, 0]);
-        });
-        it('add al, 0x11', function () {
-            var _ = code64();
-            _.add(operand_1.al, 0x11);
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x04, 0x11]);
-        });
-        it('add ax, 0x1122', function () {
-            var _ = code64();
-            _.add(operand_1.ax, 0x1122);
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x66, 0x05, 0x22, 0x11]);
-        });
-        it('add eax, 0x11223344', function () {
-            var _ = code64();
-            _.add(operand_1.eax, 0x11223344);
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x05, 0x44, 0x33, 0x22, 0x11]);
-        });
-        it('add rax, -0x11223344', function () {
-            var _ = code64();
-            _.add(operand_1.rax, -0x11223344);
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x48, 0x05, 0xbc, 0xcc, 0xdd, 0xee]);
-        });
-        it('add bl, 0x22', function () {
-            var _ = code64();
-            _.add(operand_1.bl, 0x22);
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x80, 0xc3, 0x22]);
-        });
-        it('add ah, 0x22', function () {
-            var _ = code64();
-            _.add(ah, 0x22);
-            var bin = compile(_);
-            chai_1.expect(bin).to.eql([0x80, 0xc3, 0x22]);
-        });
-        // 400696:
-        // 400699:
-        // 40069c:	66 81 c3 22 11       	add    $0x1122,%bx
-        // 4006a1:	66 83 c3 11          	add    $0x11,%bx
-        // 4006a5:	81 c3 22 11 00 00    	add    $0x1122,%ebx
     });
     describe('lea', function () {
         it('lea rax, [rax]', function () {
@@ -415,95 +830,6 @@ describe('x64', function () {
             _.lea(operand_1.r9, _.mem(0x43));
             var bin = compile(_);
             chai_1.expect(bin).to.eql([0x4C, 0x8D, 0x0C, 0x25, 0x43, 0, 0, 0]);
-        });
-    });
-    describe('inc', function () {
-        it('incq rbx', function () {
-            var _ = code64();
-            _.incq(operand_1.rbx);
-            chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0xc3]);
-        });
-        it('incq [rax]', function () {
-            var _ = code64();
-            _.incq(operand_1.rax.ref());
-            chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x00]);
-        });
-        it('incq [rbx]', function () {
-            var _ = code64();
-            _.incq(operand_1.rbx.ref());
-            chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x03]);
-        });
-        it('incq [rbx + rcx]', function () {
-            var _ = code64();
-            _.incq(operand_1.rbx.ref().ind(operand_1.rcx));
-            chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x04, 0x0b]);
-        });
-        it('incq [rbx + rcx * 8]', function () {
-            var _ = code64();
-            _.incq(operand_1.rbx.ref().ind(operand_1.rcx, 8));
-            chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x04, 0xcb]);
-        });
-        it('incq [rax + rbx * 8 + 0x11]', function () {
-            var _ = code64();
-            _.incq(operand_1.rax.ref().ind(operand_1.rbx, 8).disp(0x11));
-            chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x44, 0xd8, 0x11]);
-        });
-        it('incq [rax + rbx * 8 + -0x11223344]', function () {
-            var _ = code64();
-            var ins = _.incq(operand_1.rax.ref().ind(operand_1.rbx, 8).disp(-0x11223344));
-            chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x84, 0xd8, 0xbc, 0xcc, 0xdd, 0xee]);
-        });
-        it('incq [rbx + r15 * 8 + -0x123]', function () {
-            var _ = code64();
-            var ins = _.incq(operand_1.rbx.ref().ind(operand_1.r15, 8).disp(-0x123));
-            chai_1.expect(compile(_)).to.eql([0x4a, 0xff, 0x84, 0xfb, 0xdd, 0xfe, 0xff, 0xff]);
-        });
-        it('incq [rbp + rbp * 8]', function () {
-            var _ = code64();
-            var ins = _.incq(operand_1.rbp.ref().ind(operand_1.rbp, 8));
-            chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x44, 0xed, 0x00]);
-        });
-        it('incq [rbp]', function () {
-            var _ = code64();
-            var ins = _.incq(operand_1.rbp.ref());
-            chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x45, 0x00]);
-        });
-        it('incq [rsp]', function () {
-            var _ = code64();
-            var ins = _.incq(operand_1.rsp.ref());
-            chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x04, 0x24]);
-        });
-        it('incq [r12]', function () {
-            var _ = code64();
-            var ins = _.incq(operand_1.r12.ref());
-            chai_1.expect(compile(_)).to.eql([0x49, 0xff, 0x04, 0x24]);
-        });
-        it('incq [r13]', function () {
-            var _ = code64();
-            var ins = _.incq(operand_1.r13.ref());
-            chai_1.expect(compile(_)).to.eql([0x49, 0xff, 0x45, 0x00]);
-        });
-        it('incq r15', function () {
-            var _ = code64();
-            var ins = _.incq(operand_1.r15);
-            chai_1.expect(compile(_)).to.eql([0x49, 0xff, 0xc7]);
-        });
-        it('incq [0x11]', function () {
-            var _ = code64();
-            var ins = _.incq(_.mem(0x11));
-            chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x04, 0x25, 0x11, 0x00, 0x00, 0x00]);
-        });
-        it('incq [0x11223344]', function () {
-            var _ = code64();
-            var ins = _.incq(_.mem(0x11223344));
-            chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0x04, 0x25, 0x44, 0x33, 0x22, 0x11]);
-        });
-    });
-    describe('dec', function () {
-        it('decq rbx', function () {
-            var _ = code64();
-            _.decq(operand_1.rax);
-            chai_1.expect(compile(_)).to.eql([0x48, 0xff, 0xc8]);
         });
     });
 });

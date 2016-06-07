@@ -9,6 +9,26 @@ system:
         sysexit
         int $0x80
 
+mul:
+        mul %al
+        mul %ax
+        mul %eax
+        mul %rax
+        mulq (%rax)
+        mulq (%eax)
+        mull (%rax)
+        mull (%eax)
+        mulw (%rax)
+        mulw (%eax)
+        mulb (%rax)
+        mulb (%eax)
+
+div:
+        div %bl
+        div %bx
+        div %ebx
+        div %rbx
+
 inc:
         incq %rbx
         incq (%rax)
@@ -29,6 +49,34 @@ inc:
         incq 0x11223344
 dec:
         decq %rax
+        dec %r10b
+        dec %ax
+        dec %eax
+        dec %rax
+
+neg:
+        neg %al
+        neg %dil
+        neg %bx
+        neg %ecx
+        neg %rdx
+
+cmp:
+        cmp $0x11, %al
+        cmp $0x1122, %ax
+        cmp $0x11223344, %eax
+        cmp $0x11223344, %rax
+        cmp $0x11, %bl
+        cmp $0x1122, %bx
+        cmp $0x11223344, %ebx
+        cmp $0x11223344, %rbx
+        cmp $0x11, %cx
+        cmp $0x11, %ecx
+        cmp $0x11, %rcx
+        cmp %bl, %al
+        cmp %bx, %ax
+        cmp %eax, %ebx
+        cmp %rax, %rbx
 
 mov:
         movq %rax, %rax
@@ -68,35 +116,35 @@ add:
         add $1, %rbx
         add 1, %rbx
         add %rbx, 1
-
         add $0x11, %al
         add $0x1122, %ax
         add $0x11223344, %eax
         add $-0x11223344, %rax
-        add $0x22, %al
         add $0x22, %bl
-        add $0x22, %cl
-        add $0x22, %dl
-        add $0x22, %sil
-        add $0x22, %dil
-        add $0x22, %bpl
-        add $0x22, %spl
-        add $0x22, %r8b
-        add $0x22, %r9b
-        add $0x22, %r10b
-        add $0x22, %r11b
-        add $0x22, %r12b
-        add $0x22, %r13b
-        add $0x22, %r14b
-        add $0x22, %r15b
         add $0x22, %ah
-        add $0x22, %bh
-        add $0x22, %ch
-        add $0x22, %dh
         add $0x22, %ah
         add $0x1122, %bx
         add $0x11, %bx
         add $0x1122, %ebx
+        add $0x22, %ch
+        add $0x22, %dil
+        add $0x22, %bpl
+        add $0x22, %spl
+        add $0x22, %r8b
+        add $0x12, %esp
+        add %cl, %dl
+        add %ax, %bx
+        add %eax, %ecx
+
+adc:
+        adc %rax, 0x11(%rbx, %rcx, 4)
+
+adcx:
+        adcx %rbx, %rcx
+        adcx %rax, %rax
+
+adox:
+        adox %r9, %r12
 
 ret:
         ret

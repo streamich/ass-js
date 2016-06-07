@@ -116,9 +116,10 @@ export class Instruction extends Expression implements InstructionUserInterface 
     pfxOpSize: p.PrefixOperandSizeOverride = null;
     pfxAddrSize: p.PrefixAddressSizeOverride = null;
     pfxLock: p.PrefixLock = null;
-    pfxRep: p.PrefixStatic = null;
-    pfxRepne: p.PrefixStatic = null;
+    pfxRep: p.PrefixRep|p.PrefixRepe = null;
+    pfxRepne: p.PrefixRepne = null;
     pfxSegment: p.PrefixStatic = null;
+    prefixes: p.PrefixStatic[] = [];
     opcode: p.Opcode = new p.Opcode; // required
     modrm: p.Modrm = null;
     sib: p.Sib = null;
@@ -144,6 +145,7 @@ export class Instruction extends Expression implements InstructionUserInterface 
         if(this.pfxAddrSize) this.pfxAddrSize.write(arr);
         if(this.pfxSegment)  this.pfxSegment.write(arr);
         if(this.pfxOpSize)   this.pfxOpSize.write(arr);
+        for(var pfx of this.prefixes) pfx.write(arr);
     }
 
     write(arr: number[]): number[] {
@@ -166,6 +168,7 @@ export class Instruction extends Expression implements InstructionUserInterface 
         if(this.pfxSegment) size++;
         if(this.pfxAddrSize) size++;
         if(this.pfxOpSize) size++;
+        size += this.prefixes.length;
         if(this.modrm) size++;
         if(this.sib) size++;
         if(this.displacement) size += this.displacement.value.octets.length;
@@ -181,21 +184,6 @@ export class Instruction extends Expression implements InstructionUserInterface 
         return this;
     }
 
-    rep(): this {
-        if(!this.def.rep)
-            throw Error(`Instruction "${this.def.mnemonic}" does not support REP prefix.`);
-        this.pfxRep = new p.PrefixStatic(p.PREFIX.REP);
-        return this;
-    }
-
-    repe() {
-        return this.rep();
-    }
-
-    repz() {
-        return this.rep();
-    }
-
     bt() { // Branch taken prefix.
         return this.ds();
     }
@@ -204,10 +192,28 @@ export class Instruction extends Expression implements InstructionUserInterface 
         return this.cs();
     }
 
+    rep(): this {
+        if(p.PrefixRep.supported.indexOf(this.def.mnemonic) === -1)
+            throw Error(`Instruction "${this.def.mnemonic}" does not support REP prefix.`);
+        this.pfxRep = new p.PrefixRep;
+        return this;
+    }
+
+    repe() {
+        if(p.PrefixRepe.supported.indexOf(this.def.mnemonic) === -1)
+            throw Error(`Instruction "${this.def.mnemonic}" does not support REPE/REPZ prefix.`);
+        this.pfxRep = new p.PrefixRepe;
+        return this;
+    }
+
+    repz() {
+        return this.repe();
+    }
+
     repne(): this {
-        if(!this.def.repne)
-            throw Error(`Instruction "${this.def.mnemonic}" does not support REPNE prefix.`);
-        this.pfxRepne = new p.PrefixStatic(p.PREFIX.REPNE);
+        if(p.PrefixRepne.supported.indexOf(this.def.mnemonic) === -1)
+            throw Error(`Instruction "${this.def.mnemonic}" does not support REPNE/REPNZ prefix.`);
+        this.pfxRepne = new p.PrefixRepne;
         return this;
     }
 
@@ -283,10 +289,8 @@ export class Instruction extends Expression implements InstructionUserInterface 
 
     protected needsOperandSizeOverride() {
         if(!this.op.list.length) return false;
-
-        var def = this.code.operandSize, actual = this.op.size;
-        if((def === o.SIZE.D) && (actual === o.SIZE.W)) return true;
-        if((def === o.SIZE.W) && (actual === o.SIZE.D)) return true;
+        if((this.code.operandSize === o.SIZE.D) && (this.def.operandSize === o.SIZE.W)) return true;
+        if((this.code.operandSize === o.SIZE.W) && (this.def.operandSize === o.SIZE.D)) return true;
         return false;
     }
 
@@ -304,6 +308,13 @@ export class Instruction extends Expression implements InstructionUserInterface 
             this.pfxOpSize = new p.PrefixOperandSizeOverride;
         if(this.needsAddressSizeOverride())
             this.pfxAddrSize = new p.PrefixAddressSizeOverride;
+
+        // Mandatory prefixes required by op-code.
+        if(this.def.prefixes) {
+            for(var val of this.def.prefixes) {
+                this.prefixes.push(new p.PrefixStatic(val));
+            }
+        }
     }
 
     protected createOpcode() {
@@ -354,6 +365,8 @@ export class Instruction extends Expression implements InstructionUserInterface 
         if(has_opreg || dst_in_modrm) {
             var mod = 0, reg = 0, rm = 0;
 
+            var reg_is_dst = !!(this.opcode.op & p.Opcode.DIRECTION.REG_IS_DST);
+
             if(has_opreg) {
                 // If we have `opreg`, then instruction has up to one operand.
                 reg = this.def.opreg;
@@ -365,7 +378,8 @@ export class Instruction extends Expression implements InstructionUserInterface 
                     return;
                 }
             } else {
-                var r: o.Register = this.op.getRegisterOperand(this.regToRegDirectionRegIsDst);
+                // var r: o.Register = this.op.getRegisterOperand(this.regToRegDirectionRegIsDst);
+                var r: o.Register = this.op.getRegisterOperand(reg_is_dst);
                 if (r) {
                     mod = p.Modrm.MOD.REG_TO_REG;
                     reg = r.get3bitId();
@@ -380,7 +394,8 @@ export class Instruction extends Expression implements InstructionUserInterface 
             // Reg-to-reg instruction;
             if((dst instanceof o.Register) && (src instanceof o.Register)) {
                 mod = p.Modrm.MOD.REG_TO_REG;
-                var rmreg: o.Register = (this.regToRegDirectionRegIsDst ? src : dst) as o.Register;
+                // var rmreg: o.Register = (this.regToRegDirectionRegIsDst ? src : dst) as o.Register;
+                var rmreg: o.Register = (reg_is_dst ? src : dst) as o.Register;
                 rm = rmreg.get3bitId();
                 this.modrm = new p.Modrm(mod, reg, rm);
                 return;

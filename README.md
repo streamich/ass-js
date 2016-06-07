@@ -38,3 +38,18 @@ _.db msg
 
 StaticBuffer.from(_.compile(), 'rwe').call()
 ```
+
+### Name
+
+ - gasm
+ - rgasm
+ - jasm
+ - jass
+ - jsasm
+ - jsass
+ - blasm
+ - jjass -- JavaScript JIT Assembler
+ - jloass -- JavaScript Lo Assembler
+ - bass
+ - dass 
+ 

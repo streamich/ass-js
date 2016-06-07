@@ -73,9 +73,12 @@ var R16 = exports.R16;
     R8[R8["R13B"] = 13] = "R13B";
     R8[R8["R14B"] = 14] = "R14B";
     R8[R8["R15B"] = 15] = "R15B";
-    R8[R8["AH"] = 4] = "AH";
-    R8[R8["BH"] = 5] = "BH";
-    R8[R8["CH"] = 6] = "CH";
-    R8[R8["DH"] = 7] = "DH";
 })(exports.R8 || (exports.R8 = {}));
 var R8 = exports.R8;
+(function (R8H) {
+    R8H[R8H["AH"] = 4] = "AH";
+    R8H[R8H["CH"] = 5] = "CH";
+    R8H[R8H["DH"] = 6] = "DH";
+    R8H[R8H["BH"] = 7] = "BH";
+})(exports.R8H || (exports.R8H = {}));
+var R8H = exports.R8H;

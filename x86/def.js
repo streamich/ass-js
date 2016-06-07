@@ -24,6 +24,7 @@ var Def = (function () {
         this.useModrm = def.mr;
         this.rep = def.rep;
         this.repne = def.repne;
+        this.prefixes = def.pfx;
         // Operand template.
         this.operands = [];
         if (def.ops && def.ops.length) {

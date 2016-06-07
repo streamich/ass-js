@@ -57,14 +57,14 @@ export enum R16 {
 }
 
 export enum R8 {
-    AL      = 0,
-    CL      = 1,
-    DL      = 2,
-    BL      = 3,
-    SPL     = 4,
-    BPL     = 5,
-    SIL     = 6,
-    DIL     = 7,
+    AL = 0,
+    CL,
+    DL,
+    BL,
+    SPL,
+    BPL,
+    SIL,
+    DIL,
     R8B,
     R9B,
     R10B,
@@ -73,9 +73,11 @@ export enum R8 {
     R13B,
     R14B,
     R15B,
+}
 
+export enum R8H {
     AH      = 4,
-    BH      = 5,
-    CH      = 6,
-    DH      = 7,
+    CH      = 5,
+    DH      = 6,
+    BH      = 7,
 }

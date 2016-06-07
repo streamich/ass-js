@@ -91,7 +91,36 @@ export class Code extends code.Code {
 }
 
 export interface Code {
+    adcx(dst: Operand, src: Operand): Instruction;
+    adox(dst: Operand, src: Operand): Instruction;
     add(dst: Operand, src: Operand): Instruction;
+    adc(dst: Operand, src: Operand): Instruction;
+    adcb(dst: Operand, src: Operand): Instruction;
+    adcw(dst: Operand, src: Operand): Instruction;
+    adcd(dst: Operand, src: Operand): Instruction;
+    adcq(dst: Operand, src: Operand): Instruction;
+    sub(dst: Operand, src: Operand): Instruction;
+    subb(dst: Operand, src: Operand): Instruction;
+    subw(dst: Operand, src: Operand): Instruction;
+    subd(dst: Operand, src: Operand): Instruction;
+    subq(dst: Operand, src: Operand): Instruction;
+    sbb(dst: Operand, src: Operand): Instruction;
+    sbbb(dst: Operand, src: Operand): Instruction;
+    sbbw(dst: Operand, src: Operand): Instruction;
+    sbbd(dst: Operand, src: Operand): Instruction;
+    sbbq(dst: Operand, src: Operand): Instruction;
+    mul(src: Operand): Instruction;
+    mulb(src: Operand): Instruction;
+    mulw(src: Operand): Instruction;
+    muld(src: Operand): Instruction;
+    mulq(src: Operand): Instruction;
+    div(src: Operand): Instruction;
+    divb(src: Operand): Instruction;
+    divw(src: Operand): Instruction;
+    divd(src: Operand): Instruction;
+    divq(src: Operand): Instruction;
+    neg(dst: Operand): Instruction;
+    cmp(dst: Operand, src: Operand): Instruction;
     addq(dst: Operand, src: Operand): Instruction;
     mov(dst: Operand, src: Operand): Instruction;
     movq(dst: Operand, src: Operand): Instruction;

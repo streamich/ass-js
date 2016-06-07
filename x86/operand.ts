@@ -1,4 +1,4 @@
-import {R64, R32, R16, R8} from './regfile';
+import {R64, R32, R16, R8, R8H} from './regfile';
 import {UInt64} from '../util';
 import * as t from './table';
 import * as d from './def';
@@ -319,11 +319,13 @@ export class Register extends Operand {
 
     getName() {
         switch(this.size) {
-            case SIZE.Q: return R64[this.id];
-            case SIZE.D: return R32[this.id];
-            case SIZE.W: return R16[this.id];
-            case SIZE.B: return R8[this.id];
-            default:     return 'REG';
+            case SIZE.Q:                            return R64[this.id];
+            case SIZE.D:                            return R32[this.id];
+            case SIZE.W:                            return R16[this.id];
+            case SIZE.B:
+                if(this instanceof Register8High)   return R8H[this.id];
+                else                                return R8[this.id];
+            default:                                return 'REG';
         }
     }
 
@@ -442,10 +444,10 @@ export var r13b = new Register8(R8.R13B);
 export var r14b = new Register8(R8.R14B);
 export var r15b = new Register8(R8.R15B);
 
-export var ah   = new Register8High(R8.AH);
-export var bh   = new Register8High(R8.BH);
-export var ch   = new Register8High(R8.DH);
-export var dh   = new Register8High(R8.DH);
+export var ah   = new Register8High(R8H.AH);
+export var bh   = new Register8High(R8H.BH);
+export var ch   = new Register8High(R8H.CH);
+export var dh   = new Register8High(R8H.DH);
 
 
 // # Scale
