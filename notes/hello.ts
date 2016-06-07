@@ -2,7 +2,7 @@ import {rax, rdx, rsi, rdi, rbx, rcx, rip} from '../x86/operand';
 import {Code} from '../x64/code';
 var StaticBuffer = require('../../static-buffer/buffer').StaticBuffer;
 
-var _ = new Code;
+var _ = Code.create();
 
 var msg = 'Hello World!\n';
 _.movq(rax, 1);

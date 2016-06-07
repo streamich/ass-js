@@ -29,6 +29,10 @@ export var imm32    = o.Immediate32;
 export var immu32   = o.ImmediateUnsigned32;
 export var imm64    = o.Immediate64;
 export var immu64   = o.ImmediateUnsigned64;
+export var rel      = o.Relative;
+export var rel8     = o.Relative8;
+export var rel16    = o.Relative16;
+export var rel32    = o.Relative32;
 
 
 export type TOperandTemplate = o.Register |

@@ -2,6 +2,7 @@ import {R64, R32, R16, R8, R8H} from './regfile';
 import {UInt64} from '../util';
 import * as t from './table';
 import * as d from './def';
+import * as i from './instruction';
 
 
 export enum SIZE {
@@ -257,6 +258,72 @@ export class ImmediateUnsigned64 extends Immediate64 {
         super(value, false);
     }
 }
+
+
+// Relative jump targets for jump instructions.
+export class Relative {
+    expr: i.Expression;
+    offset: number;
+
+    constructor(expr: i.Expression, offset: number) {
+        this.expr = expr;
+        this.offset = offset;
+    }
+
+    isRegister() {
+        return false;
+    }
+
+    reg() {
+        return null;
+    }
+
+    rebaseOffset(expr: i.Expression) {
+        // if(expr.code !== this.expr.code)
+        //     throw Error('Expressions of different code blocks, cannot rebase.');
+        if(expr.offset === -1)
+            return -1;
+        // throw Error('Expression has no offset, cannot rebase.');
+        return this.offset + this.expr.offset - expr.offset;
+    }
+
+    // Recalculate relative offset given a different Expression.
+    rebase(expr: i.Expression): Relative {
+        return new Relative(expr, this.rebaseOffset(expr));
+        // this.offset = this.rebaseOffset(expr);
+        // this.expr = expr;
+    }
+
+    toString() {
+        if(this.expr instanceof i.Label) {
+            var lbl = this.expr as i.Label;
+            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
+            return `<${lbl.name}${off}>`;
+        } else if(this.expr.code) {
+            var lbl = this.expr.code.getStartLabel();
+            var expr = `+[${this.expr.index}]`;
+            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
+            return `<${lbl.name}${expr}${off}>`;
+        } else {
+            var expr = `+[${this.expr.index}]`;
+            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
+            return `<${expr}${off}>`;
+        }
+    }
+}
+
+export class Relative8 extends Relative {
+    size = SIZE.B;
+}
+
+export class Relative16 extends Relative {
+    size = SIZE.W;
+}
+
+export class Relative32 extends Relative {
+    size = SIZE.D;
+}
+
 
 export class DisplacementValue extends Constant {
     static SIZE = {
@@ -589,8 +656,9 @@ export class Memory64 extends Memory {
 }
 
 
-export type TInstructionOperand = Register|Memory|Immediate;
-export type TUserInterfaceOperand = Register|Memory|Tnumber;
+export type TUserInterfaceOperand           = Register|Memory|Tnumber|Relative|i.Expression;
+export type TUserInterfaceOperandNormalized = Register|Memory|Tnumber|Relative; // `i.Expression` gets converted to `Relative`.
+export type TInstructionOperand             = Register|Memory|Immediate|Relative; // `Tnumber` gets converted to `Immediate` or `Relative` to current instruction. `Relative` is converted to `Immediate`.
 
 // Collection of operands an instruction might have.
 export class Operands {
@@ -602,36 +670,37 @@ export class Operands {
         return SIZE.NONE;
     }
 
-    // static uiOpsToInsnOps(ops: TUserInterfaceOperand[]): TInstructionOperand[] {
-    //     var iops: TInstructionOperand[] = [];
-    //     for(var op of ops) {
-    //         if((op instanceof Memory) || (op instanceof Register) || (op instanceof Immediate)) {
-    //             iops.push(op as TInstructionOperand);
-    //         } else if(isTnumber(op)) {
-    //             iops.push(new Immediate(op));
-    //         } else
-    //             throw TypeError('Invalid operand expected Register, Memory, number or number64.');
-    //     }
-    //     return iops;
-    // }
-    //
-    // static fromUiOps(ops: TUserInterfaceOperand[]): Operands {
-    //     var iops = Operands.uiOpsToInsnOps(ops);
-    //     return new Operands(iops);
-    // }
+    static uiOpsNormalize(ops: TUserInterfaceOperand[]): TUserInterfaceOperandNormalized[] {
+        var i = require('./instruction');
+        // Wrap `i.Expression` into `o.Relative`.
+        for(var j = 0; j < ops.length; j++) {
+            if(ops[j] instanceof i.Expression) {
+                ops[j] = (ops[j] as i.Expression).rel();
+            }
+        }
+        return ops as TUserInterfaceOperandNormalized[];
+    }
 
-    static fromUiOpsAndTpl(ops: TUserInterfaceOperand[], tpls: t.TOperandTemplate[]): Operands {
+    static fromUiOpsAndTpl(insn: i.Instruction, ops: TUserInterfaceOperand[], tpls: t.TOperandTemplate[]): Operands {
         var iops: TInstructionOperand[] = [];
-        for(var i = 0; i < ops.length; i++) {
-            var op = ops[i];
-            if((op instanceof Memory) || (op instanceof Register) || (op instanceof Immediate)) {
+        for(var j = 0; j < ops.length; j++) {
+            var op = ops[j];
+            if((op instanceof Memory) || (op instanceof Register) || (op instanceof Immediate) || (op instanceof Relative)) {
                 iops.push(op as any);
             } else if(isTnumber(op)) {
-                var ImmediateClass = tpls[i] as typeof Immediate;
-                var imm = new ImmediateClass(op);
-                iops.push(imm);
+                var Clazz = tpls[j] as any;
+                // if(typeof Clazz !== 'function') throw Error('Expected construction operand definition');
+                if(Clazz.name.indexOf('Immediate') === 0) {
+                    var ImmediateClass = Clazz as typeof Immediate;
+                    var imm = new ImmediateClass(op as Tnumber);
+                    iops.push(imm);
+                } else if(Clazz.name.indexOf('Relative') === 0) {
+                    var RelativeClass = Clazz as typeof Relative;
+                    var rel = new RelativeClass(insn, op as number);
+                    iops.push(rel);
+                }
             } else
-                throw TypeError('Invalid operand expected Register, Memory, number or number64.');
+                throw TypeError('Invalid operand expected Register, Memory, Relative, number or number64.');
         }
         return new Operands(iops);
     }
@@ -665,25 +734,7 @@ export class Operands {
     }
 
     setSize(size: SIZE) {
-        if(this.size === SIZE.ANY) {
-            this.size = size;
-            if((this.dst instanceof Memory) && (this.dst.size === SIZE.ANY)) {
-                this.dst = (this.dst as Memory).cast(size);
-                this.list[0] = this.dst;
-            }
-            if((this.src instanceof Memory) && (this.src.size === SIZE.ANY)) {
-                this.src = (this.src as Memory).cast(size);
-                this.list[1] = this.src;
-            }
-            if((this.op3 instanceof Memory) && (this.op3.size === SIZE.ANY)) {
-                this.op3 = (this.op3 as Memory).cast(size);
-                this.list[2] = this.op3;
-            }
-            if((this.op4 instanceof Memory) && (this.op4.size === SIZE.ANY)) {
-                this.op4 = (this.op4 as Memory).cast(size);
-                this.list[3] = this.op4;
-            }
-        }
+        if(this.size === SIZE.ANY) this.size = size;
         else throw TypeError('Operand size mismatch.');
     }
 
@@ -714,6 +765,10 @@ export class Operands {
 
     getImmediate(): Immediate {
         return this.getFirstOfClass(Immediate) as Immediate;
+    }
+
+    getRelative(): Relative {
+        return this.getFirstOfClass(Relative) as Relative;
     }
 
     getAddressSize(): SIZE {

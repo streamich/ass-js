@@ -6,7 +6,7 @@ import * as t from './table';
 
 
 export const table = new d.DefTable(t.table, t.defaults);
-export type Operand = code.Operand;
+export type TOperand = o.TUserInterfaceOperand;
 
 
 export class Code extends code.Code {
@@ -22,118 +22,56 @@ export class Code extends code.Code {
 
     operandSize = o.SIZE.D;
     addressSize = o.SIZE.Q;
-
-    // table: d.DefTable = table;
-
-    // addq(dst: Operand, src: Operand) {
-    //     return this.insTable('add', [dst, src], o.SIZE.Q);
-    // }
-    //
-    // inc(dst: Operand): Instruction {
-    //     return this.insTable('inc', [dst]);
-    // }
-    //
-    // incq(dst: Operand): Instruction {
-    //     return this.insTable('inc', [dst], o.SIZE.Q);
-    // }
-    //
-    // decq(dst: Operand): Instruction {
-    //     return this.insTable('dec', [dst], o.SIZE.Q);
-    // }
-    //
-    // movq(dst: Operand, src: Operand): Instruction {
-    //     return this.insTable('mov', [dst, src], o.SIZE.Q);
-    // }
-    //
-    // push(dst: Operand) {
-    //     return this.insTable('push', [dst]);
-    // }
-    //
-    // pushq(dst: Operand) {
-    //     return this.insTable('push', [dst], o.SIZE.Q);
-    // }
-    //
-    // pushw(dst: Operand) {
-    //     return this.insTable('push', [dst], o.SIZE.W);
-    // }
-    //
-    // lea(dst: o.Register, src: o.Memory): Instruction {
-    //     return this.insTable('lea', [dst, src]);
-    // }
-    //
-    // int(num: number): Instruction {
-    //     if(typeof num !== 'number')
-    //         throw TypeError('INT argument must be of type number.');
-    //
-    //     return this.insTable('int', [new o.Immediate8(num, false)]);
-    // }
-    //
-    // syscall(): Instruction {
-    //     return this.insTable('syscall');
-    // }
-    //
-    // sysenter(): Instruction {
-    //     return this.insTable('sysenter');
-    // }
-    //
-    // sysexit(): Instruction {
-    //     return this.insTable('sysexit');
-    // }
-    //
-    // ret(bytes?: number): Instruction {
-    //     return this.insTable('ret', bytes ? [new o.Immediate16(bytes)] : [])
-    // }
-    //
-    // retq(bytes?: number) {
-    //     this.ret(bytes);
-    // }
-
 }
 
 export interface Code {
-    adcx(dst: Operand, src: Operand): Instruction;
-    adox(dst: Operand, src: Operand): Instruction;
-    add(dst: Operand, src: Operand): Instruction;
-    adc(dst: Operand, src: Operand): Instruction;
-    adcb(dst: Operand, src: Operand): Instruction;
-    adcw(dst: Operand, src: Operand): Instruction;
-    adcd(dst: Operand, src: Operand): Instruction;
-    adcq(dst: Operand, src: Operand): Instruction;
-    sub(dst: Operand, src: Operand): Instruction;
-    subb(dst: Operand, src: Operand): Instruction;
-    subw(dst: Operand, src: Operand): Instruction;
-    subd(dst: Operand, src: Operand): Instruction;
-    subq(dst: Operand, src: Operand): Instruction;
-    sbb(dst: Operand, src: Operand): Instruction;
-    sbbb(dst: Operand, src: Operand): Instruction;
-    sbbw(dst: Operand, src: Operand): Instruction;
-    sbbd(dst: Operand, src: Operand): Instruction;
-    sbbq(dst: Operand, src: Operand): Instruction;
-    mul(src: Operand): Instruction;
-    mulb(src: Operand): Instruction;
-    mulw(src: Operand): Instruction;
-    muld(src: Operand): Instruction;
-    mulq(src: Operand): Instruction;
-    div(src: Operand): Instruction;
-    divb(src: Operand): Instruction;
-    divw(src: Operand): Instruction;
-    divd(src: Operand): Instruction;
-    divq(src: Operand): Instruction;
-    neg(dst: Operand): Instruction;
-    cmp(dst: Operand, src: Operand): Instruction;
-    addq(dst: Operand, src: Operand): Instruction;
-    mov(dst: Operand, src: Operand): Instruction;
-    movq(dst: Operand, src: Operand): Instruction;
-    movd(dst: Operand, src: Operand): Instruction;
+    jmp(dst: TOperand): Instruction;
+
+    adcx(dst: TOperand, src: TOperand): Instruction;
+    adox(dst: TOperand, src: TOperand): Instruction;
+    add(dst: TOperand, src: TOperand): Instruction;
+    adc(dst: TOperand, src: TOperand): Instruction;
+    adcb(dst: TOperand, src: TOperand): Instruction;
+    adcw(dst: TOperand, src: TOperand): Instruction;
+    adcd(dst: TOperand, src: TOperand): Instruction;
+    adcq(dst: TOperand, src: TOperand): Instruction;
+    sub(dst: TOperand, src: TOperand): Instruction;
+    subb(dst: TOperand, src: TOperand): Instruction;
+    subw(dst: TOperand, src: TOperand): Instruction;
+    subd(dst: TOperand, src: TOperand): Instruction;
+    subq(dst: TOperand, src: TOperand): Instruction;
+    sbb(dst: TOperand, src: TOperand): Instruction;
+    sbbb(dst: TOperand, src: TOperand): Instruction;
+    sbbw(dst: TOperand, src: TOperand): Instruction;
+    sbbd(dst: TOperand, src: TOperand): Instruction;
+    sbbq(dst: TOperand, src: TOperand): Instruction;
+    mul(src: TOperand): Instruction;
+    mulb(src: TOperand): Instruction;
+    mulw(src: TOperand): Instruction;
+    muld(src: TOperand): Instruction;
+    mulq(src: TOperand): Instruction;
+    div(src: TOperand): Instruction;
+    divb(src: TOperand): Instruction;
+    divw(src: TOperand): Instruction;
+    divd(src: TOperand): Instruction;
+    divq(src: TOperand): Instruction;
+    neg(dst: TOperand): Instruction;
+    cmp(dst: TOperand, src: TOperand): Instruction;
+    addq(dst: TOperand, src: TOperand): Instruction;
+    mov(dst: TOperand, src: TOperand): Instruction;
+    movq(dst: TOperand, src: TOperand): Instruction;
+    movd(dst: TOperand, src: TOperand): Instruction;
     push(): Instruction;
     pushq(): Instruction;
     pushd(): Instruction;
     pushw(): Instruction;
-    inc(dst: Operand): Instruction;
-    incq(dst: Operand): Instruction;
-    dec(dst: Operand): Instruction;
-    decq(dst: Operand): Instruction;
-    lea(dst: Operand, src: Operand): Instruction;
+    inc(dst: TOperand): Instruction;
+    incq(dst: TOperand): Instruction;
+    dec(dst: TOperand): Instruction;
+    decq(dst: TOperand): Instruction;
+    lea(dst: TOperand, src: TOperand): Instruction;
+
+    ret(): Instruction;
 
     syscall(): Instruction;
     sysenter(): Instruction;

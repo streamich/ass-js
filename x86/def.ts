@@ -1,7 +1,7 @@
 import * as t from './table';
 import * as o from './operand';
 import {extend} from '../util';
-import {Code, Operand} from './code';
+import {Code} from './code';
 import {isTnumber} from "./operand";
 
 
@@ -90,7 +90,7 @@ export class Def {
     //     return o.SIZE.NONE;
     // }
 
-    protected matchOperandTemplates(templates: t.TOperandTemplate[], operand: o.TUserInterfaceOperand): t.TOperandTemplate {
+    protected matchOperandTemplates(templates: t.TOperandTemplate[], operand: o.TUserInterfaceOperandNormalized): t.TOperandTemplate {
         for(let tpl of templates) {
             if(typeof tpl === 'object') { // Object: rax, rbx, r8, etc...
                 if((tpl as any) === operand) return tpl;
@@ -105,6 +105,13 @@ export class Def {
                     } catch(e) {
                         continue;
                     }
+                } else if(OperandClass.name.indexOf('Relative') === 0) { // as typeof o.Relative
+                    // Here we cannot yet check any sizes even cannot check if number
+                    // fits the immediate size because we will have to rebase the o.Relative
+                    // to the currenct instruction Expression.
+                    if(o.isTnumber(operand)) return OperandClass;
+                    else if(operand instanceof o.Relative) return OperandClass;
+                    else return null;
                 } else { // o.Register, o.Memory
                     if(operand instanceof OperandClass) return OperandClass;
                 }
@@ -114,7 +121,7 @@ export class Def {
         return null;
     }
 
-    matchOperands(operands: o.TUserInterfaceOperand[]): t.TOperandTemplate[] {
+    matchOperands(operands: o.TUserInterfaceOperandNormalized[]): t.TOperandTemplate[] {
         if(this.operands.length !== operands.length) return null;
         if(!operands.length) return [];
         var matches: t.TOperandTemplate[] = [];
@@ -168,6 +175,10 @@ export class Def {
             if(operand === o.Memory16)              return 'm16';
             if(operand === o.Memory32)              return 'm32';
             if(operand === o.Memory64)              return 'm64';
+            if(operand === o.Relative)              return 'rel';
+            if(operand === o.Relative8)             return 'rel8';
+            if(operand === o.Relative16)            return 'rel16';
+            if(operand === o.Relative32)            return 'rel32';
         } else return 'operand';
     }
 
@@ -178,6 +189,9 @@ export class Def {
     }
 
     toString() {
+        // var opcode = ' 0x' + this.opcode.toString(16).toUpperCase();
+        var opcode = ' ' + (new o.Constant(this.opcode, false)).toString();
+
         var operands = [];
         for(var ops of this.operands) {
             var opsarr = [];
@@ -187,7 +201,7 @@ export class Def {
             operands.push(opsarr.join('/'));
         }
         var operandsstr = '';
-        if(operands.length) operandsstr = ' ' + operands.join(', ');
+        if(operands.length) operandsstr = ' ' + operands.join(',');
 
         var opregstr = '';
         if(this.opreg > -1) opregstr = ' /' + this.opreg;
@@ -195,7 +209,10 @@ export class Def {
         var lock = this.lock ? ' LOCK' : '';
         var rex = this.mandatoryRex ? ' REX' : '';
 
-        return this.getMnemonic() + operandsstr + opregstr + lock + rex;
+        var dbit = '';
+        if(this.opcodeDirectionBit) dbit = ' d-bit';
+
+        return this.getMnemonic() + opcode + operandsstr + opregstr + lock + rex + dbit;
     }
 }
 
@@ -260,6 +277,28 @@ export class DefGroup {
     }
 }
 
+export class DefMatch {
+    def: Def = null;
+    opTpl: t.TOperandTemplate[] = [];
+}
+
+export class DefMatchList {
+    list: DefMatch[] = [];
+
+    match(def: Def, ui_ops: o.TUserInterfaceOperandNormalized[]) {
+        var tpl = def.matchOperands(ui_ops);
+        if(tpl) {
+            var match = new DefMatch;
+            match.def = def;
+            match.opTpl = tpl;
+            this.list.push(match);
+        }
+    }
+
+    matchAll(defs: Def[], ui_ops: o.TUserInterfaceOperandNormalized[]) {
+        for(var def of defs) this.match(def, ui_ops);
+    }
+}
 
 export class DefTable {
 

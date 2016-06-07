@@ -6,9 +6,6 @@ import {number64} from './operand';
 import {UInt64} from '../util';
 
 
-export type Operand = o.TUserInterfaceOperand;
-
-
 export abstract class Code {
 
     operandSize = o.SIZE.D;    // Default operand size.
@@ -16,32 +13,60 @@ export abstract class Code {
 
     mode: o.MODE = o.MODE.X64;
 
-    protected expr: i.Expression[] = [];
+    expr: i.Expression[] = [];
 
-    protected ClassInstruction = i.Instruction;
+    ClassInstruction = i.Instruction;
 
-    protected ins(definition: d.Def, operands: o.Operands): i.Instruction {
-        var instruction = new this.ClassInstruction(definition, operands, this);
-        instruction.create();
-        instruction.index = this.expr.length;
-        this.expr.push(instruction);
-        return instruction;
+    constructor(start: string = 'start') {
+        this.label(start);
     }
 
-    protected createInstructionFromGroupSize(bySize: {[s: number]: d.Def[]}, size: o.SIZE, ui_ops: o.TUserInterfaceOperand[]) {
-        let matches: t.TOperandTemplate[];
-        let definition: d.Def;
-        for(let xdef of bySize[size]) {
-            definition = xdef as d.Def;
-            matches = definition.matchOperands(ui_ops);
-            if(matches) break;
+    compile() {
+        var code: number[] = [];
+        for(var ins of this.expr) {
+            if(ins instanceof i.InstructionCandidates) {
+                (ins as i.InstructionCandidates).pickInstrucntion();
+            }
+            code = ins.compile().write(code);
         }
+        return code;
+    }
 
-        if(!matches)
+    getStartLabel(): i.Label {
+        return this.expr[0] as i.Label;
+    }
+
+    insert(expr: i.Expression): i.Expression {
+        expr.index = this.expr.length;
+        expr.bind(this);
+        this.expr.push(expr);
+        expr.build();
+        return expr;
+    }
+
+    // protected insertInstruction(definition: d.Def, operands: o.Operands): i.Instruction {
+    //     return this.insert(new this.ClassInstruction(definition, operands)) as i.Instruction;
+    // }
+
+    protected createInstructionFromGroupSize(bySize: {[s: number]: d.Def[]}, size: o.SIZE, ui_ops: o.TUserInterfaceOperand[]): i.InstructionUi {
+        var ui_ops_norm = o.Operands.uiOpsNormalize(ui_ops);
+
+        var matches: d.DefMatchList = new d.DefMatchList;
+        matches.matchAll(bySize[size], ui_ops_norm);
+
+        if(!matches.list.length)
             throw Error('Given operands could not find instruction definition.');
 
-        var ops = o.Operands.fromUiOpsAndTpl(ui_ops, matches);
-        return this.ins(definition, ops);
+        var insncan = new i.InstructionCandidates;
+        insncan.matches = matches;
+        insncan.operands = ui_ops_norm;
+        this.insert(insncan);
+        var insn = insncan.pickShortestInstruction();
+        if(insn) {
+            this.expr[insn.index] = insn;
+            return insn;
+        } else
+            return insncan;
     }
 
     protected attachGroupMethods(group: d.DefGroup) {
@@ -59,7 +84,7 @@ export abstract class Code {
         }
 
         // Create general method where we determine operand size from profided operands.
-        this[mnemonic] = (...ui_ops: Operand[]) => {
+        this[mnemonic] = (...ui_ops: o.TUserInterfaceOperand[]) => {
             if(ui_ops.length) {
                 var size = o.Operands.findSize(ui_ops);
                 if(size < o.SIZE.B) {
@@ -83,15 +108,6 @@ export abstract class Code {
             this.attachGroupMethods(group);
         }
     }
-
-    // instructionFromTable(group: string, ops: o.TUserInterfaceOperand[] = [], size: o.SIZE = o.SIZE.ANY): i.Instruction {
-    //     var operands = o.Operands.fromUiOps(ops, size, );
-    //
-    //     var definition = this.table.find(group, operands);
-    //     if(!definition)
-    //         throw Error(`Definition for "${group}${operands.list.length ? ' ' + operands.toString() : ''}" not found.`);
-    //     return this.ins(definition, operands, size);
-    // }
 
     // Displacement is up to 4 bytes in size, and 8 bytes for some specific MOV instructions, AMD64 Vol.2 p.24:
     //
@@ -117,10 +133,16 @@ export abstract class Code {
         return signed ? new o.Immediate(value) : new o.ImmediateUnsigned(value);
     }
 
+    lbl(name: string): i.Label {
+        return new i.Label(name);
+    }
+
     label(name: string): i.Label {
-        var label = new i.Label(name);
-        this.expr.push(label);
-        return label;
+        return this.insert(this.lbl(name)) as i.Label;
+    }
+
+    rel(expr: i.Expression, offset = 0) {
+        return expr.rel(offset);
     }
 
     db(str: string, encoding?: string): i.Data;
@@ -146,6 +168,7 @@ export abstract class Code {
         data.index = this.expr.length;
         data.octets = octets;
         this.expr.push(data);
+        data.bind(this);
         return data;
     }
 
@@ -225,6 +248,7 @@ export abstract class Code {
         var data = new i.DataUninitialized(length);
         data.index = this.expr.length;
         this.expr.push(data);
+        data.bind(this);
         return data;
     }
 
@@ -293,13 +317,19 @@ export abstract class Code {
         }
     }
 
-    compile() {
-        var code: number[] = [];
-        for(var ins of this.expr) code = ins.write(code);
-        return code;
-    }
+    toString(lineNumbers = true, hex = true) {
+        var lines = [];
+        for(var i = 0; i < this.expr.length; i++) {
+            var expr = this.expr[i];
 
-    toString(hex = true) {
-        return this.expr.map((ins) => { return ins.toString('    ', hex); }).join('\n');
+            var line_num = '';
+            if(lineNumbers) {
+                var line_num = i + '';
+                if (line_num.length < 3) line_num = ((new Array(4 - line_num.length)).join('0')) + line_num;
+                line_num += ' ';
+            }
+            lines.push(line_num + expr.toString('    ', hex));
+        }
+        return lines.join('\n');
     }
 }

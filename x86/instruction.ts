@@ -4,16 +4,69 @@ import * as d from './def';
 import {Code} from './code';
 
 
+export const SIZE_MAX = 15; // Max instruction size in bytes.
+export const SIZE_UNKNOWN = -1;
+
+
 export abstract class Expression {
     // Index where instruction was inserted in `Code`s buffer.
     index: number = 0;
 
     // Byte offset of the instruction in compiled machine code.
     offset: number = -1;
+    // Same as `offset` but for instructions that we don't know byte size yet we assume `MAX_SIZE`.
+    offsetMax: number = -1;
+
+    code: Code = null;
 
     abstract write(arr: number[]): number[];
-    abstract bytes(): number;
     abstract toString(margin?, comment?): string;
+
+    bind(code: Code) {
+        this.code = code;
+    }
+
+    protected calcOffsets() {
+        // Calculate offset of this instruction inside the code block.
+        if(this.index === 0) {
+            this.offset = 0;
+            this.offsetMax = 0;
+        } else {
+            var prev = this.code.expr[this.index - 1];
+            var size = prev.bytes();
+            if(size !== SIZE_UNKNOWN) {
+                if(prev.offset !== -1)
+                    this.offset = prev.offset + size;
+            } else this.offset = -1;
+
+            if(prev.offsetMax !== -1)
+                this.offsetMax = prev.offsetMax + prev.bytesMax();
+        }
+    }
+
+    build() {
+        this.calcOffsets();
+    }
+
+    // Generate everything necessary to be able to write expression out into binary buffer.
+    compile(): this {
+        this.calcOffsets();
+        return this;
+    }
+
+    // Size in bytes of the instruction.
+    bytes(): number {
+        return SIZE_UNKNOWN;
+    }
+
+    bytesMax(): number {
+        return this.bytes();
+    }
+
+    rel(offset = 0): o.Relative {
+        var rel = new o.Relative(this, offset);
+        return rel;
+    }
 }
 
 
@@ -90,15 +143,19 @@ export class DataUninitialized extends Expression {
 }
 
 
-export interface InstructionUserInterface {
+export interface InstructionUi {
+    bytes(): number;
     /* Adds `LOCK` prefix to instructoins, throws `TypeError` on error. */
     lock(): this;
+    bt(): this;
+    bnt(): this;
     cs(): this;
     ss(): this;
     ds(): this;
     es(): this;
     fs(): this;
     gs(): this;
+    toString(): string;
 }
 
 
@@ -107,7 +164,7 @@ export interface InstructionUserInterface {
 // `Instruction` object is created using instruction `Definition` and `Operands` provided by the user,
 // out of those `Instruction` generates `InstructionPart`s, which then can be packaged into machine
 // code using `.write()` method.
-export class Instruction extends Expression implements InstructionUserInterface {
+export class Instruction extends Expression implements InstructionUi {
     code: Code = null;
     def: d.Def = null;
     op: o.Operands = null;
@@ -126,16 +183,44 @@ export class Instruction extends Expression implements InstructionUserInterface 
     displacement: p.Displacement = null;
     immediate: p.Immediate = null;
 
+    // Size in bytes of this instruction.
+    length: number = 0;
+
     // Direction for register-to-register `MOV` operations, whether REG field of Mod-R/M byte is destination.
     // We set this to `false` to be compatible with GAS assembly, which we use for testing.
     protected regToRegDirectionRegIsDst: boolean = false;
 
     // constructor(code: Code, def: Definition, op: Operands) {
-    constructor(def: d.Def, op: o.Operands, code: Code) {
-        super();
-        this.def = def;
-        this.op = op;
-        this.code = code;
+    // constructor(def: d.Def, op: o.Operands) {
+    //     super();
+    //     this.def = def;
+    //     this.op = op;
+    // }
+
+    build(): this {
+        super.build();
+
+        this.pfxOpSize = null;
+        this.pfxAddrSize = null;
+        this.pfxLock = null;
+        this.pfxRep = null;
+        this.pfxRepne = null;
+        this.pfxSegment = null;
+        this.prefixes = [];
+        this.opcode = new p.Opcode; // required
+        this.modrm = null;
+        this.sib = null;
+        this.displacement = null;
+        this.immediate = null;
+
+        this.createPrefixes();
+        this.createOpcode();
+        this.createModrm();
+        this.createSib();
+        this.createDisplacement();
+        this.createImmediate();
+
+        return this;
     }
 
     protected writePrefixes(arr: number[]) {
@@ -149,7 +234,7 @@ export class Instruction extends Expression implements InstructionUserInterface 
     }
 
     write(arr: number[]): number[] {
-        this.offset = arr.length;
+        if(this.offset === -1) this.offset = arr.length;
 
         this.writePrefixes(arr);
         this.opcode.write(arr);
@@ -160,20 +245,8 @@ export class Instruction extends Expression implements InstructionUserInterface 
         return arr;
     }
     
-    bytes(): number {
-        var size = this.opcode.bytes();
-        if(this.pfxLock) size++;
-        if(this.pfxRep) size++;
-        if(this.pfxRepne) size++;
-        if(this.pfxSegment) size++;
-        if(this.pfxAddrSize) size++;
-        if(this.pfxOpSize) size++;
-        size += this.prefixes.length;
-        if(this.modrm) size++;
-        if(this.sib) size++;
-        if(this.displacement) size += this.displacement.value.octets.length;
-        if(this.immediate) size += this.immediate.value.octets.length;
-        return size;
+    bytes() {
+        return this.length;
     }
 
     lock(): this {
@@ -251,20 +324,6 @@ export class Instruction extends Expression implements InstructionUserInterface 
         return this;
     }
 
-    getAddressSize() {
-
-    }
-
-    // Create instruction parts.
-    create() {
-        this.createPrefixes();
-        this.createOpcode();
-        this.createModrm();
-        this.createSib();
-        this.createDisplacement();
-        this.createImmediate();
-    }
-
     toString(margin = '    ', hex = true) {
         var parts = [];
         if(this.pfxLock) parts.push(this.pfxLock.toString());
@@ -274,6 +333,18 @@ export class Instruction extends Expression implements InstructionUserInterface 
         if(this.op.list.length) parts.push(this.op.toString());
         var expression = margin + parts.join(' ');
 
+        var offset = 'XXXXXX';
+        if(this.offset !== -1) {
+            offset = this.offset.toString(16).toUpperCase();
+            offset = (new Array(7 - offset.length)).join('0') + offset;
+        }
+
+        var max_offset = 'XXXXXX';
+        if(this.offsetMax !== -1) {
+            max_offset = this.offsetMax.toString(16).toUpperCase();
+            max_offset = (new Array(7 - max_offset.length)).join('0') + max_offset;
+        }
+
         var comment = '';
         if(hex) {
             var cols = 36;
@@ -281,7 +352,7 @@ export class Instruction extends Expression implements InstructionUserInterface 
             var octets = this.write([]).map(function(byte) {
                 return byte <= 0xF ? '0' + byte.toString(16).toUpperCase() : byte.toString(16).toUpperCase();
             });
-            comment = spaces + '; 0x' + octets.join(', 0x');
+            comment = spaces + `; ${offset}|${max_offset}: 0x` + octets.join(', 0x');// + ' / ' + this.def.toString();
         }
 
         return expression + comment;
@@ -304,16 +375,21 @@ export class Instruction extends Expression implements InstructionUserInterface 
     }
 
     protected createPrefixes() {
-        if(this.needsOperandSizeOverride())
+        if(this.needsOperandSizeOverride()) {
             this.pfxOpSize = new p.PrefixOperandSizeOverride;
-        if(this.needsAddressSizeOverride())
+            this.length++;
+        }
+        if(this.needsAddressSizeOverride()) {
             this.pfxAddrSize = new p.PrefixAddressSizeOverride;
+            this.length++;
+        }
 
         // Mandatory prefixes required by op-code.
         if(this.def.prefixes) {
             for(var val of this.def.prefixes) {
                 this.prefixes.push(new p.PrefixStatic(val));
             }
+            this.length += this.def.prefixes.length;
         }
     }
 
@@ -353,6 +429,8 @@ export class Instruction extends Expression implements InstructionUserInterface 
             //      ...
             // }
         }
+
+        this.length += opcode.bytes();
     }
 
     protected createModrm() {
@@ -375,6 +453,7 @@ export class Instruction extends Expression implements InstructionUserInterface 
                     mod = p.Modrm.MOD.REG_TO_REG;
                     rm = r.get3bitId();
                     this.modrm = new p.Modrm(mod, reg, rm);
+                    this.length++;
                     return;
                 }
             } else {
@@ -388,6 +467,7 @@ export class Instruction extends Expression implements InstructionUserInterface 
 
             if(!dst) { // No destination operand, just opreg.
                 this.modrm = new p.Modrm(mod, reg, rm);
+                this.length++;
                 return;
             }
 
@@ -398,6 +478,7 @@ export class Instruction extends Expression implements InstructionUserInterface 
                 var rmreg: o.Register = (reg_is_dst ? src : dst) as o.Register;
                 rm = rmreg.get3bitId();
                 this.modrm = new p.Modrm(mod, reg, rm);
+                this.length++;
                 return;
             }
 
@@ -407,6 +488,7 @@ export class Instruction extends Expression implements InstructionUserInterface 
             if(!m) {
                 // throw Error('No Memory reference for Modrm byte.');
                 this.modrm = new p.Modrm(mod, reg, rm);
+                this.length++;
                 return;
             }
 
@@ -423,6 +505,7 @@ export class Instruction extends Expression implements InstructionUserInterface 
                 mod = p.Modrm.MOD.INDIRECT;
                 rm = p.Modrm.RM.NEEDS_SIB; // SIB byte follows
                 this.modrm = new p.Modrm(mod, reg, rm);
+                this.length++;
                 return;
             }
 
@@ -438,6 +521,7 @@ export class Instruction extends Expression implements InstructionUserInterface 
                 // always has a displacement, [RBP] case is used for RIP-relative addressing.
                 rm = m.base.get3bitId();
                 this.modrm = new p.Modrm(mod, reg, rm);
+                this.length++;
                 return;
             }
 
@@ -449,6 +533,7 @@ export class Instruction extends Expression implements InstructionUserInterface 
                         m.displacement.signExtend(o.DisplacementValue.SIZE.DISP32);
                 rm = p.Modrm.RM.NEEDS_SIB; // SIB byte follows
                 this.modrm = new p.Modrm(mod, reg, rm);
+                this.length++;
                 return;
             }
 
@@ -486,12 +571,14 @@ export class Instruction extends Expression implements InstructionUserInterface 
             B = p.Sib.BASE_NONE;
 
         this.sib = new p.Sib(scalefactor, I, B);
+        this.length++;
     }
 
     protected createDisplacement() {
         var m: o.Memory = this.op.getMemoryOperand();
         if(m && m.displacement) {
             this.displacement = new p.Displacement(m.displacement);
+            this.length += this.displacement.value.size / 8;
         } else if(this.modrm && this.sib && (this.sib.B === p.Sib.BASE_NONE)) {
             // Some SIB byte encodings require displacement, if we don't have displacement yet
             // add zero displacement.
@@ -511,6 +598,7 @@ export class Instruction extends Expression implements InstructionUserInterface 
                     break;
             }
             if(disp) this.displacement = new p.Displacement(disp);
+            this.length += this.displacement.value.size / 8;
         }
     }
 
@@ -518,20 +606,124 @@ export class Instruction extends Expression implements InstructionUserInterface 
         var imm = this.op.getImmediate();
         if(imm) {
             // If immediate does not have concrete size, use the size of instruction operands.
-            if(imm.constructor === o.Immediate) {
-                var ImmediateClass = this.def.getImmediateClass();
-                if(ImmediateClass) imm = new ImmediateClass(imm.value, imm.signed);
-                else {
-                    var size = this.op.size;
-                    imm = o.Immediate.factory(size, imm.value, imm.signed);
-                    imm.extend(size);
-                }
-            }
+            // if(imm.constructor === o.Immediate) {
+            //     var ImmediateClass = this.def.getImmediateClass();
+            //     if(ImmediateClass) imm = new ImmediateClass(imm.value, imm.signed);
+            //     else {
+            //         var size = this.op.size;
+            //         imm = o.Immediate.factory(size, imm.value, imm.signed);
+            //         imm.extend(size);
+            //     }
+            // }
 
             // if (this.displacement && (this.displacement.value.size === o.SIZE.Q))
             //     throw TypeError(`Cannot have Immediate with ${o.SIZE.Q} bit Displacement.`);
             this.immediate = new p.Immediate(imm);
+            this.length += this.immediate.value.size >> 3;
         }
+    }
+}
+
+
+// Wrapper around multiple instructions when different machine instructions can be used to perform the same task.
+// For example, `jmp` with `rel8` or `rel32` immediate, or when multiple instruction definitions match provided operands.
+export class InstructionCandidates extends Expression implements InstructionUi {
+    matches: d.DefMatchList = null;
+    operands: o.TUserInterfaceOperandNormalized[] = [];
+    insn: Instruction[] = [];
+    picked: number = -1; // Index of instruction that was eventually chosen.
+
+    lock(): this {
+        for(var insn of this.insn) insn.lock();
+        return this;
+    }
+
+    write(arr: number[]): number[] {
+        if(this.picked === -1)
+            throw Error('Instruction candidates not reduced.');
+        return this.getPicked().write(arr);
+    }
+
+    toString(margin = '    ', hex = true) {
+        if(this.picked === -1) {
+            var str = '(one of:)\n';
+            var lines = [];
+            for(var i = 0; i < this.insn.length; i++) {
+                if(this.insn[i].op) lines.push(this.insn[i].toString(margin, hex));
+                else lines.push('    ' + this.matches.list[i].def.toString());
+            }
+            // for(var match of this.matches.list) {
+            //     lines.push('    ' + match.def.toString());
+            // }
+            return str + lines.join('\n');
+        } else
+            return this.getPicked().toString(margin, hex);
+    }
+
+    getPicked() {
+        return this.insn[this.picked];
+    }
+
+    bytes() {
+        return this.picked === -1 ? SIZE_UNKNOWN : this.getPicked().bytes();
+    }
+
+    bytesMax() {
+        var max = 0;
+        for(var ins of this.insn) {
+            if(ins) {
+                var bytes = ins.bytes();
+                if (bytes > max) max = bytes;
+            }
+        }
+        return bytes;
+    }
+
+    pickShortestInstruction(): Instruction {
+        // Pick the shortest instruction if we know all instruction sizes, otherwise don't pick any.
+        var size = SIZE_UNKNOWN;
+        var isize = 0;
+        for(var j = 0; j < this.insn.length; j++) {
+            var insn = this.insn[j];
+            isize = insn.bytes();
+            if(isize === SIZE_UNKNOWN) {
+                this.picked = -1;
+                return null;
+            }
+            if((size === SIZE_UNKNOWN) || (isize < size)) {
+                size = isize;
+                this.picked = j;
+            }
+        }
+        return this.getPicked();
+    }
+
+    build() {
+        super.build();
+        var len = this.matches.list.length;
+        this.insn = new Array(len);
+        for(var j = 0; j < len; j++) {
+            var match = this.matches.list[j];
+
+            var insn = new this.code.ClassInstruction;
+            insn.index = this.index;
+            insn.def = match.def;
+
+            try {
+                var ops = o.Operands.fromUiOpsAndTpl(insn, this.operands, match.opTpl);
+                insn.op = ops;
+                insn.bind(this.code);
+                insn.build();
+                this.insn[j] = insn;
+            } catch(e) {
+                this.insn[j] = null;
+            }
+        }
+    }
+
+    compile(): this {
+        this.calcOffsets();
+        return this;
     }
 }
 

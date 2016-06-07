@@ -6,13 +6,60 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var o = require('./operand');
 var p = require('./parts');
+exports.SIZE_MAX = 15; // Max instruction size in bytes.
+exports.SIZE_UNKNOWN = -1;
 var Expression = (function () {
     function Expression() {
         // Index where instruction was inserted in `Code`s buffer.
         this.index = 0;
         // Byte offset of the instruction in compiled machine code.
         this.offset = -1;
+        // Same as `offset` but for instructions that we don't know byte size yet we assume `MAX_SIZE`.
+        this.offsetMax = -1;
+        this.code = null;
     }
+    Expression.prototype.bind = function (code) {
+        this.code = code;
+    };
+    Expression.prototype.calcOffsets = function () {
+        // Calculate offset of this instruction inside the code block.
+        if (this.index === 0) {
+            this.offset = 0;
+            this.offsetMax = 0;
+        }
+        else {
+            var prev = this.code.expr[this.index - 1];
+            var size = prev.bytes();
+            if (size !== exports.SIZE_UNKNOWN) {
+                if (prev.offset !== -1)
+                    this.offset = prev.offset + size;
+            }
+            else
+                this.offset = -1;
+            if (prev.offsetMax !== -1)
+                this.offsetMax = prev.offsetMax + prev.bytesMax();
+        }
+    };
+    Expression.prototype.build = function () {
+        this.calcOffsets();
+    };
+    // Generate everything necessary to be able to write expression out into binary buffer.
+    Expression.prototype.compile = function () {
+        this.calcOffsets();
+        return this;
+    };
+    // Size in bytes of the instruction.
+    Expression.prototype.bytes = function () {
+        return exports.SIZE_UNKNOWN;
+    };
+    Expression.prototype.bytesMax = function () {
+        return this.bytes();
+    };
+    Expression.prototype.rel = function (offset) {
+        if (offset === void 0) { offset = 0; }
+        var rel = new o.Relative(this, offset);
+        return rel;
+    };
     return Expression;
 }());
 exports.Expression = Expression;
@@ -88,9 +135,8 @@ exports.DataUninitialized = DataUninitialized;
 // code using `.write()` method.
 var Instruction = (function (_super) {
     __extends(Instruction, _super);
-    // constructor(code: Code, def: Definition, op: Operands) {
-    function Instruction(def, op, code) {
-        _super.call(this);
+    function Instruction() {
+        _super.apply(this, arguments);
         this.code = null;
         this.def = null;
         this.op = null;
@@ -107,13 +153,40 @@ var Instruction = (function (_super) {
         this.sib = null;
         this.displacement = null;
         this.immediate = null;
+        // Size in bytes of this instruction.
+        this.length = 0;
         // Direction for register-to-register `MOV` operations, whether REG field of Mod-R/M byte is destination.
         // We set this to `false` to be compatible with GAS assembly, which we use for testing.
         this.regToRegDirectionRegIsDst = false;
-        this.def = def;
-        this.op = op;
-        this.code = code;
     }
+    // constructor(code: Code, def: Definition, op: Operands) {
+    // constructor(def: d.Def, op: o.Operands) {
+    //     super();
+    //     this.def = def;
+    //     this.op = op;
+    // }
+    Instruction.prototype.build = function () {
+        _super.prototype.build.call(this);
+        this.pfxOpSize = null;
+        this.pfxAddrSize = null;
+        this.pfxLock = null;
+        this.pfxRep = null;
+        this.pfxRepne = null;
+        this.pfxSegment = null;
+        this.prefixes = [];
+        this.opcode = new p.Opcode; // required
+        this.modrm = null;
+        this.sib = null;
+        this.displacement = null;
+        this.immediate = null;
+        this.createPrefixes();
+        this.createOpcode();
+        this.createModrm();
+        this.createSib();
+        this.createDisplacement();
+        this.createImmediate();
+        return this;
+    };
     Instruction.prototype.writePrefixes = function (arr) {
         if (this.pfxLock)
             this.pfxLock.write(arr);
@@ -133,7 +206,8 @@ var Instruction = (function (_super) {
         }
     };
     Instruction.prototype.write = function (arr) {
-        this.offset = arr.length;
+        if (this.offset === -1)
+            this.offset = arr.length;
         this.writePrefixes(arr);
         this.opcode.write(arr);
         if (this.modrm)
@@ -147,29 +221,7 @@ var Instruction = (function (_super) {
         return arr;
     };
     Instruction.prototype.bytes = function () {
-        var size = this.opcode.bytes();
-        if (this.pfxLock)
-            size++;
-        if (this.pfxRep)
-            size++;
-        if (this.pfxRepne)
-            size++;
-        if (this.pfxSegment)
-            size++;
-        if (this.pfxAddrSize)
-            size++;
-        if (this.pfxOpSize)
-            size++;
-        size += this.prefixes.length;
-        if (this.modrm)
-            size++;
-        if (this.sib)
-            size++;
-        if (this.displacement)
-            size += this.displacement.value.octets.length;
-        if (this.immediate)
-            size += this.immediate.value.octets.length;
-        return size;
+        return this.length;
     };
     Instruction.prototype.lock = function () {
         if (!this.def.lock)
@@ -231,17 +283,6 @@ var Instruction = (function (_super) {
         this.pfxSegment = new p.PrefixStatic(p.PREFIX.GS);
         return this;
     };
-    Instruction.prototype.getAddressSize = function () {
-    };
-    // Create instruction parts.
-    Instruction.prototype.create = function () {
-        this.createPrefixes();
-        this.createOpcode();
-        this.createModrm();
-        this.createSib();
-        this.createDisplacement();
-        this.createImmediate();
-    };
     Instruction.prototype.toString = function (margin, hex) {
         if (margin === void 0) { margin = '    '; }
         if (hex === void 0) { hex = true; }
@@ -256,6 +297,16 @@ var Instruction = (function (_super) {
         if (this.op.list.length)
             parts.push(this.op.toString());
         var expression = margin + parts.join(' ');
+        var offset = 'XXXXXX';
+        if (this.offset !== -1) {
+            offset = this.offset.toString(16).toUpperCase();
+            offset = (new Array(7 - offset.length)).join('0') + offset;
+        }
+        var max_offset = 'XXXXXX';
+        if (this.offsetMax !== -1) {
+            max_offset = this.offsetMax.toString(16).toUpperCase();
+            max_offset = (new Array(7 - max_offset.length)).join('0') + max_offset;
+        }
         var comment = '';
         if (hex) {
             var cols = 36;
@@ -263,7 +314,7 @@ var Instruction = (function (_super) {
             var octets = this.write([]).map(function (byte) {
                 return byte <= 0xF ? '0' + byte.toString(16).toUpperCase() : byte.toString(16).toUpperCase();
             });
-            comment = spaces + '; 0x' + octets.join(', 0x');
+            comment = spaces + ("; " + offset + "|" + max_offset + ": 0x") + octets.join(', 0x'); // + ' / ' + this.def.toString();
         }
         return expression + comment;
     };
@@ -286,16 +337,21 @@ var Instruction = (function (_super) {
         return false;
     };
     Instruction.prototype.createPrefixes = function () {
-        if (this.needsOperandSizeOverride())
+        if (this.needsOperandSizeOverride()) {
             this.pfxOpSize = new p.PrefixOperandSizeOverride;
-        if (this.needsAddressSizeOverride())
+            this.length++;
+        }
+        if (this.needsAddressSizeOverride()) {
             this.pfxAddrSize = new p.PrefixAddressSizeOverride;
+            this.length++;
+        }
         // Mandatory prefixes required by op-code.
         if (this.def.prefixes) {
             for (var _i = 0, _a = this.def.prefixes; _i < _a.length; _i++) {
                 var val = _a[_i];
                 this.prefixes.push(new p.PrefixStatic(val));
             }
+            this.length += this.def.prefixes.length;
         }
     };
     Instruction.prototype.createOpcode = function () {
@@ -326,6 +382,7 @@ var Instruction = (function (_super) {
                 opcode.op = (opcode.op & p.Opcode.MASK_DIRECTION) | direction;
             }
         }
+        this.length += opcode.bytes();
     };
     Instruction.prototype.createModrm = function () {
         if (!this.def.useModrm)
@@ -346,6 +403,7 @@ var Instruction = (function (_super) {
                     mod = p.Modrm.MOD.REG_TO_REG;
                     rm = r.get3bitId();
                     this.modrm = new p.Modrm(mod, reg, rm);
+                    this.length++;
                     return;
                 }
             }
@@ -359,6 +417,7 @@ var Instruction = (function (_super) {
             }
             if (!dst) {
                 this.modrm = new p.Modrm(mod, reg, rm);
+                this.length++;
                 return;
             }
             // Reg-to-reg instruction;
@@ -368,6 +427,7 @@ var Instruction = (function (_super) {
                 var rmreg = (reg_is_dst ? src : dst);
                 rm = rmreg.get3bitId();
                 this.modrm = new p.Modrm(mod, reg, rm);
+                this.length++;
                 return;
             }
             // `o.Memory` class makes sure that ESP cannot be a SIB index register and
@@ -376,6 +436,7 @@ var Instruction = (function (_super) {
             if (!m) {
                 // throw Error('No Memory reference for Modrm byte.');
                 this.modrm = new p.Modrm(mod, reg, rm);
+                this.length++;
                 return;
             }
             if (!m.base && !m.index && !m.displacement)
@@ -390,6 +451,7 @@ var Instruction = (function (_super) {
                 mod = p.Modrm.MOD.INDIRECT;
                 rm = p.Modrm.RM.NEEDS_SIB; // SIB byte follows
                 this.modrm = new p.Modrm(mod, reg, rm);
+                this.length++;
                 return;
             }
             // [BASE]
@@ -404,6 +466,7 @@ var Instruction = (function (_super) {
                 // always has a displacement, [RBP] case is used for RIP-relative addressing.
                 rm = m.base.get3bitId();
                 this.modrm = new p.Modrm(mod, reg, rm);
+                this.length++;
                 return;
             }
             // [BASE + INDEX x SCALE] + dispX
@@ -414,6 +477,7 @@ var Instruction = (function (_super) {
                         m.displacement.signExtend(o.DisplacementValue.SIZE.DISP32);
                 rm = p.Modrm.RM.NEEDS_SIB; // SIB byte follows
                 this.modrm = new p.Modrm(mod, reg, rm);
+                this.length++;
                 return;
             }
             throw Error('Fatal error, unreachable code.');
@@ -448,11 +512,13 @@ var Instruction = (function (_super) {
         else
             B = p.Sib.BASE_NONE;
         this.sib = new p.Sib(scalefactor, I, B);
+        this.length++;
     };
     Instruction.prototype.createDisplacement = function () {
         var m = this.op.getMemoryOperand();
         if (m && m.displacement) {
             this.displacement = new p.Displacement(m.displacement);
+            this.length += this.displacement.value.size / 8;
         }
         else if (this.modrm && this.sib && (this.sib.B === p.Sib.BASE_NONE)) {
             // Some SIB byte encodings require displacement, if we don't have displacement yet
@@ -474,27 +540,135 @@ var Instruction = (function (_super) {
             }
             if (disp)
                 this.displacement = new p.Displacement(disp);
+            this.length += this.displacement.value.size / 8;
         }
     };
     Instruction.prototype.createImmediate = function () {
         var imm = this.op.getImmediate();
         if (imm) {
             // If immediate does not have concrete size, use the size of instruction operands.
-            if (imm.constructor === o.Immediate) {
-                var ImmediateClass = this.def.getImmediateClass();
-                if (ImmediateClass)
-                    imm = new ImmediateClass(imm.value, imm.signed);
-                else {
-                    var size = this.op.size;
-                    imm = o.Immediate.factory(size, imm.value, imm.signed);
-                    imm.extend(size);
-                }
-            }
+            // if(imm.constructor === o.Immediate) {
+            //     var ImmediateClass = this.def.getImmediateClass();
+            //     if(ImmediateClass) imm = new ImmediateClass(imm.value, imm.signed);
+            //     else {
+            //         var size = this.op.size;
+            //         imm = o.Immediate.factory(size, imm.value, imm.signed);
+            //         imm.extend(size);
+            //     }
+            // }
             // if (this.displacement && (this.displacement.value.size === o.SIZE.Q))
             //     throw TypeError(`Cannot have Immediate with ${o.SIZE.Q} bit Displacement.`);
             this.immediate = new p.Immediate(imm);
+            this.length += this.immediate.value.size >> 3;
         }
     };
     return Instruction;
 }(Expression));
 exports.Instruction = Instruction;
+// Wrapper around multiple instructions when different machine instructions can be used to perform the same task.
+// For example, `jmp` with `rel8` or `rel32` immediate, or when multiple instruction definitions match provided operands.
+var InstructionCandidates = (function (_super) {
+    __extends(InstructionCandidates, _super);
+    function InstructionCandidates() {
+        _super.apply(this, arguments);
+        this.matches = null;
+        this.operands = [];
+        this.insn = [];
+        this.picked = -1; // Index of instruction that was eventually chosen.
+    }
+    InstructionCandidates.prototype.lock = function () {
+        for (var _i = 0, _a = this.insn; _i < _a.length; _i++) {
+            var insn = _a[_i];
+            insn.lock();
+        }
+        return this;
+    };
+    InstructionCandidates.prototype.write = function (arr) {
+        if (this.picked === -1)
+            throw Error('Instruction candidates not reduced.');
+        return this.getPicked().write(arr);
+    };
+    InstructionCandidates.prototype.toString = function (margin, hex) {
+        if (margin === void 0) { margin = '    '; }
+        if (hex === void 0) { hex = true; }
+        if (this.picked === -1) {
+            var str = '(one of:)\n';
+            var lines = [];
+            for (var i = 0; i < this.insn.length; i++) {
+                if (this.insn[i].op)
+                    lines.push(this.insn[i].toString(margin, hex));
+                else
+                    lines.push('    ' + this.matches.list[i].def.toString());
+            }
+            // for(var match of this.matches.list) {
+            //     lines.push('    ' + match.def.toString());
+            // }
+            return str + lines.join('\n');
+        }
+        else
+            return this.getPicked().toString(margin, hex);
+    };
+    InstructionCandidates.prototype.getPicked = function () {
+        return this.insn[this.picked];
+    };
+    InstructionCandidates.prototype.bytes = function () {
+        return this.picked === -1 ? exports.SIZE_UNKNOWN : this.getPicked().bytes();
+    };
+    InstructionCandidates.prototype.bytesMax = function () {
+        var max = 0;
+        for (var _i = 0, _a = this.insn; _i < _a.length; _i++) {
+            var ins = _a[_i];
+            if (ins) {
+                var bytes = ins.bytes();
+                if (bytes > max)
+                    max = bytes;
+            }
+        }
+        return bytes;
+    };
+    InstructionCandidates.prototype.pickShortestInstruction = function () {
+        // Pick the shortest instruction if we know all instruction sizes, otherwise don't pick any.
+        var size = exports.SIZE_UNKNOWN;
+        var isize = 0;
+        for (var j = 0; j < this.insn.length; j++) {
+            var insn = this.insn[j];
+            isize = insn.bytes();
+            if (isize === exports.SIZE_UNKNOWN) {
+                this.picked = -1;
+                return null;
+            }
+            if ((size === exports.SIZE_UNKNOWN) || (isize < size)) {
+                size = isize;
+                this.picked = j;
+            }
+        }
+        return this.getPicked();
+    };
+    InstructionCandidates.prototype.build = function () {
+        _super.prototype.build.call(this);
+        var len = this.matches.list.length;
+        this.insn = new Array(len);
+        for (var j = 0; j < len; j++) {
+            var match = this.matches.list[j];
+            var insn = new this.code.ClassInstruction;
+            insn.index = this.index;
+            insn.def = match.def;
+            try {
+                var ops = o.Operands.fromUiOpsAndTpl(insn, this.operands, match.opTpl);
+                insn.op = ops;
+                insn.bind(this.code);
+                insn.build();
+                this.insn[j] = insn;
+            }
+            catch (e) {
+                this.insn[j] = null;
+            }
+        }
+    };
+    InstructionCandidates.prototype.compile = function () {
+        this.calcOffsets();
+        return this;
+    };
+    return InstructionCandidates;
+}(Expression));
+exports.InstructionCandidates = InstructionCandidates;

@@ -13,12 +13,6 @@ var Instruction = (function (_super) {
         _super.apply(this, arguments);
         this.pfxRex = null;
     }
-    Instruction.prototype.bytes = function () {
-        var bytes = _super.prototype.bytes.call(this);
-        if (this.pfxRex)
-            bytes++;
-        return bytes;
-    };
     Instruction.prototype.writePrefixes = function (arr) {
         _super.prototype.writePrefixes.call(this, arr);
         if (this.pfxRex)
@@ -87,6 +81,7 @@ var Instruction = (function (_super) {
             }
         }
         this.pfxRex = new p.PrefixRex(W, R, X, B);
+        this.length++;
     };
     // Adding RIP-relative addressing in long mode.
     //
@@ -116,6 +111,7 @@ var Instruction = (function (_super) {
                     reg = r.get3bitId();
             }
             this.modrm = new p.Modrm(p.Modrm.MOD.INDIRECT, reg, p.Modrm.RM.INDIRECT_DISP);
+            this.length++;
         }
         else
             _super.prototype.createModrm.call(this);

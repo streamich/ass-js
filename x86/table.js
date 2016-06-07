@@ -27,6 +27,10 @@ exports.imm32 = o.Immediate32;
 exports.immu32 = o.ImmediateUnsigned32;
 exports.imm64 = o.Immediate64;
 exports.immu64 = o.ImmediateUnsigned64;
+exports.rel = o.Relative;
+exports.rel8 = o.Relative8;
+exports.rel16 = o.Relative16;
+exports.rel32 = o.Relative32;
 // Global defaults
 exports.defaults = { s: exports.S.NONE, ds: exports.S.D, lock: false, ops: null, or: -1, r: false, dbit: false, rex: false, mr: true, rep: false, repne: false, pfx: null };
 // Instruction are divided in groups, each group consists of list

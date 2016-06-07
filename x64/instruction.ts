@@ -8,12 +8,6 @@ export class Instruction extends i.Instruction {
 
     pfxRex: p.PrefixRex = null;
 
-    bytes(): number {
-        var bytes = super.bytes();
-        if(this.pfxRex) bytes++;
-        return bytes;
-    }
-
     protected writePrefixes(arr: number[]) {
         super.writePrefixes(arr);
         if(this.pfxRex) this.pfxRex.write(arr); // REX prefix must precede immediate op-code byte.
@@ -80,6 +74,7 @@ export class Instruction extends i.Instruction {
         }
 
         this.pfxRex = new p.PrefixRex(W, R, X, B);
+        this.length++;
     }
 
     // Adding RIP-relative addressing in long mode.
@@ -111,6 +106,7 @@ export class Instruction extends i.Instruction {
             }
 
             this.modrm = new p.Modrm(p.Modrm.MOD.INDIRECT, reg, p.Modrm.RM.INDIRECT_DISP);
+            this.length++;
 
         } else super.createModrm();
     }

@@ -1,36 +1,59 @@
 "use strict";
 var o = require('./operand');
+var d = require('./def');
 var i = require('./instruction');
 var util_1 = require('../util');
 var Code = (function () {
-    function Code() {
+    function Code(start) {
+        if (start === void 0) { start = 'start'; }
         this.operandSize = o.SIZE.D; // Default operand size.
         this.addressSize = o.SIZE.D; // Default address size.
         this.mode = o.MODE.X64;
         this.expr = [];
         this.ClassInstruction = i.Instruction;
+        this.label(start);
     }
-    Code.prototype.ins = function (definition, operands) {
-        var instruction = new this.ClassInstruction(definition, operands, this);
-        instruction.create();
-        instruction.index = this.expr.length;
-        this.expr.push(instruction);
-        return instruction;
-    };
-    Code.prototype.createInstructionFromGroupSize = function (bySize, size, ui_ops) {
-        var matches;
-        var definition;
-        for (var _i = 0, _a = bySize[size]; _i < _a.length; _i++) {
-            var xdef = _a[_i];
-            definition = xdef;
-            matches = definition.matchOperands(ui_ops);
-            if (matches)
-                break;
+    Code.prototype.compile = function () {
+        var code = [];
+        for (var _i = 0, _a = this.expr; _i < _a.length; _i++) {
+            var ins = _a[_i];
+            if (ins instanceof i.InstructionCandidates) {
+                ins.pickInstrucntion();
+            }
+            code = ins.compile().write(code);
         }
-        if (!matches)
+        return code;
+    };
+    Code.prototype.getStartLabel = function () {
+        return this.expr[0];
+    };
+    Code.prototype.insert = function (expr) {
+        expr.index = this.expr.length;
+        expr.bind(this);
+        this.expr.push(expr);
+        expr.build();
+        return expr;
+    };
+    // protected insertInstruction(definition: d.Def, operands: o.Operands): i.Instruction {
+    //     return this.insert(new this.ClassInstruction(definition, operands)) as i.Instruction;
+    // }
+    Code.prototype.createInstructionFromGroupSize = function (bySize, size, ui_ops) {
+        var ui_ops_norm = o.Operands.uiOpsNormalize(ui_ops);
+        var matches = new d.DefMatchList;
+        matches.matchAll(bySize[size], ui_ops_norm);
+        if (!matches.list.length)
             throw Error('Given operands could not find instruction definition.');
-        var ops = o.Operands.fromUiOpsAndTpl(ui_ops, matches);
-        return this.ins(definition, ops);
+        var insncan = new i.InstructionCandidates;
+        insncan.matches = matches;
+        insncan.operands = ui_ops_norm;
+        this.insert(insncan);
+        var insn = insncan.pickShortestInstruction();
+        if (insn) {
+            this.expr[insn.index] = insn;
+            return insn;
+        }
+        else
+            return insncan;
     };
     Code.prototype.attachGroupMethods = function (group) {
         var _this = this;
@@ -83,14 +106,6 @@ var Code = (function () {
             this.attachGroupMethods(group);
         }
     };
-    // instructionFromTable(group: string, ops: o.TUserInterfaceOperand[] = [], size: o.SIZE = o.SIZE.ANY): i.Instruction {
-    //     var operands = o.Operands.fromUiOps(ops, size, );
-    //
-    //     var definition = this.table.find(group, operands);
-    //     if(!definition)
-    //         throw Error(`Definition for "${group}${operands.list.length ? ' ' + operands.toString() : ''}" not found.`);
-    //     return this.ins(definition, operands, size);
-    // }
     // Displacement is up to 4 bytes in size, and 8 bytes for some specific MOV instructions, AMD64 Vol.2 p.24:
     //
     // > The size of a displacement is 1, 2, or 4 bytes.
@@ -113,10 +128,15 @@ var Code = (function () {
         if (signed === void 0) { signed = true; }
         return signed ? new o.Immediate(value) : new o.ImmediateUnsigned(value);
     };
+    Code.prototype.lbl = function (name) {
+        return new i.Label(name);
+    };
     Code.prototype.label = function (name) {
-        var label = new i.Label(name);
-        this.expr.push(label);
-        return label;
+        return this.insert(this.lbl(name));
+    };
+    Code.prototype.rel = function (expr, offset) {
+        if (offset === void 0) { offset = 0; }
+        return expr.rel(offset);
     };
     Code.prototype.db = function (a, b) {
         var octets;
@@ -138,6 +158,7 @@ var Code = (function () {
         data.index = this.expr.length;
         data.octets = octets;
         this.expr.push(data);
+        data.bind(this);
         return data;
     };
     Code.prototype.dw = function (words, littleEndian) {
@@ -220,6 +241,7 @@ var Code = (function () {
         var data = new i.DataUninitialized(length);
         data.index = this.expr.length;
         this.expr.push(data);
+        data.bind(this);
         return data;
     };
     Code.prototype.resw = function (length) {
@@ -277,17 +299,22 @@ var Code = (function () {
             return this.db(buf);
         }
     };
-    Code.prototype.compile = function () {
-        var code = [];
-        for (var _i = 0, _a = this.expr; _i < _a.length; _i++) {
-            var ins = _a[_i];
-            code = ins.write(code);
-        }
-        return code;
-    };
-    Code.prototype.toString = function (hex) {
+    Code.prototype.toString = function (lineNumbers, hex) {
+        if (lineNumbers === void 0) { lineNumbers = true; }
         if (hex === void 0) { hex = true; }
-        return this.expr.map(function (ins) { return ins.toString('    ', hex); }).join('\n');
+        var lines = [];
+        for (var i = 0; i < this.expr.length; i++) {
+            var expr = this.expr[i];
+            var line_num = '';
+            if (lineNumbers) {
+                var line_num = i + '';
+                if (line_num.length < 3)
+                    line_num = ((new Array(4 - line_num.length)).join('0')) + line_num;
+                line_num += ' ';
+            }
+            lines.push(line_num + expr.toString('    ', hex));
+        }
+        return lines.join('\n');
     };
     return Code;
 }());

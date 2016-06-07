@@ -7,9 +7,12 @@ Disassembly of section .data:
 00000000 <.data>:
    0:	0f 05                	syscall 
    2:	cd 80                	int    0x80
-   4:	48                   	dec    ax
-   5:	89 c3                	mov    bx,ax
-   7:	48                   	dec    ax
-   8:	89 c6                	mov    si,ax
-   a:	b8 01 00             	mov    ax,0x1
-	...
+   4:	48 89 c3             	mov    rbx,rax
+   7:	48 89 c6             	mov    rsi,rax
+   a:	b8 01 00 00 00       	mov    eax,0x1
+   f:	e9 eb ff ff ff       	jmp    0xffffffff
+  14:	e9 e8 ff ff ff       	jmp    0x1
+  19:	e9 e2 ff ff ff       	jmp    0x0
+  1e:	ff e0                	jmp    rax
+  20:	ff e0                	jmp    rax
+  22:	64 ff e0             	fs jmp rax

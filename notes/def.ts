@@ -14,7 +14,7 @@ var table = new d.DefTable(t.table, t.defaults);
 // console.log(table.groups.mov.defs[0]);
 
 // var ops = [o.rax.ref(), o.rcx];
-var ops = [o.al, 123];
+// var ops = [o.al, 123];
 // var ops = [o.rax];
 // var tpl = table.groups.mov.defs[0].matchOperands(ops);
 // var tpl = table.groups.push.defs[0].matchOperands(ops);
@@ -32,7 +32,7 @@ var ops = [o.al, 123];
 
 // var ops = new o.Operands([o.al]);
 
-// console.log(table.toString());
+console.log(table.toString());
 
 // console.log(table);
 // console.log(table.find('push', ops, o.SIZE.ANY));

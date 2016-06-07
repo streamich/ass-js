@@ -84,6 +84,17 @@ var Def = (function () {
                         continue;
                     }
                 }
+                else if (OperandClass.name.indexOf('Relative') === 0) {
+                    // Here we cannot yet check any sizes even cannot check if number
+                    // fits the immediate size because we will have to rebase the o.Relative
+                    // to the currenct instruction Expression.
+                    if (o.isTnumber(operand))
+                        return OperandClass;
+                    else if (operand instanceof o.Relative)
+                        return OperandClass;
+                    else
+                        return null;
+                }
                 else {
                     if (operand instanceof OperandClass)
                         return OperandClass;
@@ -168,6 +179,14 @@ var Def = (function () {
                 return 'm32';
             if (operand === o.Memory64)
                 return 'm64';
+            if (operand === o.Relative)
+                return 'rel';
+            if (operand === o.Relative8)
+                return 'rel8';
+            if (operand === o.Relative16)
+                return 'rel16';
+            if (operand === o.Relative32)
+                return 'rel32';
         }
         else
             return 'operand';
@@ -179,6 +198,8 @@ var Def = (function () {
         return this.mnemonic + o.SIZE[size].toLowerCase();
     };
     Def.prototype.toString = function () {
+        // var opcode = ' 0x' + this.opcode.toString(16).toUpperCase();
+        var opcode = ' ' + (new o.Constant(this.opcode, false)).toString();
         var operands = [];
         for (var _i = 0, _a = this.operands; _i < _a.length; _i++) {
             var ops = _a[_i];
@@ -191,13 +212,16 @@ var Def = (function () {
         }
         var operandsstr = '';
         if (operands.length)
-            operandsstr = ' ' + operands.join(', ');
+            operandsstr = ' ' + operands.join(',');
         var opregstr = '';
         if (this.opreg > -1)
             opregstr = ' /' + this.opreg;
         var lock = this.lock ? ' LOCK' : '';
         var rex = this.mandatoryRex ? ' REX' : '';
-        return this.getMnemonic() + operandsstr + opregstr + lock + rex;
+        var dbit = '';
+        if (this.opcodeDirectionBit)
+            dbit = ' d-bit';
+        return this.getMnemonic() + opcode + operandsstr + opregstr + lock + rex + dbit;
     };
     return Def;
 }());
@@ -258,6 +282,36 @@ var DefGroup = (function () {
     return DefGroup;
 }());
 exports.DefGroup = DefGroup;
+var DefMatch = (function () {
+    function DefMatch() {
+        this.def = null;
+        this.opTpl = [];
+    }
+    return DefMatch;
+}());
+exports.DefMatch = DefMatch;
+var DefMatchList = (function () {
+    function DefMatchList() {
+        this.list = [];
+    }
+    DefMatchList.prototype.match = function (def, ui_ops) {
+        var tpl = def.matchOperands(ui_ops);
+        if (tpl) {
+            var match = new DefMatch;
+            match.def = def;
+            match.opTpl = tpl;
+            this.list.push(match);
+        }
+    };
+    DefMatchList.prototype.matchAll = function (defs, ui_ops) {
+        for (var _i = 0, defs_1 = defs; _i < defs_1.length; _i++) {
+            var def = defs_1[_i];
+            this.match(def, ui_ops);
+        }
+    };
+    return DefMatchList;
+}());
+exports.DefMatchList = DefMatchList;
 var DefTable = (function () {
     function DefTable(table, defaults) {
         this.groups = {};

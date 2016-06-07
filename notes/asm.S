@@ -146,6 +146,28 @@ adcx:
 adox:
         adox %r9, %r12
 
+jcc:
+        ja jcc
+        ja 0x11
+
+jmp:
+        jmp jmp
+        jmp ret
+        jmp *0x11
+        jmp *0x1122
+        jmp *0x11223344
+        jmp *%rax
+        jmp *%rbx
+        jmp *(%rcx, %rbx)
+        jmp 0x11
+        jmp 0x22
+        jmp 0x40040e
+        jmp jmp
+        jmp adox
+        jmp add
+        jmp 1
+        jmp *0x11(%rax)
+
 ret:
         ret
         retq
@@ -899,10 +921,3 @@ dec_r8:
         decb %r13b
         decb %r14b
         decb %r15b
-
-jmp:
-        jmp 0x11
-        jmp 0x1122
-        jmp 0x112233
-        jmp 0x11223344
-

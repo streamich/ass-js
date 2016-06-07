@@ -20,8 +20,8 @@ describe('x64', function() {
         it('incq rbx', function() {
             var _ = code64();
             _.incq(rbx);
-            var str = _.toString(false);
-            expect(str).to.equal('    incq    rbx');
+            var str = _.toString(false, false);
+            expect(str).to.equal('start:\n    incq    rbx');
         });
     });
 
