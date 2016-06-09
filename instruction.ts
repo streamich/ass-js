@@ -141,7 +141,7 @@ export class Expression {
 
 
 export class Label extends Expression {
-    
+
     length = 0;
 
     name: string;
@@ -460,24 +460,38 @@ export class InstructionSet extends ExpressionVolatile {
         return this.getPicked().write(arr);
     }
 
-    toString(margin = '    ', hex = true) {
+    toString(margin = '    ', comment = true) {
         if(this.picked === -1) {
-            var str = '(one of:)\n';
+            var expression = '(one of:)';
+            var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
+            expression += spaces + `; ${this.formatOffset()} max ${this.bytesMax()} bytes\n`;
+
             var lines = [];
-            for(var j = 0; j < this.insn.length; j++) {
-                if(this.insn[j].ops) lines.push(this.insn[j].toString(margin, hex));
-                else lines.push('    ' + this.matches.list[j].def.toString());
-            }
-            // for(var match of this.matches.list) {
-            //     lines.push('    ' + match.def.toString());
+            // for(var j = 0; j < this.insn.length; j++) {
+            //     if(this.insn[j].ops) lines.push(this.insn[j].toString(margin, hex));
+            //     else lines.push('    ' + this.matches.list[j].def.toString());
             // }
-            return str + lines.join('\n');
-        } else
-            return this.getPicked().toString(margin, hex);
+            for(var match of this.matches.list) {
+                lines.push(margin + match.def.toString());
+            }
+            return expression + lines.join('\n');
+        } else {
+            var picked = this.getPicked();
+            return picked.toString(margin, comment) + ' ' + picked.bytes() + ' bytes';
+        }
     }
 
     getPicked() {
         return this.insn[this.picked];
+    }
+
+    determineSize() {
+        this.picked = 0;
+    }
+
+    evaluate() {
+        var picked = this.getPicked();
+        picked.ops.list[0] = new o.Constant(0);
     }
 
     bytes() {
@@ -495,7 +509,17 @@ export class InstructionSet extends ExpressionVolatile {
         return bytes;
     }
 
+    calcOffset() {
+        super.calcOffset();
+        var picked = this.getPicked();
+        if(picked) {
+            picked.offset = this.offset;
+        }
+    }
+
     pickShortestInstruction(): Instruction {
+        if(this.ops.hasRelative()) return null;
+
         // Pick the shortest instruction if we know all instruction sizes, otherwise don't pick any.
         var size = SIZE_UNKNOWN;
         var isize = 0;
@@ -519,6 +543,13 @@ export class InstructionSet extends ExpressionVolatile {
         for(var j = 0; j < this.ops.list.length; j++) {
             var op = this.ops.list[j];
             if(op instanceof o.Operand) {
+                if(op instanceof o.Relative) {
+                    var Clazz = tpls[j] as any;
+                    if(Clazz.name.indexOf('Relative') === 0) {
+                        var RelativeClass = Clazz as typeof o.Relative;
+                        op = (op as o.Relative).cast(RelativeClass);
+                    }
+                }
                 list.push(op as any);
             } else if(o.isTnumber(op)) {
                 var Clazz = tpls[j] as any;

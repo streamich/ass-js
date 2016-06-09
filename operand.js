@@ -189,6 +189,9 @@ var Relative = (function (_super) {
         this.expr = expr;
         this.offset = offset;
     }
+    Relative.prototype.cast = function (RelativeClass) {
+        return new RelativeClass(this.expr, this.offset);
+    };
     Relative.prototype.rebaseOffset = function (expr) {
         // if(expr.code !== this.expr.code)
         //     throw Error('Rebase from different code blocks not implemented yet.');

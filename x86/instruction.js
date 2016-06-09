@@ -415,6 +415,13 @@ var Instruction = (function (_super) {
             this.immediate = new p.Immediate(imm);
             this.length += this.immediate.value.size >> 3;
         }
+        else {
+            var rel = this.ops.getRelative();
+            if (rel) {
+                this.immediate = new p.Immediate(new o.Immediate(0));
+                this.length += rel.size >> 3;
+            }
+        }
     };
     return Instruction;
 }(i.Instruction));

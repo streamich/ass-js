@@ -437,28 +437,38 @@ var InstructionSet = (function (_super) {
             throw Error('Instruction candidates not reduced.');
         return this.getPicked().write(arr);
     };
-    InstructionSet.prototype.toString = function (margin, hex) {
+    InstructionSet.prototype.toString = function (margin, comment) {
         if (margin === void 0) { margin = '    '; }
-        if (hex === void 0) { hex = true; }
+        if (comment === void 0) { comment = true; }
         if (this.picked === -1) {
-            var str = '(one of:)\n';
+            var expression = '(one of:)';
+            var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
+            expression += spaces + ("; " + this.formatOffset() + " max " + this.bytesMax() + " bytes\n");
             var lines = [];
-            for (var j = 0; j < this.insn.length; j++) {
-                if (this.insn[j].ops)
-                    lines.push(this.insn[j].toString(margin, hex));
-                else
-                    lines.push('    ' + this.matches.list[j].def.toString());
-            }
-            // for(var match of this.matches.list) {
-            //     lines.push('    ' + match.def.toString());
+            // for(var j = 0; j < this.insn.length; j++) {
+            //     if(this.insn[j].ops) lines.push(this.insn[j].toString(margin, hex));
+            //     else lines.push('    ' + this.matches.list[j].def.toString());
             // }
-            return str + lines.join('\n');
+            for (var _i = 0, _a = this.matches.list; _i < _a.length; _i++) {
+                var match = _a[_i];
+                lines.push(margin + match.def.toString());
+            }
+            return expression + lines.join('\n');
         }
-        else
-            return this.getPicked().toString(margin, hex);
+        else {
+            var picked = this.getPicked();
+            return picked.toString(margin, comment) + ' ' + picked.bytes() + ' bytes';
+        }
     };
     InstructionSet.prototype.getPicked = function () {
         return this.insn[this.picked];
+    };
+    InstructionSet.prototype.determineSize = function () {
+        this.picked = 0;
+    };
+    InstructionSet.prototype.evaluate = function () {
+        var picked = this.getPicked();
+        picked.ops.list[0] = new o.Constant(0);
     };
     InstructionSet.prototype.bytes = function () {
         return this.picked === -1 ? exports.SIZE_UNKNOWN : this.getPicked().bytes();
@@ -475,7 +485,16 @@ var InstructionSet = (function (_super) {
         }
         return bytes;
     };
+    InstructionSet.prototype.calcOffset = function () {
+        _super.prototype.calcOffset.call(this);
+        var picked = this.getPicked();
+        if (picked) {
+            picked.offset = this.offset;
+        }
+    };
     InstructionSet.prototype.pickShortestInstruction = function () {
+        if (this.ops.hasRelative())
+            return null;
         // Pick the shortest instruction if we know all instruction sizes, otherwise don't pick any.
         var size = exports.SIZE_UNKNOWN;
         var isize = 0;
@@ -498,6 +517,13 @@ var InstructionSet = (function (_super) {
         for (var j = 0; j < this.ops.list.length; j++) {
             var op = this.ops.list[j];
             if (op instanceof o.Operand) {
+                if (op instanceof o.Relative) {
+                    var Clazz = tpls[j];
+                    if (Clazz.name.indexOf('Relative') === 0) {
+                        var RelativeClass = Clazz;
+                        op = op.cast(RelativeClass);
+                    }
+                }
                 list.push(op);
             }
             else if (o.isTnumber(op)) {

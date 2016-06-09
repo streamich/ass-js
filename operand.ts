@@ -189,6 +189,10 @@ export class Relative extends Operand {
         this.offset = offset;
     }
 
+    cast(RelativeClass: typeof Relative): Relative {
+        return new RelativeClass(this.expr, this.offset);
+    }
+
     rebaseOffset(expr: Expression) {
         // if(expr.code !== this.expr.code)
         //     throw Error('Rebase from different code blocks not implemented yet.');

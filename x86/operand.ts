@@ -414,29 +414,29 @@ export class Operands extends o.OperandsNormalized {
         return SIZE.NONE;
     }
 
-    static fromUiOpsAndTpl(insn: i.Instruction, ops: TUiOperand[], tpls: t.TOperandTemplate[]): Operands {
-        var iops: TInstructionOperand[] = [];
-        for(var j = 0; j < ops.length; j++) {
-            var op = ops[j];
-            if((op instanceof Memory) || (op instanceof Register) || (op instanceof Immediate) || (op instanceof Relative)) {
-                iops.push(op as any);
-            } else if(isTnumber(op)) {
-                var Clazz = tpls[j] as any;
-                // if(typeof Clazz !== 'function') throw Error('Expected construction operand definition');
-                if(Clazz.name.indexOf('Immediate') === 0) {
-                    var ImmediateClass = Clazz as typeof Immediate;
-                    var imm = new ImmediateClass(op as Tnumber);
-                    iops.push(imm);
-                } else if(Clazz.name.indexOf('Relative') === 0) {
-                    var RelativeClass = Clazz as typeof Relative;
-                    var rel = new RelativeClass(insn, op as number);
-                    iops.push(rel);
-                }
-            } else
-                throw TypeError('Invalid operand expected Register, Memory, Relative, number or number64.');
-        }
-        return new Operands(iops);
-    }
+    // static fromUiOpsAndTpl(insn: i.Instruction, ops: TUiOperand[], tpls: t.TOperandTemplate[]): Operands {
+    //     var iops: TInstructionOperand[] = [];
+    //     for(var j = 0; j < ops.length; j++) {
+    //         var op = ops[j];
+    //         if((op instanceof Memory) || (op instanceof Register) || (op instanceof Immediate) || (op instanceof Relative)) {
+    //             iops.push(op as any);
+    //         } else if(isTnumber(op)) {
+    //             var Clazz = tpls[j] as any;
+    //             if(typeof Clazz !== 'function') throw Error('Expected construction operand definition');
+                // if(Clazz.name.indexOf('Immediate') === 0) {
+                //     var ImmediateClass = Clazz as typeof Immediate;
+                //     var imm = new ImmediateClass(op as Tnumber);
+                //     iops.push(imm);
+                // } else if(Clazz.name.indexOf('Relative') === 0) {
+                //     var RelativeClass = Clazz as typeof Relative;
+                //     var rel = new RelativeClass(insn, op as number);
+                //     iops.push(rel);
+                // }
+            // } else
+            //     throw TypeError('Invalid operand expected Register, Memory, Relative, number or number64.');
+        // }
+        // return new Operands(iops);
+    // }
 
     getRegisterOperand(dst_first = true): Register {
         var [dst, src] = this.list;

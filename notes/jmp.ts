@@ -8,7 +8,13 @@ var code = Code.create();
 var start = code.getStartLabel();
 // code.mov(o.rax, o.rax);
 var insn = code.jmp(start);
-console.log(code.toString());
+console.log(code.toString() + '\n\n');
+code.do2ndPass();
+// console.log(code.expr);
+console.log(code.toString() + '\n\n');
+code.do3rdPass();
+console.log(code.toString() + '\n\n');
+
 // console.log(insn);
 // var insn = code.jmp(0);
 // code.mov(o.rbx, o.rbx);

@@ -453,6 +453,12 @@ export class Instruction extends i.Instruction implements IInstruction {
             //     throw TypeError(`Cannot have Immediate with ${SIZE.Q} bit Displacement.`);
             this.immediate = new p.Immediate(imm);
             this.length += this.immediate.value.size >> 3;
+        } else {
+            var rel = this.ops.getRelative();
+            if(rel) {
+                this.immediate = new p.Immediate(new o.Immediate(0));
+                this.length += rel.size >> 3;
+            }
         }
     }
 }

@@ -67,12 +67,14 @@ export class Code {
     }
 
     do2ndPass() {
-        var all_offsets_known = this.expr[this.expr.length - 1].offset !== i.OFFSET_UNKNOWN;
-        if(!all_offsets_known) {
-            for(var ins of this.expr) {
-                ins.determineSize();
-                ins.calcOffset();
-            }
+        var last = this.expr[this.expr.length - 1];
+        var all_offsets_known = last.offset !== i.OFFSET_UNKNOWN;
+        var all_sizes_known = last.bytes() !== i.SIZE_UNKNOWN;
+        if(all_offsets_known && all_sizes_known) return;
+
+        for(var ins of this.expr) {
+            ins.determineSize();
+            ins.calcOffset();
         }
     }
 
