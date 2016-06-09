@@ -1,7 +1,7 @@
 "use strict";
 var d = require('../x86/def');
-var t = require('../x64/table');
-var table = new d.DefTable(t.table, t.defaults);
+var t = require('../x86/x64/table');
+var table = (new d.DefTable).create(t.table, t.defaults);
 // var ops = new o.Operands([o.rax]);
 // var code = new Code;
 // console.log(table);

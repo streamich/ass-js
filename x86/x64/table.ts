@@ -1,16 +1,15 @@
-import {extend} from '../util';
-import * as o from '../x86/operand';
-import * as t from '../x86/table';
-import {S, M, r, r8, r16, r32, r64, m, m8, m16, m32, m64, rm8, rm16, rm32, rm64,
-    imm, imm8, imm16, imm32, imm64, immu, immu8, immu16, immu32, immu64,
-    rel, rel8, rel16, rel32} from '../x86/table';
+import {extend} from '../../util';
+import * as o from '../operand';
+import * as t from '../table';
+import {S, rel, rel8, rel16, rel32} from '../../table';
+import {M, r, r8, r16, r32, r64, m, m8, m16, m32, m64, rm8, rm16, rm32, rm64,
+    imm, imm8, imm16, imm32, imm64, immu, immu8, immu16, immu32, immu64} from '../table';
 
 
 export var defaults = extend<any>({}, t.defaults,
     {rex: false});
 
-
-export var table: t.TableDefinition = {
+export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
 
     // ## Data Transfer
     // MOV Move data between general-purpose registers
@@ -36,6 +35,7 @@ export var table: t.TableDefinition = {
         // 8E /r MOV Sreg,r/m16** RM Valid Valid Move r/m16 to segment register.
         // REX.W + 8E /r MOV Sreg,r/m64** RM Valid Valid Move lower 16 bits of r/m64 to segment register.
 
+        // TODO: Imlement moffsets.
         // A0 MOV AL,moffs8* FD Valid Valid Move byte at (seg:offset) to AL.
         // REX.W + A0 MOV AL,moffs8* FD Valid N.E. Move byte at (offset) to AL.
         // A1 MOV AX,moffs16* FD Valid Valid Move word at (seg:offset) to AX.
@@ -339,16 +339,16 @@ export var table: t.TableDefinition = {
         {ops: [rm64]},
     ],
     // INC Increment
-    inc: [{or: 0, lock: true},
+    inc: [{o: 0xFF, or: 0, lock: true},
         // FE /0 INC r/m8 M Valid Valid Increment r/m byte by 1.
         // REX + FE /0 INC r/m8* M Valid N.E. Increment r/m byte by 1.
         {o: 0xFE, ops: [rm8]},
         // FF /0 INC r/m16 M Valid Valid Increment r/m word by 1.
-        {o: 0xFF, ops: [rm16]},
+        {ops: [rm16]},
         // FF /0 INC r/m32 M Valid Valid Increment r/m doubleword by 1.
-        {o: 0xFF, ops: [rm32]},
+        {ops: [rm32]},
         // REX.W + FF /0 INC r/m64 M Valid N.E. Increment r/m quadword by 1.
-        {o: 0xFF, ops: [rm64]},
+        {ops: [rm64]},
     ],
     // DEC Decrement
     dec: [{or: 1, lock: true},
@@ -633,6 +633,4 @@ export var table: t.TableDefinition = {
     syscall:    [{o: 0x0F05}],
     sysenter:   [{o: 0x0F34}],
     sysexit:    [{o: 0x0F35}],
-    int:        [{o: 0xCD, ops: [immu8]}],
-
-};
+});

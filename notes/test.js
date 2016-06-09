@@ -1,5 +1,5 @@
 "use strict";
-var code_1 = require('../x64/code');
+var code_1 = require('../x86/x64/code');
 var _ = new code_1.Code;
 // console.log(_.table.groups.mov.defs[0].operands);
 // process.exit(0);

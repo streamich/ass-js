@@ -1,7 +1,7 @@
 import * as t from '../x86/table';
 import * as d from '../x86/def';
 import {rax, r12, rdx, rsi, rdi, rbx, rcx, rip, eax, ebx, ax, al, r13} from '../x86/operand';
-import {Code} from '../x64/code';
+import {Code} from '../x86/x64/code';
 
 
 

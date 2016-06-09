@@ -1,180 +1,10 @@
 import {R64, R32, R16, R8, R8H} from './regfile';
-import {UInt64} from '../util';
+import {number64, Tnumber, isTnumber, SIZE, TUiOperand, TUiOperandNormalized,
+    Operand, Constant, Relative, Register as RegisterBase, Memory as MemoryBase} from '../operand';
+import * as o from '../operand';
 import * as t from './table';
-import * as d from './def';
 import * as i from './instruction';
 
-
-export enum SIZE {
-    ANY     = -1,   // Any size.
-    NONE    = 0,    // Either unknown or not specified yet.
-    B       = 8,
-    W       = 16,
-    D       = 32,
-    Q       = 64,
-}
-
-
-export enum MODE {
-    REAL,
-    COMPAT,
-    X64,
-}
-
-// 64-bit numbers
-export type number64 = [number, number];
-export function isNumber64(num) {
-    if((num instanceof Array) && (num.length === 2) && (typeof num[0] === 'number') && (typeof num[1] === 'number')) return true;
-    else return false;
-}
-
-export type Tnumber = number|number64;
-export function isTnumber(num) {
-    if(typeof num === 'number') return true;
-    else return isNumber64(num);
-}
-
-
-// General operand used in our assembly "language".
-export abstract class Operand {
-    // Size in bits.
-    size: SIZE = SIZE.ANY;
-
-    // Convenience method to get `Register` associated with `Register` or `Memory`.
-    reg(): Register {
-        return null;
-    }
-
-    isRegister(): boolean {
-        return this instanceof Register;
-    }
-
-    isMemory(): boolean {
-        return this instanceof Memory;
-    }
-
-    toString(): string {
-        return '[operand]';
-    }
-}
-
-
-// ## Constant
-//
-// Constants are everything where we directly type in a `number` value.
-export class Constant extends Operand {
-
-    static sizeClass(value) {
-        if((value <= 0x7f) && (value >= -0x80))             return SIZE.B;
-        if((value <= 0x7fff) && (value >= -0x8000))         return SIZE.W;
-        if((value <= 0x7fffffff) && (value >= -0x80000000)) return SIZE.D;
-        return SIZE.Q;
-    }
-
-    static sizeClassUnsigned(value) {
-        if(value <= 0xff)           return SIZE.B;
-        if(value <= 0xffff)         return SIZE.W;
-        if(value <= 0xffffffff)     return SIZE.D;
-        return SIZE.Q;
-    }
-
-    value: number|number64 = 0;
-
-    // Each byte as a `number` in reverse order.
-    octets: number[] = [];
-
-    signed: boolean = true;
-
-    constructor(value: number|number64 = 0, signed = true) {
-        super();
-        this.signed = signed;
-        this.setValue(value);
-    }
-
-    setValue(value: number|number64) {
-        if(value instanceof Array) {
-            if(value.length !== 2) throw TypeError('number64 must be a 2-tuple, given: ' + value);
-            this.setValue64(value as number64);
-        } else if(typeof value === 'number') {
-            var clazz = this.signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
-            /* JS integers are 53-bit, so split here `number`s over 32 bits into [number, number]. */
-            if(clazz === SIZE.Q) this.setValue64([UInt64.lo(value), UInt64.hi(value)]);
-            else                    this.setValue32(value);
-        } else
-            throw TypeError('Constant value must be of type number|number64.');
-    }
-
-    protected setValue32(value: number) {
-        var size = this.signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
-        this.size = size;
-        this.value = value;
-        this.octets = [value & 0xFF];
-        if(size > SIZE.B) this.octets[1] = (value >> 8) & 0xFF;
-        if(size > SIZE.W) {
-            this.octets[2] = (value >> 16) & 0xFF;
-            this.octets[3] = (value >> 24) & 0xFF;
-        }
-    }
-
-    protected setValue64(value: number64) {
-        this.size = 64;
-        this.value = value;
-        this.octets = [];
-        var [lo, hi] = value;
-        this.octets[0] = (lo) & 0xFF;
-        this.octets[1] = (lo >> 8) & 0xFF;
-        this.octets[2] = (lo >> 16) & 0xFF;
-        this.octets[3] = (lo >> 24) & 0xFF;
-        this.octets[4] = (hi) & 0xFF;
-        this.octets[5] = (hi >> 8) & 0xFF;
-        this.octets[6] = (hi >> 16) & 0xFF;
-        this.octets[7] = (hi >> 24) & 0xFF;
-    }
-
-    zeroExtend(size) {
-        if(this.size === size) return;
-        if(this.size > size) throw Error(`Already larger than ${size} bits, cannot zero-extend.`);
-        var missing_bytes = (size - this.size) / 8;
-        this.size = size;
-        for(var i = 0; i < missing_bytes; i++) this.octets.push(0);
-    }
-
-    signExtend(size) {
-        if(this.size === size) return;
-        if(this.size > size) throw Error(`Already larger than ${size} bits, cannot zero-extend.`);
-
-        // We know it is not number64, because we don't deal with number larger than 64-bit,
-        // and if it was 64-bit already there would be nothing to extend.
-        var value = this.value as number;
-
-        if(size === SIZE.Q) {
-            this.setValue64([UInt64.lo(value), UInt64.hi(value)]);
-            return;
-        }
-
-        this.size = size;
-        this.octets = [value & 0xFF];
-        if(size > SIZE.B) this.octets[1] = (value >> 8) & 0xFF;
-        if(size > SIZE.W) {
-            this.octets[2] = (value >> 16) & 0xFF;
-            this.octets[3] = (value >> 24) & 0xFF;
-        }
-    }
-
-    extend(size: SIZE) {
-        if(this.signed) this.signExtend(size);
-        else this.zeroExtend(size);
-    }
-
-    toString() {
-        var str = '';
-        for(var i = this.octets.length - 1; i >= 0; i--) {
-            var oct = this.octets[i];
-            str += oct > 0xF ? oct.toString(16).toUpperCase() : '0' + oct.toString(16).toUpperCase();
-        }
-        return '0x' + str;
-    }
-}
 
 export class Immediate extends Constant {
     static factory(size, value: number|number64 = 0, signed = true) {
@@ -260,71 +90,6 @@ export class ImmediateUnsigned64 extends Immediate64 {
 }
 
 
-// Relative jump targets for jump instructions.
-export class Relative {
-    expr: i.Expression;
-    offset: number;
-
-    constructor(expr: i.Expression, offset: number) {
-        this.expr = expr;
-        this.offset = offset;
-    }
-
-    isRegister() {
-        return false;
-    }
-
-    reg() {
-        return null;
-    }
-
-    rebaseOffset(expr: i.Expression) {
-        // if(expr.code !== this.expr.code)
-        //     throw Error('Expressions of different code blocks, cannot rebase.');
-        if(expr.offset === -1)
-            return -1;
-        // throw Error('Expression has no offset, cannot rebase.');
-        return this.offset + this.expr.offset - expr.offset;
-    }
-
-    // Recalculate relative offset given a different Expression.
-    rebase(expr: i.Expression): Relative {
-        return new Relative(expr, this.rebaseOffset(expr));
-        // this.offset = this.rebaseOffset(expr);
-        // this.expr = expr;
-    }
-
-    toString() {
-        if(this.expr instanceof i.Label) {
-            var lbl = this.expr as i.Label;
-            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
-            return `<${lbl.name}${off}>`;
-        } else if(this.expr.code) {
-            var lbl = this.expr.code.getStartLabel();
-            var expr = `+[${this.expr.index}]`;
-            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
-            return `<${lbl.name}${expr}${off}>`;
-        } else {
-            var expr = `+[${this.expr.index}]`;
-            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
-            return `<${expr}${off}>`;
-        }
-    }
-}
-
-export class Relative8 extends Relative {
-    size = SIZE.B;
-}
-
-export class Relative16 extends Relative {
-    size = SIZE.W;
-}
-
-export class Relative32 extends Relative {
-    size = SIZE.D;
-}
-
-
 export class DisplacementValue extends Constant {
     static SIZE = {
         DISP8:  SIZE.B,
@@ -350,17 +115,26 @@ export class DisplacementValue extends Constant {
 // ## Registers
 //
 // `Register` represents one of `%rax`, `%rbx`, etc. registers.
-export class Register extends Operand {
-    id: number = 0; // Number value of register.
+export class Register extends RegisterBase {
 
-    constructor(id: number, size: SIZE) {
-        super();
-        this.id = id;
-        this.size = size;
+    static getName(size, id) {
+        var def = 'REG';
+        if(typeof size !== 'number') return def;
+        if(typeof id !== 'number') return def;
+        switch(size) {
+            case SIZE.Q:                            return R64[id];
+            case SIZE.D:                            return R32[id];
+            case SIZE.W:                            return R16[id];
+            case SIZE.B:
+                if(this instanceof Register8High)   return R8H[id];
+                else                                return R8[id];
+            default:                                return def;
+        }
     }
 
-    reg(): Register {
-        return this;
+    constructor(id, size) {
+        super(id, size);
+        this.name = Register.getName(size, id).toLowerCase();
     }
 
     ref(): Memory {
@@ -382,22 +156,6 @@ export class Register extends Operand {
 
     get3bitId() {
         return this.id & 0b111;
-    }
-
-    getName() {
-        switch(this.size) {
-            case SIZE.Q:                            return R64[this.id];
-            case SIZE.D:                            return R32[this.id];
-            case SIZE.W:                            return R16[this.id];
-            case SIZE.B:
-                if(this instanceof Register8High)   return R8H[this.id];
-                else                                return R8[this.id];
-            default:                                return 'REG';
-        }
-    }
-
-    toString() {
-        return this.getName().toLowerCase();
     }
 }
 
@@ -541,7 +299,7 @@ export class Scale extends Operand {
 // ## Memory
 //
 // `Memory` is RAM addresses which `Register`s can *dereference*.
-export class Memory extends Operand {
+export class Memory extends MemoryBase {
 
     static factory(size: SIZE) {
         switch(size) {
@@ -575,16 +333,6 @@ export class Memory extends Operand {
         return null;
     }
 
-    getAddressSize(): SIZE {
-        var reg = this.reg();
-        if(reg) return reg.size;
-        return SIZE.NONE;
-    }
-
-    getOperandSize(): SIZE {
-        return this.size;
-    }
-
     needsSib() {
         return !!this.index || !!this.scale;
     }
@@ -600,8 +348,7 @@ export class Memory extends Operand {
         if(is_ebp && !this.displacement)
             this.displacement = new DisplacementValue(0);
 
-        this.base = base;
-        return this;
+        return super.ref(base) as this;
     }
 
     ind(index: Register, scale_factor: number = 1): this {
@@ -655,33 +402,19 @@ export class Memory64 extends Memory {
     size = SIZE.Q;
 }
 
-
-export type TUserInterfaceOperand           = Register|Memory|Tnumber|Relative|i.Expression;
-export type TUserInterfaceOperandNormalized = Register|Memory|Tnumber|Relative; // `i.Expression` gets converted to `Relative`.
 export type TInstructionOperand             = Register|Memory|Immediate|Relative; // `Tnumber` gets converted to `Immediate` or `Relative` to current instruction. `Relative` is converted to `Immediate`.
 
 // Collection of operands an instruction might have.
-export class Operands {
+export class Operands extends o.OperandsNormalized {
 
-    static findSize(ops: TUserInterfaceOperand[]): SIZE {
+    static findSize(ops: TUiOperand[]): SIZE {
         for(var operand of ops) {
             if(operand instanceof Register) return (operand as Register).size;
         }
         return SIZE.NONE;
     }
 
-    static uiOpsNormalize(ops: TUserInterfaceOperand[]): TUserInterfaceOperandNormalized[] {
-        var i = require('./instruction');
-        // Wrap `i.Expression` into `o.Relative`.
-        for(var j = 0; j < ops.length; j++) {
-            if(ops[j] instanceof i.Expression) {
-                ops[j] = (ops[j] as i.Expression).rel();
-            }
-        }
-        return ops as TUserInterfaceOperandNormalized[];
-    }
-
-    static fromUiOpsAndTpl(insn: i.Instruction, ops: TUserInterfaceOperand[], tpls: t.TOperandTemplate[]): Operands {
+    static fromUiOpsAndTpl(insn: i.Instruction, ops: TUiOperand[], tpls: t.TOperandTemplate[]): Operands {
         var iops: TInstructionOperand[] = [];
         for(var j = 0; j < ops.length; j++) {
             var op = ops[j];
@@ -705,61 +438,18 @@ export class Operands {
         return new Operands(iops);
     }
 
-    dst: TInstructionOperand;            // Destination
-    src: TInstructionOperand;            // Source
-    op3: TInstructionOperand;
-    op4: TInstructionOperand;
-
-    list: TInstructionOperand[];
-
-    size: SIZE = SIZE.ANY;
-
-    // constructor(dst: TInstructionOperand = null, src: TInstructionOperand = null, op3: TInstructionOperand = null, op4: TInstructionOperand = null) {
-    constructor(list: TInstructionOperand[] = [], size: SIZE = SIZE.ANY) {
-        this.size = size;
-
-        // Verify operand sizes.
-        for(var op of list) {
-            // We can determine operand size only by Register; Memory and Immediate don't tell us the right size.
-            if(op instanceof Register) {
-                if (this.size !== SIZE.ANY) {
-                    if (this.size !== op.size)
-                        throw TypeError('Operand size mismatch.');
-                } else this.setSize(op.size);
-            }
-        }
-
-        this.list = list;
-        [this.dst, this.src, this.op3, this.op4] = list;
-    }
-
-    setSize(size: SIZE) {
-        if(this.size === SIZE.ANY) this.size = size;
-        else throw TypeError('Operand size mismatch.');
-    }
-
-    getFirstOfClass(Clazz): TInstructionOperand {
-        for(var op of this.list) if(op instanceof Clazz) return op;
-        return null;
-    }
-
     getRegisterOperand(dst_first = true): Register {
+        var [dst, src] = this.list;
         var first, second;
         if(dst_first) {
-            first = this.dst;
-            second = this.src;
+            first = dst;
+            second = src;
         } else {
-            first = this.src;
-            second = this.dst;
+            first = src;
+            second = dst;
         }
         if(first instanceof Register) return first as Register;
         if(second instanceof Register) return second as Register;
-        return null;
-    }
-
-    getMemoryOperand(): Memory {
-        if(this.dst instanceof Memory) return this.dst as Memory;
-        if(this.src instanceof Memory) return this.src as Memory;
         return null;
     }
 
@@ -767,41 +457,19 @@ export class Operands {
         return this.getFirstOfClass(Immediate) as Immediate;
     }
 
-    getRelative(): Relative {
-        return this.getFirstOfClass(Relative) as Relative;
-    }
-
-    getAddressSize(): SIZE {
-        var mem = this.getMemoryOperand();
-        if(mem) return mem.size;
-        else return SIZE.NONE;
-    }
-
-    hasRegister(): boolean {
-        return !!this.getRegisterOperand();
-    }
-
-    hasMemory(): boolean {
-        return !!this.getMemoryOperand();
-    }
-
-    hasRegisterOrMemory(): boolean {
-        return this.hasRegister() || this.hasMemory();
+    hasImmediate(): boolean {
+        return !!this.getImmediate();
     }
 
     hasExtendedRegister(): boolean {
-        var {dst, src} = this;
+        var [dst, src] = this.list;
         if(dst && dst.reg() && (dst.reg() as Register).isExtended()) return true;
         if(src && src.reg() && (src.reg() as Register).isExtended()) return true;
         return false;
     }
+}
 
-    toString() {
-        var parts = [];
-        if(this.dst) parts.push(this.dst.toString());
-        if(this.src) parts.push(this.src.toString());
-        if(this.op3) parts.push(this.op3.toString());
-        if(this.op4) parts.push(this.op4.toString());
-        return parts.join(', ');
-    }
+
+export interface Operands {
+    getMemoryOperand(): Memory;
 }

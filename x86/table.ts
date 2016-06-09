@@ -1,56 +1,58 @@
-import * as o from './operand';
+import {extend} from '../util';
+import {S, rel, rel8, rel16, rel32} from '../table';
+import * as t from '../table';
+import {Register, Register8, Register16, Register32, Register64,
+    Memory, Memory8, Memory16, Memory32, Memory64,
+    Immediate, Immediate8, Immediate16, Immediate32, Immediate64,
+    ImmediateUnsigned, ImmediateUnsigned8, ImmediateUnsigned16, ImmediateUnsigned32, ImmediateUnsigned64} from './operand';
 
 
-export var S        = o.SIZE;
-export var M        = o.MODE;
+export enum MODE {
+    REAL,
+    COMPAT,
+    X64,
+}
+
+export var M        = MODE;
 
 // Operands
-export var r        = o.Register;
-export var r8       = o.Register8;
-export var r16      = o.Register16;
-export var r32      = o.Register32;
-export var r64      = o.Register64;
-export var m        = o.Memory;
-export var m8       = o.Memory8;
-export var m16      = o.Memory16;
-export var m32      = o.Memory32;
-export var m64      = o.Memory64;
-export var rm8      = [o.Register8,  o.Memory];
-export var rm16     = [o.Register16, o.Memory];
-export var rm32     = [o.Register32, o.Memory];
-export var rm64     = [o.Register64, o.Memory];
-export var imm      = o.Immediate;
-export var immu     = o.ImmediateUnsigned;
-export var imm8     = o.Immediate8;
-export var immu8    = o.ImmediateUnsigned8;
-export var imm16    = o.Immediate16;
-export var immu16   = o.ImmediateUnsigned16;
-export var imm32    = o.Immediate32;
-export var immu32   = o.ImmediateUnsigned32;
-export var imm64    = o.Immediate64;
-export var immu64   = o.ImmediateUnsigned64;
-export var rel      = o.Relative;
-export var rel8     = o.Relative8;
-export var rel16    = o.Relative16;
-export var rel32    = o.Relative32;
+export var r        = Register;
+export var r8       = Register8;
+export var r16      = Register16;
+export var r32      = Register32;
+export var r64      = Register64;
+export var m        = Memory;
+export var m8       = Memory8;
+export var m16      = Memory16;
+export var m32      = Memory32;
+export var m64      = Memory64;
+export var rm8      = [Register8,  Memory];
+export var rm16     = [Register16, Memory];
+export var rm32     = [Register32, Memory];
+export var rm64     = [Register64, Memory];
+export var imm      = Immediate;
+export var immu     = ImmediateUnsigned;
+export var imm8     = Immediate8;
+export var immu8    = ImmediateUnsigned8;
+export var imm16    = Immediate16;
+export var immu16   = ImmediateUnsigned16;
+export var imm32    = Immediate32;
+export var immu32   = ImmediateUnsigned32;
+export var imm64    = Immediate64;
+export var immu64   = ImmediateUnsigned64;
 
 
-export type TOperandTemplate = o.Register |
-    typeof o.Register | typeof o.Register8 | typeof o.Register16 | typeof o.Register32 | typeof o.Register64 |
-    typeof o.Memory | typeof o.Memory8 | typeof o.Memory16 | typeof o.Memory32 | typeof o.Memory64 |
-    typeof o.Immediate | typeof o.Immediate8 | typeof o.Immediate16 | typeof o.Immediate32 | typeof o.Immediate64 |
-    typeof o.ImmediateUnsigned | typeof o.ImmediateUnsigned8 | typeof o.ImmediateUnsigned16 | typeof o.ImmediateUnsigned32 | typeof o.ImmediateUnsigned64;
+export type TOperandTemplate = t.TOperandTemplate |
+    typeof Register8 | typeof Register16 | typeof Register32 | typeof Register64 |
+    typeof Memory8 | typeof Memory16 | typeof Memory32 | typeof Memory64 |
+    typeof Immediate | typeof Immediate8 | typeof Immediate16 | typeof Immediate32 | typeof Immediate64 |
+    typeof ImmediateUnsigned | typeof ImmediateUnsigned8 | typeof ImmediateUnsigned16 | typeof ImmediateUnsigned32 | typeof ImmediateUnsigned64;
 
 
-export interface Definition {
-    s?: number;                                     // Operand size, each operation can only have size of `o.SIZE.NONE`, when it
-                                                    // has no operands or does not need them (like INT 0x80), or one of `o.SIZE.X`,
-                                                    // it cannot have size of `o.SIZE.ANY`.
+export interface Definition extends t.Definition {
     ds?: number;                                    // Default size, usually 32 bits on x64, some instructions default to 64 bits.
     lock?: boolean;                                 // Whether LOCK prefix allowed.
     ops?: (TOperandTemplate|TOperandTemplate[])[];  // Operands this instruction accepts.
-    mn?: string;                                    // Mnemonic
-    o?: number;                                     // Opcode
     or?: number;                                    // Opreg - 3bit opcode part in modrm.reg field, -1 if none.
     r?: boolean;                                    // 3bit register encoded in lowest opcode bits.
     dbit?: boolean;                                 // Whether it is allowed to change `d` bit in opcode.
@@ -64,24 +66,14 @@ export type GroupDefinition = Definition[];
 export type TableDefinition = {[s: string]: GroupDefinition};
 
 
-// Global defaults
-export var defaults: Definition
-    = {s: S.NONE, ds: S.D, lock: false, ops: null, or: -1, r: false, dbit: false, rex: false, mr: true, rep: false, repne: false, pfx: null};
+// x86 global defaults
+export var defaults: Definition = extend<Definition>({}, t.defaults,
+    {ds: S.D, lock: false, or: -1, r: false, dbit: false, rex: false, mr: true, rep: false, repne: false, pfx: null});
 
 
 // Instruction are divided in groups, each group consists of list
 // of possible instructions. The first object is NOT an instruction
 // but defaults for the group.
 export var table: TableDefinition = {
-    mov: [
-        {mn: 'mov'},
-        {o: 0x8B, mn: 'movq', ops: [r64, r64]},
-        {o: 0xC7, ops: [r64, imm32]},
-    ],
-    inc: [
-        {o: 0xFF, or: 0, lock: true},
-        {o: 0xFE, ops: [rm8]},
-        {ops: [rm32]},
-        {ops: [rm64]},
-    ]
+    int: [{o: 0xCD, ops: [immu8]}],
 };

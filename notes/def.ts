@@ -1,10 +1,10 @@
 import * as d from '../x86/def';
-import * as t from '../x64/table';
+import * as t from '../x86/x64/table';
 import * as o from '../x86/operand';
-import {Code} from '../x64/code';
+import {Code} from '../x86/x64/code';
 
 
-var table = new d.DefTable(t.table, t.defaults);
+var table = (new d.DefTable).create(t.table, t.defaults);
 // var ops = new o.Operands([o.rax]);
 // var code = new Code;
 // console.log(table);

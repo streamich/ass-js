@@ -1,161 +1,31 @@
+import {SIZE} from '../operand';
+import * as oo from '../operand';
 import * as o from './operand';
+import * as t from './table';
+import * as i from '../instruction';
 import * as p from './parts';
 import * as d from './def';
-import {Code} from './code';
 
 
-export const SIZE_MAX = 15; // Max instruction size in bytes.
 export const SIZE_UNKNOWN = -1;
 
+export abstract class Expression extends i.Expression {}
 
-export abstract class Expression {
-    // Index where instruction was inserted in `Code`s buffer.
-    index: number = 0;
-
-    // Byte offset of the instruction in compiled machine code.
-    offset: number = -1;
-    // Same as `offset` but for instructions that we don't know byte size yet we assume `MAX_SIZE`.
-    offsetMax: number = -1;
-
-    code: Code = null;
-
-    abstract write(arr: number[]): number[];
-    abstract toString(margin?, comment?): string;
-
-    bind(code: Code) {
-        this.code = code;
-    }
-
-    protected calcOffsets() {
-        // Calculate offset of this instruction inside the code block.
-        if(this.index === 0) {
-            this.offset = 0;
-            this.offsetMax = 0;
-        } else {
-            var prev = this.code.expr[this.index - 1];
-            var size = prev.bytes();
-            if(size !== SIZE_UNKNOWN) {
-                if(prev.offset !== -1)
-                    this.offset = prev.offset + size;
-            } else this.offset = -1;
-
-            if(prev.offsetMax !== -1)
-                this.offsetMax = prev.offsetMax + prev.bytesMax();
-        }
-    }
-
-    build() {
-        this.calcOffsets();
-    }
-
-    // Generate everything necessary to be able to write expression out into binary buffer.
-    compile(): this {
-        this.calcOffsets();
-        return this;
-    }
-
-    // Size in bytes of the instruction.
-    bytes(): number {
-        return SIZE_UNKNOWN;
-    }
-
-    bytesMax(): number {
-        return this.bytes();
-    }
-
-    rel(offset = 0): o.Relative {
-        var rel = new o.Relative(this, offset);
-        return rel;
-    }
-}
-
-
-export class Label extends Expression {
-
-    name: string;
-
-    constructor(name: string) {
-        super();
-        if((typeof name !== 'string') || !name)
-            throw TypeError('Label name must be a non-empty string.');
-        this.name = name;
-    }
-
-    write(arr: number[]): number[] {
-        return arr;
-    }
-
-    bytes(): number {
-        return 0;
-    }
-
-    toString() {
-        return this.name + ':';
-    }
-}
-
-
-export class Data extends Expression {
-    octets: number[] = [];
-
-    write(arr: number[]): number[] {
-        this.offset = arr.length;
-
-        arr = arr.concat(this.octets);
-        return arr;
-    }
-
-    bytes(): number {
-        return this.octets.length;
-    }
-
-    toString(margin = '    ') {
-        var data = this.octets.map(function(byte) {
-            return byte <= 0xF ? '0' + byte.toString(16).toUpperCase() : byte.toString(16).toUpperCase();
-        });
-        return margin + 'db 0x' + data.join(', 0x');
-    }
-}
-
-
-export class DataUninitialized extends Expression {
-    length: number;
-
-    constructor(length: number) {
-        super();
-        this.length = length;
-    }
-
-    write(arr: number[]): number[] {
-        this.offset = arr.length;
-
-        arr = arr.concat(new Array(this.length));
-        return arr;
-    }
-
-    bytes(): number {
-        return this.length;
-    }
-
-    toString(margin = '    ') {
-        return margin + 'resb ' + this.length;
-    }
-}
-
-
-export interface InstructionUi {
-    bytes(): number;
-    /* Adds `LOCK` prefix to instructoins, throws `TypeError` on error. */
+export interface IInstruction {
     lock(): this;
     bt(): this;
     bnt(): this;
+    rep(): this;
+    repe(): this;
+    repz(): this;
+    repnz(): this;
+    repne(): this;
     cs(): this;
     ss(): this;
     ds(): this;
     es(): this;
     fs(): this;
     gs(): this;
-    toString(): string;
 }
 
 
@@ -164,10 +34,9 @@ export interface InstructionUi {
 // `Instruction` object is created using instruction `Definition` and `Operands` provided by the user,
 // out of those `Instruction` generates `InstructionPart`s, which then can be packaged into machine
 // code using `.write()` method.
-export class Instruction extends Expression implements InstructionUi {
-    code: Code = null;
-    def: d.Def = null;
-    op: o.Operands = null;
+export class Instruction extends i.Instruction implements IInstruction {
+    def: d.Def;
+    ops: o.Operands;
 
     // Instruction parts.
     pfxOpSize: p.PrefixOperandSizeOverride = null;
@@ -183,19 +52,10 @@ export class Instruction extends Expression implements InstructionUi {
     displacement: p.Displacement = null;
     immediate: p.Immediate = null;
 
-    // Size in bytes of this instruction.
-    length: number = 0;
-
     // Direction for register-to-register `MOV` operations, whether REG field of Mod-R/M byte is destination.
     // We set this to `false` to be compatible with GAS assembly, which we use for testing.
     protected regToRegDirectionRegIsDst: boolean = false;
 
-    // constructor(code: Code, def: Definition, op: Operands) {
-    // constructor(def: d.Def, op: o.Operands) {
-    //     super();
-    //     this.def = def;
-    //     this.op = op;
-    // }
 
     build(): this {
         super.build();
@@ -213,6 +73,7 @@ export class Instruction extends Expression implements InstructionUi {
         this.displacement = null;
         this.immediate = null;
 
+        this.length = 0;
         this.createPrefixes();
         this.createOpcode();
         this.createModrm();
@@ -234,8 +95,6 @@ export class Instruction extends Expression implements InstructionUi {
     }
 
     write(arr: number[]): number[] {
-        if(this.offset === -1) this.offset = arr.length;
-
         this.writePrefixes(arr);
         this.opcode.write(arr);
         if(this.modrm)          this.modrm.write(arr);
@@ -328,45 +187,19 @@ export class Instruction extends Expression implements InstructionUi {
         var parts = [];
         if(this.pfxLock) parts.push(this.pfxLock.toString());
         if(this.pfxSegment) parts.push(this.pfxSegment.toString());
-        parts.push(this.def.getMnemonic());
-        if((parts.join(' ')).length < 8) parts.push((new Array(7 - (parts.join(' ')).length)).join(' '));
-        if(this.op.list.length) parts.push(this.op.toString());
-        var expression = margin + parts.join(' ');
-
-        var offset = 'XXXXXX';
-        if(this.offset !== -1) {
-            offset = this.offset.toString(16).toUpperCase();
-            offset = (new Array(7 - offset.length)).join('0') + offset;
-        }
-
-        var max_offset = 'XXXXXX';
-        if(this.offsetMax !== -1) {
-            max_offset = this.offsetMax.toString(16).toUpperCase();
-            max_offset = (new Array(7 - max_offset.length)).join('0') + max_offset;
-        }
-
-        var comment = '';
-        if(hex) {
-            var cols = 36;
-            var spaces = (new Array(1 + Math.max(0, cols - expression.length))).join(' ');
-            var octets = this.write([]).map(function(byte) {
-                return byte <= 0xF ? '0' + byte.toString(16).toUpperCase() : byte.toString(16).toUpperCase();
-            });
-            comment = spaces + `; ${offset}|${max_offset}: 0x` + octets.join(', 0x');// + ' / ' + this.def.toString();
-        }
-
-        return expression + comment;
+        parts.push(super.toString(margin, hex));
+        return parts.join(' ');
     }
 
     protected needsOperandSizeOverride() {
-        if(!this.op.list.length) return false;
-        if((this.code.operandSize === o.SIZE.D) && (this.def.operandSize === o.SIZE.W)) return true;
-        if((this.code.operandSize === o.SIZE.W) && (this.def.operandSize === o.SIZE.D)) return true;
+        if(!this.ops.list.length) return false;
+        if((this.code.operandSize === SIZE.D) && (this.def.operandSize === SIZE.W)) return true;
+        if((this.code.operandSize === SIZE.W) && (this.def.operandSize === SIZE.D)) return true;
         return false;
     }
 
     protected needsAddressSizeOverride() {
-        var mem = this.op.getMemoryOperand();
+        var mem = this.ops.getMemoryOperand();
         if(mem) {
             var reg = mem.reg();
             if(reg && (reg.size !== this.code.addressSize)) return true;
@@ -398,7 +231,7 @@ export class Instruction extends Expression implements InstructionUi {
         var opcode = this.opcode;
         opcode.op = def.opcode;
 
-        var {dst, src} = this.op;
+        var [dst, src] = this.ops.list;
 
         if(def.regInOp) {
             // We have register encoded in op-code here.
@@ -435,9 +268,9 @@ export class Instruction extends Expression implements InstructionUi {
 
     protected createModrm() {
         if(!this.def.useModrm) return;
-        if(!this.op.hasRegisterOrMemory()) return;
+        if(!this.ops.hasRegisterOrMemory()) return;
 
-        var {dst, src} = this.op;
+        var [dst, src] = this.ops.list;
         var has_opreg = (this.def.opreg > -1);
         var dst_in_modrm = !this.def.regInOp && !!dst; // Destination operand is NOT encoded in main op-code byte.
         if(has_opreg || dst_in_modrm) {
@@ -448,7 +281,7 @@ export class Instruction extends Expression implements InstructionUi {
             if(has_opreg) {
                 // If we have `opreg`, then instruction has up to one operand.
                 reg = this.def.opreg;
-                var r: o.Register = this.op.getRegisterOperand();
+                var r: o.Register = this.ops.getRegisterOperand();
                 if (r) {
                     mod = p.Modrm.MOD.REG_TO_REG;
                     rm = r.get3bitId();
@@ -458,7 +291,7 @@ export class Instruction extends Expression implements InstructionUi {
                 }
             } else {
                 // var r: o.Register = this.op.getRegisterOperand(this.regToRegDirectionRegIsDst);
-                var r: o.Register = this.op.getRegisterOperand(reg_is_dst);
+                var r: o.Register = this.ops.getRegisterOperand(reg_is_dst) as o.Register;
                 if (r) {
                     mod = p.Modrm.MOD.REG_TO_REG;
                     reg = r.get3bitId();
@@ -484,7 +317,7 @@ export class Instruction extends Expression implements InstructionUi {
 
             // `o.Memory` class makes sure that ESP cannot be a SIB index register and
             // that EBP always has displacement value even if 0x00.
-            var m: o.Memory = this.op.getMemoryOperand();
+            var m: o.Memory = this.ops.getMemoryOperand() as o.Memory;
             if(!m) {
                 // throw Error('No Memory reference for Modrm byte.');
                 this.modrm = new p.Modrm(mod, reg, rm);
@@ -546,7 +379,7 @@ export class Instruction extends Expression implements InstructionUi {
         if(this.modrm.mod === p.Modrm.MOD.REG_TO_REG) return;
         if((this.modrm.rm !== p.Modrm.RM.NEEDS_SIB)) return;
 
-        var m: o.Memory = this.op.getMemoryOperand();
+        var m: o.Memory = this.ops.getMemoryOperand() as o.Memory;
         if(!m) throw Error('No Memory operand to encode SIB.');
 
         var scalefactor = 0, I = 0, B = 0;
@@ -575,7 +408,7 @@ export class Instruction extends Expression implements InstructionUi {
     }
 
     protected createDisplacement() {
-        var m: o.Memory = this.op.getMemoryOperand();
+        var m: o.Memory = this.ops.getMemoryOperand() as o.Memory;
         if(m && m.displacement) {
             this.displacement = new p.Displacement(m.displacement);
             this.length += this.displacement.value.size / 8;
@@ -603,7 +436,7 @@ export class Instruction extends Expression implements InstructionUi {
     }
 
     protected createImmediate() {
-        var imm = this.op.getImmediate();
+        var imm = this.ops.getImmediate();
         if(imm) {
             // If immediate does not have concrete size, use the size of instruction operands.
             // if(imm.constructor === o.Immediate) {
@@ -616,8 +449,8 @@ export class Instruction extends Expression implements InstructionUi {
             //     }
             // }
 
-            // if (this.displacement && (this.displacement.value.size === o.SIZE.Q))
-            //     throw TypeError(`Cannot have Immediate with ${o.SIZE.Q} bit Displacement.`);
+            // if (this.displacement && (this.displacement.value.size === SIZE.Q))
+            //     throw TypeError(`Cannot have Immediate with ${SIZE.Q} bit Displacement.`);
             this.immediate = new p.Immediate(imm);
             this.length += this.immediate.value.size >> 3;
         }
@@ -627,103 +460,88 @@ export class Instruction extends Expression implements InstructionUi {
 
 // Wrapper around multiple instructions when different machine instructions can be used to perform the same task.
 // For example, `jmp` with `rel8` or `rel32` immediate, or when multiple instruction definitions match provided operands.
-export class InstructionCandidates extends Expression implements InstructionUi {
-    matches: d.DefMatchList = null;
-    operands: o.TUserInterfaceOperandNormalized[] = [];
-    insn: Instruction[] = [];
-    picked: number = -1; // Index of instruction that was eventually chosen.
+export class InstructionSet extends i.InstructionSet implements IInstruction {
 
-    lock(): this {
-        for(var insn of this.insn) insn.lock();
+    protected normalizeOperands(insn: Instruction, tpls: t.TOperandTemplate[]): oo.TOperandN1[] {
+        var list = super.normalizeOperands(insn, tpls as any);
+        for(var j = 0; j < list.length; j++) {
+            var op = list[j];
+            if(oo.isTnumber(op)) {
+                var Clazz = tpls[j] as any;
+                var num = op as any as oo.Tnumber;
+                if(Clazz.name.indexOf('Immediate') === 0) {
+                    var ImmediateClass = Clazz as typeof o.Immediate;
+                    var imm = new ImmediateClass(num);
+                    list[j] = imm;
+                } else
+                    throw TypeError('Invalid definition expected Immediate.');
+            }
+        }
+        return list;
+    }
+
+    protected createInstructionOperands(insn: Instruction, tpls: t.TOperandTemplate[]): o.Operands {
+        var list = this.normalizeOperands(insn, tpls);
+        return new o.Operands(list, this.ops.size);
+    }
+
+    lock() {
         return this;
     }
 
-    write(arr: number[]): number[] {
-        if(this.picked === -1)
-            throw Error('Instruction candidates not reduced.');
-        return this.getPicked().write(arr);
+    bt(){
+        return this;
     }
 
-    toString(margin = '    ', hex = true) {
-        if(this.picked === -1) {
-            var str = '(one of:)\n';
-            var lines = [];
-            for(var i = 0; i < this.insn.length; i++) {
-                if(this.insn[i].op) lines.push(this.insn[i].toString(margin, hex));
-                else lines.push('    ' + this.matches.list[i].def.toString());
-            }
-            // for(var match of this.matches.list) {
-            //     lines.push('    ' + match.def.toString());
-            // }
-            return str + lines.join('\n');
-        } else
-            return this.getPicked().toString(margin, hex);
+    bnt(){
+        return this;
     }
 
-    getPicked() {
-        return this.insn[this.picked];
+    rep(){
+        return this;
     }
 
-    bytes() {
-        return this.picked === -1 ? SIZE_UNKNOWN : this.getPicked().bytes();
+    repe(){
+        return this;
     }
 
-    bytesMax() {
-        var max = 0;
-        for(var ins of this.insn) {
-            if(ins) {
-                var bytes = ins.bytes();
-                if (bytes > max) max = bytes;
-            }
-        }
-        return bytes;
+    repz(){
+        return this;
     }
 
-    pickShortestInstruction(): Instruction {
-        // Pick the shortest instruction if we know all instruction sizes, otherwise don't pick any.
-        var size = SIZE_UNKNOWN;
-        var isize = 0;
-        for(var j = 0; j < this.insn.length; j++) {
-            var insn = this.insn[j];
-            isize = insn.bytes();
-            if(isize === SIZE_UNKNOWN) {
-                this.picked = -1;
-                return null;
-            }
-            if((size === SIZE_UNKNOWN) || (isize < size)) {
-                size = isize;
-                this.picked = j;
-            }
-        }
-        return this.getPicked();
+    repnz(){
+        return this;
     }
 
-    build() {
-        super.build();
-        var len = this.matches.list.length;
-        this.insn = new Array(len);
-        for(var j = 0; j < len; j++) {
-            var match = this.matches.list[j];
-
-            var insn = new this.code.ClassInstruction;
-            insn.index = this.index;
-            insn.def = match.def;
-
-            try {
-                var ops = o.Operands.fromUiOpsAndTpl(insn, this.operands, match.opTpl);
-                insn.op = ops;
-                insn.bind(this.code);
-                insn.build();
-                this.insn[j] = insn;
-            } catch(e) {
-                this.insn[j] = null;
-            }
-        }
+    repne(){
+        return this;
     }
 
-    compile(): this {
-        this.calcOffsets();
+    cs(){
+        return this;
+    }
+
+    ss(){
+        return this;
+    }
+
+    ds(){
+        return this;
+    }
+
+    es(){
+        return this;
+    }
+
+    fs(){
+        return this;
+    }
+
+    gs(){
         return this;
     }
 }
 
+export interface InstructionSet {
+    pickShortestInstruction(): Instruction;
+}

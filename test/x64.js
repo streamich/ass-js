@@ -1,7 +1,7 @@
 "use strict";
 var chai_1 = require('chai');
 var operand_1 = require('../x86/operand');
-var code_1 = require('../x64/code');
+var code_1 = require('../x86/x64/code');
 describe('x64', function () {
     function code64() {
         return code_1.Code.create();

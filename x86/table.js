@@ -1,51 +1,45 @@
 "use strict";
-var o = require('./operand');
-exports.S = o.SIZE;
-exports.M = o.MODE;
+var util_1 = require('../util');
+var table_1 = require('../table');
+var t = require('../table');
+var operand_1 = require('./operand');
+(function (MODE) {
+    MODE[MODE["REAL"] = 0] = "REAL";
+    MODE[MODE["COMPAT"] = 1] = "COMPAT";
+    MODE[MODE["X64"] = 2] = "X64";
+})(exports.MODE || (exports.MODE = {}));
+var MODE = exports.MODE;
+exports.M = MODE;
 // Operands
-exports.r = o.Register;
-exports.r8 = o.Register8;
-exports.r16 = o.Register16;
-exports.r32 = o.Register32;
-exports.r64 = o.Register64;
-exports.m = o.Memory;
-exports.m8 = o.Memory8;
-exports.m16 = o.Memory16;
-exports.m32 = o.Memory32;
-exports.m64 = o.Memory64;
-exports.rm8 = [o.Register8, o.Memory];
-exports.rm16 = [o.Register16, o.Memory];
-exports.rm32 = [o.Register32, o.Memory];
-exports.rm64 = [o.Register64, o.Memory];
-exports.imm = o.Immediate;
-exports.immu = o.ImmediateUnsigned;
-exports.imm8 = o.Immediate8;
-exports.immu8 = o.ImmediateUnsigned8;
-exports.imm16 = o.Immediate16;
-exports.immu16 = o.ImmediateUnsigned16;
-exports.imm32 = o.Immediate32;
-exports.immu32 = o.ImmediateUnsigned32;
-exports.imm64 = o.Immediate64;
-exports.immu64 = o.ImmediateUnsigned64;
-exports.rel = o.Relative;
-exports.rel8 = o.Relative8;
-exports.rel16 = o.Relative16;
-exports.rel32 = o.Relative32;
-// Global defaults
-exports.defaults = { s: exports.S.NONE, ds: exports.S.D, lock: false, ops: null, or: -1, r: false, dbit: false, rex: false, mr: true, rep: false, repne: false, pfx: null };
+exports.r = operand_1.Register;
+exports.r8 = operand_1.Register8;
+exports.r16 = operand_1.Register16;
+exports.r32 = operand_1.Register32;
+exports.r64 = operand_1.Register64;
+exports.m = operand_1.Memory;
+exports.m8 = operand_1.Memory8;
+exports.m16 = operand_1.Memory16;
+exports.m32 = operand_1.Memory32;
+exports.m64 = operand_1.Memory64;
+exports.rm8 = [operand_1.Register8, operand_1.Memory];
+exports.rm16 = [operand_1.Register16, operand_1.Memory];
+exports.rm32 = [operand_1.Register32, operand_1.Memory];
+exports.rm64 = [operand_1.Register64, operand_1.Memory];
+exports.imm = operand_1.Immediate;
+exports.immu = operand_1.ImmediateUnsigned;
+exports.imm8 = operand_1.Immediate8;
+exports.immu8 = operand_1.ImmediateUnsigned8;
+exports.imm16 = operand_1.Immediate16;
+exports.immu16 = operand_1.ImmediateUnsigned16;
+exports.imm32 = operand_1.Immediate32;
+exports.immu32 = operand_1.ImmediateUnsigned32;
+exports.imm64 = operand_1.Immediate64;
+exports.immu64 = operand_1.ImmediateUnsigned64;
+// x86 global defaults
+exports.defaults = util_1.extend({}, t.defaults, { ds: table_1.S.D, lock: false, or: -1, r: false, dbit: false, rex: false, mr: true, rep: false, repne: false, pfx: null });
 // Instruction are divided in groups, each group consists of list
 // of possible instructions. The first object is NOT an instruction
 // but defaults for the group.
 exports.table = {
-    mov: [
-        { mn: 'mov' },
-        { o: 0x8B, mn: 'movq', ops: [exports.r64, exports.r64] },
-        { o: 0xC7, ops: [exports.r64, exports.imm32] },
-    ],
-    inc: [
-        { o: 0xFF, or: 0, lock: true },
-        { o: 0xFE, ops: [exports.rm8] },
-        { ops: [exports.rm32] },
-        { ops: [exports.rm64] },
-    ]
+    int: [{ o: 0xCD, ops: [exports.immu8] }],
 };

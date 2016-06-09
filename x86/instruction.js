@@ -4,130 +4,20 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var operand_1 = require('../operand');
+var oo = require('../operand');
 var o = require('./operand');
+var i = require('../instruction');
 var p = require('./parts');
-exports.SIZE_MAX = 15; // Max instruction size in bytes.
 exports.SIZE_UNKNOWN = -1;
-var Expression = (function () {
+var Expression = (function (_super) {
+    __extends(Expression, _super);
     function Expression() {
-        // Index where instruction was inserted in `Code`s buffer.
-        this.index = 0;
-        // Byte offset of the instruction in compiled machine code.
-        this.offset = -1;
-        // Same as `offset` but for instructions that we don't know byte size yet we assume `MAX_SIZE`.
-        this.offsetMax = -1;
-        this.code = null;
-    }
-    Expression.prototype.bind = function (code) {
-        this.code = code;
-    };
-    Expression.prototype.calcOffsets = function () {
-        // Calculate offset of this instruction inside the code block.
-        if (this.index === 0) {
-            this.offset = 0;
-            this.offsetMax = 0;
-        }
-        else {
-            var prev = this.code.expr[this.index - 1];
-            var size = prev.bytes();
-            if (size !== exports.SIZE_UNKNOWN) {
-                if (prev.offset !== -1)
-                    this.offset = prev.offset + size;
-            }
-            else
-                this.offset = -1;
-            if (prev.offsetMax !== -1)
-                this.offsetMax = prev.offsetMax + prev.bytesMax();
-        }
-    };
-    Expression.prototype.build = function () {
-        this.calcOffsets();
-    };
-    // Generate everything necessary to be able to write expression out into binary buffer.
-    Expression.prototype.compile = function () {
-        this.calcOffsets();
-        return this;
-    };
-    // Size in bytes of the instruction.
-    Expression.prototype.bytes = function () {
-        return exports.SIZE_UNKNOWN;
-    };
-    Expression.prototype.bytesMax = function () {
-        return this.bytes();
-    };
-    Expression.prototype.rel = function (offset) {
-        if (offset === void 0) { offset = 0; }
-        var rel = new o.Relative(this, offset);
-        return rel;
-    };
-    return Expression;
-}());
-exports.Expression = Expression;
-var Label = (function (_super) {
-    __extends(Label, _super);
-    function Label(name) {
-        _super.call(this);
-        if ((typeof name !== 'string') || !name)
-            throw TypeError('Label name must be a non-empty string.');
-        this.name = name;
-    }
-    Label.prototype.write = function (arr) {
-        return arr;
-    };
-    Label.prototype.bytes = function () {
-        return 0;
-    };
-    Label.prototype.toString = function () {
-        return this.name + ':';
-    };
-    return Label;
-}(Expression));
-exports.Label = Label;
-var Data = (function (_super) {
-    __extends(Data, _super);
-    function Data() {
         _super.apply(this, arguments);
-        this.octets = [];
     }
-    Data.prototype.write = function (arr) {
-        this.offset = arr.length;
-        arr = arr.concat(this.octets);
-        return arr;
-    };
-    Data.prototype.bytes = function () {
-        return this.octets.length;
-    };
-    Data.prototype.toString = function (margin) {
-        if (margin === void 0) { margin = '    '; }
-        var data = this.octets.map(function (byte) {
-            return byte <= 0xF ? '0' + byte.toString(16).toUpperCase() : byte.toString(16).toUpperCase();
-        });
-        return margin + 'db 0x' + data.join(', 0x');
-    };
-    return Data;
-}(Expression));
-exports.Data = Data;
-var DataUninitialized = (function (_super) {
-    __extends(DataUninitialized, _super);
-    function DataUninitialized(length) {
-        _super.call(this);
-        this.length = length;
-    }
-    DataUninitialized.prototype.write = function (arr) {
-        this.offset = arr.length;
-        arr = arr.concat(new Array(this.length));
-        return arr;
-    };
-    DataUninitialized.prototype.bytes = function () {
-        return this.length;
-    };
-    DataUninitialized.prototype.toString = function (margin) {
-        if (margin === void 0) { margin = '    '; }
-        return margin + 'resb ' + this.length;
-    };
-    return DataUninitialized;
-}(Expression));
-exports.DataUninitialized = DataUninitialized;
+    return Expression;
+}(i.Expression));
+exports.Expression = Expression;
 // ## x86_64 `Instruction`
 //
 // `Instruction` object is created using instruction `Definition` and `Operands` provided by the user,
@@ -137,9 +27,6 @@ var Instruction = (function (_super) {
     __extends(Instruction, _super);
     function Instruction() {
         _super.apply(this, arguments);
-        this.code = null;
-        this.def = null;
-        this.op = null;
         // Instruction parts.
         this.pfxOpSize = null;
         this.pfxAddrSize = null;
@@ -153,18 +40,10 @@ var Instruction = (function (_super) {
         this.sib = null;
         this.displacement = null;
         this.immediate = null;
-        // Size in bytes of this instruction.
-        this.length = 0;
         // Direction for register-to-register `MOV` operations, whether REG field of Mod-R/M byte is destination.
         // We set this to `false` to be compatible with GAS assembly, which we use for testing.
         this.regToRegDirectionRegIsDst = false;
     }
-    // constructor(code: Code, def: Definition, op: Operands) {
-    // constructor(def: d.Def, op: o.Operands) {
-    //     super();
-    //     this.def = def;
-    //     this.op = op;
-    // }
     Instruction.prototype.build = function () {
         _super.prototype.build.call(this);
         this.pfxOpSize = null;
@@ -179,6 +58,7 @@ var Instruction = (function (_super) {
         this.sib = null;
         this.displacement = null;
         this.immediate = null;
+        this.length = 0;
         this.createPrefixes();
         this.createOpcode();
         this.createModrm();
@@ -206,8 +86,6 @@ var Instruction = (function (_super) {
         }
     };
     Instruction.prototype.write = function (arr) {
-        if (this.offset === -1)
-            this.offset = arr.length;
         this.writePrefixes(arr);
         this.opcode.write(arr);
         if (this.modrm)
@@ -291,44 +169,20 @@ var Instruction = (function (_super) {
             parts.push(this.pfxLock.toString());
         if (this.pfxSegment)
             parts.push(this.pfxSegment.toString());
-        parts.push(this.def.getMnemonic());
-        if ((parts.join(' ')).length < 8)
-            parts.push((new Array(7 - (parts.join(' ')).length)).join(' '));
-        if (this.op.list.length)
-            parts.push(this.op.toString());
-        var expression = margin + parts.join(' ');
-        var offset = 'XXXXXX';
-        if (this.offset !== -1) {
-            offset = this.offset.toString(16).toUpperCase();
-            offset = (new Array(7 - offset.length)).join('0') + offset;
-        }
-        var max_offset = 'XXXXXX';
-        if (this.offsetMax !== -1) {
-            max_offset = this.offsetMax.toString(16).toUpperCase();
-            max_offset = (new Array(7 - max_offset.length)).join('0') + max_offset;
-        }
-        var comment = '';
-        if (hex) {
-            var cols = 36;
-            var spaces = (new Array(1 + Math.max(0, cols - expression.length))).join(' ');
-            var octets = this.write([]).map(function (byte) {
-                return byte <= 0xF ? '0' + byte.toString(16).toUpperCase() : byte.toString(16).toUpperCase();
-            });
-            comment = spaces + ("; " + offset + "|" + max_offset + ": 0x") + octets.join(', 0x'); // + ' / ' + this.def.toString();
-        }
-        return expression + comment;
+        parts.push(_super.prototype.toString.call(this, margin, hex));
+        return parts.join(' ');
     };
     Instruction.prototype.needsOperandSizeOverride = function () {
-        if (!this.op.list.length)
+        if (!this.ops.list.length)
             return false;
-        if ((this.code.operandSize === o.SIZE.D) && (this.def.operandSize === o.SIZE.W))
+        if ((this.code.operandSize === operand_1.SIZE.D) && (this.def.operandSize === operand_1.SIZE.W))
             return true;
-        if ((this.code.operandSize === o.SIZE.W) && (this.def.operandSize === o.SIZE.D))
+        if ((this.code.operandSize === operand_1.SIZE.W) && (this.def.operandSize === operand_1.SIZE.D))
             return true;
         return false;
     };
     Instruction.prototype.needsAddressSizeOverride = function () {
-        var mem = this.op.getMemoryOperand();
+        var mem = this.ops.getMemoryOperand();
         if (mem) {
             var reg = mem.reg();
             if (reg && (reg.size !== this.code.addressSize))
@@ -358,7 +212,7 @@ var Instruction = (function (_super) {
         var def = this.def;
         var opcode = this.opcode;
         opcode.op = def.opcode;
-        var _a = this.op, dst = _a.dst, src = _a.src;
+        var _a = this.ops.list, dst = _a[0], src = _a[1];
         if (def.regInOp) {
             // We have register encoded in op-code here.
             if (!dst || !dst.isRegister())
@@ -387,9 +241,9 @@ var Instruction = (function (_super) {
     Instruction.prototype.createModrm = function () {
         if (!this.def.useModrm)
             return;
-        if (!this.op.hasRegisterOrMemory())
+        if (!this.ops.hasRegisterOrMemory())
             return;
-        var _a = this.op, dst = _a.dst, src = _a.src;
+        var _a = this.ops.list, dst = _a[0], src = _a[1];
         var has_opreg = (this.def.opreg > -1);
         var dst_in_modrm = !this.def.regInOp && !!dst; // Destination operand is NOT encoded in main op-code byte.
         if (has_opreg || dst_in_modrm) {
@@ -398,7 +252,7 @@ var Instruction = (function (_super) {
             if (has_opreg) {
                 // If we have `opreg`, then instruction has up to one operand.
                 reg = this.def.opreg;
-                var r = this.op.getRegisterOperand();
+                var r = this.ops.getRegisterOperand();
                 if (r) {
                     mod = p.Modrm.MOD.REG_TO_REG;
                     rm = r.get3bitId();
@@ -409,7 +263,7 @@ var Instruction = (function (_super) {
             }
             else {
                 // var r: o.Register = this.op.getRegisterOperand(this.regToRegDirectionRegIsDst);
-                var r = this.op.getRegisterOperand(reg_is_dst);
+                var r = this.ops.getRegisterOperand(reg_is_dst);
                 if (r) {
                     mod = p.Modrm.MOD.REG_TO_REG;
                     reg = r.get3bitId();
@@ -432,7 +286,7 @@ var Instruction = (function (_super) {
             }
             // `o.Memory` class makes sure that ESP cannot be a SIB index register and
             // that EBP always has displacement value even if 0x00.
-            var m = this.op.getMemoryOperand();
+            var m = this.ops.getMemoryOperand();
             if (!m) {
                 // throw Error('No Memory reference for Modrm byte.');
                 this.modrm = new p.Modrm(mod, reg, rm);
@@ -490,7 +344,7 @@ var Instruction = (function (_super) {
             return;
         if ((this.modrm.rm !== p.Modrm.RM.NEEDS_SIB))
             return;
-        var m = this.op.getMemoryOperand();
+        var m = this.ops.getMemoryOperand();
         if (!m)
             throw Error('No Memory operand to encode SIB.');
         var scalefactor = 0, I = 0, B = 0;
@@ -515,7 +369,7 @@ var Instruction = (function (_super) {
         this.length++;
     };
     Instruction.prototype.createDisplacement = function () {
-        var m = this.op.getMemoryOperand();
+        var m = this.ops.getMemoryOperand();
         if (m && m.displacement) {
             this.displacement = new p.Displacement(m.displacement);
             this.length += this.displacement.value.size / 8;
@@ -544,7 +398,7 @@ var Instruction = (function (_super) {
         }
     };
     Instruction.prototype.createImmediate = function () {
-        var imm = this.op.getImmediate();
+        var imm = this.ops.getImmediate();
         if (imm) {
             // If immediate does not have concrete size, use the size of instruction operands.
             // if(imm.constructor === o.Immediate) {
@@ -556,119 +410,86 @@ var Instruction = (function (_super) {
             //         imm.extend(size);
             //     }
             // }
-            // if (this.displacement && (this.displacement.value.size === o.SIZE.Q))
-            //     throw TypeError(`Cannot have Immediate with ${o.SIZE.Q} bit Displacement.`);
+            // if (this.displacement && (this.displacement.value.size === SIZE.Q))
+            //     throw TypeError(`Cannot have Immediate with ${SIZE.Q} bit Displacement.`);
             this.immediate = new p.Immediate(imm);
             this.length += this.immediate.value.size >> 3;
         }
     };
     return Instruction;
-}(Expression));
+}(i.Instruction));
 exports.Instruction = Instruction;
 // Wrapper around multiple instructions when different machine instructions can be used to perform the same task.
 // For example, `jmp` with `rel8` or `rel32` immediate, or when multiple instruction definitions match provided operands.
-var InstructionCandidates = (function (_super) {
-    __extends(InstructionCandidates, _super);
-    function InstructionCandidates() {
+var InstructionSet = (function (_super) {
+    __extends(InstructionSet, _super);
+    function InstructionSet() {
         _super.apply(this, arguments);
-        this.matches = null;
-        this.operands = [];
-        this.insn = [];
-        this.picked = -1; // Index of instruction that was eventually chosen.
     }
-    InstructionCandidates.prototype.lock = function () {
-        for (var _i = 0, _a = this.insn; _i < _a.length; _i++) {
-            var insn = _a[_i];
-            insn.lock();
-        }
-        return this;
-    };
-    InstructionCandidates.prototype.write = function (arr) {
-        if (this.picked === -1)
-            throw Error('Instruction candidates not reduced.');
-        return this.getPicked().write(arr);
-    };
-    InstructionCandidates.prototype.toString = function (margin, hex) {
-        if (margin === void 0) { margin = '    '; }
-        if (hex === void 0) { hex = true; }
-        if (this.picked === -1) {
-            var str = '(one of:)\n';
-            var lines = [];
-            for (var i = 0; i < this.insn.length; i++) {
-                if (this.insn[i].op)
-                    lines.push(this.insn[i].toString(margin, hex));
+    InstructionSet.prototype.normalizeOperands = function (insn, tpls) {
+        var list = _super.prototype.normalizeOperands.call(this, insn, tpls);
+        for (var j = 0; j < list.length; j++) {
+            var op = list[j];
+            if (oo.isTnumber(op)) {
+                var Clazz = tpls[j];
+                var num = op;
+                if (Clazz.name.indexOf('Immediate') === 0) {
+                    var ImmediateClass = Clazz;
+                    var imm = new ImmediateClass(num);
+                    list[j] = imm;
+                }
                 else
-                    lines.push('    ' + this.matches.list[i].def.toString());
-            }
-            // for(var match of this.matches.list) {
-            //     lines.push('    ' + match.def.toString());
-            // }
-            return str + lines.join('\n');
-        }
-        else
-            return this.getPicked().toString(margin, hex);
-    };
-    InstructionCandidates.prototype.getPicked = function () {
-        return this.insn[this.picked];
-    };
-    InstructionCandidates.prototype.bytes = function () {
-        return this.picked === -1 ? exports.SIZE_UNKNOWN : this.getPicked().bytes();
-    };
-    InstructionCandidates.prototype.bytesMax = function () {
-        var max = 0;
-        for (var _i = 0, _a = this.insn; _i < _a.length; _i++) {
-            var ins = _a[_i];
-            if (ins) {
-                var bytes = ins.bytes();
-                if (bytes > max)
-                    max = bytes;
+                    throw TypeError('Invalid definition expected Immediate.');
             }
         }
-        return bytes;
+        return list;
     };
-    InstructionCandidates.prototype.pickShortestInstruction = function () {
-        // Pick the shortest instruction if we know all instruction sizes, otherwise don't pick any.
-        var size = exports.SIZE_UNKNOWN;
-        var isize = 0;
-        for (var j = 0; j < this.insn.length; j++) {
-            var insn = this.insn[j];
-            isize = insn.bytes();
-            if (isize === exports.SIZE_UNKNOWN) {
-                this.picked = -1;
-                return null;
-            }
-            if ((size === exports.SIZE_UNKNOWN) || (isize < size)) {
-                size = isize;
-                this.picked = j;
-            }
-        }
-        return this.getPicked();
+    InstructionSet.prototype.createInstructionOperands = function (insn, tpls) {
+        var list = this.normalizeOperands(insn, tpls);
+        return new o.Operands(list, this.ops.size);
     };
-    InstructionCandidates.prototype.build = function () {
-        _super.prototype.build.call(this);
-        var len = this.matches.list.length;
-        this.insn = new Array(len);
-        for (var j = 0; j < len; j++) {
-            var match = this.matches.list[j];
-            var insn = new this.code.ClassInstruction;
-            insn.index = this.index;
-            insn.def = match.def;
-            try {
-                var ops = o.Operands.fromUiOpsAndTpl(insn, this.operands, match.opTpl);
-                insn.op = ops;
-                insn.bind(this.code);
-                insn.build();
-                this.insn[j] = insn;
-            }
-            catch (e) {
-                this.insn[j] = null;
-            }
-        }
-    };
-    InstructionCandidates.prototype.compile = function () {
-        this.calcOffsets();
+    InstructionSet.prototype.lock = function () {
         return this;
     };
-    return InstructionCandidates;
-}(Expression));
-exports.InstructionCandidates = InstructionCandidates;
+    InstructionSet.prototype.bt = function () {
+        return this;
+    };
+    InstructionSet.prototype.bnt = function () {
+        return this;
+    };
+    InstructionSet.prototype.rep = function () {
+        return this;
+    };
+    InstructionSet.prototype.repe = function () {
+        return this;
+    };
+    InstructionSet.prototype.repz = function () {
+        return this;
+    };
+    InstructionSet.prototype.repnz = function () {
+        return this;
+    };
+    InstructionSet.prototype.repne = function () {
+        return this;
+    };
+    InstructionSet.prototype.cs = function () {
+        return this;
+    };
+    InstructionSet.prototype.ss = function () {
+        return this;
+    };
+    InstructionSet.prototype.ds = function () {
+        return this;
+    };
+    InstructionSet.prototype.es = function () {
+        return this;
+    };
+    InstructionSet.prototype.fs = function () {
+        return this;
+    };
+    InstructionSet.prototype.gs = function () {
+        return this;
+    };
+    return InstructionSet;
+}(i.InstructionSet));
+exports.InstructionSet = InstructionSet;

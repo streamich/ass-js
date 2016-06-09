@@ -1,5 +1,5 @@
 import {rax, rdx, rsi, rdi, rbx, rcx, rip} from '../x86/operand';
-import {Code} from '../x64/code';
+import {Code} from '../x86/x64/code';
 var StaticBuffer = require('../../static-buffer/buffer').StaticBuffer;
 
 var _ = Code.create();

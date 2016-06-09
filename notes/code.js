@@ -1,6 +1,6 @@
 "use strict";
 var o = require('../x86/operand');
-var code_1 = require('../x64/code');
+var code_1 = require('../x86/x64/code');
 // type TplMnemonic = string;
 // type TplOperands = Operand[];
 // type TplInstruction = [TplMnemonic, TplOperands];

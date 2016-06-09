@@ -1,6 +1,6 @@
 "use strict";
 var operand_1 = require('../x86/operand');
-var code_1 = require('../x64/code');
+var code_1 = require('../x86/x64/code');
 var StaticBuffer = require('../../static-buffer/buffer').StaticBuffer;
 var _ = code_1.Code.create();
 var msg = 'Hello World!\n';
