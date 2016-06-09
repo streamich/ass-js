@@ -1,5 +1,5 @@
 import {SIZE, number64, Tnumber, Operands} from './operand';
-import {Expression, Label, Data, DataUninitialized, DataVolatile} from './instruction';
+import {Expression, Label, Data, DataUninitialized, DataVariable} from './instruction';
 import * as i from './instruction';
 import * as o from './operand';
 import * as d from './def';
@@ -46,12 +46,23 @@ export class Code {
         return this.expr[0] as Label;
     }
 
-    insert(expr: Expression, index = this.expr.length): Expression {
+    insert(expr: Expression): Expression {
+        this.replace(expr, this.expr.length);
+        expr.build();
+        return expr;
+        // expr.index = index;
+        // expr.bind(this);
+        // this.expr[index] = expr;
+        // expr.calcOffsetMaxAndOffset(); // 1st pass
+        // expr.build();
+        // return expr;
+    }
+
+    replace(expr: Expression, index = this.expr.length): Expression {
         expr.index = index;
         expr.bind(this);
         this.expr[index] = expr;
         expr.calcOffsetMaxAndOffset(); // 1st pass
-        expr.build();
         return expr;
     }
 
@@ -69,20 +80,43 @@ export class Code {
     do2ndPass() {
         var last = this.expr[this.expr.length - 1];
         var all_offsets_known = last.offset !== i.OFFSET_UNKNOWN;
-        var all_sizes_known = last.bytes() !== i.SIZE_UNKNOWN;
-        if(all_offsets_known && all_sizes_known) return;
 
-        for(var ins of this.expr) {
-            ins.determineSize();
+        // Edge case when only the last Expression has variable size.
+        var all_sizes_known = last.bytes() !== i.SIZE_UNKNOWN;
+
+        if(all_offsets_known && all_sizes_known) return; // Skip 2nd pass.
+
+        var prev = this.expr[0];
+        prev.offset = 0;
+        for(var j = 1; j < this.expr.length; j++) {
+            var ins = this.expr[j];
+
+            if(ins instanceof i.ExpressionVolatile) {
+                var fixed = (ins as i.ExpressionVolatile).getFixedSizeExpression();
+                this.replace(fixed, ins.index);
+                ins = fixed;
+                // (ins as i.ExpressionVolatile).determineSize();
+            }
+
+            // var bytes = prev.bytes();
+            // if(bytes === i.SIZE_UNKNOWN)
+            //     throw Error(`Instruction [${j}] does not have size.`);
+            // ins.offset = prev.offset + bytes;
+
+            // Need to call method, as `InstructionSet` contains multiple `Instruction`s,
+            // that all need offset updated of picked instruction.
             ins.calcOffset();
+
+            prev = ins;
         }
     }
 
     do3rdPass() {
         var code: number[] = [];
         for(var ins of this.expr) {
-            ins.evaluate();
-            code = ins.write(code); // 2nd pass
+            if(ins instanceof i.ExpressionVariable)
+                (ins as i.ExpressionVariable).evaluate();
+            code = ins.write(code); // 3rd pass
         }
         return code;
     }
@@ -104,10 +138,10 @@ export class Code {
     }
 
     // DB volatile
-    dbv(ops: o.Operands, littleEndian: boolean): DataVolatile;
-    dbv(expr: i.Expression, size: number, littleEndian: boolean): DataVolatile;
-    dbv(rel: o.Relative, size: number, littleEndian: boolean): DataVolatile;
-    dbv(a: any, b?: any, c?: any): i.DataVolatile {
+    dbv(ops: o.Operands, littleEndian: boolean): i.DataVariable;
+    dbv(expr: i.Expression, size: number, littleEndian: boolean): i.DataVariable;
+    dbv(rel: o.Relative, size: number, littleEndian: boolean): i.DataVariable;
+    dbv(a: any, b?: any, c?: any): i.DataVariable {
         var ops: o.Operands;
         var littleEndian = this.littleEndian;
 
@@ -131,23 +165,26 @@ export class Code {
         } else
             throw TypeError('Data type not supported for DBV.');
 
-        var data = new i.DataVolatile(ops, littleEndian);
+        var data = new i.DataVariable(ops, littleEndian);
         this.insert(data);
         return data;
     }
 
-    db(num: number): Data;
+    db(num: number, times: number): Data;
     db(str: string, encoding?: string): Data;
     db(octets: number[]): Data;
     db(buf: Buffer): Data;
-    db(expr: i.Expression, size: number, littleEndian: boolean): DataVolatile;
-    db(rel: o.Relative, size: number, littleEndian: boolean): DataVolatile;
-    db(ops: o.Operands, littleEndian: boolean): DataVolatile;
+    db(expr: i.Expression, size: number, littleEndian: boolean): i.DataVariable;
+    db(rel: o.Relative, size: number, littleEndian: boolean): i.DataVariable;
+    db(ops: o.Operands, littleEndian: boolean): i.DataVariable;
     db(a: any, b?: any, c?: any): i.IData {
         var octets: number[];
 
         if(typeof a === 'number') {
-            return this.db([a]);
+            var arr = [a];
+            var times = typeof b === 'number' ? b : 1;
+            for(var j = 1; j < times; j++) arr.push(a);
+            return this.db(arr);
         } else if(a instanceof Array) {
             octets = a as number[];
         } else if(typeof a === 'string') {
@@ -184,9 +221,7 @@ export class Code {
 
     resb(length: number): DataUninitialized {
         var data = new DataUninitialized(length);
-        data.index = this.expr.length;
-        this.expr.push(data);
-        data.bind(this);
+        this.insert(data);
         return data;
     }
 

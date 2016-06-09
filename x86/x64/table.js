@@ -41,22 +41,22 @@ exports.table = util_1.extend({}, t.table, {
         // REX.W + A3 MOV moffs64*,RAX TD Valid N.E. Move RAX to (offset).
         // B0+ rb ib MOV r8, imm8 OI Valid Valid Move imm8 to r8.
         // REX + B0+ rb ib MOV r8***, imm8 OI Valid N.E. Move imm8 to r8.
-        { o: 0xB0, r: true, ops: [table_2.r8, table_2.imm8] },
+        { o: 0xB0, r: true, ops: [table_2.r8, table_1.imm8] },
         // B8+ rw iw MOV r16, imm16 OI Valid Valid Move imm16 to r16.
-        { o: 0xB8, r: true, ops: [table_2.r16, table_2.imm16] },
+        { o: 0xB8, r: true, ops: [table_2.r16, table_1.imm16] },
         // B8+ rd id MOV r32, imm32 OI Valid Valid Move imm32 to r32.
-        { o: 0xB8, r: true, ops: [table_2.r32, table_2.imm32] },
+        { o: 0xB8, r: true, ops: [table_2.r32, table_1.imm32] },
         // REX.W + B8+ rd io MOV r64, imm64 OI Valid N.E. Move imm64 to r64.
-        { o: 0xB8, r: true, ops: [table_2.r64, table_2.imm64] },
+        { o: 0xB8, r: true, ops: [table_2.r64, table_1.imm64] },
         // C6 /0 ib MOV r/m8, imm8 MI Valid Valid Move imm8 to r/m8.
         // REX + C6 /0 ib MOV r/m8***, imm8 MI Valid N.E. Move imm8 to r/m8.
-        { o: 0xC6, or: 0, ops: [table_2.rm8, table_2.imm8] },
+        { o: 0xC6, or: 0, ops: [table_2.rm8, table_1.imm8] },
         // C7 /0 iw MOV r/m16, imm16 MI Valid Valid Move imm16 to r/m16.
-        { o: 0xC7, or: 0, ops: [table_2.rm16, table_2.imm16] },
+        { o: 0xC7, or: 0, ops: [table_2.rm16, table_1.imm16] },
         // C7 /0 id MOV r/m32, imm32 MI Valid Valid Move imm32 to r/m32.
-        { o: 0xC7, or: 0, ops: [table_2.rm32, table_2.imm32] },
+        { o: 0xC7, or: 0, ops: [table_2.rm32, table_1.imm32] },
         // REX.W + C7 /0 io MOV r/m64, imm32 MI Valid N.E. Move imm32 sign extended to 64-bits to r/m64.
-        { o: 0xC7, or: 0, ops: [table_2.rm64, table_2.imm32] },
+        { o: 0xC7, or: 0, ops: [table_2.rm64, table_1.imm32] },
     ],
     // CMOVE/CMOVZ Conditional move if equal/Conditional move if zero
     // CMOVNE/CMOVNZ Conditional move if not equal/Conditional move if not zero
@@ -102,28 +102,28 @@ exports.table = util_1.extend({}, t.table, {
     // ADD Integer add
     add: [{ lock: true },
         // REX.W + 83 /0 ib ADD r/m64, imm8 MI Valid N.E. Add sign-extended imm8 to r/m64.
-        { o: 0x83, or: 0, ops: [table_2.rm64, table_2.imm8] },
+        { o: 0x83, or: 0, ops: [table_2.rm64, table_1.imm8] },
         // 04 ib ADD AL, imm8 I Valid Valid Add imm8 to AL.
-        { o: 0x04, ops: [o.al, table_2.imm8], mr: false },
+        { o: 0x04, ops: [o.al, table_1.imm8], mr: false },
         // 05 iw ADD AX, imm16 I Valid Valid Add imm16 to AX.
-        { o: 0x05, ops: [o.ax, table_2.imm16], mr: false },
+        { o: 0x05, ops: [o.ax, table_1.imm16], mr: false },
         // 05 id ADD EAX, imm32 I Valid Valid Add imm32 to EAX.
-        { o: 0x05, ops: [o.eax, table_2.imm32], mr: false },
+        { o: 0x05, ops: [o.eax, table_1.imm32], mr: false },
         // REX.W + 05 id ADD RAX, imm32 I Valid N.E. Add imm32 sign-extended to 64-bits to RAX.
-        { o: 0x05, ops: [o.rax, table_2.imm32], mr: false },
+        { o: 0x05, ops: [o.rax, table_1.imm32], mr: false },
         // 80 /0 ib ADD r/m8, imm8 MI Valid Valid Add imm8 to r/m8.
         // REX + 80 /0 ib ADD r/m8*, imm8 MI Valid N.E. Add sign-extended imm8 to r/m64.
-        { o: 0x80, or: 0, ops: [table_2.rm8, table_2.imm8] },
+        { o: 0x80, or: 0, ops: [table_2.rm8, table_1.imm8] },
         // 83 /0 ib ADD r/m16, imm8 MI Valid Valid Add sign-extended imm8 to r/m16.
-        { o: 0x83, or: 0, ops: [table_2.rm16, table_2.imm8] },
+        { o: 0x83, or: 0, ops: [table_2.rm16, table_1.imm8] },
         // 81 /0 iw ADD r/m16, imm16 MI Valid Valid Add imm16 to r/m16.
-        { o: 0x81, or: 0, ops: [table_2.rm16, table_2.imm16] },
+        { o: 0x81, or: 0, ops: [table_2.rm16, table_1.imm16] },
         // 83 /0 ib ADD r/m32, imm8 MI Valid Valid Add sign-extended imm8 to r/m32.
-        { o: 0x83, or: 0, ops: [table_2.rm32, table_2.imm8] },
+        { o: 0x83, or: 0, ops: [table_2.rm32, table_1.imm8] },
         // 81 /0 id ADD r/m32, imm32 MI Valid Valid Add imm32 to r/m32.
-        { o: 0x81, or: 0, ops: [table_2.rm32, table_2.imm32] },
+        { o: 0x81, or: 0, ops: [table_2.rm32, table_1.imm32] },
         // REX.W + 81 /0 id ADD r/m64, imm32 MI Valid N.E. Add imm32 sign-extended to 64-bits to r/m64.
-        { o: 0x81, or: 0, ops: [table_2.rm64, table_2.imm32] },
+        { o: 0x81, or: 0, ops: [table_2.rm64, table_1.imm32] },
         // 00 /r ADD r/m8, r8 MR Valid Valid Add r8 to r/m8.
         // REX + 00 /r ADD r/m8*, r8* MR Valid N.E. Add r8 to r/m8.
         // 02 /r ADD r8, r/m8 RM Valid Valid Add r/m8 to r8.
@@ -142,28 +142,28 @@ exports.table = util_1.extend({}, t.table, {
     // ADC Add with carry
     adc: [{ lock: true },
         // 14 ib ADC AL, imm8 I Valid Valid Add with carry imm8 to AL.
-        { o: 0x14, ops: [o.al, table_2.imm8] },
+        { o: 0x14, ops: [o.al, table_1.imm8] },
         // 15 iw ADC AX, imm16 I Valid Valid Add with carry imm16 to AX.
-        { o: 0x15, ops: [o.ax, table_2.imm16] },
+        { o: 0x15, ops: [o.ax, table_1.imm16] },
         // 15 id ADC EAX, imm32 I Valid Valid Add with carry imm32 to EAX.
-        { o: 0x15, ops: [o.eax, table_2.imm32] },
+        { o: 0x15, ops: [o.eax, table_1.imm32] },
         // REX.W + 15 id ADC RAX, imm32 I Valid N.E. Add with carry imm32 sign extended to 64-bits to RAX.
-        { o: 0x15, ops: [o.rax, table_2.imm32] },
+        { o: 0x15, ops: [o.rax, table_1.imm32] },
         // 80 /2 ib ADC r/m8, imm8 MI Valid Valid Add with carry imm8 to r/m8.
         // REX + 80 /2 ib ADC r/m8*, imm8 MI Valid N.E. Add with carry imm8 to r/m8.
-        { o: 0x80, or: 2, ops: [table_2.rm8, table_2.imm8] },
+        { o: 0x80, or: 2, ops: [table_2.rm8, table_1.imm8] },
         // 81 /2 iw ADC r/m16, imm16 MI Valid Valid Add with carry imm16 to r/m16.
-        { o: 0x81, or: 2, ops: [table_2.rm16, table_2.imm16] },
+        { o: 0x81, or: 2, ops: [table_2.rm16, table_1.imm16] },
         // 81 /2 id ADC r/m32, imm32 MI Valid Valid Add with CF imm32 to r/m32.
-        { o: 0x81, or: 2, ops: [table_2.rm32, table_2.imm32] },
+        { o: 0x81, or: 2, ops: [table_2.rm32, table_1.imm32] },
         // REX.W + 81 /2 id ADC r/m64, imm32 MI Valid N.E. Add with CF imm32 sign extended to 64-bits to r/m64.
-        { o: 0x81, or: 2, ops: [table_2.rm64, table_2.imm32] },
+        { o: 0x81, or: 2, ops: [table_2.rm64, table_1.imm32] },
         // 83 /2 ib ADC r/m16, imm8 MI Valid Valid Add with CF sign-extended imm8 to r/m16.
-        { o: 0x83, or: 2, ops: [table_2.rm16, table_2.imm8] },
+        { o: 0x83, or: 2, ops: [table_2.rm16, table_1.imm8] },
         // 83 /2 ib ADC r/m32, imm8 MI Valid Valid Add with CF sign-extended imm8 into r/m32.
-        { o: 0x83, or: 2, ops: [table_2.rm32, table_2.imm8] },
+        { o: 0x83, or: 2, ops: [table_2.rm32, table_1.imm8] },
         // REX.W + 83 /2 ib ADC r/m64, imm8 MI Valid N.E. Add with CF sign-extended imm8 into r/m64.
-        { o: 0x83, or: 2, ops: [table_2.rm64, table_2.imm8] },
+        { o: 0x83, or: 2, ops: [table_2.rm64, table_1.imm8] },
         // 10 /r ADC r/m8, r8 MR Valid Valid Add with carry byte register to r/m8.
         // REX + 10 /r ADC r/m8*, r8* MR Valid N.E. Add with carry byte register to r/m64.
         // 12 /r ADC r8, r/m8 RM Valid Valid Add with carry r/m8 to byte register.
@@ -182,28 +182,28 @@ exports.table = util_1.extend({}, t.table, {
     // SUB Subtract
     sub: [{ lock: true },
         // 2C ib SUB AL, imm8 I Valid Valid Subtract imm8 from AL.
-        { o: 0x2C, ops: [o.al, table_2.imm8] },
+        { o: 0x2C, ops: [o.al, table_1.imm8] },
         // 2D iw SUB AX, imm16 I Valid Valid Subtract imm16 from AX.
-        { o: 0x2D, ops: [o.ax, table_2.imm16] },
+        { o: 0x2D, ops: [o.ax, table_1.imm16] },
         // 2D id SUB EAX, imm32 I Valid Valid Subtract imm32 from EAX.
-        { o: 0x2D, ops: [o.eax, table_2.imm32] },
+        { o: 0x2D, ops: [o.eax, table_1.imm32] },
         // REX.W + 2D id SUB RAX, imm32 I Valid N.E. Subtract imm32 sign-extended to 64-bits from RAX.
-        { o: 0x2D, ops: [o.rax, table_2.imm32] },
+        { o: 0x2D, ops: [o.rax, table_1.imm32] },
         // 80 /5 ib SUB r/m8, imm8 MI Valid Valid Subtract imm8 from r/m8.
         // REX + 80 /5 ib SUB r/m8*, imm8 MI Valid N.E. Subtract imm8 from r/m8.
-        { o: 0x80, or: 5, ops: [table_2.rm8, table_2.imm8] },
+        { o: 0x80, or: 5, ops: [table_2.rm8, table_1.imm8] },
         // 83 /5 ib SUB r/m16, imm8 MI Valid Valid Subtract sign-extended imm8 from r/m16.
-        { o: 0x83, or: 5, ops: [table_2.rm16, table_2.imm8] },
+        { o: 0x83, or: 5, ops: [table_2.rm16, table_1.imm8] },
         // 81 /5 iw SUB r/m16, imm16 MI Valid Valid Subtract imm16 from r/m16.
-        { o: 0x81, or: 5, ops: [table_2.rm16, table_2.imm16] },
+        { o: 0x81, or: 5, ops: [table_2.rm16, table_1.imm16] },
         // 83 /5 ib SUB r/m32, imm8 MI Valid Valid Subtract sign-extended imm8 from r/m32.
-        { o: 0x83, or: 5, ops: [table_2.rm32, table_2.imm8] },
+        { o: 0x83, or: 5, ops: [table_2.rm32, table_1.imm8] },
         // 81 /5 id SUB r/m32, imm32 MI Valid Valid Subtract imm32 from r/m32.
-        { o: 0x81, or: 5, ops: [table_2.rm32, table_2.imm32] },
+        { o: 0x81, or: 5, ops: [table_2.rm32, table_1.imm32] },
         // REX.W + 83 /5 ib SUB r/m64, imm8 MI Valid N.E. Subtract sign-extended imm8 from r/m64.
-        { o: 0x83, or: 5, ops: [table_2.rm64, table_2.imm8] },
+        { o: 0x83, or: 5, ops: [table_2.rm64, table_1.imm8] },
         // REX.W + 81 /5 id SUB r/m64, imm32 MI Valid N.E. Subtract imm32 sign-extended to 64-bits from r/m64.
-        { o: 0x81, or: 5, ops: [table_2.rm64, table_2.imm32] },
+        { o: 0x81, or: 5, ops: [table_2.rm64, table_1.imm32] },
         // 28 /r SUB r/m8, r8 MR Valid Valid Subtract r8 from r/m8.
         // REX + 28 /r SUB r/m8*, r8* MR Valid N.E. Subtract r8 from r/m8.
         // 2A /r SUB r8, r/m8 RM Valid Valid Subtract r/m8 from r8.
@@ -222,28 +222,28 @@ exports.table = util_1.extend({}, t.table, {
     // SBB Subtract with borrow
     sbb: [{ lock: true },
         // 1C ib SBB AL, imm8 I Valid Valid Subtract with borrow imm8 from AL.
-        { o: 0x1C, ops: [o.al, table_2.imm8] },
+        { o: 0x1C, ops: [o.al, table_1.imm8] },
         // 1D iw SBB AX, imm16 I Valid Valid Subtract with borrow imm16 from AX.
-        { o: 0x1D, ops: [o.ax, table_2.imm16] },
+        { o: 0x1D, ops: [o.ax, table_1.imm16] },
         // 1D id SBB EAX, imm32 I Valid Valid Subtract with borrow imm32 from EAX.
-        { o: 0x1D, ops: [o.eax, table_2.imm32] },
+        { o: 0x1D, ops: [o.eax, table_1.imm32] },
         // REX.W + 1D id SBB RAX, imm32 I Valid N.E. Subtract with borrow sign-extended imm.32 to 64-bits from RAX.
-        { o: 0x1D, ops: [o.rax, table_2.imm32] },
+        { o: 0x1D, ops: [o.rax, table_1.imm32] },
         // 80 /3 ib SBB r/m8, imm8 MI Valid Valid Subtract with borrow imm8 from r/m8.
         // REX + 80 /3 ib SBB r/m8*, imm8 MI Valid N.E. Subtract with borrow imm8 from r/m8.
-        { o: 0x80, or: 3, ops: [table_2.rm8, table_2.imm8] },
+        { o: 0x80, or: 3, ops: [table_2.rm8, table_1.imm8] },
         // 83 /3 ib SBB r/m16, imm8 MI Valid Valid Subtract with borrow sign-extended imm8 from r/m16.
-        { o: 0x83, or: 3, ops: [table_2.rm16, table_2.imm8] },
+        { o: 0x83, or: 3, ops: [table_2.rm16, table_1.imm8] },
         // 81 /3 iw SBB r/m16, imm16 MI Valid Valid Subtract with borrow imm16 from r/m16.
-        { o: 0x81, or: 3, ops: [table_2.rm16, table_2.imm16] },
+        { o: 0x81, or: 3, ops: [table_2.rm16, table_1.imm16] },
         // 83 /3 ib SBB r/m32, imm8 MI Valid Valid Subtract with borrow sign-extended imm8 from r/m32.
-        { o: 0x83, or: 3, ops: [table_2.rm32, table_2.imm8] },
+        { o: 0x83, or: 3, ops: [table_2.rm32, table_1.imm8] },
         // 81 /3 id SBB r/m32, imm32 MI Valid Valid Subtract with borrow imm32 from r/m32.
-        { o: 0x81, or: 3, ops: [table_2.rm32, table_2.imm32] },
+        { o: 0x81, or: 3, ops: [table_2.rm32, table_1.imm32] },
         // REX.W + 83 /3 ib SBB r/m64, imm8 MI Valid N.E. Subtract with borrow sign-extended imm8 from r/m64.
-        { o: 0x83, or: 3, ops: [table_2.rm64, table_2.imm8] },
+        { o: 0x83, or: 3, ops: [table_2.rm64, table_1.imm8] },
         // REX.W + 81 /3 id SBB r/m64, imm32 MI Valid N.E. Subtract with borrow sign-extended imm32 to 64-bits from r/m64.
-        { o: 0x81, or: 3, ops: [table_2.rm64, table_2.imm64] },
+        { o: 0x81, or: 3, ops: [table_2.rm64, table_1.imm64] },
         // 18 /r SBB r/m8, r8 MR Valid Valid Subtract with borrow r8 from r/m8.
         // REX + 18 /r SBB r/m8*, r8 MR Valid N.E. Subtract with borrow r8 from r/m8.
         // 1A /r SBB r8, r/m8 RM Valid Valid Subtract with borrow r/m8 from r8.
@@ -276,17 +276,17 @@ exports.table = util_1.extend({}, t.table, {
         // REX.W + 0F AF /r IMUL r64, r/m64 RM Valid N.E. Quadword register ← Quadword register ∗ r/m64.
         { o: 0x0FAF, ops: [table_2.r64, table_2.rm64] },
         // 6B /r ib IMUL r16, r/m16, imm8 RMI Valid Valid word register ← r/m16 ∗ sign-extended immediate byte.
-        { o: 0x6B, ops: [table_2.r16, table_2.rm16, table_2.imm8] },
+        { o: 0x6B, ops: [table_2.r16, table_2.rm16, table_1.imm8] },
         // 6B /r ib IMUL r32, r/m32, imm8 RMI Valid Valid doubleword register ← r/m32 ∗ signextended immediate byte.
-        { o: 0x6B, ops: [table_2.r32, table_2.rm32, table_2.imm8] },
+        { o: 0x6B, ops: [table_2.r32, table_2.rm32, table_1.imm8] },
         // REX.W + 6B /r ib IMUL r64, r/m64, imm8 RMI Valid N.E. Quadword register ← r/m64 ∗ sign-extended immediate byte.
-        { o: 0x6B, ops: [table_2.r64, table_2.rm64, table_2.imm8] },
+        { o: 0x6B, ops: [table_2.r64, table_2.rm64, table_1.imm8] },
         // 69 /r iw IMUL r16, r/m16, imm16 RMI Valid Valid word register ← r/m16 ∗ immediate word.
-        { o: 0x69, ops: [table_2.r16, table_2.rm16, table_2.imm16] },
+        { o: 0x69, ops: [table_2.r16, table_2.rm16, table_1.imm16] },
         // 69 /r id IMUL r32, r/m32, imm32 RMI Valid Valid doubleword register ← r/m32 ∗ immediate doubleword.
-        { o: 0x69, ops: [table_2.r32, table_2.rm32, table_2.imm32] },
+        { o: 0x69, ops: [table_2.r32, table_2.rm32, table_1.imm32] },
         // REX.W + 69 /r id IMUL r64, r/m64, imm32 RMI Valid N.E. Quadword register
-        { o: 0x69, ops: [table_2.r64, table_2.rm64, table_2.imm32] },
+        { o: 0x69, ops: [table_2.r64, table_2.rm64, table_1.imm32] },
     ],
     // MUL Unsigned multiply
     mul: [{ o: 0xF7, or: 4 },
@@ -363,28 +363,28 @@ exports.table = util_1.extend({}, t.table, {
     // CMP Compare
     cmp: [{},
         // 3C ib CMP AL, imm8 I Valid Valid Compare imm8 with AL.
-        { o: 0x3C, ops: [o.al, table_2.imm8], mr: false },
+        { o: 0x3C, ops: [o.al, table_1.imm8], mr: false },
         // 3D iw CMP AX, imm16 I Valid Valid Compare imm16 with AX.
-        { o: 0x3D, ops: [o.ax, table_2.imm16], mr: false },
+        { o: 0x3D, ops: [o.ax, table_1.imm16], mr: false },
         // 3D id CMP EAX, imm32 I Valid Valid Compare imm32 with EAX.
-        { o: 0x3D, ops: [o.eax, table_2.imm32], mr: false },
+        { o: 0x3D, ops: [o.eax, table_1.imm32], mr: false },
         // REX.W + 3D id CMP RAX, imm32 I Valid N.E. Compare imm32 sign-extended to 64-bits with RAX.
-        { o: 0x3D, ops: [o.rax, table_2.imm32], mr: false },
+        { o: 0x3D, ops: [o.rax, table_1.imm32], mr: false },
         // 80 /7 ib CMP r/m8, imm8 MI Valid Valid Compare imm8 with r/m8.
         // REX + 80 /7 ib CMP r/m8*, imm8 MI Valid N.E. Compare imm8 with r/m8.
-        { o: 0x80, or: 7, ops: [table_2.rm8, table_2.imm8] },
+        { o: 0x80, or: 7, ops: [table_2.rm8, table_1.imm8] },
         // 83 /7 ib CMP r/m16, imm8 MI Valid Valid Compare imm8 with r/m16.
-        { o: 0x83, or: 7, ops: [table_2.rm16, table_2.imm8] },
+        { o: 0x83, or: 7, ops: [table_2.rm16, table_1.imm8] },
         // 81 /7 iw CMP r/m16, imm16 MI Valid Valid Compare imm16 with r/m16.
-        { o: 0x81, or: 7, ops: [table_2.rm16, table_2.imm16] },
+        { o: 0x81, or: 7, ops: [table_2.rm16, table_1.imm16] },
         // 83 /7 ib CMP r/m32, imm8 MI Valid Valid Compare imm8 with r/m32.
-        { o: 0x83, or: 7, ops: [table_2.rm32, table_2.imm8] },
+        { o: 0x83, or: 7, ops: [table_2.rm32, table_1.imm8] },
         // 81 /7 id CMP r/m32, imm32 MI Valid Valid Compare imm32 with r/m32.
-        { o: 0x81, or: 7, ops: [table_2.rm32, table_2.imm32] },
+        { o: 0x81, or: 7, ops: [table_2.rm32, table_1.imm32] },
         // REX.W + 83 /7 ib CMP r/m64, imm8 MI Valid N.E. Compare imm8 with r/m64.
-        { o: 0x83, or: 7, ops: [table_2.rm64, table_2.imm8] },
+        { o: 0x83, or: 7, ops: [table_2.rm64, table_1.imm8] },
         // REX.W + 81 /7 id CMP r/m64, imm32 MI Valid N.E. Compare imm32 sign-extended to 64-bits with r/m64.
-        { o: 0x81, or: 7, ops: [table_2.rm64, table_2.imm32] },
+        { o: 0x81, or: 7, ops: [table_2.rm64, table_1.imm32] },
         // 38 /r CMP r/m8, r8 MR Valid Valid Compare r8 with r/m8.
         // REX + 38 /r CMP r/m8*, r8* MR Valid N.E. Compare r8 with r/m8.
         // 3A /r CMP r8, r/m8 RM Valid Valid Compare r/m8 with r8.
@@ -450,7 +450,7 @@ exports.table = util_1.extend({}, t.table, {
     // POPCNT2 This instruction calculates of number of bits set to 1 in the second
     // ## Control Transfer
     // JMP Jump
-    jmp: [{},
+    jmp: [{ ds: table_1.S.Q },
         // relX is just immX
         // EB cb JMP rel8 D Valid Valid Jump short, RIP = RIP + 8-bit displacement sign extended to 64-bits
         { o: 0xEB, ops: [table_1.rel8] },
@@ -459,25 +459,191 @@ exports.table = util_1.extend({}, t.table, {
         // FF /4 JMP r/m64 M Valid N.E. Jump near, absolute indirect, RIP = 64-Bit offset from register or memory
         { o: 0xFF, or: 4, ops: [table_2.rm64] },
     ],
-    // JE/JZ Jump if equal/Jump if zero
-    // JNE/JNZ Jump if not equal/Jump if not zero
-    // JA/JNBE Jump if above/Jump if not below or equal
-    // JAE/JNB Jump if above or equal/Jump if not below
-    // JB/JNAE Jump if below/Jump if not above or equal
-    // JBE/JNA Jump if below or equal/Jump if not above
-    // JG/JNLE Jump if greater/Jump if not less or equal
-    // JGE/JNL Jump if greater or equal/Jump if not less
-    // JL/JNGE Jump if less/Jump if not greater or equal
-    // JLE/JNG Jump if less or equal/Jump if not greater
-    // JC Jump if carry
-    // JNC Jump if not carry
-    // JO Jump if overflow
-    // JNO Jump if not overflow
-    // JS Jump if sign (negative)
-    // JNS Jump if not sign (non-negative)
-    // JPO/JNP Jump if parity odd/Jump if not parity
-    // JPE/JP Jump if parity even/Jump if parity
-    // JCXZ/JECXZ Jump register CX zero/Jump register ECX zero
+    // Jcc
+    // E3 cb JECXZ rel8 D Valid Valid Jump short if ECX register is 0.
+    jecxz: [{ o: 0xE3, ops: [table_1.rel8], pfx: [0x67] }],
+    // E3 cb JRCXZ rel8 D Valid N.E. Jump short if RCX register is 0.
+    jrcxz: [{ o: 0xE3, ops: [table_1.rel8] }],
+    ja: [{},
+        // 77 cb JA rel8 D Valid Valid Jump short if above (CF=0 and ZF=0).
+        { o: 0x77, ops: [table_1.rel8] },
+        // 0F 87 cd JA rel32 D Valid Valid Jump near if above (CF=0 and ZF=0).
+        { o: 0x0F87, ops: [table_1.rel32] },
+    ],
+    jae: [{},
+        // 73 cb JAE rel8 D Valid Valid Jump short if above or equal (CF=0).
+        { o: 0x73, ops: [table_1.rel8] },
+        // 0F 83 cd JAE rel32 D Valid Valid Jump near if above or equal (CF=0).
+        { o: 0x0F83, ops: [table_1.rel32] },
+    ],
+    jb: [{},
+        // 72 cb JB rel8 D Valid Valid Jump short if below (CF=1).
+        { o: 0x72, ops: [table_1.rel8] },
+        // 0F 82 cd JB rel32 D Valid Valid Jump near if below (CF=1).
+        { o: 0x0F82, ops: [table_1.rel32] },
+    ],
+    jbe: [{},
+        // 76 cb JBE rel8 D Valid Valid Jump short if below or equal (CF=1 or ZF=1).
+        { o: 0x76, ops: [table_1.rel8] },
+        // 0F 86 cd JBE rel32 D Valid Valid Jump near if below or equal (CF=1 or ZF=1).
+        { o: 0x0F86, ops: [table_1.rel32] },
+    ],
+    jc: [{},
+        // 72 cb JC rel8 D Valid Valid Jump short if carry (CF=1).
+        { o: 0x72, ops: [table_1.rel8] },
+        // 0F 82 cd JC rel32 D Valid Valid Jump near if carry (CF=1).
+        { o: 0x0F82, ops: [table_1.rel32] },
+    ],
+    je: [{},
+        // 74 cb JE rel8 D Valid Valid Jump short if equal (ZF=1).
+        { o: 0x74, ops: [table_1.rel8] },
+        // 0F 84 cd JE rel32 D Valid Valid Jump near if equal (ZF=1).
+        { o: 0x0F84, ops: [table_1.rel32] },
+    ],
+    jg: [{},
+        // 7F cb JG rel8 D Valid Valid Jump short if greater (ZF=0 and SF=OF).
+        { o: 0x7F, ops: [table_1.rel8] },
+        // 0F 8F cd JG rel32 D Valid Valid Jump near if greater (ZF=0 and SF=OF).
+        { o: 0x0F8F, ops: [table_1.rel32] },
+    ],
+    jge: [{},
+        // 7D cb JGE rel8 D Valid Valid Jump short if greater or equal (SF=OF).
+        { o: 0x7D, ops: [table_1.rel8] },
+        // 0F 8D cd JGE rel32 D Valid Valid Jump near if greater or equal (SF=OF).
+        { o: 0x0F8D, ops: [table_1.rel32] },
+    ],
+    jl: [{},
+        // 7C cb JL rel8 D Valid Valid Jump short if less (SF≠ OF).
+        { o: 0x7C, ops: [table_1.rel8] },
+        // 0F 8C cd JL rel32 D Valid Valid Jump near if less (SF≠ OF).
+        { o: 0x0F8C, ops: [table_1.rel32] },
+    ],
+    jle: [{},
+        // 7E cb JLE rel8 D Valid Valid Jump short if less or equal (ZF=1 or SF≠ OF).
+        { o: 0x7E, ops: [table_1.rel8] },
+        // 0F 8E cd JLE rel32 D Valid Valid Jump near if less or equal (ZF=1 or SF≠ OF).
+        { o: 0x0F8E, ops: [table_1.rel32] },
+    ],
+    jna: [{},
+        // 76 cb JNA rel8 D Valid Valid Jump short if not above (CF=1 or ZF=1).
+        { o: 0x76, ops: [table_1.rel8] },
+        // 0F 86 cd JNA rel32 D Valid Valid Jump near if not above (CF=1 or ZF=1).
+        { o: 0x0F86, ops: [table_1.rel32] },
+    ],
+    jnae: [{},
+        // 72 cb JNAE rel8 D Valid Valid Jump short if not above or equal (CF=1).
+        { o: 0x72, ops: [table_1.rel8] },
+        // 0F 82 cd JNAE rel32 D Valid Valid Jump near if not above or equal (CF=1).
+        { o: 0x0F82, ops: [table_1.rel32] },
+    ],
+    jnb: [{},
+        // 73 cb JNB rel8 D Valid Valid Jump short if not below (CF=0).
+        { o: 0x73, ops: [table_1.rel8] },
+        // 0F 83 cd JNB rel32 D Valid Valid Jump near if not below (CF=0).
+        { o: 0x0F83, ops: [table_1.rel32] },
+    ],
+    jnbe: [{},
+        // 77 cb JNBE rel8 D Valid Valid Jump short if not below or equal (CF=0 and ZF=0).
+        { o: 0x77, ops: [table_1.rel8] },
+        // 0F 87 cd JNBE rel32 D Valid Valid Jump near if not below or equal (CF=0 and ZF=0).
+        { o: 0x0F87, ops: [table_1.rel32] },
+    ],
+    jnc: [{},
+        // 73 cb JNC rel8 D Valid Valid Jump short if not carry (CF=0).
+        { o: 0x73, ops: [table_1.rel8] },
+        // 0F 83 cd JNC rel32 D Valid Valid Jump near if not carry (CF=0).
+        { o: 0x0F83, ops: [table_1.rel32] },
+    ],
+    jne: [{},
+        // 75 cb JNE rel8 D Valid Valid Jump short if not equal (ZF=0).
+        { o: 0x75, ops: [table_1.rel8] },
+        // 0F 85 cd JNE rel32 D Valid Valid Jump near if not equal (ZF=0).
+        { o: 0x0F85, ops: [table_1.rel32] },
+    ],
+    jng: [{},
+        // 7E cb JNG rel8 D Valid Valid Jump short if not greater (ZF=1 or SF≠ OF).
+        { o: 0x7E, ops: [table_1.rel8] },
+        // 0F 8E cd JNG rel32 D Valid Valid Jump near if not greater (ZF=1 or SF≠ OF).
+        { o: 0x0F8E, ops: [table_1.rel32] },
+    ],
+    jnge: [{},
+        // 7C cb JNGE rel8 D Valid Valid Jump short if not greater or equal (SF≠ OF).
+        { o: 0x7C, ops: [table_1.rel8] },
+        // 0F 8C cd JNGE rel32 D Valid Valid Jump near if not greater or equal (SF≠ OF).
+        { o: 0x0F8C, ops: [table_1.rel32] },
+    ],
+    jnl: [{},
+        // 7D cb JNL rel8 D Valid Valid Jump short if not less (SF=OF).
+        { o: 0x7D, ops: [table_1.rel8] },
+        // 0F 8D cd JNL rel32 D Valid Valid Jump near if not less (SF=OF).
+        { o: 0x0F8D, ops: [table_1.rel32] },
+    ],
+    jnle: [{},
+        // 7F cb JNLE rel8 D Valid Valid Jump short if not less or equal (ZF=0 and SF=OF).
+        { o: 0x7F, ops: [table_1.rel8] },
+        // 0F 8F cd JNLE rel32 D Valid Valid Jump near if not less or equal (ZF=0 and SF=OF).
+        { o: 0x0F8F, ops: [table_1.rel32] },
+    ],
+    jno: [{},
+        // 71 cb JNO rel8 D Valid Valid Jump short if not overflow (OF=0).
+        { o: 0x71, ops: [table_1.rel8] },
+        // 0F 81 cd JNO rel32 D Valid Valid Jump near if not overflow (OF=0).
+        { o: 0x0F81, ops: [table_1.rel32] },
+    ],
+    jnp: [{},
+        // 7B cb JNP rel8 D Valid Valid Jump short if not parity (PF=0).
+        { o: 0x7B, ops: [table_1.rel8] },
+        // 0F 8B cd JNP rel32 D Valid Valid Jump near if not parity (PF=0).
+        { o: 0x0F8B, ops: [table_1.rel32] },
+    ],
+    jns: [{},
+        // 79 cb JNS rel8 D Valid Valid Jump short if not sign (SF=0).
+        { o: 0x79, ops: [table_1.rel8] },
+        // 0F 89 cd JNS rel32 D Valid Valid Jump near if not sign (SF=0).
+        { o: 0x0F89, ops: [table_1.rel32] },
+    ],
+    jnz: [{},
+        // 75 cb JNZ rel8 D Valid Valid Jump short if not zero (ZF=0).
+        { o: 0x75, ops: [table_1.rel8] },
+        // 0F 85 cd JNZ rel32 D Valid Valid Jump near if not zero (ZF=0).
+        { o: 0x0F85, ops: [table_1.rel32] },
+    ],
+    jo: [{},
+        // 70 cb JO rel8 D Valid Valid Jump short if overflow (OF=1).
+        { o: 0x70, ops: [table_1.rel8] },
+        // 0F 80 cd JO rel32 D Valid Valid Jump near if overflow (OF=1).
+        { o: 0x0F80, ops: [table_1.rel32] },
+    ],
+    jp: [{},
+        // 7A cb JP rel8 D Valid Valid Jump short if parity (PF=1).
+        { o: 0x7A, ops: [table_1.rel8] },
+        // 0F 8A cd JP rel32 D Valid Valid Jump near if parity (PF=1).
+        { o: 0x0F8A, ops: [table_1.rel32] },
+    ],
+    jpe: [{},
+        // 7A cb JPE rel8 D Valid Valid Jump short if parity even (PF=1).
+        { o: 0x7A, ops: [table_1.rel8] },
+        // 0F 8A cd JPE rel32 D Valid Valid Jump near if parity even (PF=1).
+        { o: 0x0F8A, ops: [table_1.rel32] },
+    ],
+    jpo: [{},
+        // 7B cb JPO rel8 D Valid Valid Jump short if parity odd (PF=0).
+        { o: 0x7B, ops: [table_1.rel8] },
+        // 0F 8B cd JPO rel32 D Valid Valid Jump near if parity odd (PF=0).
+        { o: 0x0F8B, ops: [table_1.rel32] },
+    ],
+    js: [{},
+        // 78 cb JS rel8 D Valid Valid Jump short if sign (SF=1).
+        { o: 0x78, ops: [table_1.rel8] },
+        // 0F 88 cd JS rel32 D Valid Valid Jump near if sign (SF=1).
+        { o: 0x0F88, ops: [table_1.rel32] },
+    ],
+    jz: [{},
+        // 74 cb JZ rel8 D Valid Valid Jump short if zero (ZF = 1).
+        { o: 0x74, ops: [table_1.rel8] },
+        // 0F 84 cd JZ rel32 D Valid Valid Jump near if 0 (ZF=1).
+        { o: 0x0F84, ops: [table_1.rel32] },
+    ],
     // LOOP Loop with ECX counter
     // LOOPZ/LOOPE Loop with ECX and zero/Loop with ECX and equal
     // LOOPNZ/LOOPNE Loop with ECX and not zero/Loop with ECX and not equal
@@ -485,7 +651,7 @@ exports.table = util_1.extend({}, t.table, {
     // RET Return
     ret: [{},
         { o: 0xC3 },
-        { o: 0xC2, ops: [table_2.imm16] }
+        { o: 0xC2, ops: [table_1.imm16] }
     ],
     // IRET Return from interrupt
     // INT Software interrupt
@@ -584,6 +750,7 @@ exports.table = util_1.extend({}, t.table, {
     // TZCNT Count the number trailing zero bits
     // System
     syscall: [{ o: 0x0F05 }],
+    sysret: [{ o: 0x0F07 }],
     sysenter: [{ o: 0x0F34 }],
     sysexit: [{ o: 0x0F35 }],
 });

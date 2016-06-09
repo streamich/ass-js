@@ -1,4 +1,5 @@
 import {R64, R32, R16, R8} from './regfile';
+import * as oo from '../operand';
 import * as o from './operand';
 
 
@@ -339,9 +340,9 @@ export class Displacement extends InstructionPart {
 //
 // Immediate constant value that follows other instruction bytes.
 export class Immediate extends InstructionPart {
-    value: o.Immediate;
+    value: oo.Immediate;
 
-    constructor(value: o.Immediate) {
+    constructor(value: oo.Immediate) {
         super();
         this.value = value;
     }

@@ -1,10 +1,8 @@
 import {extend} from '../util';
-import {S, rel, rel8, rel16, rel32} from '../table';
+import {S, rel, rel8, rel16, rel32, imm, imm8, imm16, imm32, imm64, immu, immu8, immu16, immu32, immu64} from '../table';
 import * as t from '../table';
 import {Register, Register8, Register16, Register32, Register64,
-    Memory, Memory8, Memory16, Memory32, Memory64,
-    Immediate, Immediate8, Immediate16, Immediate32, Immediate64,
-    ImmediateUnsigned, ImmediateUnsigned8, ImmediateUnsigned16, ImmediateUnsigned32, ImmediateUnsigned64} from './operand';
+    Memory, Memory8, Memory16, Memory32, Memory64} from './operand';
 
 
 export enum MODE {
@@ -30,23 +28,11 @@ export var rm8      = [Register8,  Memory];
 export var rm16     = [Register16, Memory];
 export var rm32     = [Register32, Memory];
 export var rm64     = [Register64, Memory];
-export var imm      = Immediate;
-export var immu     = ImmediateUnsigned;
-export var imm8     = Immediate8;
-export var immu8    = ImmediateUnsigned8;
-export var imm16    = Immediate16;
-export var immu16   = ImmediateUnsigned16;
-export var imm32    = Immediate32;
-export var immu32   = ImmediateUnsigned32;
-export var imm64    = Immediate64;
-export var immu64   = ImmediateUnsigned64;
 
 
 export type TOperandTemplate = t.TOperandTemplate |
     typeof Register8 | typeof Register16 | typeof Register32 | typeof Register64 |
-    typeof Memory8 | typeof Memory16 | typeof Memory32 | typeof Memory64 |
-    typeof Immediate | typeof Immediate8 | typeof Immediate16 | typeof Immediate32 | typeof Immediate64 |
-    typeof ImmediateUnsigned | typeof ImmediateUnsigned8 | typeof ImmediateUnsigned16 | typeof ImmediateUnsigned32 | typeof ImmediateUnsigned64;
+    typeof Memory8 | typeof Memory16 | typeof Memory32 | typeof Memory64;
 
 
 export interface Definition extends t.Definition {

@@ -757,6 +757,85 @@ describe('x64', function () {
             });
         });
     });
+    describe('Control Transfer', function () {
+        describe('jmp', function () {
+            it('jmp rel8', function () {
+                var _ = code64();
+                var lbl = _.label('test');
+                _.jmp(lbl);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0xEB, 0xFE]);
+            });
+            it('jmp rel32', function () {
+                var _ = code64();
+                var lbl = _.lbl('test');
+                _.jmp(lbl);
+                _.db(0, 150);
+                _.insert(lbl);
+                var bin = compile(_);
+                bin = bin.splice(0, 8);
+                chai_1.expect(bin).to.eql([0xE9, 0x96, 0, 0, 0, 0, 0, 0]);
+            });
+            it('jmp rax', function () {
+                var _ = code64();
+                _.jmp(operand_1.rax);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0xFF, 0xE0]);
+            });
+            it('jmp rbx', function () {
+                var _ = code64();
+                _.jmp(operand_1.rbx);
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0xFF, 0xE3]);
+            });
+            it('jmpq [rcx + rbx]', function () {
+                var _ = code64();
+                _.jmpq(operand_1.rcx.ref().ind(operand_1.rbx));
+                var bin = compile(_);
+                chai_1.expect(bin).to.eql([0xFF, 0x24, 0x19]);
+            });
+        });
+        describe('jcc', function () {
+            describe('ja', function () {
+                it('ja rel8', function () {
+                    var _ = code64();
+                    var lbl = _.label('test');
+                    _.ja(lbl);
+                    var bin = compile(_);
+                    chai_1.expect(bin).to.eql([0x77, 0xFE]);
+                });
+                it('ja rel32', function () {
+                    var _ = code64();
+                    var lbl = _.lbl('test');
+                    _.ja(lbl);
+                    _.db(0, 150);
+                    _.insert(lbl);
+                    var bin = compile(_);
+                    bin = bin.splice(0, 8);
+                    chai_1.expect(bin).to.eql([0x0F, 0x87, 0x96, 0, 0, 0, 0, 0]);
+                });
+            });
+            describe('jae', function () {
+                it('jae rel8', function () {
+                    var _ = code64();
+                    var lbl = _.label('test');
+                    _.jae(lbl);
+                    var bin = compile(_);
+                    chai_1.expect(bin).to.eql([0x73, 0xFE]);
+                });
+                it('jae rel32', function () {
+                    var _ = code64();
+                    var lbl = _.lbl('test');
+                    _.jae(lbl);
+                    _.db(0, 150);
+                    _.insert(lbl);
+                    var bin = compile(_);
+                    bin = bin.splice(0, 8);
+                    chai_1.expect(bin).to.eql([0x0F, 0x83, 0x96, 0, 0, 0, 0, 0]);
+                });
+            });
+        });
+    });
     describe('lea', function () {
         it('lea rax, [rax]', function () {
             var _ = code64();

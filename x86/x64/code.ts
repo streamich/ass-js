@@ -36,6 +36,38 @@ export class Code extends code.Code {
 
 export interface Code {
     jmp(dst: TUiOperand): Instruction;
+    jecxz(rel: TUiOperand): Instruction;
+    jrcxz(rel: TUiOperand): Instruction;
+    ja(rel: TUiOperand): Instruction;
+    jae(rel: TUiOperand): Instruction;
+    jb(rel: TUiOperand): Instruction;
+    jbe(rel: TUiOperand): Instruction;
+    jc(rel: TUiOperand): Instruction;
+    je(rel: TUiOperand): Instruction;
+    jg(rel: TUiOperand): Instruction;
+    jge(rel: TUiOperand): Instruction;
+    jl(rel: TUiOperand): Instruction;
+    jle(rel: TUiOperand): Instruction;
+    jna(rel: TUiOperand): Instruction;
+    jnae(rel: TUiOperand): Instruction;
+    jnb(rel: TUiOperand): Instruction;
+    jnbe(rel: TUiOperand): Instruction;
+    jnc(rel: TUiOperand): Instruction;
+    jne(rel: TUiOperand): Instruction;
+    jng(rel: TUiOperand): Instruction;
+    jnge(rel: TUiOperand): Instruction;
+    jnl(rel: TUiOperand): Instruction;
+    jnle(rel: TUiOperand): Instruction;
+    jno(rel: TUiOperand): Instruction;
+    jnp(rel: TUiOperand): Instruction;
+    jns(rel: TUiOperand): Instruction;
+    jnz(rel: TUiOperand): Instruction;
+    jo(rel: TUiOperand): Instruction;
+    jp(rel: TUiOperand): Instruction;
+    jpe(rel: TUiOperand): Instruction;
+    jpo(rel: TUiOperand): Instruction;
+    js(rel: TUiOperand): Instruction;
+    jz(rel: TUiOperand): Instruction;
 
     adcx(dst: TUiOperand, src: TUiOperand): Instruction;
     adox(dst: TUiOperand, src: TUiOperand): Instruction;

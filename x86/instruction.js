@@ -98,6 +98,16 @@ var Instruction = (function (_super) {
             this.immediate.write(arr);
         return arr;
     };
+    Instruction.prototype.evaluate = function () {
+        this.ops.evaluate(this);
+        var rel = this.ops.getRelative();
+        if (rel) {
+            var res = rel.result;
+            // var res = (rel.result as number) - this.bytes();
+            this.immediate.value.setValue(res);
+        }
+        return _super.prototype.evaluate.call(this);
+    };
     Instruction.prototype.bytes = function () {
         return this.length;
     };
@@ -418,7 +428,8 @@ var Instruction = (function (_super) {
         else {
             var rel = this.ops.getRelative();
             if (rel) {
-                this.immediate = new p.Immediate(new o.Immediate(0));
+                var immval = oo.Immediate.factory(rel.size, 0);
+                this.immediate = new p.Immediate(immval);
                 this.length += rel.size >> 3;
             }
         }
@@ -433,27 +444,8 @@ var InstructionSet = (function (_super) {
     function InstructionSet() {
         _super.apply(this, arguments);
     }
-    InstructionSet.prototype.normalizeOperands = function (insn, tpls) {
-        var list = _super.prototype.normalizeOperands.call(this, insn, tpls);
-        for (var j = 0; j < list.length; j++) {
-            var op = list[j];
-            if (oo.isTnumber(op)) {
-                var Clazz = tpls[j];
-                var num = op;
-                if (Clazz.name.indexOf('Immediate') === 0) {
-                    var ImmediateClass = Clazz;
-                    var imm = new ImmediateClass(num);
-                    list[j] = imm;
-                }
-                else
-                    throw TypeError('Invalid definition expected Immediate.');
-            }
-        }
-        return list;
-    };
-    InstructionSet.prototype.createInstructionOperands = function (insn, tpls) {
-        var list = this.normalizeOperands(insn, tpls);
-        return new o.Operands(list, this.ops.size);
+    InstructionSet.prototype.cloneOperands = function () {
+        return this.ops.clone(o.Operands);
     };
     InstructionSet.prototype.lock = function () {
         return this;

@@ -170,6 +170,10 @@ var Constant = (function (_super) {
         else
             this.zeroExtend(size);
     };
+    Constant.prototype.fitsSize = function (num) {
+        var size = this.signed ? Constant.sizeClass(num) : Constant.sizeClassUnsigned(num);
+        return size <= this.size;
+    };
     Constant.prototype.toString = function () {
         var str = '';
         for (var i = this.octets.length - 1; i >= 0; i--) {
@@ -181,81 +185,133 @@ var Constant = (function (_super) {
     return Constant;
 }(Operand));
 exports.Constant = Constant;
-// Relative jump targets for jump instructions.
-var Relative = (function (_super) {
-    __extends(Relative, _super);
-    function Relative(expr, offset) {
-        _super.call(this);
-        this.expr = expr;
-        this.offset = offset;
+var Immediate = (function (_super) {
+    __extends(Immediate, _super);
+    function Immediate() {
+        _super.apply(this, arguments);
     }
-    Relative.prototype.cast = function (RelativeClass) {
-        return new RelativeClass(this.expr, this.offset);
-    };
-    Relative.prototype.rebaseOffset = function (expr) {
-        // if(expr.code !== this.expr.code)
-        //     throw Error('Rebase from different code blocks not implemented yet.');
-        if (expr.offset === -1)
-            throw Error('Expression has no offset, cannot rebase.');
-        return this.offset + this.expr.offset - expr.offset;
-    };
-    // Recalculate relative offset given a different Expression.
-    Relative.prototype.rebase = function (expr) {
-        return new Relative(expr, this.rebaseOffset(expr));
-        // this.offset = this.rebaseOffset(expr);
-        // this.expr = expr;
-    };
-    Relative.prototype.toNumber = function () {
-        return this.offset;
-    };
-    Relative.prototype.toString = function () {
-        if (this.expr instanceof instruction_1.Label) {
-            var lbl = this.expr;
-            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
-            return "<" + lbl.name + off + ">";
-        }
-        else if (this.expr.code) {
-            var lbl = this.expr.code.getStartLabel();
-            var expr = "+[" + this.expr.index + "]";
-            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
-            return "<" + lbl.name + expr + off + ">";
-        }
-        else {
-            var expr = "+[" + this.expr.index + "]";
-            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
-            return "<" + expr + off + ">";
+    Immediate.factory = function (size, value, signed) {
+        if (value === void 0) { value = 0; }
+        if (signed === void 0) { signed = true; }
+        switch (size) {
+            case SIZE.B: return new Immediate8(value, signed);
+            case SIZE.W: return new Immediate16(value, signed);
+            case SIZE.D: return new Immediate32(value, signed);
+            case SIZE.Q: return new Immediate64(value, signed);
+            default: return new Immediate(value, signed);
         }
     };
-    return Relative;
-}(Operand));
-exports.Relative = Relative;
-var Relative8 = (function (_super) {
-    __extends(Relative8, _super);
-    function Relative8() {
-        _super.apply(this, arguments);
-        this.size = SIZE.B;
+    Immediate.isImmediateClass = function (Clazz) {
+        return Clazz.name.indexOf('Immediate') === 0;
+    };
+    Immediate.throwIfLarger = function (value, size, signed) {
+        var val_size = signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
+        if (val_size > size)
+            throw TypeError("Value " + value + " too big for imm8.");
+    };
+    Immediate.prototype.cast = function (ImmediateClass) {
+        return new ImmediateClass(this.value);
+    };
+    return Immediate;
+}(Constant));
+exports.Immediate = Immediate;
+var ImmediateUnsigned = (function (_super) {
+    __extends(ImmediateUnsigned, _super);
+    function ImmediateUnsigned(value) {
+        if (value === void 0) { value = 0; }
+        _super.call(this, value, false);
     }
-    return Relative8;
-}(Relative));
-exports.Relative8 = Relative8;
-var Relative16 = (function (_super) {
-    __extends(Relative16, _super);
-    function Relative16() {
+    return ImmediateUnsigned;
+}(Immediate));
+exports.ImmediateUnsigned = ImmediateUnsigned;
+var Immediate8 = (function (_super) {
+    __extends(Immediate8, _super);
+    function Immediate8() {
         _super.apply(this, arguments);
-        this.size = SIZE.W;
     }
-    return Relative16;
-}(Relative));
-exports.Relative16 = Relative16;
-var Relative32 = (function (_super) {
-    __extends(Relative32, _super);
-    function Relative32() {
+    Immediate8.prototype.setValue = function (value) {
+        Immediate.throwIfLarger(value, SIZE.B, this.signed);
+        _super.prototype.setValue.call(this, value);
+        this.extend(SIZE.B);
+    };
+    return Immediate8;
+}(Immediate));
+exports.Immediate8 = Immediate8;
+var ImmediateUnsigned8 = (function (_super) {
+    __extends(ImmediateUnsigned8, _super);
+    function ImmediateUnsigned8(value) {
+        if (value === void 0) { value = 0; }
+        _super.call(this, value, false);
+    }
+    return ImmediateUnsigned8;
+}(Immediate8));
+exports.ImmediateUnsigned8 = ImmediateUnsigned8;
+var Immediate16 = (function (_super) {
+    __extends(Immediate16, _super);
+    function Immediate16() {
         _super.apply(this, arguments);
-        this.size = SIZE.D;
     }
-    return Relative32;
-}(Relative));
-exports.Relative32 = Relative32;
+    Immediate16.prototype.setValue = function (value) {
+        Immediate.throwIfLarger(value, SIZE.W, this.signed);
+        _super.prototype.setValue.call(this, value);
+        this.extend(SIZE.W);
+    };
+    return Immediate16;
+}(Immediate));
+exports.Immediate16 = Immediate16;
+var ImmediateUnsigned16 = (function (_super) {
+    __extends(ImmediateUnsigned16, _super);
+    function ImmediateUnsigned16(value) {
+        if (value === void 0) { value = 0; }
+        _super.call(this, value, false);
+    }
+    return ImmediateUnsigned16;
+}(Immediate16));
+exports.ImmediateUnsigned16 = ImmediateUnsigned16;
+var Immediate32 = (function (_super) {
+    __extends(Immediate32, _super);
+    function Immediate32() {
+        _super.apply(this, arguments);
+    }
+    Immediate32.prototype.setValue = function (value) {
+        Immediate.throwIfLarger(value, SIZE.D, this.signed);
+        _super.prototype.setValue.call(this, value);
+        this.extend(SIZE.D);
+    };
+    return Immediate32;
+}(Immediate));
+exports.Immediate32 = Immediate32;
+var ImmediateUnsigned32 = (function (_super) {
+    __extends(ImmediateUnsigned32, _super);
+    function ImmediateUnsigned32(value) {
+        if (value === void 0) { value = 0; }
+        _super.call(this, value, false);
+    }
+    return ImmediateUnsigned32;
+}(Immediate32));
+exports.ImmediateUnsigned32 = ImmediateUnsigned32;
+var Immediate64 = (function (_super) {
+    __extends(Immediate64, _super);
+    function Immediate64() {
+        _super.apply(this, arguments);
+    }
+    Immediate64.prototype.setValue = function (value) {
+        Immediate.throwIfLarger(value, SIZE.Q, this.signed);
+        _super.prototype.setValue.call(this, value);
+        this.extend(SIZE.Q);
+    };
+    return Immediate64;
+}(Immediate));
+exports.Immediate64 = Immediate64;
+var ImmediateUnsigned64 = (function (_super) {
+    __extends(ImmediateUnsigned64, _super);
+    function ImmediateUnsigned64(value) {
+        if (value === void 0) { value = 0; }
+        _super.call(this, value, false);
+    }
+    return ImmediateUnsigned64;
+}(Immediate64));
+exports.ImmediateUnsigned64 = ImmediateUnsigned64;
 // ## Registers
 //
 // `Register` represents one of `%rax`, `%rbx`, etc. registers.
@@ -314,6 +370,141 @@ var Memory = (function (_super) {
     return Memory;
 }(Operand));
 exports.Memory = Memory;
+// Operand which needs `evaluation`, it may be that it cannot evaluate on first two passes.
+var Variable = (function (_super) {
+    __extends(Variable, _super);
+    function Variable() {
+        _super.apply(this, arguments);
+        this.result = null; // Result of evaluation.
+    }
+    Variable.prototype.canEvaluate = function (owner) {
+        return true;
+    };
+    Variable.prototype.evaluate = function (owner) {
+        return 0;
+    };
+    return Variable;
+}(Operand));
+exports.Variable = Variable;
+// Relative jump targets for jump instructions.
+var Relative = (function (_super) {
+    __extends(Relative, _super);
+    function Relative(target, offset) {
+        if (offset === void 0) { offset = 0; }
+        _super.call(this);
+        this.signed = true;
+        this.target = target;
+        this.offset = offset;
+    }
+    Relative.prototype.canEvaluate = function (owner) {
+        if (!owner || (owner.offset === -1))
+            return false;
+        if (this.target.offset === -1)
+            return false;
+        return true;
+    };
+    Relative.prototype.evaluate = function (owner) {
+        return this.result = this.rebaseOffset(owner) - owner.bytes();
+        // return this.result = this.rebaseOffset(owner);
+    };
+    Relative.prototype.evaluatePreliminary = function (owner) {
+        return this.offset + this.target.offsetMax - owner.offsetMax;
+    };
+    Relative.prototype.canHoldMaxOffset = function (owner) {
+        var value = this.evaluatePreliminary(owner);
+        var size = this.signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
+        return size <= this.size;
+    };
+    Relative.prototype.clone = function () {
+        return new Relative(this.target, this.offset);
+    };
+    Relative.prototype.cast = function (RelativeClass) {
+        // cast(RelativeClass: typeof Relative) {
+        this.size = RelativeClass.size;
+        // return new RelativeClass(this.target, this.offset);
+        return this;
+    };
+    Relative.prototype.rebaseOffset = function (new_target) {
+        // if(expr.code !== this.expr.code)
+        //     throw Error('Rebase from different code blocks not implemented yet.');
+        if (new_target.offset === -1)
+            throw Error('Expression has no offset, cannot rebase.');
+        return this.offset + this.target.offset - new_target.offset;
+    };
+    // Recalculate relative offset given a different Expression.
+    // rebase(target: Expression): Relative {
+    Relative.prototype.rebase = function (target) {
+        // return new Relative(target, this.rebaseOffset(expr));
+        this.offset = this.rebaseOffset(target);
+        this.target = target;
+    };
+    Relative.prototype.toNumber = function () {
+        return this.offset;
+    };
+    Relative.prototype.toString = function () {
+        var result = '';
+        if (this.result !== null) {
+            result = ' = ' + this.result;
+        }
+        if (this.target instanceof instruction_1.Label) {
+            var lbl = this.target;
+            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
+            return "<" + lbl.getName() + off + result + ">";
+        }
+        else if (this.target.code) {
+            var lbl = this.target.code.getStartLabel();
+            var expr = "+[" + this.target.index + "]";
+            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
+            return "<" + lbl.getName() + expr + off + result + ">";
+        }
+        else {
+            var expr = "+[" + this.target.index + "]";
+            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
+            return "<" + expr + off + result + ">";
+        }
+    };
+    Relative.size = SIZE.ANY;
+    return Relative;
+}(Variable));
+exports.Relative = Relative;
+var Relative8 = (function (_super) {
+    __extends(Relative8, _super);
+    function Relative8() {
+        _super.apply(this, arguments);
+    }
+    Relative8.size = SIZE.B;
+    return Relative8;
+}(Relative));
+exports.Relative8 = Relative8;
+var Relative16 = (function (_super) {
+    __extends(Relative16, _super);
+    function Relative16() {
+        _super.apply(this, arguments);
+    }
+    Relative16.size = SIZE.W;
+    return Relative16;
+}(Relative));
+exports.Relative16 = Relative16;
+var Relative32 = (function (_super) {
+    __extends(Relative32, _super);
+    function Relative32() {
+        _super.apply(this, arguments);
+    }
+    Relative32.size = SIZE.D;
+    return Relative32;
+}(Relative));
+exports.Relative32 = Relative32;
+var Symbol = (function (_super) {
+    __extends(Symbol, _super);
+    function Symbol(target, offset, name) {
+        if (offset === void 0) { offset = 0; }
+        _super.call(this, target, offset);
+        this.name = name ? name : 'symbol_' + (Symbol.cnt++);
+    }
+    Symbol.cnt = 0;
+    return Symbol;
+}(Relative));
+exports.Symbol = Symbol;
 // Collection of operands an `Expression` might have.
 var Operands = (function () {
     function Operands(list, size) {
@@ -342,8 +533,14 @@ var Operands = (function () {
         }
         return ops;
     };
-    Operands.prototype.clone = function () {
-        return new Operands(this.list, this.size);
+    Operands.prototype.clone = function (Clazz) {
+        if (Clazz === void 0) { Clazz = Operands; }
+        var list = [];
+        for (var _i = 0, _a = this.list; _i < _a.length; _i++) {
+            var op = _a[_i];
+            list.push(op);
+        }
+        return new Clazz(list, this.size);
     };
     // Wrap `Expression` into `Relative`.
     Operands.prototype.normalizeExpressionToRelative = function () {
@@ -390,6 +587,9 @@ var Operands = (function () {
     Operands.prototype.getMemoryOperand = function () {
         return this.getFirstOfClass(Memory);
     };
+    Operands.prototype.getVariable = function () {
+        return this.getFirstOfClass(Variable);
+    };
     Operands.prototype.getRelative = function () {
         return this.getFirstOfClass(Relative);
     };
@@ -406,11 +606,30 @@ var Operands = (function () {
     Operands.prototype.hasMemory = function () {
         return !!this.getMemoryOperand();
     };
+    Operands.prototype.hasVariable = function () {
+        return !!this.getMemoryOperand();
+    };
     Operands.prototype.hasRelative = function () {
         return !!this.getRelative();
     };
     Operands.prototype.hasRegisterOrMemory = function () {
         return this.hasRegister() || this.hasMemory();
+    };
+    Operands.prototype.canEvaluate = function (owner) {
+        for (var _i = 0, _a = this.list; _i < _a.length; _i++) {
+            var op = _a[_i];
+            if (op instanceof Variable)
+                if (!op.canEvaluate(owner))
+                    return false;
+        }
+        return true;
+    };
+    Operands.prototype.evaluate = function (owner) {
+        for (var _i = 0, _a = this.list; _i < _a.length; _i++) {
+            var op = _a[_i];
+            if (op instanceof Variable)
+                op.evaluate(owner);
+        }
     };
     Operands.prototype.toString = function () {
         return this.list.map(function (op) { return op.toString(); }).join(', ');
@@ -418,11 +637,3 @@ var Operands = (function () {
     return Operands;
 }());
 exports.Operands = Operands;
-var OperandsNormalized = (function (_super) {
-    __extends(OperandsNormalized, _super);
-    function OperandsNormalized() {
-        _super.apply(this, arguments);
-    }
-    return OperandsNormalized;
-}(Operands));
-exports.OperandsNormalized = OperandsNormalized;

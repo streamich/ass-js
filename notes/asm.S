@@ -5,6 +5,7 @@ main:
         syscall
 system:
         syscall
+        sysret
         sysenter
         sysexit
         int $0x80
@@ -146,10 +147,6 @@ adcx:
 adox:
         adox %r9, %r12
 
-jcc:
-        ja jcc
-        ja 0x11
-
 jmp:
         jmp jmp
         jmp ret
@@ -167,6 +164,73 @@ jmp:
         jmp add
         jmp 1
         jmp *0x11(%rax)
+
+jcc:
+        ja jcc
+        jae jcc
+        jb jcc
+        jbe jcc
+        jc jcc
+        jecxz jcc
+        jrcxz jcc
+        je jcc
+        jg jcc
+        jge jcc
+        jl jcc
+        jle jcc
+        jna jcc
+        jnae jcc
+        jnb jcc
+        jnbe jcc
+        jnc jcc
+        jne jcc
+        jng jcc
+        jnge jcc
+        jnl jcc
+        jnle jcc
+        jno jcc
+        jnp jcc
+        jns jcc
+        jnz jcc
+        jo jcc
+        jp jcc
+        jpe jcc
+        jpo jcc
+        js jcc
+        jz jcc
+        jz jcc
+
+        ja main
+        jae main
+        jb main
+        jbe main
+        jc main
+        je main
+        jg main
+        jge main
+        jl main
+        jle main
+        jna main
+        jnae main
+        jnb main
+        jnbe main
+        jnc main
+        jne main
+        jng main
+        jnge main
+        jnl main
+        jnle main
+        jno main
+        jnp main
+        jns main
+        jnz main
+        jo main
+        jp main
+        jpe main
+        jpo main
+        js main
+        jz main
+        jz main
 
 ret:
         ret

@@ -1,5 +1,6 @@
 import {UInt64} from './util';
 import {Expression, Label} from './instruction';
+import * as i from './instruction';
 
 
 export enum SIZE {
@@ -167,6 +168,11 @@ export class Constant extends Operand {
         else this.zeroExtend(size);
     }
 
+    fitsSize(num: Tnumber) {
+        var size = this.signed ? Constant.sizeClass(num) : Constant.sizeClassUnsigned(num);
+        return size <= this.size;
+    }
+
     toString() {
         var str = '';
         for(var i = this.octets.length - 1; i >= 0; i--) {
@@ -178,68 +184,91 @@ export class Constant extends Operand {
 }
 
 
-// Relative jump targets for jump instructions.
-export class Relative extends Operand {
-    expr: Expression;
-    offset: number;
-
-    constructor(expr: Expression, offset: number) {
-        super();
-        this.expr = expr;
-        this.offset = offset;
-    }
-
-    cast(RelativeClass: typeof Relative): Relative {
-        return new RelativeClass(this.expr, this.offset);
-    }
-
-    rebaseOffset(expr: Expression) {
-        // if(expr.code !== this.expr.code)
-        //     throw Error('Rebase from different code blocks not implemented yet.');
-        if(expr.offset === -1)
-            throw Error('Expression has no offset, cannot rebase.');
-        return this.offset + this.expr.offset - expr.offset;
-    }
-
-    // Recalculate relative offset given a different Expression.
-    rebase(expr: Expression): Relative {
-        return new Relative(expr, this.rebaseOffset(expr));
-        // this.offset = this.rebaseOffset(expr);
-        // this.expr = expr;
-    }
-
-    toNumber() {
-        return this.offset;
-    }
-
-    toString() {
-        if(this.expr instanceof Label) {
-            var lbl = this.expr as Label;
-            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
-            return `<${lbl.name}${off}>`;
-        } else if(this.expr.code) {
-            var lbl = this.expr.code.getStartLabel();
-            var expr = `+[${this.expr.index}]`;
-            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
-            return `<${lbl.name}${expr}${off}>`;
-        } else {
-            var expr = `+[${this.expr.index}]`;
-            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
-            return `<${expr}${off}>`;
+export class Immediate extends Constant {
+    static factory(size, value: number|number64 = 0, signed = true) {
+        switch(size) {
+            case SIZE.B:    return new Immediate8(value, signed);
+            case SIZE.W:    return new Immediate16(value, signed);
+            case SIZE.D:    return new Immediate32(value, signed);
+            case SIZE.Q:    return new Immediate64(value, signed);
+            default:        return new Immediate(value, signed);
         }
     }
+
+    static isImmediateClass(Clazz: any) {
+        return Clazz.name.indexOf('Immediate') === 0;
+    }
+
+    static throwIfLarger(value, size, signed) {
+        var val_size = signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
+        if(val_size > size) throw TypeError(`Value ${value} too big for imm8.`);
+    }
+
+    cast(ImmediateClass: typeof Immediate) {
+        return new ImmediateClass(this.value);
+    }
 }
 
-export class Relative8 extends Relative {
-    size = SIZE.B;
+export class ImmediateUnsigned extends Immediate {
+    constructor(value: number|number64 = 0) {
+        super(value, false);
+    }
 }
 
-export class Relative16 extends Relative {
-    size = SIZE.W;
+export class Immediate8 extends Immediate {
+    setValue(value: number|number64) {
+        Immediate.throwIfLarger(value, SIZE.B, this.signed);
+        super.setValue(value);
+        this.extend(SIZE.B);
+    }
 }
 
-export class Relative32 extends Relative {
-    size = SIZE.D;
+export class ImmediateUnsigned8 extends Immediate8 {
+    constructor(value: number|number64 = 0) {
+        super(value, false);
+    }
+}
+
+export class Immediate16 extends Immediate {
+    setValue(value: number|number64) {
+        Immediate.throwIfLarger(value, SIZE.W, this.signed);
+        super.setValue(value);
+        this.extend(SIZE.W);
+    }
+}
+
+export class ImmediateUnsigned16 extends Immediate16 {
+    constructor(value: number|number64 = 0) {
+        super(value, false);
+    }
+}
+
+export class Immediate32 extends Immediate {
+    setValue(value: number|number64) {
+        Immediate.throwIfLarger(value, SIZE.D, this.signed);
+        super.setValue(value);
+        this.extend(SIZE.D);
+    }
+}
+
+export class ImmediateUnsigned32 extends Immediate32 {
+    constructor(value: number|number64 = 0) {
+        super(value, false);
+    }
+}
+
+export class Immediate64 extends Immediate {
+    setValue(value: number|number64) {
+        Immediate.throwIfLarger(value, SIZE.Q, this.signed);
+        super.setValue(value);
+        this.extend(SIZE.Q);
+    }
+}
+
+export class ImmediateUnsigned64 extends Immediate64 {
+    constructor(value: number|number64 = 0) {
+        super(value, false);
+    }
 }
 
 
@@ -308,6 +337,135 @@ export class Memory extends Operand {
 }
 
 
+// Operand which needs `evaluation`, it may be that it cannot evaluate on first two passes.
+export class Variable extends Operand {
+    result: Tnumber = null; // Result of evaluation.
+
+    canEvaluate(owner: i.Expression): boolean {
+        return true;
+    }
+
+    evaluate(owner: i.Expression): Tnumber {
+        return 0;
+    }
+}
+
+
+// Relative jump targets for jump instructions.
+export class Relative extends Variable {
+    static size = SIZE.ANY;
+
+    signed = true;
+
+    target: Expression; // Target `Expression` which is referenced by this `Relative`.
+    offset: number;
+
+    constructor(target: Expression, offset: number = 0) {
+        super();
+        this.target = target;
+        this.offset = offset;
+    }
+
+    canEvaluate(owner) {
+        if(!owner || (owner.offset === -1)) return false;
+        if(this.target.offset === -1) return false;
+        return true;
+    }
+
+    evaluate(owner) {
+        return this.result = this.rebaseOffset(owner) - owner.bytes();
+        // return this.result = this.rebaseOffset(owner);
+    }
+
+    evaluatePreliminary(owner: i.Expression) {
+        return this.offset + this.target.offsetMax - owner.offsetMax;
+    }
+
+    canHoldMaxOffset(owner: i.Expression) {
+        var value = this.evaluatePreliminary(owner);
+        var size = this.signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
+        return size <= this.size;
+    }
+
+    clone(): Relative {
+        return new Relative(this.target, this.offset);
+    }
+
+    cast(RelativeClass: typeof Relative): Relative {
+    // cast(RelativeClass: typeof Relative) {
+        this.size = RelativeClass.size;
+        // return new RelativeClass(this.target, this.offset);
+        return this;
+    }
+
+    rebaseOffset(new_target: Expression): number {
+        // if(expr.code !== this.expr.code)
+        //     throw Error('Rebase from different code blocks not implemented yet.');
+        if(new_target.offset === -1)
+            throw Error('Expression has no offset, cannot rebase.');
+        return this.offset + this.target.offset - new_target.offset;
+    }
+
+    // Recalculate relative offset given a different Expression.
+    // rebase(target: Expression): Relative {
+    rebase(target: Expression) {
+        // return new Relative(target, this.rebaseOffset(expr));
+        this.offset = this.rebaseOffset(target);
+        this.target = target;
+    }
+
+    toNumber() {
+        return this.offset;
+    }
+
+    toString() {
+        var result = '';
+        if(this.result !== null) {
+            result = ' = ' + this.result;
+        }
+
+        if(this.target instanceof Label) {
+            var lbl = this.target as Label;
+            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
+            return `<${lbl.getName()}${off}${result}>`;
+        } else if(this.target.code) {
+            var lbl = this.target.code.getStartLabel();
+            var expr = `+[${this.target.index}]`;
+            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
+            return `<${lbl.getName()}${expr}${off}${result}>`;
+        } else {
+            var expr = `+[${this.target.index}]`;
+            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
+            return `<${expr}${off}${result}>`;
+        }
+    }
+}
+
+export class Relative8 extends Relative {
+    static size = SIZE.B;
+}
+
+export class Relative16 extends Relative {
+    static size = SIZE.W;
+}
+
+export class Relative32 extends Relative {
+    static size = SIZE.D;
+}
+
+
+export class Symbol extends Relative {
+    private static cnt = 0;
+
+    name: string;
+
+    constructor(target: i.Expression, offset: number = 0, name?: string) {
+        super(target, offset);
+        this.name = name ? name : 'symbol_' + (Symbol.cnt++);
+    }
+}
+
+
 export type TOperand = (Tnumber|Operand|Expression);
 export type TOperandN1 = (Tnumber|Operand);
 export type TOperandN2 = Operand;
@@ -343,8 +501,10 @@ export class Operands {
         this.list = list;
     }
 
-    clone() {
-        return new Operands(this.list, this.size);
+    clone(Clazz: typeof Operands = Operands) {
+        var list = [];
+        for(var op of this.list) list.push(op);
+        return new Clazz(list, this.size);
     }
 
     // Wrap `Expression` into `Relative`.
@@ -389,6 +549,10 @@ export class Operands {
         return this.getFirstOfClass(Memory) as Memory;
     }
 
+    getVariable(): Variable {
+        return this.getFirstOfClass(Variable) as Variable;
+    }
+
     getRelative(): Relative {
         return this.getFirstOfClass(Relative) as Relative;
     }
@@ -407,6 +571,10 @@ export class Operands {
         return !!this.getMemoryOperand();
     }
 
+    hasVariable(): boolean {
+        return !!this.getMemoryOperand();
+    }
+
     hasRelative(): boolean {
         return !!this.getRelative();
     }
@@ -415,12 +583,20 @@ export class Operands {
         return this.hasRegister() || this.hasMemory();
     }
 
+    canEvaluate(owner: i.Expression): boolean {
+        for(var op of this.list) {
+            if(op instanceof Variable)
+                if(!(op as Variable).canEvaluate(owner)) return false;
+        }
+        return true;
+    }
+
+    evaluate(owner: i.Expression) {
+        for(var op of this.list)
+            if(op instanceof Variable) (op as Variable).evaluate(owner);
+    }
+
     toString() {
         return this.list.map((op) => { return op.toString(); }).join(', ');
     }
-}
-
-
-export class OperandsNormalized extends Operands {
-    list: TOperandN2[];
 }

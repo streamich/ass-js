@@ -60,15 +60,16 @@ export class Code extends CodeBase {
         var matches: d.DefMatchList = new d.DefMatchList;
         matches.matchAll(bySize[size], ops);
 
-        if(!matches.list.length)
+        if(!matches.list.length) {
             throw Error('Could not match operands to instruction definition.');
+        }
 
         var iset = new i.InstructionSet(ops, matches);
         this.insert(iset);
 
         var insn = iset.pickShortestInstruction();
         if(insn) {
-            this.insert(insn, iset.index);
+            this.replace(insn, iset.index);
             return insn;
         } else
             return iset;

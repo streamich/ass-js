@@ -103,8 +103,21 @@ export class Instruction extends i.Instruction implements IInstruction {
         if(this.immediate)      this.immediate.write(arr);
         return arr;
     }
+
+    evaluate(): boolean {
+        this.ops.evaluate(this);
+        
+        var rel = this.ops.getRelative();
+        if(rel) {
+            var res = (rel.result as number);
+            // var res = (rel.result as number) - this.bytes();
+            this.immediate.value.setValue(res);
+        }
+        
+        return super.evaluate();
+    }
     
-    bytes() {
+    bytes(): number {
         return this.length;
     }
 
@@ -456,7 +469,8 @@ export class Instruction extends i.Instruction implements IInstruction {
         } else {
             var rel = this.ops.getRelative();
             if(rel) {
-                this.immediate = new p.Immediate(new o.Immediate(0));
+                var immval = oo.Immediate.factory(rel.size, 0);
+                this.immediate = new p.Immediate(immval);
                 this.length += rel.size >> 3;
             }
         }
@@ -468,27 +482,8 @@ export class Instruction extends i.Instruction implements IInstruction {
 // For example, `jmp` with `rel8` or `rel32` immediate, or when multiple instruction definitions match provided operands.
 export class InstructionSet extends i.InstructionSet implements IInstruction {
 
-    protected normalizeOperands(insn: Instruction, tpls: t.TOperandTemplate[]): oo.TOperandN1[] {
-        var list = super.normalizeOperands(insn, tpls as any);
-        for(var j = 0; j < list.length; j++) {
-            var op = list[j];
-            if(oo.isTnumber(op)) {
-                var Clazz = tpls[j] as any;
-                var num = op as any as oo.Tnumber;
-                if(Clazz.name.indexOf('Immediate') === 0) {
-                    var ImmediateClass = Clazz as typeof o.Immediate;
-                    var imm = new ImmediateClass(num);
-                    list[j] = imm;
-                } else
-                    throw TypeError('Invalid definition expected Immediate.');
-            }
-        }
-        return list;
-    }
-
-    protected createInstructionOperands(insn: Instruction, tpls: t.TOperandTemplate[]): o.Operands {
-        var list = this.normalizeOperands(insn, tpls);
-        return new o.Operands(list, this.ops.size);
+    protected cloneOperands() {
+        return this.ops.clone(o.Operands);
     }
 
     lock() {

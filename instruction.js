@@ -37,16 +37,6 @@ var Expression = (function () {
     // Called after new expression is inserted into `Code`.
     Expression.prototype.build = function () {
     };
-    // If `Expression` can generate different size machine code this method forces it to pick one.
-    Expression.prototype.determineSize = function () {
-    };
-    // Whether this Expression is ready to be written to binary buffer.
-    Expression.prototype.canEvaluate = function () {
-        return true;
-    };
-    // Evaluate addressing references in 3rd pass.
-    Expression.prototype.evaluate = function () {
-    };
     // Calculated during the first pass, when expressions are inserted into `Code` block.
     Expression.prototype.calcOffsetMaxAndOffset = function () {
         if (this.index === 0) {
@@ -85,11 +75,13 @@ var Expression = (function () {
             var prev = this.code.expr[this.index - 1];
             var offset = prev.offset;
             if (offset === exports.OFFSET_UNKNOWN)
-                this.offset = exports.OFFSET_UNKNOWN;
+                // this.offset = OFFSET_UNKNOWN;
+                throw Error("Instruction [" + (this.index - 1) + "] does not have offset.");
             else {
                 var bytes = prev.bytes();
                 if (bytes === exports.SIZE_UNKNOWN)
-                    this.offset = exports.OFFSET_UNKNOWN;
+                    // this.offset = OFFSET_UNKNOWN;
+                    throw Error("Instruction [" + (this.index - 1) + "] does not have size.");
                 else
                     this.offset = offset + bytes;
             }
@@ -136,13 +128,17 @@ var Label = (function (_super) {
     __extends(Label, _super);
     function Label(name) {
         _super.call(this);
+        this.symbol = null;
         this.length = 0;
-        if ((typeof name !== 'string') || !name)
-            throw TypeError('Label name must be a non-empty string.');
-        this.name = name;
+        // if((typeof name !== 'string') || !name)
+        //     throw TypeError('Label name must be a non-empty string.');
+        this.symbol = new o.Symbol(this, 0, name);
     }
+    Label.prototype.getName = function () {
+        return this.symbol.name;
+    };
     Label.prototype.toString = function () {
-        return this.name + ':';
+        return this.getName() + ':';
     };
     return Label;
 }(Expression));
@@ -160,9 +156,17 @@ var DataUninitialized = (function (_super) {
     DataUninitialized.prototype.bytes = function () {
         return this.length;
     };
-    DataUninitialized.prototype.toString = function (margin) {
+    DataUninitialized.prototype.toString = function (margin, comment) {
         if (margin === void 0) { margin = '    '; }
-        return margin + 'resb ' + this.length;
+        if (comment === void 0) { comment = true; }
+        var bytes = this.bytes();
+        var expression = margin + 'resb ' + bytes;
+        var cmt = '';
+        if (comment) {
+            var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
+            cmt = spaces + "; " + this.formatOffset() + " " + bytes + " bytes";
+        }
+        return expression + cmt;
     };
     return DataUninitialized;
 }(Expression));
@@ -286,40 +290,43 @@ var ExpressionVariable = (function (_super) {
         this.isEvaluated = false;
         this.ops = ops;
     }
-    ExpressionVariable.prototype.canEvaluate = function () {
-        for (var _i = 0, _a = this.ops.list; _i < _a.length; _i++) {
-            var op = _a[_i];
-            if (op instanceof operand_1.Relative) {
-                var rel = op;
-                if (rel.expr.offset === exports.OFFSET_UNKNOWN)
-                    return false;
-            }
-        }
-        return true;
-    };
+    // canEvaluate() {
+    //     for(var op of this.ops.list) {
+    //         if(op instanceof Relative) {
+    //             var rel = op as Relative;
+    //             if(rel.target.offset === OFFSET_UNKNOWN) return false;
+    //         }
+    //     }
+    //     return true;
+    // }
+    // Whether this Expression is ready to be written to binary buffer.
+    // canEvaluate() {
+    //     return true;
+    // }
     ExpressionVariable.prototype.evaluate = function () {
         this.isEvaluated = true;
+        return true;
     };
     return ExpressionVariable;
 }(Expression));
 exports.ExpressionVariable = ExpressionVariable;
-var DataVolatile = (function (_super) {
-    __extends(DataVolatile, _super);
-    function DataVolatile(ops, littleEndian) {
+var DataVariable = (function (_super) {
+    __extends(DataVariable, _super);
+    function DataVariable(ops, littleEndian) {
         if (littleEndian === void 0) { littleEndian = true; }
         _super.call(this, ops);
         this.littleEndian = littleEndian;
         this.octets = new Array(this.bytes());
     }
-    DataVolatile.prototype.build = function () {
+    DataVariable.prototype.build = function () {
     };
-    DataVolatile.prototype.bytes = function () {
+    DataVariable.prototype.bytes = function () {
         if (this.ops.size <= operand_1.SIZE.NONE)
             throw Error('Unknown operand size in Data.');
         else
             return this.ops.list.length * (this.ops.size >> 3);
     };
-    DataVolatile.prototype.evaluate = function () {
+    DataVariable.prototype.evaluate = function () {
         var isize = this.ops.size >> 3;
         var list = this.ops.list;
         for (var j = 0; j < list.length; j++) {
@@ -328,7 +335,8 @@ var DataVolatile = (function (_super) {
             if (op instanceof operand_1.Relative) {
                 var rel = op;
                 // num = list[j] = rel.rebaseOffset(this);
-                num = rel.rebaseOffset(this);
+                // num = rel.rebaseOffset(this);
+                num = rel.evaluate(this);
             }
             else if (operand_1.isTnumber(op)) {
                 num = op;
@@ -339,28 +347,21 @@ var DataVolatile = (function (_super) {
             for (var m = 0; m < isize; m++)
                 this.octets[j + m] = slice[m];
         }
-        _super.prototype.evaluate.call(this);
+        return _super.prototype.evaluate.call(this);
     };
-    DataVolatile.prototype.write = function (arr) {
+    DataVariable.prototype.write = function (arr) {
         arr = arr.concat(this.octets);
         return arr;
     };
-    DataVolatile.prototype.toString = function (margin, comment) {
+    DataVariable.prototype.toString = function (margin, comment) {
         if (margin === void 0) { margin = '    '; }
         if (comment === void 0) { comment = true; }
         var datastr = '';
         var bytes = this.bytes();
         if (bytes < 200) {
-            if (this.isEvaluated) {
-                datastr = this.octets.map(function (octet) {
-                    return Data.formatOctet(octet);
-                }).join(', ');
-            }
-            else {
-                datastr = this.ops.list.map(function (op) {
-                    return typeof op === 'number' ? Data.formatOctet(op) : op.toString();
-                }).join(', ');
-            }
+            datastr = this.ops.list.map(function (op) {
+                return typeof op === 'number' ? Data.formatOctet(op) : op.toString();
+            }).join(', ');
         }
         else {
             datastr = "[" + bytes + " bytes]";
@@ -370,12 +371,17 @@ var DataVolatile = (function (_super) {
         if (comment) {
             var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
             cmt = spaces + "; " + this.formatOffset() + " " + bytes + " bytes";
+            if (this.isEvaluated) {
+                cmt += ' ' + this.octets.map(function (octet) {
+                    return Data.formatOctet(octet);
+                }).join(', ');
+            }
         }
         return expression + cmt;
     };
-    return DataVolatile;
+    return DataVariable;
 }(ExpressionVariable));
-exports.DataVolatile = DataVolatile;
+exports.DataVariable = DataVariable;
 var Instruction = (function (_super) {
     __extends(Instruction, _super);
     function Instruction() {
@@ -388,6 +394,9 @@ var Instruction = (function (_super) {
     };
     Instruction.prototype.write = function (arr) {
         return arr;
+    };
+    Instruction.prototype.evaluate = function () {
+        return _super.prototype.evaluate.call(this);
     };
     Instruction.prototype.toString = function (margin, comment) {
         if (margin === void 0) { margin = '    '; }
@@ -437,38 +446,42 @@ var InstructionSet = (function (_super) {
             throw Error('Instruction candidates not reduced.');
         return this.getPicked().write(arr);
     };
-    InstructionSet.prototype.toString = function (margin, comment) {
-        if (margin === void 0) { margin = '    '; }
-        if (comment === void 0) { comment = true; }
-        if (this.picked === -1) {
-            var expression = '(one of:)';
-            var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
-            expression += spaces + ("; " + this.formatOffset() + " max " + this.bytesMax() + " bytes\n");
-            var lines = [];
-            // for(var j = 0; j < this.insn.length; j++) {
-            //     if(this.insn[j].ops) lines.push(this.insn[j].toString(margin, hex));
-            //     else lines.push('    ' + this.matches.list[j].def.toString());
-            // }
-            for (var _i = 0, _a = this.matches.list; _i < _a.length; _i++) {
-                var match = _a[_i];
-                lines.push(margin + match.def.toString());
-            }
-            return expression + lines.join('\n');
-        }
-        else {
-            var picked = this.getPicked();
-            return picked.toString(margin, comment) + ' ' + picked.bytes() + ' bytes';
-        }
-    };
     InstructionSet.prototype.getPicked = function () {
         return this.insn[this.picked];
     };
-    InstructionSet.prototype.determineSize = function () {
-        this.picked = 0;
+    InstructionSet.prototype.getFixedSizeExpression = function () {
+        var shortest_ind = -1;
+        var shortest_len = Infinity;
+        for (var m = 0; m < this.ops.list.length; m++) {
+            var op = this.ops.list[m];
+            if (op instanceof o.Relative) {
+                for (var j = 0; j < this.insn.length; j++) {
+                    var ins = this.insn[j];
+                    var rel = ins.ops.list[m]; // Relative of instruction.
+                    var success = rel.canHoldMaxOffset(this);
+                    if (success) {
+                        if (shortest_ind === -1) {
+                            _a = [j, ins.bytes()], shortest_ind = _a[0], shortest_len = _a[1];
+                        }
+                        else {
+                            var bytes = ins.bytes();
+                            if (bytes < shortest_len) {
+                                _b = [j, bytes], shortest_ind = _b[0], shortest_len = _b[1];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (shortest_ind === -1)
+            throw Error("Could not fix size for [" + this.index + "] Expression.");
+        this.picked = shortest_ind;
+        return this.getPicked();
+        var _a, _b;
     };
     InstructionSet.prototype.evaluate = function () {
         var picked = this.getPicked();
-        picked.ops.list[0] = new o.Constant(0);
+        return picked.evaluate();
     };
     InstructionSet.prototype.bytes = function () {
         return this.picked === -1 ? exports.SIZE_UNKNOWN : this.getPicked().bytes();
@@ -493,6 +506,8 @@ var InstructionSet = (function (_super) {
         }
     };
     InstructionSet.prototype.pickShortestInstruction = function () {
+        if (this.insn.length === 1)
+            return this.insn[0];
         if (this.ops.hasRelative())
             return null;
         // Pick the shortest instruction if we know all instruction sizes, otherwise don't pick any.
@@ -512,39 +527,45 @@ var InstructionSet = (function (_super) {
         }
         return this.getPicked();
     };
-    InstructionSet.prototype.normalizeOperands = function (insn, tpls) {
-        var list = [];
-        for (var j = 0; j < this.ops.list.length; j++) {
-            var op = this.ops.list[j];
+    InstructionSet.prototype.cloneOperands = function () {
+        return this.ops.clone(o.Operands);
+    };
+    InstructionSet.prototype.createInstructionOperands = function (insn, tpls) {
+        var ops = this.cloneOperands();
+        for (var j = 0; j < ops.list.length; j++) {
+            var op = ops.list[j];
             if (op instanceof o.Operand) {
                 if (op instanceof o.Relative) {
                     var Clazz = tpls[j];
                     if (Clazz.name.indexOf('Relative') === 0) {
                         var RelativeClass = Clazz;
-                        op = op.cast(RelativeClass);
+                        var rel = op.clone();
+                        rel.cast(RelativeClass);
+                        ops.list[j] = rel;
                     }
                 }
-                list.push(op);
             }
             else if (o.isTnumber(op)) {
                 var Clazz = tpls[j];
                 var num = op;
                 if (Clazz.name.indexOf('Relative') === 0) {
                     var RelativeClass = Clazz;
-                    var rel = new RelativeClass(insn, num);
-                    list.push(rel);
+                    var rel = new o.Relative(insn, num);
+                    rel.cast(RelativeClass);
+                    ops.list[j] = rel;
+                }
+                else if (Clazz.name.indexOf('Immediate') === 0) {
+                    var ImmediateClass = Clazz;
+                    var imm = new ImmediateClass(num);
+                    ops.list[j] = imm;
                 }
                 else
-                    list.push(num);
+                    throw TypeError('Invalid definition expected Immediate.');
             }
             else
                 throw TypeError('Invalid operand expected Register, Memory, Relative, number or number64.');
         }
-        return list;
-    };
-    InstructionSet.prototype.createInstructionOperands = function (insn, tpls) {
-        var list = this.normalizeOperands(insn, tpls);
-        return new o.OperandsNormalized(list, this.ops.size);
+        return ops;
     };
     InstructionSet.prototype.build = function () {
         _super.prototype.build.call(this);
@@ -562,6 +583,29 @@ var InstructionSet = (function (_super) {
             insn.bind(this.code);
             insn.build();
             this.insn[j] = insn;
+        }
+    };
+    InstructionSet.prototype.toString = function (margin, comment) {
+        if (margin === void 0) { margin = '    '; }
+        if (comment === void 0) { comment = true; }
+        if (this.picked === -1) {
+            var expression = '(one of:)';
+            var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
+            expression += spaces + ("; " + this.formatOffset() + " max " + this.bytesMax() + " bytes\n");
+            var lines = [];
+            // for(var j = 0; j < this.insn.length; j++) {
+            //     if(this.insn[j].ops) lines.push(this.insn[j].toString(margin, hex));
+            //     else lines.push('    ' + this.matches.list[j].def.toString());
+            // }
+            for (var _i = 0, _a = this.matches.list; _i < _a.length; _i++) {
+                var match = _a[_i];
+                lines.push(margin + match.def.toString());
+            }
+            return expression + lines.join('\n');
+        }
+        else {
+            var picked = this.getPicked();
+            return picked.toString(margin, comment) + ' ' + picked.bytes() + ' bytes';
         }
     };
     return InstructionSet;

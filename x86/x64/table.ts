@@ -1,9 +1,8 @@
 import {extend} from '../../util';
 import * as o from '../operand';
 import * as t from '../table';
-import {S, rel, rel8, rel16, rel32} from '../../table';
-import {M, r, r8, r16, r32, r64, m, m8, m16, m32, m64, rm8, rm16, rm32, rm64,
-    imm, imm8, imm16, imm32, imm64, immu, immu8, immu16, immu32, immu64} from '../table';
+import {S, rel, rel8, rel16, rel32, imm, imm8, imm16, imm32, imm64, immu, immu8, immu16, immu32, immu64} from '../../table';
+import {M, r, r8, r16, r32, r64, m, m8, m16, m32, m64, rm8, rm16, rm32, rm64} from '../table';
 
 
 export var defaults = extend<any>({}, t.defaults,
@@ -474,7 +473,7 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
 
     // ## Control Transfer
     // JMP Jump
-    jmp: [{},
+    jmp: [{ds: S.Q},
         // relX is just immX
         // EB cb JMP rel8 D Valid Valid Jump short, RIP = RIP + 8-bit displacement sign extended to 64-bits
         {o: 0xEB, ops: [rel8]},
@@ -487,25 +486,191 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
         // FF /5 JMP m16:32 D Valid Valid Jump far, absolute indirect, address given in m16:32.
         // REX.W + FF /5 JMP m16:64 D Valid N.E. Jump far, absolute
     ],
-    // JE/JZ Jump if equal/Jump if zero
-    // JNE/JNZ Jump if not equal/Jump if not zero
-    // JA/JNBE Jump if above/Jump if not below or equal
-    // JAE/JNB Jump if above or equal/Jump if not below
-    // JB/JNAE Jump if below/Jump if not above or equal
-    // JBE/JNA Jump if below or equal/Jump if not above
-    // JG/JNLE Jump if greater/Jump if not less or equal
-    // JGE/JNL Jump if greater or equal/Jump if not less
-    // JL/JNGE Jump if less/Jump if not greater or equal
-    // JLE/JNG Jump if less or equal/Jump if not greater
-    // JC Jump if carry
-    // JNC Jump if not carry
-    // JO Jump if overflow
-    // JNO Jump if not overflow
-    // JS Jump if sign (negative)
-    // JNS Jump if not sign (non-negative)
-    // JPO/JNP Jump if parity odd/Jump if not parity
-    // JPE/JP Jump if parity even/Jump if parity
-    // JCXZ/JECXZ Jump register CX zero/Jump register ECX zero
+    // Jcc
+    // E3 cb JECXZ rel8 D Valid Valid Jump short if ECX register is 0.
+    jecxz: [{o: 0xE3, ops: [rel8], pfx: [0x67]}],
+    // E3 cb JRCXZ rel8 D Valid N.E. Jump short if RCX register is 0.
+    jrcxz: [{o: 0xE3, ops: [rel8]}],
+    ja: [{},
+        // 77 cb JA rel8 D Valid Valid Jump short if above (CF=0 and ZF=0).
+        {o: 0x77, ops: [rel8]},
+        // 0F 87 cd JA rel32 D Valid Valid Jump near if above (CF=0 and ZF=0).
+        {o: 0x0F87, ops: [rel32]},
+    ],
+    jae: [{},
+        // 73 cb JAE rel8 D Valid Valid Jump short if above or equal (CF=0).
+        {o: 0x73, ops: [rel8]},
+        // 0F 83 cd JAE rel32 D Valid Valid Jump near if above or equal (CF=0).
+        {o: 0x0F83, ops: [rel32]},
+    ],
+    jb: [{},
+        // 72 cb JB rel8 D Valid Valid Jump short if below (CF=1).
+        {o: 0x72, ops: [rel8]},
+        // 0F 82 cd JB rel32 D Valid Valid Jump near if below (CF=1).
+        {o: 0x0F82, ops: [rel32]},
+    ],
+    jbe: [{},
+        // 76 cb JBE rel8 D Valid Valid Jump short if below or equal (CF=1 or ZF=1).
+        {o: 0x76, ops: [rel8]},
+        // 0F 86 cd JBE rel32 D Valid Valid Jump near if below or equal (CF=1 or ZF=1).
+        {o: 0x0F86, ops: [rel32]},
+    ],
+    jc: [{},
+        // 72 cb JC rel8 D Valid Valid Jump short if carry (CF=1).
+        {o: 0x72, ops: [rel8]},
+        // 0F 82 cd JC rel32 D Valid Valid Jump near if carry (CF=1).
+        {o: 0x0F82, ops: [rel32]},
+    ],
+    je: [{},
+        // 74 cb JE rel8 D Valid Valid Jump short if equal (ZF=1).
+        {o: 0x74, ops: [rel8]},
+        // 0F 84 cd JE rel32 D Valid Valid Jump near if equal (ZF=1).
+        {o: 0x0F84, ops: [rel32]},
+    ],
+    jg: [{},
+        // 7F cb JG rel8 D Valid Valid Jump short if greater (ZF=0 and SF=OF).
+        {o: 0x7F, ops: [rel8]},
+        // 0F 8F cd JG rel32 D Valid Valid Jump near if greater (ZF=0 and SF=OF).
+        {o: 0x0F8F, ops: [rel32]},
+    ],
+    jge: [{},
+        // 7D cb JGE rel8 D Valid Valid Jump short if greater or equal (SF=OF).
+        {o: 0x7D, ops: [rel8]},
+        // 0F 8D cd JGE rel32 D Valid Valid Jump near if greater or equal (SF=OF).
+        {o: 0x0F8D, ops: [rel32]},
+    ],
+    jl: [{},
+        // 7C cb JL rel8 D Valid Valid Jump short if less (SF≠ OF).
+        {o: 0x7C, ops: [rel8]},
+        // 0F 8C cd JL rel32 D Valid Valid Jump near if less (SF≠ OF).
+        {o: 0x0F8C, ops: [rel32]},
+    ],
+    jle: [{},
+        // 7E cb JLE rel8 D Valid Valid Jump short if less or equal (ZF=1 or SF≠ OF).
+        {o: 0x7E, ops: [rel8]},
+        // 0F 8E cd JLE rel32 D Valid Valid Jump near if less or equal (ZF=1 or SF≠ OF).
+        {o: 0x0F8E, ops: [rel32]},
+    ],
+    jna: [{},
+        // 76 cb JNA rel8 D Valid Valid Jump short if not above (CF=1 or ZF=1).
+        {o: 0x76, ops: [rel8]},
+        // 0F 86 cd JNA rel32 D Valid Valid Jump near if not above (CF=1 or ZF=1).
+        {o: 0x0F86, ops: [rel32]},
+    ],
+    jnae: [{},
+        // 72 cb JNAE rel8 D Valid Valid Jump short if not above or equal (CF=1).
+        {o: 0x72, ops: [rel8]},
+        // 0F 82 cd JNAE rel32 D Valid Valid Jump near if not above or equal (CF=1).
+        {o: 0x0F82, ops: [rel32]},
+    ],
+    jnb: [{},
+        // 73 cb JNB rel8 D Valid Valid Jump short if not below (CF=0).
+        {o: 0x73, ops: [rel8]},
+        // 0F 83 cd JNB rel32 D Valid Valid Jump near if not below (CF=0).
+        {o: 0x0F83, ops: [rel32]},
+    ],
+    jnbe: [{},
+        // 77 cb JNBE rel8 D Valid Valid Jump short if not below or equal (CF=0 and ZF=0).
+        {o: 0x77, ops: [rel8]},
+        // 0F 87 cd JNBE rel32 D Valid Valid Jump near if not below or equal (CF=0 and ZF=0).
+        {o: 0x0F87, ops: [rel32]},
+    ],
+    jnc: [{},
+        // 73 cb JNC rel8 D Valid Valid Jump short if not carry (CF=0).
+        {o: 0x73, ops: [rel8]},
+        // 0F 83 cd JNC rel32 D Valid Valid Jump near if not carry (CF=0).
+        {o: 0x0F83, ops: [rel32]},
+    ],
+    jne: [{},
+        // 75 cb JNE rel8 D Valid Valid Jump short if not equal (ZF=0).
+        {o: 0x75, ops: [rel8]},
+        // 0F 85 cd JNE rel32 D Valid Valid Jump near if not equal (ZF=0).
+        {o: 0x0F85, ops: [rel32]},
+    ],
+    jng: [{},
+        // 7E cb JNG rel8 D Valid Valid Jump short if not greater (ZF=1 or SF≠ OF).
+        {o: 0x7E, ops: [rel8]},
+        // 0F 8E cd JNG rel32 D Valid Valid Jump near if not greater (ZF=1 or SF≠ OF).
+        {o: 0x0F8E, ops: [rel32]},
+    ],
+    jnge: [{},
+        // 7C cb JNGE rel8 D Valid Valid Jump short if not greater or equal (SF≠ OF).
+        {o: 0x7C, ops: [rel8]},
+        // 0F 8C cd JNGE rel32 D Valid Valid Jump near if not greater or equal (SF≠ OF).
+        {o: 0x0F8C, ops: [rel32]},
+    ],
+    jnl: [{},
+        // 7D cb JNL rel8 D Valid Valid Jump short if not less (SF=OF).
+        {o: 0x7D, ops: [rel8]},
+        // 0F 8D cd JNL rel32 D Valid Valid Jump near if not less (SF=OF).
+        {o: 0x0F8D, ops: [rel32]},
+    ],
+    jnle: [{},
+        // 7F cb JNLE rel8 D Valid Valid Jump short if not less or equal (ZF=0 and SF=OF).
+        {o: 0x7F, ops: [rel8]},
+        // 0F 8F cd JNLE rel32 D Valid Valid Jump near if not less or equal (ZF=0 and SF=OF).
+        {o: 0x0F8F, ops: [rel32]},
+    ],
+    jno: [{},
+        // 71 cb JNO rel8 D Valid Valid Jump short if not overflow (OF=0).
+        {o: 0x71, ops: [rel8]},
+        // 0F 81 cd JNO rel32 D Valid Valid Jump near if not overflow (OF=0).
+        {o: 0x0F81, ops: [rel32]},
+    ],
+    jnp: [{},
+        // 7B cb JNP rel8 D Valid Valid Jump short if not parity (PF=0).
+        {o: 0x7B, ops: [rel8]},
+        // 0F 8B cd JNP rel32 D Valid Valid Jump near if not parity (PF=0).
+        {o: 0x0F8B, ops: [rel32]},
+    ],
+    jns: [{},
+        // 79 cb JNS rel8 D Valid Valid Jump short if not sign (SF=0).
+        {o: 0x79, ops: [rel8]},
+        // 0F 89 cd JNS rel32 D Valid Valid Jump near if not sign (SF=0).
+        {o: 0x0F89, ops: [rel32]},
+    ],
+    jnz: [{},
+        // 75 cb JNZ rel8 D Valid Valid Jump short if not zero (ZF=0).
+        {o: 0x75, ops: [rel8]},
+        // 0F 85 cd JNZ rel32 D Valid Valid Jump near if not zero (ZF=0).
+        {o: 0x0F85, ops: [rel32]},
+    ],
+    jo: [{},
+        // 70 cb JO rel8 D Valid Valid Jump short if overflow (OF=1).
+        {o: 0x70, ops: [rel8]},
+        // 0F 80 cd JO rel32 D Valid Valid Jump near if overflow (OF=1).
+        {o: 0x0F80, ops: [rel32]},
+    ],
+    jp: [{},
+        // 7A cb JP rel8 D Valid Valid Jump short if parity (PF=1).
+        {o: 0x7A, ops: [rel8]},
+        // 0F 8A cd JP rel32 D Valid Valid Jump near if parity (PF=1).
+        {o: 0x0F8A, ops: [rel32]},
+    ],
+    jpe: [{},
+        // 7A cb JPE rel8 D Valid Valid Jump short if parity even (PF=1).
+        {o: 0x7A, ops: [rel8]},
+        // 0F 8A cd JPE rel32 D Valid Valid Jump near if parity even (PF=1).
+        {o: 0x0F8A, ops: [rel32]},
+    ],
+    jpo: [{},
+        // 7B cb JPO rel8 D Valid Valid Jump short if parity odd (PF=0).
+        {o: 0x7B, ops: [rel8]},
+        // 0F 8B cd JPO rel32 D Valid Valid Jump near if parity odd (PF=0).
+        {o: 0x0F8B, ops: [rel32]},
+    ],
+    js: [{},
+        // 78 cb JS rel8 D Valid Valid Jump short if sign (SF=1).
+        {o: 0x78, ops: [rel8]},
+        // 0F 88 cd JS rel32 D Valid Valid Jump near if sign (SF=1).
+        {o: 0x0F88, ops: [rel32]},
+    ],
+    jz: [{},
+        // 74 cb JZ rel8 D Valid Valid Jump short if zero (ZF = 1).
+        {o: 0x74, ops: [rel8]},
+        // 0F 84 cd JZ rel32 D Valid Valid Jump near if 0 (ZF=1).
+        {o: 0x0F84, ops: [rel32]},
+    ],
     // LOOP Loop with ECX counter
     // LOOPZ/LOOPE Loop with ECX and zero/Loop with ECX and equal
     // LOOPNZ/LOOPNE Loop with ECX and not zero/Loop with ECX and not equal
@@ -631,6 +796,7 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
 
     // System
     syscall:    [{o: 0x0F05}],
+    sysret:     [{o: 0x0F07}],
     sysenter:   [{o: 0x0F34}],
     sysexit:    [{o: 0x0F35}],
 });

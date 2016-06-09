@@ -55,13 +55,23 @@ var Code = (function () {
     Code.prototype.getStartLabel = function () {
         return this.expr[0];
     };
-    Code.prototype.insert = function (expr, index) {
+    Code.prototype.insert = function (expr) {
+        this.replace(expr, this.expr.length);
+        expr.build();
+        return expr;
+        // expr.index = index;
+        // expr.bind(this);
+        // this.expr[index] = expr;
+        // expr.calcOffsetMaxAndOffset(); // 1st pass
+        // expr.build();
+        // return expr;
+    };
+    Code.prototype.replace = function (expr, index) {
         if (index === void 0) { index = this.expr.length; }
         expr.index = index;
         expr.bind(this);
         this.expr[index] = expr;
         expr.calcOffsetMaxAndOffset(); // 1st pass
-        expr.build();
         return expr;
     };
     Code.prototype.compile = function () {
@@ -75,21 +85,36 @@ var Code = (function () {
     Code.prototype.do2ndPass = function () {
         var last = this.expr[this.expr.length - 1];
         var all_offsets_known = last.offset !== i.OFFSET_UNKNOWN;
+        // Edge case when only the last Expression has variable size.
         var all_sizes_known = last.bytes() !== i.SIZE_UNKNOWN;
         if (all_offsets_known && all_sizes_known)
-            return;
-        for (var _i = 0, _a = this.expr; _i < _a.length; _i++) {
-            var ins = _a[_i];
-            ins.determineSize();
+            return; // Skip 2nd pass.
+        var prev = this.expr[0];
+        prev.offset = 0;
+        for (var j = 1; j < this.expr.length; j++) {
+            var ins = this.expr[j];
+            if (ins instanceof i.ExpressionVolatile) {
+                var fixed = ins.getFixedSizeExpression();
+                this.replace(fixed, ins.index);
+                ins = fixed;
+            }
+            // var bytes = prev.bytes();
+            // if(bytes === i.SIZE_UNKNOWN)
+            //     throw Error(`Instruction [${j}] does not have size.`);
+            // ins.offset = prev.offset + bytes;
+            // Need to call method, as `InstructionSet` contains multiple `Instruction`s,
+            // that all need offset updated of picked instruction.
             ins.calcOffset();
+            prev = ins;
         }
     };
     Code.prototype.do3rdPass = function () {
         var code = [];
         for (var _i = 0, _a = this.expr; _i < _a.length; _i++) {
             var ins = _a[_i];
-            ins.evaluate();
-            code = ins.write(code); // 2nd pass
+            if (ins instanceof i.ExpressionVariable)
+                ins.evaluate();
+            code = ins.write(code); // 3rd pass
         }
         return code;
     };
@@ -139,14 +164,18 @@ var Code = (function () {
         }
         else
             throw TypeError('Data type not supported for DBV.');
-        var data = new i.DataVolatile(ops, littleEndian);
+        var data = new i.DataVariable(ops, littleEndian);
         this.insert(data);
         return data;
     };
     Code.prototype.db = function (a, b, c) {
         var octets;
         if (typeof a === 'number') {
-            return this.db([a]);
+            var arr = [a];
+            var times = typeof b === 'number' ? b : 1;
+            for (var j = 1; j < times; j++)
+                arr.push(a);
+            return this.db(arr);
         }
         else if (a instanceof Array) {
             octets = a;
@@ -190,9 +219,7 @@ var Code = (function () {
     };
     Code.prototype.resb = function (length) {
         var data = new instruction_1.DataUninitialized(length);
-        data.index = this.expr.length;
-        this.expr.push(data);
-        data.bind(this);
+        this.insert(data);
         return data;
     };
     Code.prototype.resw = function (length) {

@@ -16,7 +16,7 @@ export class Expression {
     // Index where instruction was inserted in `Code`s buffer.
     index: number = 0;
 
-    length = SIZE_UNKNOWN;
+    length: number = SIZE_UNKNOWN;
 
     // Byte offset of the instruction in compiled machine code.
     offset: number = OFFSET_UNKNOWN;
@@ -45,21 +45,6 @@ export class Expression {
 
     // Called after new expression is inserted into `Code`.
     build() {
-
-    }
-
-    // If `Expression` can generate different size machine code this method forces it to pick one.
-    determineSize() {
-
-    }
-
-    // Whether this Expression is ready to be written to binary buffer.
-    canEvaluate() {
-        return true;
-    }
-
-    // Evaluate addressing references in 3rd pass.
-    evaluate() {
 
     }
 
@@ -92,10 +77,14 @@ export class Expression {
         else {
             var prev = this.code.expr[this.index - 1];
             var offset = prev.offset;
-            if (offset === OFFSET_UNKNOWN) this.offset = OFFSET_UNKNOWN;
+            if (offset === OFFSET_UNKNOWN)
+                // this.offset = OFFSET_UNKNOWN;
+                throw Error(`Instruction [${this.index  - 1}] does not have offset.`);
             else {
                 var bytes = prev.bytes();
-                if (bytes === SIZE_UNKNOWN) this.offset = OFFSET_UNKNOWN;
+                if (bytes === SIZE_UNKNOWN)
+                    // this.offset = OFFSET_UNKNOWN;
+                    throw Error(`Instruction [${this.index  - 1}] does not have size.`);
                 else this.offset = offset + bytes;
             }
         }
@@ -142,19 +131,23 @@ export class Expression {
 
 export class Label extends Expression {
 
+    symbol: o.Symbol = null;
+
     length = 0;
 
-    name: string;
-
-    constructor(name: string) {
+    constructor(name?: string) {
         super();
-        if((typeof name !== 'string') || !name)
-            throw TypeError('Label name must be a non-empty string.');
-        this.name = name;
+        // if((typeof name !== 'string') || !name)
+        //     throw TypeError('Label name must be a non-empty string.');
+        this.symbol = new o.Symbol(this, 0, name);
+    }
+
+    getName() {
+        return this.symbol.name;
     }
 
     toString() {
-        return this.name + ':';
+        return this.getName() + ':';
     }
 }
 
@@ -181,8 +174,15 @@ export class DataUninitialized extends Expression implements IData {
         return this.length;
     }
 
-    toString(margin = '    ') {
-        return margin + 'resb ' + this.length;
+    toString(margin = '    ', comment = true) {
+        var bytes = this.bytes();
+        var expression = margin + 'resb ' + bytes;
+        var cmt = '';
+        if(comment) {
+            var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
+            cmt = `${spaces}; ${this.formatOffset()} ${bytes} bytes`;
+        }
+        return expression + cmt;
     }
 }
 
@@ -311,23 +311,31 @@ export class ExpressionVariable extends Expression {
         this.ops = ops;
     }
 
-    canEvaluate() {
-        for(var op of this.ops.list) {
-            if(op instanceof Relative) {
-                var rel = op as Relative;
-                if(rel.expr.offset === OFFSET_UNKNOWN) return false;
-            }
-        }
-        return true;
-    }
+    // canEvaluate() {
+    //     for(var op of this.ops.list) {
+    //         if(op instanceof Relative) {
+    //             var rel = op as Relative;
+    //             if(rel.target.offset === OFFSET_UNKNOWN) return false;
+    //         }
+    //     }
+    //     return true;
+    // }
 
-    evaluate() {
+
+
+    // Whether this Expression is ready to be written to binary buffer.
+    // canEvaluate() {
+    //     return true;
+    // }
+
+    evaluate(): boolean {
         this.isEvaluated = true;
+        return true;
     }
 }
 
 
-export class DataVolatile extends ExpressionVariable implements IData {
+export class DataVariable extends ExpressionVariable implements IData {
 
     octets: Toctets;
 
@@ -358,7 +366,8 @@ export class DataVolatile extends ExpressionVariable implements IData {
             if(op instanceof Relative) {
                 var rel = op as Relative;
                 // num = list[j] = rel.rebaseOffset(this);
-                num = rel.rebaseOffset(this);
+                // num = rel.rebaseOffset(this);
+                num = rel.evaluate(this);
             } else if(isTnumber(op)) {
                 num = op as Tnumber;
             } else
@@ -367,7 +376,7 @@ export class DataVolatile extends ExpressionVariable implements IData {
             var slice = Data.numbersToOctets([num], isize, this.littleEndian);
             for(var m = 0; m < isize; m++) this.octets[j + m] = slice[m];
         }
-        super.evaluate();
+        return super.evaluate();
     }
 
     write(arr: number[]): number[] {
@@ -379,15 +388,9 @@ export class DataVolatile extends ExpressionVariable implements IData {
         var datastr = '';
         var bytes = this.bytes();
         if(bytes < 200) {
-            if(this.isEvaluated) {
-                datastr = this.octets.map(function(octet) {
-                    return Data.formatOctet(octet);
-                }).join(', ');
-            } else {
-                datastr = this.ops.list.map(function(op) {
-                    return typeof op === 'number' ? Data.formatOctet(op) : op.toString();
-                }).join(', ');
-            }
+            datastr = this.ops.list.map(function(op) {
+                return typeof op === 'number' ? Data.formatOctet(op) : op.toString();
+            }).join(', ');
         } else {
             datastr = `[${bytes} bytes]`;
         }
@@ -398,8 +401,12 @@ export class DataVolatile extends ExpressionVariable implements IData {
         if(comment) {
             var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
             cmt = `${spaces}; ${this.formatOffset()} ${bytes} bytes`;
+            if(this.isEvaluated) {
+                cmt += ' ' + this.octets.map(function(octet) {
+                    return Data.formatOctet(octet);
+                }).join(', ');
+            }
         }
-
         return expression + cmt;
     }
 }
@@ -415,6 +422,10 @@ export class Instruction extends ExpressionVariable {
 
     write(arr: number[]): number[] {
         return arr;
+    }
+
+    evaluate(): boolean {
+        return super.evaluate();
     }
 
     toString(margin = '    ', comment = true) {
@@ -439,7 +450,10 @@ export class Instruction extends ExpressionVariable {
 
 
 // Expression which, not only has operands, but which may evaluate to different sizes.
-export class ExpressionVolatile extends ExpressionVariable {}
+export abstract class ExpressionVolatile extends ExpressionVariable {
+    // If `Expression` can generate different size machine code this method forces it to pick one.
+    abstract getFixedSizeExpression();
+}
 
 
 // Wrapper around multiple instructions when different machine instructions can be used to perform the same task.
@@ -460,38 +474,45 @@ export class InstructionSet extends ExpressionVolatile {
         return this.getPicked().write(arr);
     }
 
-    toString(margin = '    ', comment = true) {
-        if(this.picked === -1) {
-            var expression = '(one of:)';
-            var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
-            expression += spaces + `; ${this.formatOffset()} max ${this.bytesMax()} bytes\n`;
-
-            var lines = [];
-            // for(var j = 0; j < this.insn.length; j++) {
-            //     if(this.insn[j].ops) lines.push(this.insn[j].toString(margin, hex));
-            //     else lines.push('    ' + this.matches.list[j].def.toString());
-            // }
-            for(var match of this.matches.list) {
-                lines.push(margin + match.def.toString());
-            }
-            return expression + lines.join('\n');
-        } else {
-            var picked = this.getPicked();
-            return picked.toString(margin, comment) + ' ' + picked.bytes() + ' bytes';
-        }
-    }
-
     getPicked() {
         return this.insn[this.picked];
     }
 
-    determineSize() {
-        this.picked = 0;
+    getFixedSizeExpression(): Expression {
+        var shortest_ind = -1;
+        var shortest_len = Infinity;
+        for(var m = 0; m < this.ops.list.length; m++) {
+            var op = this.ops.list[m];
+            if(op instanceof o.Relative) {
+                for(var j = 0; j < this.insn.length; j++) {
+                    var ins = this.insn[j] as Instruction;
+                    var rel = ins.ops.list[m] as o.Relative; // Relative of instruction.
+                    var success = rel.canHoldMaxOffset(this);
+
+                    if(success) { // potential candidate.
+                        if(shortest_ind === -1) {
+                            [shortest_ind, shortest_len] = [j, ins.bytes()];
+                        } else {
+                            var bytes = ins.bytes();
+                            if(bytes < shortest_len) {
+                                [shortest_ind, shortest_len] = [j, bytes];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if(shortest_ind === -1)
+            throw Error(`Could not fix size for [${this.index}] Expression.`);
+
+        this.picked = shortest_ind;
+        return this.getPicked();
     }
 
     evaluate() {
         var picked = this.getPicked();
-        picked.ops.list[0] = new o.Constant(0);
+        return picked.evaluate();
     }
 
     bytes() {
@@ -518,6 +539,9 @@ export class InstructionSet extends ExpressionVolatile {
     }
 
     pickShortestInstruction(): Instruction {
+        if(this.insn.length === 1)
+            return this.insn[0];
+
         if(this.ops.hasRelative()) return null;
 
         // Pick the shortest instruction if we know all instruction sizes, otherwise don't pick any.
@@ -538,37 +562,42 @@ export class InstructionSet extends ExpressionVolatile {
         return this.getPicked();
     }
 
-    protected normalizeOperands(insn: Instruction, tpls: t.TOperandTemplate[]): o.TOperandN1[] {
-        var list: o.TOperandN1[] = [];
-        for(var j = 0; j < this.ops.list.length; j++) {
-            var op = this.ops.list[j];
+    protected cloneOperands() {
+        return this.ops.clone(o.Operands);
+    }
+
+    protected createInstructionOperands(insn: Instruction, tpls: t.TOperandTemplate[]): o.Operands {
+        var ops = this.cloneOperands();
+        for(var j = 0; j < ops.list.length; j++) {
+            var op = ops.list[j];
             if(op instanceof o.Operand) {
                 if(op instanceof o.Relative) {
                     var Clazz = tpls[j] as any;
                     if(Clazz.name.indexOf('Relative') === 0) {
                         var RelativeClass = Clazz as typeof o.Relative;
-                        op = (op as o.Relative).cast(RelativeClass);
+                        var rel = op.clone();
+                        rel.cast(RelativeClass);
+                        ops.list[j] = rel;
                     }
                 }
-                list.push(op as any);
             } else if(o.isTnumber(op)) {
                 var Clazz = tpls[j] as any;
                 var num = op as any as o.Tnumber;
-                if(Clazz.name.indexOf('Relative') === 0) {
+                if (Clazz.name.indexOf('Relative') === 0) {
                     var RelativeClass = Clazz as typeof o.Relative;
-                    var rel = new RelativeClass(insn, num as number);
-                    list.push(rel);
+                    var rel = new o.Relative(insn, num as number);
+                    rel.cast(RelativeClass);
+                    ops.list[j] = rel;
+                } else if (Clazz.name.indexOf('Immediate') === 0) {
+                    var ImmediateClass = Clazz as typeof o.Immediate;
+                    var imm = new ImmediateClass(num);
+                    ops.list[j] = imm;
                 } else
-                    list.push(num);
+                    throw TypeError('Invalid definition expected Immediate.');
             } else
                 throw TypeError('Invalid operand expected Register, Memory, Relative, number or number64.');
         }
-        return list;
-    }
-
-    protected createInstructionOperands(insn: Instruction, tpls: t.TOperandTemplate[]): o.OperandsNormalized {
-        var list = this.normalizeOperands(insn, tpls);
-        return new o.OperandsNormalized(list, this.ops.size);
+        return ops;
     }
 
     build() {
@@ -589,6 +618,27 @@ export class InstructionSet extends ExpressionVolatile {
             insn.bind(this.code);
             insn.build();
             this.insn[j] = insn;
+        }
+    }
+
+    toString(margin = '    ', comment = true) {
+        if(this.picked === -1) {
+            var expression = '(one of:)';
+            var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
+            expression += spaces + `; ${this.formatOffset()} max ${this.bytesMax()} bytes\n`;
+
+            var lines = [];
+            // for(var j = 0; j < this.insn.length; j++) {
+            //     if(this.insn[j].ops) lines.push(this.insn[j].toString(margin, hex));
+            //     else lines.push('    ' + this.matches.list[j].def.toString());
+            // }
+            for(var match of this.matches.list) {
+                lines.push(margin + match.def.toString());
+            }
+            return expression + lines.join('\n');
+        } else {
+            var picked = this.getPicked();
+            return picked.toString(margin, comment) + ' ' + picked.bytes() + ' bytes';
         }
     }
 

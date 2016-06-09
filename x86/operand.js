@@ -7,130 +7,6 @@ var __extends = (this && this.__extends) || function (d, b) {
 var regfile_1 = require('./regfile');
 var operand_1 = require('../operand');
 var o = require('../operand');
-var Immediate = (function (_super) {
-    __extends(Immediate, _super);
-    function Immediate() {
-        _super.apply(this, arguments);
-    }
-    Immediate.factory = function (size, value, signed) {
-        if (value === void 0) { value = 0; }
-        if (signed === void 0) { signed = true; }
-        switch (size) {
-            case operand_1.SIZE.B: return new Immediate8(value, signed);
-            case operand_1.SIZE.W: return new Immediate16(value, signed);
-            case operand_1.SIZE.D: return new Immediate32(value, signed);
-            case operand_1.SIZE.Q: return new Immediate64(value, signed);
-            default: return new Immediate(value, signed);
-        }
-    };
-    Immediate.throwIfLarger = function (value, size, signed) {
-        var val_size = signed ? operand_1.Constant.sizeClass(value) : operand_1.Constant.sizeClassUnsigned(value);
-        if (val_size > size)
-            throw TypeError("Value " + value + " too big for imm8.");
-    };
-    Immediate.prototype.cast = function (ImmediateClass) {
-        return new ImmediateClass(this.value);
-    };
-    return Immediate;
-}(operand_1.Constant));
-exports.Immediate = Immediate;
-var ImmediateUnsigned = (function (_super) {
-    __extends(ImmediateUnsigned, _super);
-    function ImmediateUnsigned(value) {
-        if (value === void 0) { value = 0; }
-        _super.call(this, value, false);
-    }
-    return ImmediateUnsigned;
-}(Immediate));
-exports.ImmediateUnsigned = ImmediateUnsigned;
-var Immediate8 = (function (_super) {
-    __extends(Immediate8, _super);
-    function Immediate8() {
-        _super.apply(this, arguments);
-    }
-    Immediate8.prototype.setValue = function (value) {
-        Immediate.throwIfLarger(value, operand_1.SIZE.B, this.signed);
-        _super.prototype.setValue.call(this, value);
-        this.extend(operand_1.SIZE.B);
-    };
-    return Immediate8;
-}(Immediate));
-exports.Immediate8 = Immediate8;
-var ImmediateUnsigned8 = (function (_super) {
-    __extends(ImmediateUnsigned8, _super);
-    function ImmediateUnsigned8(value) {
-        if (value === void 0) { value = 0; }
-        _super.call(this, value, false);
-    }
-    return ImmediateUnsigned8;
-}(Immediate8));
-exports.ImmediateUnsigned8 = ImmediateUnsigned8;
-var Immediate16 = (function (_super) {
-    __extends(Immediate16, _super);
-    function Immediate16() {
-        _super.apply(this, arguments);
-    }
-    Immediate16.prototype.setValue = function (value) {
-        Immediate.throwIfLarger(value, operand_1.SIZE.W, this.signed);
-        _super.prototype.setValue.call(this, value);
-        this.extend(operand_1.SIZE.W);
-    };
-    return Immediate16;
-}(Immediate));
-exports.Immediate16 = Immediate16;
-var ImmediateUnsigned16 = (function (_super) {
-    __extends(ImmediateUnsigned16, _super);
-    function ImmediateUnsigned16(value) {
-        if (value === void 0) { value = 0; }
-        _super.call(this, value, false);
-    }
-    return ImmediateUnsigned16;
-}(Immediate16));
-exports.ImmediateUnsigned16 = ImmediateUnsigned16;
-var Immediate32 = (function (_super) {
-    __extends(Immediate32, _super);
-    function Immediate32() {
-        _super.apply(this, arguments);
-    }
-    Immediate32.prototype.setValue = function (value) {
-        Immediate.throwIfLarger(value, operand_1.SIZE.D, this.signed);
-        _super.prototype.setValue.call(this, value);
-        this.extend(operand_1.SIZE.D);
-    };
-    return Immediate32;
-}(Immediate));
-exports.Immediate32 = Immediate32;
-var ImmediateUnsigned32 = (function (_super) {
-    __extends(ImmediateUnsigned32, _super);
-    function ImmediateUnsigned32(value) {
-        if (value === void 0) { value = 0; }
-        _super.call(this, value, false);
-    }
-    return ImmediateUnsigned32;
-}(Immediate32));
-exports.ImmediateUnsigned32 = ImmediateUnsigned32;
-var Immediate64 = (function (_super) {
-    __extends(Immediate64, _super);
-    function Immediate64() {
-        _super.apply(this, arguments);
-    }
-    Immediate64.prototype.setValue = function (value) {
-        Immediate.throwIfLarger(value, operand_1.SIZE.Q, this.signed);
-        _super.prototype.setValue.call(this, value);
-        this.extend(operand_1.SIZE.Q);
-    };
-    return Immediate64;
-}(Immediate));
-exports.Immediate64 = Immediate64;
-var ImmediateUnsigned64 = (function (_super) {
-    __extends(ImmediateUnsigned64, _super);
-    function ImmediateUnsigned64(value) {
-        if (value === void 0) { value = 0; }
-        _super.call(this, value, false);
-    }
-    return ImmediateUnsigned64;
-}(Immediate64));
-exports.ImmediateUnsigned64 = ImmediateUnsigned64;
 var DisplacementValue = (function (_super) {
     __extends(DisplacementValue, _super);
     function DisplacementValue(value) {
@@ -469,29 +345,6 @@ var Operands = (function (_super) {
         }
         return operand_1.SIZE.NONE;
     };
-    // static fromUiOpsAndTpl(insn: i.Instruction, ops: TUiOperand[], tpls: t.TOperandTemplate[]): Operands {
-    //     var iops: TInstructionOperand[] = [];
-    //     for(var j = 0; j < ops.length; j++) {
-    //         var op = ops[j];
-    //         if((op instanceof Memory) || (op instanceof Register) || (op instanceof Immediate) || (op instanceof Relative)) {
-    //             iops.push(op as any);
-    //         } else if(isTnumber(op)) {
-    //             var Clazz = tpls[j] as any;
-    //             if(typeof Clazz !== 'function') throw Error('Expected construction operand definition');
-    // if(Clazz.name.indexOf('Immediate') === 0) {
-    //     var ImmediateClass = Clazz as typeof Immediate;
-    //     var imm = new ImmediateClass(op as Tnumber);
-    //     iops.push(imm);
-    // } else if(Clazz.name.indexOf('Relative') === 0) {
-    //     var RelativeClass = Clazz as typeof Relative;
-    //     var rel = new RelativeClass(insn, op as number);
-    //     iops.push(rel);
-    // }
-    // } else
-    //     throw TypeError('Invalid operand expected Register, Memory, Relative, number or number64.');
-    // }
-    // return new Operands(iops);
-    // }
     Operands.prototype.getRegisterOperand = function (dst_first) {
         if (dst_first === void 0) { dst_first = true; }
         var _a = this.list, dst = _a[0], src = _a[1];
@@ -511,7 +364,7 @@ var Operands = (function (_super) {
         return null;
     };
     Operands.prototype.getImmediate = function () {
-        return this.getFirstOfClass(Immediate);
+        return this.getFirstOfClass(o.Immediate);
     };
     Operands.prototype.hasImmediate = function () {
         return !!this.getImmediate();
@@ -525,5 +378,5 @@ var Operands = (function (_super) {
         return false;
     };
     return Operands;
-}(o.OperandsNormalized));
+}(o.Operands));
 exports.Operands = Operands;

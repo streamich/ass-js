@@ -6,90 +6,6 @@ import * as t from './table';
 import * as i from './instruction';
 
 
-export class Immediate extends Constant {
-    static factory(size, value: number|number64 = 0, signed = true) {
-        switch(size) {
-            case SIZE.B:    return new Immediate8(value, signed);
-            case SIZE.W:    return new Immediate16(value, signed);
-            case SIZE.D:    return new Immediate32(value, signed);
-            case SIZE.Q:    return new Immediate64(value, signed);
-            default:        return new Immediate(value, signed);
-        }
-    }
-
-    static throwIfLarger(value, size, signed) {
-        var val_size = signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
-        if(val_size > size) throw TypeError(`Value ${value} too big for imm8.`);
-    }
-
-    cast(ImmediateClass: typeof Immediate) {
-        return new ImmediateClass(this.value);
-    }
-}
-
-export class ImmediateUnsigned extends Immediate {
-    constructor(value: number|number64 = 0) {
-        super(value, false);
-    }
-}
-
-export class Immediate8 extends Immediate {
-    setValue(value: number|number64) {
-        Immediate.throwIfLarger(value, SIZE.B, this.signed);
-        super.setValue(value);
-        this.extend(SIZE.B);
-    }
-}
-
-export class ImmediateUnsigned8 extends Immediate8 {
-    constructor(value: number|number64 = 0) {
-        super(value, false);
-    }
-}
-
-export class Immediate16 extends Immediate {
-    setValue(value: number|number64) {
-        Immediate.throwIfLarger(value, SIZE.W, this.signed);
-        super.setValue(value);
-        this.extend(SIZE.W);
-    }
-}
-
-export class ImmediateUnsigned16 extends Immediate16 {
-    constructor(value: number|number64 = 0) {
-        super(value, false);
-    }
-}
-
-export class Immediate32 extends Immediate {
-    setValue(value: number|number64) {
-        Immediate.throwIfLarger(value, SIZE.D, this.signed);
-        super.setValue(value);
-        this.extend(SIZE.D);
-    }
-}
-
-export class ImmediateUnsigned32 extends Immediate32 {
-    constructor(value: number|number64 = 0) {
-        super(value, false);
-    }
-}
-
-export class Immediate64 extends Immediate {
-    setValue(value: number|number64) {
-        Immediate.throwIfLarger(value, SIZE.Q, this.signed);
-        super.setValue(value);
-        this.extend(SIZE.Q);
-    }
-}
-
-export class ImmediateUnsigned64 extends Immediate64 {
-    constructor(value: number|number64 = 0) {
-        super(value, false);
-    }
-}
-
-
 export class DisplacementValue extends Constant {
     static SIZE = {
         DISP8:  SIZE.B,
@@ -402,10 +318,10 @@ export class Memory64 extends Memory {
     size = SIZE.Q;
 }
 
-export type TInstructionOperand             = Register|Memory|Immediate|Relative; // `Tnumber` gets converted to `Immediate` or `Relative` to current instruction. `Relative` is converted to `Immediate`.
+export type TInstructionOperand             = Register|Memory|o.Immediate|Relative; // `Tnumber` gets converted to `Immediate` or `Relative` to current instruction. `Relative` is converted to `Immediate`.
 
 // Collection of operands an instruction might have.
-export class Operands extends o.OperandsNormalized {
+export class Operands extends o.Operands {
 
     static findSize(ops: TUiOperand[]): SIZE {
         for(var operand of ops) {
@@ -413,30 +329,6 @@ export class Operands extends o.OperandsNormalized {
         }
         return SIZE.NONE;
     }
-
-    // static fromUiOpsAndTpl(insn: i.Instruction, ops: TUiOperand[], tpls: t.TOperandTemplate[]): Operands {
-    //     var iops: TInstructionOperand[] = [];
-    //     for(var j = 0; j < ops.length; j++) {
-    //         var op = ops[j];
-    //         if((op instanceof Memory) || (op instanceof Register) || (op instanceof Immediate) || (op instanceof Relative)) {
-    //             iops.push(op as any);
-    //         } else if(isTnumber(op)) {
-    //             var Clazz = tpls[j] as any;
-    //             if(typeof Clazz !== 'function') throw Error('Expected construction operand definition');
-                // if(Clazz.name.indexOf('Immediate') === 0) {
-                //     var ImmediateClass = Clazz as typeof Immediate;
-                //     var imm = new ImmediateClass(op as Tnumber);
-                //     iops.push(imm);
-                // } else if(Clazz.name.indexOf('Relative') === 0) {
-                //     var RelativeClass = Clazz as typeof Relative;
-                //     var rel = new RelativeClass(insn, op as number);
-                //     iops.push(rel);
-                // }
-            // } else
-            //     throw TypeError('Invalid operand expected Register, Memory, Relative, number or number64.');
-        // }
-        // return new Operands(iops);
-    // }
 
     getRegisterOperand(dst_first = true): Register {
         var [dst, src] = this.list;
@@ -453,8 +345,8 @@ export class Operands extends o.OperandsNormalized {
         return null;
     }
 
-    getImmediate(): Immediate {
-        return this.getFirstOfClass(Immediate) as Immediate;
+    getImmediate(): o.Immediate {
+        return this.getFirstOfClass(o.Immediate) as o.Immediate;
     }
 
     hasImmediate(): boolean {

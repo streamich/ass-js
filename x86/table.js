@@ -25,21 +25,11 @@ exports.rm8 = [operand_1.Register8, operand_1.Memory];
 exports.rm16 = [operand_1.Register16, operand_1.Memory];
 exports.rm32 = [operand_1.Register32, operand_1.Memory];
 exports.rm64 = [operand_1.Register64, operand_1.Memory];
-exports.imm = operand_1.Immediate;
-exports.immu = operand_1.ImmediateUnsigned;
-exports.imm8 = operand_1.Immediate8;
-exports.immu8 = operand_1.ImmediateUnsigned8;
-exports.imm16 = operand_1.Immediate16;
-exports.immu16 = operand_1.ImmediateUnsigned16;
-exports.imm32 = operand_1.Immediate32;
-exports.immu32 = operand_1.ImmediateUnsigned32;
-exports.imm64 = operand_1.Immediate64;
-exports.immu64 = operand_1.ImmediateUnsigned64;
 // x86 global defaults
 exports.defaults = util_1.extend({}, t.defaults, { ds: table_1.S.D, lock: false, or: -1, r: false, dbit: false, rex: false, mr: true, rep: false, repne: false, pfx: null });
 // Instruction are divided in groups, each group consists of list
 // of possible instructions. The first object is NOT an instruction
 // but defaults for the group.
 exports.table = {
-    int: [{ o: 0xCD, ops: [exports.immu8] }],
+    int: [{ o: 0xCD, ops: [table_1.immu8] }],
 };
