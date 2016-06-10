@@ -25,15 +25,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 var COND = exports.COND;
 var Instruction = (function () {
     function Instruction() {
-        //      3322222222221111111111
-        //      10987654321098765432109876543210
         this.tpl = 0;
-        //      ||||||||||||||||||||||||||||||||
-        //      ||||||IPUBWS
-        //      |||||| L UAL
-        //      ||||||   N
-        //      ||||00
-        //      XXXX ---> Condition
         this.cond = COND.AL;
         this.A = 0;
         this.I = 0;
@@ -70,8 +62,6 @@ var InstructionLongMultiply = (function (_super) {
     __extends(InstructionLongMultiply, _super);
     function InstructionLongMultiply() {
         _super.apply(this, arguments);
-        //      3322222222221111111111
-        //      10987654321098765432109876543210
         this.tpl = 8388608;
     }
     return InstructionLongMultiply;

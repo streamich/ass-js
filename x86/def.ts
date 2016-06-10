@@ -2,6 +2,7 @@ import * as d from '../def';
 import * as t from './table';
 import {isTnumber, Tnumber, SIZE, TUiOperand, TUiOperandNormalized,
     Operand, Constant, Relative, Relative8, Relative16, Relative32} from "../operand";
+import * as oo from '../operand';
 import * as o from './operand';
 
 
@@ -36,9 +37,9 @@ export class Def extends d.Def {
 
     protected matchOperandTemplate(tpl: t.TOperandTemplate, operand: TUiOperandNormalized): t.TOperandTemplate|any {
         var OperandClass = tpl as any; // as typeof o.Operand;
-        if(OperandClass.name.indexOf('Immediate') === 0) { // o.Immediate, o.ImmediateUnsigned, o.Immediate8, etc...
+        if((typeof OperandClass === 'function') && (OperandClass.name.indexOf('Immediate') === 0)) { // o.Immediate, o.ImmediateUnsigned, o.Immediate8, etc...
             if(!isTnumber(operand)) return null;
-            var ImmediateClass = OperandClass as typeof o.Immediate;
+            var ImmediateClass = OperandClass as typeof oo.Immediate;
             try { // Try if our immediate value fits into our immediate type
                 new ImmediateClass(operand as Tnumber);
                 return ImmediateClass;
@@ -52,16 +53,16 @@ export class Def extends d.Def {
     toStringOperand(operand) {
         if(operand instanceof Operand) return operand.toString();
         else if(typeof operand === 'function') {
-            if(operand === o.Immediate)             return 'imm';
-            if(operand === o.Immediate8)            return 'imm8';
-            if(operand === o.Immediate16)           return 'imm16';
-            if(operand === o.Immediate32)           return 'imm32';
-            if(operand === o.Immediate64)           return 'imm64';
-            if(operand === o.ImmediateUnsigned)     return 'immu';
-            if(operand === o.ImmediateUnsigned8)    return 'immu8';
-            if(operand === o.ImmediateUnsigned16)   return 'immu16';
-            if(operand === o.ImmediateUnsigned32)   return 'immu32';
-            if(operand === o.ImmediateUnsigned64)   return 'immu64';
+            if(operand === oo.Immediate)             return 'imm';
+            if(operand === oo.Immediate8)            return 'imm8';
+            if(operand === oo.Immediate16)           return 'imm16';
+            if(operand === oo.Immediate32)           return 'imm32';
+            if(operand === oo.Immediate64)           return 'imm64';
+            if(operand === oo.ImmediateUnsigned)     return 'immu';
+            if(operand === oo.ImmediateUnsigned8)    return 'immu8';
+            if(operand === oo.ImmediateUnsigned16)   return 'immu16';
+            if(operand === oo.ImmediateUnsigned32)   return 'immu32';
+            if(operand === oo.ImmediateUnsigned64)   return 'immu64';
             if(operand === o.Register)              return 'r';
             if(operand === o.Register8)             return 'r8';
             if(operand === o.Register16)            return 'r16';

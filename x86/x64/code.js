@@ -27,7 +27,6 @@ var Code = (function (_super) {
             Code._methodsAdded = true;
         }
         var newcode = new Code;
-        // newcode.addMethods();
         return newcode;
     };
     Code._methodsAdded = false;

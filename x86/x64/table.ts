@@ -481,10 +481,13 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
         {o: 0xE9, ops: [rel32]},
         // FF /4 JMP r/m64 M Valid N.E. Jump near, absolute indirect, RIP = 64-Bit offset from register or memory
         {o: 0xFF, or: 4, ops: [rm64]},
+    ],
+    ljmp: [{ds: S.Q},
         // FF /5 JMP m16:16 D Valid Valid Jump far, absolute indirect, address given in m16:16
-        // {o: 0xFF, or: 5, ops: [rm64]},
         // FF /5 JMP m16:32 D Valid Valid Jump far, absolute indirect, address given in m16:32.
         // REX.W + FF /5 JMP m16:64 D Valid N.E. Jump far, absolute
+        // TODO: Improve this.
+        {o: 0xFF, or: 5, ops: [m], s: S.Q},
     ],
     // Jcc
     // E3 cb JECXZ rel8 D Valid Valid Jump short if ECX register is 0.
@@ -672,19 +675,43 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
         {o: 0x0F84, ops: [rel32]},
     ],
     // LOOP Loop with ECX counter
+    // E2 cb LOOP rel8 D Valid Valid Decrement count; jump short if count ≠ 0.
+    loop: [{o: 0xE2, ops: [rel8]}],
     // LOOPZ/LOOPE Loop with ECX and zero/Loop with ECX and equal
+    // E1 cb LOOPE rel8 D Valid Valid Decrement count; jump short if count ≠ 0 and ZF = 1.
+    loope: [{o: 0xE1, ops: [rel8], mns: ['loopz']}],
     // LOOPNZ/LOOPNE Loop with ECX and not zero/Loop with ECX and not equal
+    // E0 cb LOOPNE rel8 D Valid Valid Decrement count; jump short if count ≠ 0 and ZF = 0.
+    loopne: [{o: 0xE0, ops: [rel8], mns: ['loopnz']}],
     // CALL Call procedure
+    call: [{ds: S.Q},
+        // E8 cd CALL rel32 M Valid Valid Call near, relative, displacement relative to next instruction. 32-bit displacement sign extended to 64-bits in 64-bit mode.
+        {o: 0xE8, ops: [rel32]},
+        // FF /2 CALL r/m64 M Valid N.E. Call near, absolute indirect, address given in r/m64.
+        {o: 0xFF, or: 2, ops: [rm64]},
+    ],
+    lcall: [{ds: S.Q},
+        // FF /3 CALL m16:16 M Valid Valid Call far, absolute indirect address given in m16:16.
+        // FF /3 CALL m16:32 M Valid Valid
+        // REX.W + FF /3 CALL m16:64 M Valid N.E.
+        // TODO: Improve this.
+        {o: 0xFF, or: 3, ops: [m], s: S.Q},
+    ],
     // RET Return
-    ret: [{},
+    ret: [{ds: S.Q},
         {o: 0xC3},
         {o: 0xC2, ops: [imm16]}
     ],
+    lret: [{ds: S.Q},
+        {o: 0xCB},
+        {o: 0xCA, ops: [imm16]}
+    ],
     // IRET Return from interrupt
-    // INT Software interrupt
-    // INTO Interrupt on overflow
-    // BOUND Detect value out of range
-    // ENTER High-level procedure entry
+    iret: [{o: 0xCF}
+        // CF IRET NP Valid Valid Interrupt return (16-bit operand size).
+        // CF IRETD NP Valid Valid Interrupt return (32-bit operand size).
+        // REX.W + CF IRETQ NP Valid N.E. Interrupt return (64-bit operand size).
+    ],
 
 
     // ## String
@@ -710,32 +737,89 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
 
     // ## I/O
     // IN Read from a port
+    'in': [{mr: false},
+        // E4 ib IN AL, imm8 I Valid Valid Input byte from imm8 I/O port address into AL.
+        {o: 0xE4, ops: [o.al, imm8]},
+        // E5 ib IN AX, imm8 I Valid Valid Input word from imm8 I/O port address into AX.
+        {o: 0xE5, ops: [o.ax, imm8]},
+        // E5 ib IN EAX, imm8 I Valid Valid Input dword from imm8 I/O port address into EAX.
+        {o: 0xE5, ops: [o.eax, imm8]},
+        // EC IN AL,DX NP Valid Valid Input byte from I/O port in DX into AL.
+        {o: 0xEC, ops: [o.al, o.dx], s: S.B},
+        // ED IN AX,DX NP Valid Valid Input word from I/O port in DX into AX.
+        {o: 0xED, ops: [o.ax, o.dx], s: S.W},
+        // ED IN EAX,DX NP Valid Valid Input doubleword
+        {o: 0xED, ops: [o.eax, o.dx], s: S.D},
+    ],
     // OUT Write to a port
-    // INS/INSB Input string from port/Input byte string from port
-    // INS/INSW Input string from port/Input word string from port
-    // INS/INSD Input string from port/Input doubleword string from port
-    // OUTS/OUTSB Output string to port/Output byte string to port
-    // OUTS/OUTSW Output string to port/Output word string to port
-    // OUTS/OUTSD Output string to port/Output doubleword string to port
+    out: [{mr: false},
+        // E6 ib OUT imm8, AL I Valid Valid Output byte in AL to I/O port address imm8.
+        {o: 0xE6, ops: [imm8, o.al]},
+        // E7 ib OUT imm8, AX I Valid Valid Output word in AX to I/O port address imm8.
+        {o: 0xE7, ops: [imm8, o.ax]},
+        // E7 ib OUT imm8, EAX I Valid Valid Output doubleword in EAX to I/O port address imm8.
+        {o: 0xE7, ops: [imm8, o.eax]},
+        // EE OUT DX, AL NP Valid Valid Output byte in AL to I/O port address in DX.
+        {o: 0xEE, ops: [o.dx, o.al], s: S.B},
+        // EF OUT DX, AX NP Valid Valid Output word in AX to I/O port address in DX.
+        {o: 0xEF, ops: [o.dx, o.ax], s: S.W},
+        // EF OUT DX, EAX NP Valid Valid Output
+        {o: 0xEF, ops: [o.dx, o.eax], s: S.D},
+    ],
+    // INS
+    ins: [{o: 0x6D},
+        // INS/INSB Input string from port/Input byte string from port
+        {o: 0x6C, s: S.B},
+        // INS/INSW Input string from port/Input word string from port
+        {s: S.W},
+        // INS/INSD Input string from port/Input doubleword string from port
+        {s: S.D},
+    ],
+    // OUTS
+    outs: [{o: 0x6F},
+        // OUTS/OUTSB Output string to port/Output byte string to port
+        {o: 0x6E, s: S.B},
+        // OUTS/OUTSW Output string to port/Output word string to port
+        {s: S.W},
+        // OUTS/OUTSD Output string to port/Output doubleword string to port
+        {s: S.D},
+    ],
 
 
     // ## Enter and Leave
     // ENTER High-level procedure entry
+    enter: [{},
+        // C8 iw 00 ENTER imm16, 0 II Valid Valid Create a stack frame for a procedure.
+        // C8 iw 01 ENTER imm16,1 II Valid Valid Create a stack frame with a nested pointer for a procedure.
+        // C8 iw ib ENTER imm16, imm8 II Valid Valid Create a stack frame
+        {o: 0xC8, ops: [imm16, imm8]},
+    ],
     // LEAVE High-level procedure exit
+    leave: [{o: 0xC9},
+        {s: S.W},
+        {s: S.Q},
+    ],
 
 
     // ## Flag Control
     // STC Set carry flag
+    stc: [{o: 0xF9}],
     // CLC Clear the carry flag
+    clc: [{o: 0xF8}],
     // CMC Complement the carry flag
+    cmc: [{o: 0xF5}],
     // CLD Clear the direction flag
+    cld: [{o: 0xFC}],
     // STD Set direction flag
-    // LAHF Load flags into AH register
-    // SAHF Store AH register into flags
+    std: [{o: 0xFD}],
     // PUSHF/PUSHFD Push EFLAGS onto stack
+    pushf: [{o: 0x9C}],
     // POPF/POPFD Pop EFLAGS from stack
+    popf: [{o: 0x9D}],
     // STI Set interrupt flag
+    sti: [{o: 0xFB}],
     // CLI Clear the interrupt flag
+    cli: [{o: 0xFA}],
 
 
     // ## Segment Register
@@ -754,6 +838,15 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
         {ops: [r16, m]},
     ],
     // NOP No operation
+    // TODO: Come back, review this.
+    nop: [{},
+        // 90 NOP NP Valid Valid One byte no-operation instruction.
+        {o: 0x90},
+        // 0F 1F /0 NOP r/m16 M Valid Valid Multi-byte no-operation instruction.
+        {o: 0x0F1F, or: 0, ops: [rm16]},
+        // 0F 1F /0 NOP r/m32 M Valid Valid Multi-byte no-operation instruction.
+        {o: 0x0F1F, or: 0, ops: [rm32]},
+    ],
     // UD2 Undefined instruction
     // XLAT/XLATB Table lookup translation
     // CPUID Processor identification
@@ -774,7 +867,20 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
 
     // ## Random Number
     // RDRAND Retrieves a random number generated from hardware
+    rdrand: [{o: 0x0FC7, or: 6},
+        // 0F C7 /6 RDRAND r16 M
+        {ops: [r16]},
+        // 0F C7 /6 RDRAND r32 M
+        {ops: [r32]},
+        // REX.W + 0F C7 /6 RDRAND r64 M
+        {ops: [r64]},
+    ],
     // RDSEED Retrieves a random number generated from hardware
+    rdseed: [{o: 0x0FC7, or: 7},
+        {ops: [r16]},
+        {ops: [r32]},
+        {ops: [r64]},
+    ],
 
 
     // ## BMI1, BMI2

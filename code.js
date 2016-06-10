@@ -28,24 +28,15 @@ var Assembler = (function () {
     return Assembler;
 }());
 exports.Assembler = Assembler;
-// Expressions are compiled in 3 passes:
-//
-//  - *1st pass* -- maximum offset `maxOffset` for each expression is computed, some expression might not know
-//  their size jet, not all expressions are known, future references. First pass is when user performs insertion of commands.
-//  - *2nd pass* -- all expressions known now, each expression should pick its right size, exact `offset` is computed for each expression.
-//  - *3rd pass* -- now we know exact `offset` of each expression, so in this pass we fill in the addresses.
 var Code = (function () {
     function Code(start) {
         if (start === void 0) { start = 'start'; }
         this.expr = [];
-        this.operandSize = operand_1.SIZE.D; // Default operand size.
-        this.addressSize = operand_1.SIZE.D; // Default address size.
+        this.operandSize = operand_1.SIZE.D;
+        this.addressSize = operand_1.SIZE.D;
         this.ClassInstruction = i.Instruction;
         this.ClassOperands = o.Operands;
-        this.littleEndian = true; // Which way to encode constants by default.
-        // Collection of all assembly instructions: mov, push, ret, retq, etc...
-        // When needed `addMethods()` adds these funcitons to the `Code` object,
-        // some segments, for example, data segment may not need these methods.
+        this.littleEndian = true;
         this.methods = {};
         this.label(start);
     }
@@ -59,36 +50,25 @@ var Code = (function () {
         this.replace(expr, this.expr.length);
         expr.build();
         return expr;
-        // expr.index = index;
-        // expr.bind(this);
-        // this.expr[index] = expr;
-        // expr.calcOffsetMaxAndOffset(); // 1st pass
-        // expr.build();
-        // return expr;
     };
     Code.prototype.replace = function (expr, index) {
         if (index === void 0) { index = this.expr.length; }
         expr.index = index;
         expr.bind(this);
         this.expr[index] = expr;
-        expr.calcOffsetMaxAndOffset(); // 1st pass
+        expr.calcOffsetMaxAndOffset();
         return expr;
     };
     Code.prototype.compile = function () {
-        // 1st pass is performed as instructions are `insert`ed, `.offsetMax` is calculated, and possibly `.offset`.
-        // Instructions without size can now determine their size based on `.offsetMax` and
-        // calculate their real `.offset`.
         this.do2ndPass();
-        // Offsets are now know, here we evaluate references.
         return this.do3rdPass();
     };
     Code.prototype.do2ndPass = function () {
         var last = this.expr[this.expr.length - 1];
         var all_offsets_known = last.offset !== i.OFFSET_UNKNOWN;
-        // Edge case when only the last Expression has variable size.
         var all_sizes_known = last.bytes() !== i.SIZE_UNKNOWN;
         if (all_offsets_known && all_sizes_known)
-            return; // Skip 2nd pass.
+            return;
         var prev = this.expr[0];
         prev.offset = 0;
         for (var j = 1; j < this.expr.length; j++) {
@@ -98,12 +78,6 @@ var Code = (function () {
                 this.replace(fixed, ins.index);
                 ins = fixed;
             }
-            // var bytes = prev.bytes();
-            // if(bytes === i.SIZE_UNKNOWN)
-            //     throw Error(`Instruction [${j}] does not have size.`);
-            // ins.offset = prev.offset + bytes;
-            // Need to call method, as `InstructionSet` contains multiple `Instruction`s,
-            // that all need offset updated of picked instruction.
             ins.calcOffset();
             prev = ins;
         }
@@ -114,7 +88,7 @@ var Code = (function () {
             var ins = _a[_i];
             if (ins instanceof i.ExpressionVariable)
                 ins.evaluate();
-            code = ins.write(code); // 3rd pass
+            code = ins.write(code);
         }
         return code;
     };
@@ -182,7 +156,6 @@ var Code = (function () {
         }
         else if (typeof a === 'string') {
             var encoding = typeof b === 'string' ? b : 'ascii';
-            // var buf = Buffer.from(a, encoding);
             var buf = new Buffer(a, encoding);
             octets = Array.prototype.slice.call(buf, 0);
         }

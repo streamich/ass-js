@@ -14,4 +14,3 @@ _.db(msg);
 console.log(_.toString());
 var sbuf = StaticBuffer.from(_.compile(), 'rwe');
 sbuf.call();
-// sbuf.buffer.free();

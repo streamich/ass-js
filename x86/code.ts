@@ -19,7 +19,7 @@ export class Code extends CodeBase {
             // Create methods with size postfix, like: pushq, pushd, pushw, etc..
             for(let s in bySize) {
                 let size = parseInt(s) as oo.SIZE;
-                if(size > oo.SIZE.NONE) {// B, W, D, Q, ...
+                if(bySize[s] && (size > oo.SIZE.NONE)) {// B, W, D, Q, ...
                     ctx[mnemonic + oo.SIZE[size].toLowerCase()] = function(...ui_ops: oo.TUiOperand[]) {
                         return this.createInstructionFromGroupSize(bySize, size, ui_ops);
                     };

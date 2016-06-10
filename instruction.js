@@ -11,33 +11,26 @@ exports.SIZE_UNKNOWN = -1;
 exports.OFFSET_UNKNOWN = -1;
 var Expression = (function () {
     function Expression() {
-        // Index where instruction was inserted in `Code`s buffer.
         this.index = 0;
         this.length = exports.SIZE_UNKNOWN;
-        // Byte offset of the instruction in compiled machine code.
         this.offset = exports.OFFSET_UNKNOWN;
-        // Same as `offset` but for instructions that we don't know byte size yet we assume `MAX_SIZE`.
         this.offsetMax = exports.OFFSET_UNKNOWN;
         this.code = null;
     }
     Expression.prototype.bind = function (code) {
         this.code = code;
     };
-    // Size in bytes of the instruction.
     Expression.prototype.bytes = function () {
         return this.length;
     };
     Expression.prototype.bytesMax = function () {
         return this.bytes();
     };
-    // Whether the size of this `Expression` is determined.
     Expression.prototype.hasSize = function () {
         return this.bytes() !== exports.SIZE_UNKNOWN;
     };
-    // Called after new expression is inserted into `Code`.
     Expression.prototype.build = function () {
     };
-    // Calculated during the first pass, when expressions are inserted into `Code` block.
     Expression.prototype.calcOffsetMaxAndOffset = function () {
         if (this.index === 0) {
             this.offsetMax = 0;
@@ -65,7 +58,6 @@ var Expression = (function () {
             }
         }
     };
-    // Calculated during the second pass, when all expressions determine their final size.
     Expression.prototype.calcOffset = function () {
         if (this.offset !== exports.OFFSET_UNKNOWN)
             return;
@@ -75,12 +67,10 @@ var Expression = (function () {
             var prev = this.code.expr[this.index - 1];
             var offset = prev.offset;
             if (offset === exports.OFFSET_UNKNOWN)
-                // this.offset = OFFSET_UNKNOWN;
                 throw Error("Instruction [" + (this.index - 1) + "] does not have offset.");
             else {
                 var bytes = prev.bytes();
                 if (bytes === exports.SIZE_UNKNOWN)
-                    // this.offset = OFFSET_UNKNOWN;
                     throw Error("Instruction [" + (this.index - 1) + "] does not have size.");
                 else
                     this.offset = offset + bytes;
@@ -130,8 +120,6 @@ var Label = (function (_super) {
         _super.call(this);
         this.symbol = null;
         this.length = 0;
-        // if((typeof name !== 'string') || !name)
-        //     throw TypeError('Label name must be a non-empty string.');
         this.symbol = new o.Symbol(this, 0, name);
     }
     Label.prototype.getName = function () {
@@ -279,30 +267,15 @@ var Data = (function (_super) {
     return Data;
 }(Expression));
 exports.Data = Data;
-// Expressions that have operands, operands might reference (in case of `Relative`) other expressions, which
-// have not been insert into code yet, so we might not know the how those operands evaluate on first two passes.
 var ExpressionVariable = (function (_super) {
     __extends(ExpressionVariable, _super);
     function ExpressionVariable(ops) {
         if (ops === void 0) { ops = null; }
         _super.call(this);
-        this.ops = null; // Operands provided by user.
+        this.ops = null;
         this.isEvaluated = false;
         this.ops = ops;
     }
-    // canEvaluate() {
-    //     for(var op of this.ops.list) {
-    //         if(op instanceof Relative) {
-    //             var rel = op as Relative;
-    //             if(rel.target.offset === OFFSET_UNKNOWN) return false;
-    //         }
-    //     }
-    //     return true;
-    // }
-    // Whether this Expression is ready to be written to binary buffer.
-    // canEvaluate() {
-    //     return true;
-    // }
     ExpressionVariable.prototype.evaluate = function () {
         this.isEvaluated = true;
         return true;
@@ -334,8 +307,6 @@ var DataVariable = (function (_super) {
             var num;
             if (op instanceof operand_1.Relative) {
                 var rel = op;
-                // num = list[j] = rel.rebaseOffset(this);
-                // num = rel.rebaseOffset(this);
                 num = rel.evaluate(this);
             }
             else if (operand_1.isTnumber(op)) {
@@ -386,7 +357,7 @@ var Instruction = (function (_super) {
     __extends(Instruction, _super);
     function Instruction() {
         _super.apply(this, arguments);
-        this.def = null; // Definition on how to construct this instruction.
+        this.def = null;
     }
     Instruction.prototype.build = function () {
         _super.prototype.build.call(this);
@@ -414,14 +385,13 @@ var Instruction = (function (_super) {
             var octets = this.write([]).map(function (byte) {
                 return byte <= 0xF ? '0' + byte.toString(16).toUpperCase() : byte.toString(16).toUpperCase();
             });
-            cmt = spaces + ("; " + this.formatOffset() + " 0x") + octets.join(', 0x'); // + ' / ' + this.def.toString();
+            cmt = spaces + ("; " + this.formatOffset() + " 0x") + octets.join(', 0x');
         }
         return expression + cmt;
     };
     return Instruction;
 }(ExpressionVariable));
 exports.Instruction = Instruction;
-// Expression which, not only has operands, but which may evaluate to different sizes.
 var ExpressionVolatile = (function (_super) {
     __extends(ExpressionVolatile, _super);
     function ExpressionVolatile() {
@@ -430,15 +400,13 @@ var ExpressionVolatile = (function (_super) {
     return ExpressionVolatile;
 }(ExpressionVariable));
 exports.ExpressionVolatile = ExpressionVolatile;
-// Wrapper around multiple instructions when different machine instructions can be used to perform the same task.
-// For example, `jmp` with `rel8` or `rel32` immediate, or when multiple instruction definitions match provided operands.
 var InstructionSet = (function (_super) {
     __extends(InstructionSet, _super);
     function InstructionSet(ops, matches) {
         _super.call(this, ops);
         this.matches = null;
         this.insn = [];
-        this.picked = -1; // Index of instruction that was eventually chosen.
+        this.picked = -1;
         this.matches = matches;
     }
     InstructionSet.prototype.write = function (arr) {
@@ -457,7 +425,7 @@ var InstructionSet = (function (_super) {
             if (op instanceof o.Relative) {
                 for (var j = 0; j < this.insn.length; j++) {
                     var ins = this.insn[j];
-                    var rel = ins.ops.list[m]; // Relative of instruction.
+                    var rel = ins.ops.list[m];
                     var success = rel.canHoldMaxOffset(this);
                     if (success) {
                         if (shortest_ind === -1) {
@@ -510,7 +478,6 @@ var InstructionSet = (function (_super) {
             return this.insn[0];
         if (this.ops.hasRelative())
             return null;
-        // Pick the shortest instruction if we know all instruction sizes, otherwise don't pick any.
         var size = exports.SIZE_UNKNOWN;
         var isize = 0;
         for (var j = 0; j < this.insn.length; j++) {
@@ -546,21 +513,29 @@ var InstructionSet = (function (_super) {
                 }
             }
             else if (o.isTnumber(op)) {
-                var Clazz = tpls[j];
+                var tpl = tpls[j];
                 var num = op;
-                if (Clazz.name.indexOf('Relative') === 0) {
-                    var RelativeClass = Clazz;
-                    var rel = new o.Relative(insn, num);
-                    rel.cast(RelativeClass);
-                    ops.list[j] = rel;
+                if (typeof tpl === 'number') {
+                    ops.list[j] = null;
                 }
-                else if (Clazz.name.indexOf('Immediate') === 0) {
-                    var ImmediateClass = Clazz;
-                    var imm = new ImmediateClass(num);
-                    ops.list[j] = imm;
+                else if (typeof tpl === 'function') {
+                    var Clazz = tpl;
+                    if (Clazz.name.indexOf('Relative') === 0) {
+                        var RelativeClass = Clazz;
+                        var rel = new o.Relative(insn, num);
+                        rel.cast(RelativeClass);
+                        ops.list[j] = rel;
+                    }
+                    else if (Clazz.name.indexOf('Immediate') === 0) {
+                        var ImmediateClass = Clazz;
+                        var imm = new ImmediateClass(num);
+                        ops.list[j] = imm;
+                    }
+                    else
+                        throw TypeError('Invalid definition expected Immediate or Relative.');
                 }
                 else
-                    throw TypeError('Invalid definition expected Immediate.');
+                    throw TypeError('Invalid definition expected Immediate or Relative or number.');
             }
             else
                 throw TypeError('Invalid operand expected Register, Memory, Relative, number or number64.');
@@ -593,10 +568,6 @@ var InstructionSet = (function (_super) {
             var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
             expression += spaces + ("; " + this.formatOffset() + " max " + this.bytesMax() + " bytes\n");
             var lines = [];
-            // for(var j = 0; j < this.insn.length; j++) {
-            //     if(this.insn[j].ops) lines.push(this.insn[j].toString(margin, hex));
-            //     else lines.push('    ' + this.matches.list[j].def.toString());
-            // }
             for (var _i = 0, _a = this.matches.list; _i < _a.length; _i++) {
                 var match = _a[_i];
                 lines.push(margin + match.def.toString());

@@ -50,7 +50,7 @@ export class Instruction extends i.Instruction implements IInstruction {
     modrm: p.Modrm = null;
     sib: p.Sib = null;
     displacement: p.Displacement = null;
-    immediate: p.Immediate = null;
+    immediates: p.Immediate[] = [];
 
     // Direction for register-to-register `MOV` operations, whether REG field of Mod-R/M byte is destination.
     // We set this to `false` to be compatible with GAS assembly, which we use for testing.
@@ -71,7 +71,7 @@ export class Instruction extends i.Instruction implements IInstruction {
         this.modrm = null;
         this.sib = null;
         this.displacement = null;
-        this.immediate = null;
+        this.immediates = [];
 
         this.length = 0;
         this.createPrefixes();
@@ -79,7 +79,7 @@ export class Instruction extends i.Instruction implements IInstruction {
         this.createModrm();
         this.createSib();
         this.createDisplacement();
-        this.createImmediate();
+        this.createImmediates();
 
         return this;
     }
@@ -97,21 +97,24 @@ export class Instruction extends i.Instruction implements IInstruction {
     write(arr: number[]): number[] {
         this.writePrefixes(arr);
         this.opcode.write(arr);
-        if(this.modrm)          this.modrm.write(arr);
-        if(this.sib)            this.sib.write(arr);
-        if(this.displacement)   this.displacement.write(arr);
-        if(this.immediate)      this.immediate.write(arr);
+        if(this.modrm)              this.modrm.write(arr);
+        if(this.sib)                this.sib.write(arr);
+        if(this.displacement)       this.displacement.write(arr);
+        if(this.immediates.length)  for(var imm of this.immediates) imm.write(arr);
         return arr;
     }
 
     evaluate(): boolean {
         this.ops.evaluate(this);
-        
-        var rel = this.ops.getRelative();
-        if(rel) {
-            var res = (rel.result as number);
-            // var res = (rel.result as number) - this.bytes();
-            this.immediate.value.setValue(res);
+
+        var max = 2; // Up to 2 immediates.
+        for(var j = 0; j < max; j++) {
+            var rel = this.ops.getRelative(j);
+            if(rel) {
+                var res = (rel.result as number);
+                // var res = (rel.result as number) - this.bytes();
+                this.immediates[j].value.setValue(res);
+            }
         }
         
         return super.evaluate();
@@ -205,7 +208,6 @@ export class Instruction extends i.Instruction implements IInstruction {
     }
 
     protected needsOperandSizeOverride() {
-        if(!this.ops.list.length) return false;
         if((this.code.operandSize === SIZE.D) && (this.def.operandSize === SIZE.W)) return true;
         if((this.code.operandSize === SIZE.W) && (this.def.operandSize === SIZE.D)) return true;
         return false;
@@ -448,30 +450,36 @@ export class Instruction extends i.Instruction implements IInstruction {
         }
     }
 
-    protected createImmediate() {
-        var imm = this.ops.getImmediate();
-        if(imm) {
-            // If immediate does not have concrete size, use the size of instruction operands.
-            // if(imm.constructor === o.Immediate) {
-            //     var ImmediateClass = this.def.getImmediateClass();
-            //     if(ImmediateClass) imm = new ImmediateClass(imm.value, imm.signed);
-            //     else {
-            //         var size = this.op.size;
-            //         imm = o.Immediate.factory(size, imm.value, imm.signed);
-            //         imm.extend(size);
-            //     }
-            // }
+    protected createImmediates() {
+        var max = 2; // Up to 2 immediates.
+        for(var j = 0; j < max; j++) {
+            var imm = this.ops.getImmediate(j);
+            var immp: p.Immediate;
+            if(imm) {
+                // If immediate does not have concrete size, use the size of instruction operands.
+                // if(imm.constructor === o.Immediate) {
+                //     var ImmediateClass = this.def.getImmediateClass();
+                //     if(ImmediateClass) imm = new ImmediateClass(imm.value, imm.signed);
+                //     else {
+                //         var size = this.op.size;
+                //         imm = o.Immediate.factory(size, imm.value, imm.signed);
+                //         imm.extend(size);
+                //     }
+                // }
 
-            // if (this.displacement && (this.displacement.value.size === SIZE.Q))
-            //     throw TypeError(`Cannot have Immediate with ${SIZE.Q} bit Displacement.`);
-            this.immediate = new p.Immediate(imm);
-            this.length += this.immediate.value.size >> 3;
-        } else {
-            var rel = this.ops.getRelative();
-            if(rel) {
-                var immval = oo.Immediate.factory(rel.size, 0);
-                this.immediate = new p.Immediate(immval);
-                this.length += rel.size >> 3;
+                // if (this.displacement && (this.displacement.value.size === SIZE.Q))
+                //     throw TypeError(`Cannot have Immediate with ${SIZE.Q} bit Displacement.`);
+                immp = new p.Immediate(imm);
+                this.immediates[j] = immp;
+                this.length += immp.value.size >> 3;
+            } else {
+                var rel = this.ops.getRelative(j);
+                if(rel) {
+                    var immval = oo.Immediate.factory(rel.size, 0);
+                    immp = new p.Immediate(immval);
+                    this.immediates[j] = immp;
+                    this.length += rel.size >> 3;
+                }
             }
         }
     }

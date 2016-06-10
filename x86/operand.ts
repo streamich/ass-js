@@ -345,10 +345,6 @@ export class Operands extends o.Operands {
         return null;
     }
 
-    getImmediate(): o.Immediate {
-        return this.getFirstOfClass(o.Immediate) as o.Immediate;
-    }
-
     hasImmediate(): boolean {
         return !!this.getImmediate();
     }

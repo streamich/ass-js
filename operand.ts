@@ -524,8 +524,8 @@ export class Operands {
             // We can determine operand size only by Register; Memory and Immediate and others don't tell us the right size.
             if(op instanceof Register) {
                 if (this.size !== SIZE.ANY) {
-                    if (this.size !== op.size)
-                        throw TypeError('Operand size mismatch.');
+                    // if (this.size !== op.size)
+                    //     throw TypeError('Operand size mismatch.');
                 } else this.setSize(op.size);
             }
         }
@@ -536,25 +536,34 @@ export class Operands {
         else throw TypeError('Operand size mismatch.');
     }
 
-    getFirstOfClass(Clazz) {
-        for(var op of this.list) if(op instanceof Clazz) return op;
+    getFirstOfClass(Clazz, skip = 0) {
+        for(var op of this.list) {
+            if(op instanceof Clazz) {
+                if(!skip) return op;
+                else skip--;
+            }
+        }
         return null;
     }
 
-    getRegisterOperand(): Register {
-        return this.getFirstOfClass(Register) as Register;
+    getRegisterOperand(skip = 0): Register {
+        return this.getFirstOfClass(Register, skip) as Register;
     }
 
-    getMemoryOperand(): Memory {
-        return this.getFirstOfClass(Memory) as Memory;
+    getMemoryOperand(skip = 0): Memory {
+        return this.getFirstOfClass(Memory, skip) as Memory;
     }
 
-    getVariable(): Variable {
-        return this.getFirstOfClass(Variable) as Variable;
+    getVariable(skip = 0): Variable {
+        return this.getFirstOfClass(Variable, skip) as Variable;
     }
 
-    getRelative(): Relative {
-        return this.getFirstOfClass(Relative) as Relative;
+    getRelative(skip = 0): Relative {
+        return this.getFirstOfClass(Relative, skip) as Relative;
+    }
+
+    getImmediate(skip = 0): Immediate {
+        return this.getFirstOfClass(Immediate, skip) as Immediate;
     }
 
     getAddressSize(): SIZE {

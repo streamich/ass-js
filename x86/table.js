@@ -10,7 +10,6 @@ var operand_1 = require('./operand');
 })(exports.MODE || (exports.MODE = {}));
 var MODE = exports.MODE;
 exports.M = MODE;
-// Operands
 exports.r = operand_1.Register;
 exports.r8 = operand_1.Register8;
 exports.r16 = operand_1.Register16;
@@ -25,11 +24,10 @@ exports.rm8 = [operand_1.Register8, operand_1.Memory];
 exports.rm16 = [operand_1.Register16, operand_1.Memory];
 exports.rm32 = [operand_1.Register32, operand_1.Memory];
 exports.rm64 = [operand_1.Register64, operand_1.Memory];
-// x86 global defaults
 exports.defaults = util_1.extend({}, t.defaults, { ds: table_1.S.D, lock: false, or: -1, r: false, dbit: false, rex: false, mr: true, rep: false, repne: false, pfx: null });
-// Instruction are divided in groups, each group consists of list
-// of possible instructions. The first object is NOT an instruction
-// but defaults for the group.
 exports.table = {
-    int: [{ o: 0xCD, ops: [table_1.immu8] }],
+    int: [{},
+        { o: 0xCC, ops: [3] },
+        { o: 0xCD, ops: [table_1.immu8] },
+    ],
 };

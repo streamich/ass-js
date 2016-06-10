@@ -6,6 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var d = require('../def');
 var operand_1 = require("../operand");
+var oo = require('../operand');
 var o = require('./operand');
 var Def = (function (_super) {
     __extends(Def, _super);
@@ -23,8 +24,8 @@ var Def = (function (_super) {
         this.prefixes = def.pfx;
     }
     Def.prototype.matchOperandTemplate = function (tpl, operand) {
-        var OperandClass = tpl; // as typeof o.Operand;
-        if (OperandClass.name.indexOf('Immediate') === 0) {
+        var OperandClass = tpl;
+        if ((typeof OperandClass === 'function') && (OperandClass.name.indexOf('Immediate') === 0)) {
             if (!operand_1.isTnumber(operand))
                 return null;
             var ImmediateClass = OperandClass;
@@ -43,25 +44,25 @@ var Def = (function (_super) {
         if (operand instanceof operand_1.Operand)
             return operand.toString();
         else if (typeof operand === 'function') {
-            if (operand === o.Immediate)
+            if (operand === oo.Immediate)
                 return 'imm';
-            if (operand === o.Immediate8)
+            if (operand === oo.Immediate8)
                 return 'imm8';
-            if (operand === o.Immediate16)
+            if (operand === oo.Immediate16)
                 return 'imm16';
-            if (operand === o.Immediate32)
+            if (operand === oo.Immediate32)
                 return 'imm32';
-            if (operand === o.Immediate64)
+            if (operand === oo.Immediate64)
                 return 'imm64';
-            if (operand === o.ImmediateUnsigned)
+            if (operand === oo.ImmediateUnsigned)
                 return 'immu';
-            if (operand === o.ImmediateUnsigned8)
+            if (operand === oo.ImmediateUnsigned8)
                 return 'immu8';
-            if (operand === o.ImmediateUnsigned16)
+            if (operand === oo.ImmediateUnsigned16)
                 return 'immu16';
-            if (operand === o.ImmediateUnsigned32)
+            if (operand === oo.ImmediateUnsigned32)
                 return 'immu32';
-            if (operand === o.ImmediateUnsigned64)
+            if (operand === oo.ImmediateUnsigned64)
                 return 'immu64';
             if (operand === o.Register)
                 return 'r';

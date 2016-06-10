@@ -581,19 +581,27 @@ export class InstructionSet extends ExpressionVolatile {
                     }
                 }
             } else if(o.isTnumber(op)) {
-                var Clazz = tpls[j] as any;
+                var tpl = tpls[j] as any;
                 var num = op as any as o.Tnumber;
-                if (Clazz.name.indexOf('Relative') === 0) {
-                    var RelativeClass = Clazz as typeof o.Relative;
-                    var rel = new o.Relative(insn, num as number);
-                    rel.cast(RelativeClass);
-                    ops.list[j] = rel;
-                } else if (Clazz.name.indexOf('Immediate') === 0) {
-                    var ImmediateClass = Clazz as typeof o.Immediate;
-                    var imm = new ImmediateClass(num);
-                    ops.list[j] = imm;
+                if(typeof tpl === 'number') {
+                    // Skip number
+                    // `int 3`, for example, is just `0xCC` instruction.
+                    ops.list[j] = null;
+                } else if(typeof tpl === 'function') {
+                    var Clazz = tpl as any;
+                    if(Clazz.name.indexOf('Relative') === 0) {
+                        var RelativeClass = Clazz as typeof o.Relative;
+                        var rel = new o.Relative(insn, num as number);
+                        rel.cast(RelativeClass);
+                        ops.list[j] = rel;
+                    } else if (Clazz.name.indexOf('Immediate') === 0) {
+                        var ImmediateClass = Clazz as typeof o.Immediate;
+                        var imm = new ImmediateClass(num);
+                        ops.list[j] = imm;
+                    } else
+                        throw TypeError('Invalid definition expected Immediate or Relative.');
                 } else
-                    throw TypeError('Invalid definition expected Immediate.');
+                    throw TypeError('Invalid definition expected Immediate or Relative or number.');
             } else
                 throw TypeError('Invalid operand expected Register, Memory, Relative, number or number64.');
         }

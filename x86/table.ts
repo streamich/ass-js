@@ -61,5 +61,11 @@ export var defaults: Definition = extend<Definition>({}, t.defaults,
 // of possible instructions. The first object is NOT an instruction
 // but defaults for the group.
 export var table: TableDefinition = {
-    int: [{o: 0xCD, ops: [immu8]}],
+    // INT Software interrupt
+    int: [{},
+        // CC INT 3 NP Valid Valid Interrupt 3—trap to debugger.
+        {o: 0xCC, ops: [3]},
+        // CD ib INT imm8 I Valid Valid Interrupt vector specified by immediate byte.
+        {o: 0xCD, ops: [immu8]},
+    ],
 };

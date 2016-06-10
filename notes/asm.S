@@ -153,6 +153,13 @@ jmp:
         jmp *0x11
         jmp *0x1122
         jmp *0x11223344
+        ljmp *0x11223344
+        ljmp *0x11(%rip)
+        ljmp *0x11(%rax)
+        ljmp *(%eax)
+        ljmp *(%rax)
+        ljmp *(%rax, %rbx)
+        ljmp *0x11(%r15)
         jmp *%rax
         jmp *%rbx
         jmp *(%rcx, %rbx)
@@ -238,6 +245,25 @@ ret:
         ret $4
         retq $16
 
+loop:
+        loop loop
+        loope loop
+        loopz loop
+        loopne loop
+        loopnz loop
+
+int:
+        int $0x80
+        int $3
+        int $2
+
+enter:
+        enter $1, $2
+        enter $-1, $-2
+        leave
+        leaveq
+        leavew
+
 lea:
 
         lea (%rax), %rax
@@ -252,6 +278,56 @@ lea:
         lea 0x11223344(%rip), %r9
         lea 0x11(%rbx, %rcx), %r9
         lea 0x43, %r9
+
+in:
+        in $5, %al
+        in $5, %ax
+        in $5, %eax
+        in %dx, %al
+        in %dx, %ax
+        in %dx, %eax
+out:
+        out %al, $5
+        out %ax, $5
+        out %eax, $5
+        out %al, %dx
+        out %ax, %dx
+        out %eax, %dx
+
+ins:
+        insb %dx, (%rdi)
+        insw %dx, (%rdi)
+        insl %dx, (%rdi)
+        insb
+        insw
+        insl
+        outsb
+        outsw
+        outsl
+
+nop:
+        nop
+        nopq (%eax)
+
+flags:
+        stc
+        clc
+        cmc
+        cld
+        std
+        pushf
+        popf
+        sti
+        cli
+
+random:
+        rdrand %bx
+        rdrand %ebx
+        rdrand %rbx
+        rdseed %bx
+        rdseed %ebx
+        rdseed %rbx
+
 
 _push:
         push %rax

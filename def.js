@@ -12,15 +12,14 @@ var Def = (function () {
         this.opcode = def.o;
         this.mnemonic = def.mn;
         this.operandSize = def.s;
-        // Operand template.
         this.operands = [];
         if (def.ops && def.ops.length) {
+            var implied_size = o.SIZE.NONE;
             for (var _i = 0, _a = def.ops; _i < _a.length; _i++) {
                 var operand = _a[_i];
                 if (!(operand instanceof Array))
                     operand = [operand];
                 var flattened = operand.reduce(function (a, b) {
-                    // Determine operand size from o.Register operands
                     var cur_size = o.SIZE.NONE;
                     if (b instanceof o.Register) {
                         cur_size = b.size;
@@ -29,33 +28,41 @@ var Def = (function () {
                         cur_size = (new b).size;
                     }
                     if (cur_size !== o.SIZE.NONE) {
-                        if (_this.operandSize > o.SIZE.NONE) {
-                            if (_this.operandSize !== cur_size)
-                                throw TypeError('Instruction operand size definition mismatch: ' + _this.mnemonic);
+                        if (_this.operandSize <= o.SIZE.NONE) {
+                            if (implied_size > o.SIZE.NONE) {
+                                if (implied_size !== cur_size)
+                                    throw TypeError('Instruction operand size definition mismatch: ' + _this.mnemonic);
+                            }
+                            else
+                                implied_size = cur_size;
                         }
-                        else
-                            _this.operandSize = cur_size;
                     }
                     return a.concat(b);
                 }, []);
                 operand = flattened;
                 this.operands.push(operand);
             }
+            if (this.operandSize <= o.SIZE.NONE) {
+                this.operandSize = implied_size;
+            }
         }
     }
     Def.prototype.matchOperandTemplate = function (tpl, operand) {
-        if (typeof tpl === 'object') {
+        if (typeof tpl === 'number') {
+            if (tpl === operand)
+                return tpl;
+            else
+                return null;
+        }
+        else if (typeof tpl === 'object') {
             if (tpl === operand)
                 return tpl;
             else
                 return null;
         }
         else if (typeof tpl === 'function') {
-            var OperandClass = tpl; // as typeof o.Operand;
+            var OperandClass = tpl;
             if (OperandClass.name.indexOf('Relative') === 0) {
-                // Here we cannot yet check any sizes even cannot check if number
-                // fits the immediate size because we will have to rebase the o.Relative
-                // to the currenct instruction Expression.
                 if (o.isTnumber(operand))
                     return OperandClass;
                 else if (operand instanceof o.Relative)
@@ -71,7 +78,7 @@ var Def = (function () {
             }
         }
         else
-            throw TypeError('Invalid operand definition.'); // Should never happen.
+            throw TypeError('Invalid operand definition.');
     };
     Def.prototype.matchOperandTemplates = function (templates, operand) {
         for (var _i = 0, templates_1 = templates; _i < templates_1.length; _i++) {
@@ -83,6 +90,8 @@ var Def = (function () {
         return null;
     };
     Def.prototype.matchOperands = function (ops) {
+        if (!this.operands)
+            return null;
         if (this.operands.length !== ops.list.length)
             return null;
         if (!ops.list.length)
@@ -155,11 +164,8 @@ var DefGroup = (function () {
     }
     DefGroup.prototype.createDefinitions = function (defs, defaults) {
         var group_defaults = defs[0], definitions = defs.slice(1);
-        // If only one object provided, we treat it as instruction definition rather then
-        // as group defaults.
         if (!definitions.length)
             definitions = [group_defaults];
-        // Mnemonic.
         if (!group_defaults.mn)
             group_defaults.mn = this.mnemonic;
         for (var _i = 0, definitions_1 = definitions; _i < definitions_1.length; _i++) {

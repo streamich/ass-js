@@ -21,6 +21,7 @@ export class Def {
         // Operand template.
         this.operands = [];
         if(def.ops && def.ops.length) {
+            var implied_size = o.SIZE.NONE;
             for(var operand of def.ops) {
                 if(!(operand instanceof Array)) operand = [operand] as t.TOperandTemplate[];
 
@@ -34,10 +35,12 @@ export class Def {
                         cur_size = (new b).size;
                     }
                     if(cur_size !== o.SIZE.NONE) {
-                        if (this.operandSize > o.SIZE.NONE) {
-                            if (this.operandSize !== cur_size)
-                                throw TypeError('Instruction operand size definition mismatch: ' + this.mnemonic);
-                        } else this.operandSize = cur_size;
+                        if (this.operandSize <= o.SIZE.NONE) {
+                            if (implied_size > o.SIZE.NONE) {
+                                if (implied_size !== cur_size)
+                                    throw TypeError('Instruction operand size definition mismatch: ' + this.mnemonic);
+                            } else implied_size = cur_size;
+                        }
                     }
 
                     return a.concat(b);
@@ -46,11 +49,18 @@ export class Def {
 
                 this.operands.push(operand as t.TOperandTemplate[]);
             }
+
+            if(this.operandSize <= o.SIZE.NONE) {
+                this.operandSize = implied_size;
+            }
         }
     }
 
     protected matchOperandTemplate(tpl: t.TOperandTemplate, operand: o.TOperand): t.TOperandTemplate|any {
-        if(typeof tpl === 'object') { // Object: rax, rbx, r8, etc...
+        if(typeof tpl === 'number') {
+            if((tpl as any) === operand) return tpl;
+            else return null;
+        } else if(typeof tpl === 'object') { // Object: rax, rbx, r8, etc...
             if((tpl as any) === operand) return tpl;
             else return null;
         } else if(typeof tpl === 'function') { // Class: o.Register, o.Memory, o.Immediate, etc...
@@ -79,6 +89,7 @@ export class Def {
     }
 
     matchOperands(ops: o.Operands): (any|t.TOperandTemplate)[] {
+        if(!this.operands) return null;
         if(this.operands.length !== ops.list.length) return null;
         if(!ops.list.length) return [];
         var matches: t.TOperandTemplate[] = [];

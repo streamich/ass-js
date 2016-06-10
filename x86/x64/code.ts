@@ -36,6 +36,9 @@ export class Code extends code.Code {
 
 export interface Code {
     jmp(dst: TUiOperand): Instruction;
+    jmpq(dst: TUiOperand): Instruction;
+    ljmp(dst: TUiOperand): Instruction;
+    ljmpq(dst: TUiOperand): Instruction;
     jecxz(rel: TUiOperand): Instruction;
     jrcxz(rel: TUiOperand): Instruction;
     ja(rel: TUiOperand): Instruction;
@@ -68,6 +71,42 @@ export interface Code {
     jpo(rel: TUiOperand): Instruction;
     js(rel: TUiOperand): Instruction;
     jz(rel: TUiOperand): Instruction;
+    loop(rel: TUiOperand): Instruction;
+    loope(rel: TUiOperand): Instruction;
+    loopz(rel: TUiOperand): Instruction;
+    loopne(rel: TUiOperand): Instruction;
+    loopnz(rel: TUiOperand): Instruction;
+    enter(imm16: number, imm8: number): Instruction;
+
+    'in'(dst: TUiOperand, src: TUiOperand): Instruction;
+    inb(dst: TUiOperand, src: TUiOperand): Instruction;
+    inw(dst: TUiOperand, src: TUiOperand): Instruction;
+    ind(dst: TUiOperand, src: TUiOperand): Instruction;
+    out(dst: TUiOperand, src: TUiOperand): Instruction;
+    outb(dst: TUiOperand, src: TUiOperand): Instruction;
+    outw(dst: TUiOperand, src: TUiOperand): Instruction;
+    outd(dst: TUiOperand, src: TUiOperand): Instruction;
+    insb(): Instruction;
+    insw(): Instruction;
+    insd(): Instruction;
+    outsb(): Instruction;
+    outsw(): Instruction;
+    outsd(): Instruction;
+
+    // Flag Control
+    stc(): Instruction;
+    clc(): Instruction;
+    cmc(): Instruction;
+    cld(): Instruction;
+    std(): Instruction;
+    pushf(): Instruction;
+    popf(): Instruction;
+    sti(): Instruction;
+    cli(): Instruction;
+
+    // Random Number
+    rdrand(dst: TUiOperand): Instruction;
+    rdseed(src: TUiOperand): Instruction;
 
     adcx(dst: TUiOperand, src: TUiOperand): Instruction;
     adox(dst: TUiOperand, src: TUiOperand): Instruction;
