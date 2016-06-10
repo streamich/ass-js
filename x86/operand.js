@@ -115,6 +115,14 @@ var RegisterRip = (function (_super) {
     return RegisterRip;
 }(Register64));
 exports.RegisterRip = RegisterRip;
+var RegisterSegment = (function (_super) {
+    __extends(RegisterSegment, _super);
+    function RegisterSegment() {
+        _super.apply(this, arguments);
+    }
+    return RegisterSegment;
+}(Register16));
+exports.RegisterSegment = RegisterSegment;
 exports.rax = new Register64(regfile_1.R64.RAX);
 exports.rbx = new Register64(regfile_1.R64.RBX);
 exports.rcx = new Register64(regfile_1.R64.RCX);
@@ -184,6 +192,12 @@ exports.ah = new Register8High(regfile_1.R8H.AH);
 exports.bh = new Register8High(regfile_1.R8H.BH);
 exports.ch = new Register8High(regfile_1.R8H.CH);
 exports.dh = new Register8High(regfile_1.R8H.DH);
+exports.es = new RegisterSegment(regfile_1.SEG.ES);
+exports.cs = new RegisterSegment(regfile_1.SEG.CS);
+exports.ss = new RegisterSegment(regfile_1.SEG.SS);
+exports.ds = new RegisterSegment(regfile_1.SEG.DS);
+exports.fs = new RegisterSegment(regfile_1.SEG.FS);
+exports.gs = new RegisterSegment(regfile_1.SEG.GS);
 var Scale = (function (_super) {
     __extends(Scale, _super);
     function Scale(scale) {

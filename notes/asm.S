@@ -103,6 +103,31 @@ mov:
         movq $1, %rax
         movq $-0x3333, %rbp
         movq $-0x333333, %rsp
+        mov $0x1122334455667788, %rax
+        mov %cs, %ax
+        mov %cs, %rax
+        mov 0x112233445566, %rax
+        movabs 0x11, %rax
+        movabs 0x11, %ax
+        movabs 0x11, %eax
+
+cwd:
+        cwd
+        cdq
+        cqo
+        cbw
+        cwde
+        cdqe
+
+lds:
+        lss 0x123, %ax
+
+xlat:
+        xlat
+
+other:
+        prefetchw (%rax)
+        prefetchwt1 (%rax)
 
 add:
         add $25, %rax
@@ -158,6 +183,8 @@ jmp:
         ljmp *0x11(%rax)
         ljmp *(%eax)
         ljmp *(%rax)
+        ljmp *%cs:(%rax)
+        ljmp *%ds:(%rax)
         ljmp *(%rax, %rbx)
         ljmp *0x11(%r15)
         jmp *%rax

@@ -24,11 +24,22 @@ function isNumber64(num) {
         return false;
 }
 exports.isNumber64 = isNumber64;
+function isNumber128(num) {
+    if ((num instanceof Array) && (num.length === 4) &&
+        (typeof num[0] === 'number') && (typeof num[1] === 'number') &&
+        (typeof num[1] === 'number') && (typeof num[2] === 'number'))
+        return true;
+    else
+        return false;
+}
+exports.isNumber128 = isNumber128;
 function isTnumber(num) {
     if (typeof num === 'number')
         return true;
+    else if (isNumber64(num))
+        return true;
     else
-        return isNumber64(num);
+        return isNumber128(num);
 }
 exports.isTnumber = isTnumber;
 var Operand = (function () {
@@ -84,9 +95,7 @@ var Constant = (function (_super) {
         return SIZE.Q;
     };
     Constant.prototype.setValue = function (value) {
-        if (value instanceof Array) {
-            if (value.length !== 2)
-                throw TypeError('number64 must be a 2-tuple, given: ' + value);
+        if (isNumber64(value)) {
             this.setValue64(value);
         }
         else if (typeof value === 'number') {
@@ -97,7 +106,7 @@ var Constant = (function (_super) {
                 this.setValue32(value);
         }
         else
-            throw TypeError('Constant value must be of type number|number64.');
+            throw TypeError('Constant value must be of type Tnumber.');
     };
     Constant.prototype.setValue32 = function (value) {
         var size = this.signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
@@ -112,18 +121,42 @@ var Constant = (function (_super) {
         }
     };
     Constant.prototype.setValue64 = function (value) {
-        this.size = 64;
+        this.size = SIZE.Q;
         this.value = value;
-        this.octets = [];
         var lo = value[0], hi = value[1];
-        this.octets[0] = (lo) & 0xFF;
-        this.octets[1] = (lo >> 8) & 0xFF;
-        this.octets[2] = (lo >> 16) & 0xFF;
-        this.octets[3] = (lo >> 24) & 0xFF;
-        this.octets[4] = (hi) & 0xFF;
-        this.octets[5] = (hi >> 8) & 0xFF;
-        this.octets[6] = (hi >> 16) & 0xFF;
-        this.octets[7] = (hi >> 24) & 0xFF;
+        this.octets = [
+            (lo) & 0xFF,
+            (lo >> 8) & 0xFF,
+            (lo >> 16) & 0xFF,
+            (lo >> 24) & 0xFF,
+            (hi) & 0xFF,
+            (hi >> 8) & 0xFF,
+            (hi >> 16) & 0xFF,
+            (hi >> 24) & 0xFF,
+        ];
+    };
+    Constant.prototype.setValue128 = function (value) {
+        this.size = SIZE.O;
+        this.value = value;
+        var b0 = value[0], b1 = value[1], b2 = value[2], b3 = value[3];
+        this.octets = [
+            (b0) & 0xFF,
+            (b0 >> 8) & 0xFF,
+            (b0 >> 16) & 0xFF,
+            (b0 >> 24) & 0xFF,
+            (b1) & 0xFF,
+            (b1 >> 8) & 0xFF,
+            (b1 >> 16) & 0xFF,
+            (b1 >> 24) & 0xFF,
+            (b2) & 0xFF,
+            (b2 >> 8) & 0xFF,
+            (b2 >> 16) & 0xFF,
+            (b2 >> 24) & 0xFF,
+            (b3) & 0xFF,
+            (b3 >> 8) & 0xFF,
+            (b3 >> 16) & 0xFF,
+            (b3 >> 24) & 0xFF,
+        ];
     };
     Constant.prototype.zeroExtend = function (size) {
         if (this.size === size)

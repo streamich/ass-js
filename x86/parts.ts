@@ -83,7 +83,8 @@ export class PrefixRep extends PrefixStatic {
 }
 
 export class PrefixRepe extends PrefixStatic {
-    static supported = ['cmps', 'cmpsb', 'cmpbd', 'cmpsw', 'scas', 'scasb', 'scasd', 'scasw'];
+    // static supported = ['cmps', 'cmpsb', 'cmpbd', 'cmpsw', 'scas', 'scasb', 'scasd', 'scasw'];
+    static supported = ['cmps', 'scas'];
 
     constructor() {
         super(PREFIX.REPE);
@@ -91,7 +92,8 @@ export class PrefixRepe extends PrefixStatic {
 }
 
 export class PrefixRepne extends PrefixStatic {
-    static supported = ['cmps', 'cmpsb', 'cmpsd', 'cmpsw', 'scas', 'scasb', 'scasd', 'scasw'];
+    // static supported = ['cmps', 'cmpsb', 'cmpsd', 'cmpsw', 'scas', 'scasb', 'scasd', 'scasw'];
+    static supported = ['cmps', 'scas'];
 
     constructor() {
         super(PREFIX.REPNE);

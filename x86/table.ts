@@ -1,7 +1,7 @@
 import {extend} from '../util';
 import {S, rel, rel8, rel16, rel32, imm, imm8, imm16, imm32, imm64, immu, immu8, immu16, immu32, immu64} from '../table';
 import * as t from '../table';
-import {Register, Register8, Register16, Register32, Register64,
+import {Register, Register8, Register16, Register32, Register64, RegisterSegment,
     Memory, Memory8, Memory16, Memory32, Memory64} from './operand';
 
 
@@ -19,6 +19,7 @@ export var r8       = Register8;
 export var r16      = Register16;
 export var r32      = Register32;
 export var r64      = Register64;
+export var sreg     = RegisterSegment;
 export var m        = Memory;
 export var m8       = Memory8;
 export var m16      = Memory16;

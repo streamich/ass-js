@@ -531,7 +531,6 @@ describe('x64', function() {
                 expect(compile(_)).to.eql([0x48, 0xf7, 0xF3]);
             });
         });
-
         describe('inc', function() {
             it('incq rbx', function() {
                 var _ = code64();
@@ -1083,7 +1082,6 @@ describe('x64', function() {
             });
         });
     });
-
 
     describe('Flag Control', function () {
         it('stc', function() { // f9                   	stc

@@ -15,6 +15,7 @@ exports.r8 = operand_1.Register8;
 exports.r16 = operand_1.Register16;
 exports.r32 = operand_1.Register32;
 exports.r64 = operand_1.Register64;
+exports.sreg = operand_1.RegisterSegment;
 exports.m = operand_1.Memory;
 exports.m8 = operand_1.Memory8;
 exports.m16 = operand_1.Memory16;

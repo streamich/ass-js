@@ -22,10 +22,21 @@ export function isNumber64(num) {
     else return false;
 }
 
-export type Tnumber = number|number64;
+// 128-bit numbers
+export type number128 = [number, number, number, number];
+export function isNumber128(num) {
+    if((num instanceof Array) && (num.length === 4) &&
+        (typeof num[0] === 'number') && (typeof num[1] === 'number') &&
+        (typeof num[1] === 'number') && (typeof num[2] === 'number')) return true;
+    else return false;
+}
+
+// Combined type of all basic "numbers".
+export type Tnumber = number|number64|number128;
 export function isTnumber(num) {
     if(typeof num === 'number') return true;
-    else return isNumber64(num);
+    else if(isNumber64(num)) return true;
+    else return isNumber128(num);
 }
 
 
@@ -87,23 +98,22 @@ export class Constant extends Operand {
 
     signed: boolean = true;
 
-    constructor(value: number|number64 = 0, signed = true) {
+    constructor(value: Tnumber = 0, signed = true) {
         super();
         this.signed = signed;
         this.setValue(value);
     }
 
     setValue(value: number|number64) {
-        if(value instanceof Array) {
-            if(value.length !== 2) throw TypeError('number64 must be a 2-tuple, given: ' + value);
+        if(isNumber64(value)) {
             this.setValue64(value as number64);
         } else if(typeof value === 'number') {
             var clazz = this.signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
             /* JS integers are 53-bit, so split here `number`s over 32 bits into [number, number]. */
             if(clazz === SIZE.Q) this.setValue64([UInt64.lo(value), UInt64.hi(value)]);
-            else                    this.setValue32(value);
+            else                 this.setValue32(value);
         } else
-            throw TypeError('Constant value must be of type number|number64.');
+            throw TypeError('Constant value must be of type Tnumber.');
     }
 
     protected setValue32(value: number) {
@@ -119,18 +129,43 @@ export class Constant extends Operand {
     }
 
     protected setValue64(value: number64) {
-        this.size = 64;
+        this.size = SIZE.Q;
         this.value = value;
-        this.octets = [];
         var [lo, hi] = value;
-        this.octets[0] = (lo) & 0xFF;
-        this.octets[1] = (lo >> 8) & 0xFF;
-        this.octets[2] = (lo >> 16) & 0xFF;
-        this.octets[3] = (lo >> 24) & 0xFF;
-        this.octets[4] = (hi) & 0xFF;
-        this.octets[5] = (hi >> 8) & 0xFF;
-        this.octets[6] = (hi >> 16) & 0xFF;
-        this.octets[7] = (hi >> 24) & 0xFF;
+        this.octets = [
+            (lo) & 0xFF,
+            (lo >> 8) & 0xFF,
+            (lo >> 16) & 0xFF,
+            (lo >> 24) & 0xFF,
+            (hi) & 0xFF,
+            (hi >> 8) & 0xFF,
+            (hi >> 16) & 0xFF,
+            (hi >> 24) & 0xFF,
+        ];
+    }
+
+    protected setValue128(value: number128) {
+        this.size = SIZE.O;
+        this.value = value;
+        var [b0, b1, b2, b3] = value;
+        this.octets = [
+            (b0) & 0xFF,
+            (b0 >> 8) & 0xFF,
+            (b0 >> 16) & 0xFF,
+            (b0 >> 24) & 0xFF,
+            (b1) & 0xFF,
+            (b1 >> 8) & 0xFF,
+            (b1 >> 16) & 0xFF,
+            (b1 >> 24) & 0xFF,
+            (b2) & 0xFF,
+            (b2 >> 8) & 0xFF,
+            (b2 >> 16) & 0xFF,
+            (b2 >> 24) & 0xFF,
+            (b3) & 0xFF,
+            (b3 >> 8) & 0xFF,
+            (b3 >> 16) & 0xFF,
+            (b3 >> 24) & 0xFF,
+        ];
     }
 
     zeroExtend(size) {
@@ -144,6 +179,8 @@ export class Constant extends Operand {
     signExtend(size) {
         if(this.size === size) return;
         if(this.size > size) throw Error(`Already larger than ${size} bits, cannot zero-extend.`);
+
+        // TODO: Make it work with 128-bit numbers too, below.
 
         // We know it is not number64, because we don't deal with number larger than 64-bit,
         // and if it was 64-bit already there would be nothing to extend.

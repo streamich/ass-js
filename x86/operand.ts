@@ -1,4 +1,4 @@
-import {R64, R32, R16, R8, R8H} from './regfile';
+import {R64, R32, R16, R8, R8H, SEG} from './regfile';
 import {number64, Tnumber, isTnumber, SIZE, TUiOperand, TUiOperandNormalized,
     Operand, Constant, Relative, Register as RegisterBase, Memory as MemoryBase} from '../operand';
 import * as o from '../operand';
@@ -111,6 +111,10 @@ export class RegisterRip extends Register64 {
     }
 }
 
+export class RegisterSegment extends Register16 {
+
+}
+
 
 export var rax  = new Register64(R64.RAX);
 export var rbx  = new Register64(R64.RBX);
@@ -189,6 +193,14 @@ export var ah   = new Register8High(R8H.AH);
 export var bh   = new Register8High(R8H.BH);
 export var ch   = new Register8High(R8H.CH);
 export var dh   = new Register8High(R8H.DH);
+
+
+export var es   = new RegisterSegment(SEG.ES);
+export var cs   = new RegisterSegment(SEG.CS);
+export var ss   = new RegisterSegment(SEG.SS);
+export var ds   = new RegisterSegment(SEG.DS);
+export var fs   = new RegisterSegment(SEG.FS);
+export var gs   = new RegisterSegment(SEG.GS);
 
 
 // # Scale

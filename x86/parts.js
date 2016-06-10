@@ -84,7 +84,7 @@ var PrefixRepe = (function (_super) {
     function PrefixRepe() {
         _super.call(this, PREFIX.REPE);
     }
-    PrefixRepe.supported = ['cmps', 'cmpsb', 'cmpbd', 'cmpsw', 'scas', 'scasb', 'scasd', 'scasw'];
+    PrefixRepe.supported = ['cmps', 'scas'];
     return PrefixRepe;
 }(PrefixStatic));
 exports.PrefixRepe = PrefixRepe;
@@ -93,7 +93,7 @@ var PrefixRepne = (function (_super) {
     function PrefixRepne() {
         _super.call(this, PREFIX.REPNE);
     }
-    PrefixRepne.supported = ['cmps', 'cmpsb', 'cmpsd', 'cmpsw', 'scas', 'scasb', 'scasd', 'scasw'];
+    PrefixRepne.supported = ['cmps', 'scas'];
     return PrefixRepne;
 }(PrefixStatic));
 exports.PrefixRepne = PrefixRepne;
