@@ -102,7 +102,7 @@ export class Code {
             // if(bytes === i.SIZE_UNKNOWN)
             //     throw Error(`Instruction [${j}] does not have size.`);
             // ins.offset = prev.offset + bytes;
-
+            
             // Need to call method, as `InstructionSet` contains multiple `Instruction`s,
             // that all need offset updated of picked instruction.
             ins.calcOffset();

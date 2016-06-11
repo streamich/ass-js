@@ -241,8 +241,19 @@ export class Immediate extends Constant {
         if(val_size > size) throw TypeError(`Value ${value} too big for imm8.`);
     }
 
+    variable: Variable = null;
+
+    setVariable(variable: Variable) {
+        this.variable = variable;
+    }
+
     cast(ImmediateClass: typeof Immediate) {
         return new ImmediateClass(this.value);
+    }
+
+    toString() {
+        if(this.variable) return this.variable.toString();
+        else return super.toString();
     }
 }
 
@@ -385,12 +396,28 @@ export class Variable extends Operand {
     evaluate(owner: i.Expression): Tnumber {
         return 0;
     }
+
+    // Evaluate approximately during 2nd pass.
+    evaluatePreliminary(owner: i.Expression): Tnumber {
+        return 0;
+    }
+}
+
+
+export type Tvariable = Tnumber|Variable;
+export function isTvariable(val) {
+    if(val instanceof Variable) return true;
+    else return isTnumber(val);
 }
 
 
 // Relative jump targets for jump instructions.
 export class Relative extends Variable {
     static size = SIZE.ANY;
+
+    static fromExpression(expr: Expression) {
+        return new Relative(expr);
+    }
 
     signed = true;
 
@@ -504,8 +531,6 @@ export class Symbol extends Relative {
 
 
 export type TOperand = (Tnumber|Operand|Expression);
-export type TOperandN1 = (Tnumber|Operand);
-export type TOperandN2 = Operand;
 
 // Collection of operands an `Expression` might have.
 export class Operands {

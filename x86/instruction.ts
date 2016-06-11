@@ -74,6 +74,7 @@ export class Instruction extends i.Instruction implements IInstruction {
         this.immediates = [];
 
         this.length = 0;
+        this.lengthMax = 0;
         this.createPrefixes();
         this.createOpcode();
         this.createModrm();
@@ -104,6 +105,22 @@ export class Instruction extends i.Instruction implements IInstruction {
         return arr;
     }
 
+    protected fixDisplacementSize() {
+        if(this.displacement && this.displacement.value.variable) {
+            var variable = this.displacement.value.variable;
+            var val = variable.evaluatePreliminary(this);
+            var size = oo.Constant.sizeClass(val);
+            if(size > o.DisplacementValue.SIZE.DISP8)   this.length += o.DisplacementValue.SIZE.DISP32 / 8;
+            else                                        this.length += o.DisplacementValue.SIZE.DISP8 / 8;
+        }
+    }
+
+    getFixedSizeExpression() {
+        // Determine size of displacement
+        this.fixDisplacementSize();
+        return super.getFixedSizeExpression();
+    }
+
     evaluate(): boolean {
         this.ops.evaluate(this);
 
@@ -116,12 +133,19 @@ export class Instruction extends i.Instruction implements IInstruction {
                 this.immediates[j].value.setValue(res);
             }
         }
-        
+
+        // Evaluate displacement variable.
+        if(this.displacement && this.displacement.value.variable) {
+            var value = this.displacement.value;
+            var variable = value.variable;
+            var val = variable.evaluate(this);
+            var size = value.size;
+            value.setValue(val);
+            if(value.size > size) throw Error(`Displacement does not fit in ${size} bits.`);
+            else value.signExtend(size);
+        }
+
         return super.evaluate();
-    }
-    
-    bytes(): number {
-        return this.length;
     }
 
     lock(): this {
@@ -226,10 +250,12 @@ export class Instruction extends i.Instruction implements IInstruction {
         if(this.needsOperandSizeOverride()) {
             this.pfxOpSize = new p.PrefixOperandSizeOverride;
             this.length++;
+            this.lengthMax++;
         }
         if(this.needsAddressSizeOverride()) {
             this.pfxAddrSize = new p.PrefixAddressSizeOverride;
             this.length++;
+            this.lengthMax++;
         }
 
         // Mandatory prefixes required by op-code.
@@ -238,6 +264,7 @@ export class Instruction extends i.Instruction implements IInstruction {
                 this.prefixes.push(new p.PrefixStatic(val));
             }
             this.length += this.def.prefixes.length;
+            this.lengthMax += this.def.prefixes.length;
         }
     }
 
@@ -250,7 +277,7 @@ export class Instruction extends i.Instruction implements IInstruction {
 
         if(def.regInOp) {
             // We have register encoded in op-code here.
-            if(!dst || !dst.isRegister())
+            if(!dst || !(dst as oo.Operand).isRegister())
                 throw TypeError(`Operation needs destination register.`);
             opcode.op = (opcode.op & p.Opcode.MASK_OP) | (dst as o.Register).get3bitId();
         } else {
@@ -278,7 +305,9 @@ export class Instruction extends i.Instruction implements IInstruction {
             // }
         }
 
-        this.length += opcode.bytes();
+        var bytes = opcode.bytes();
+        this.length += bytes;
+        this.lengthMax += bytes;
     }
 
     protected createModrm() {
@@ -302,6 +331,7 @@ export class Instruction extends i.Instruction implements IInstruction {
                     rm = r.get3bitId();
                     this.modrm = new p.Modrm(mod, reg, rm);
                     this.length++;
+                    this.lengthMax++;
                     return;
                 }
             } else {
@@ -316,6 +346,7 @@ export class Instruction extends i.Instruction implements IInstruction {
             if(!dst) { // No destination operand, just opreg.
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
+                this.lengthMax++;
                 return;
             }
 
@@ -327,6 +358,7 @@ export class Instruction extends i.Instruction implements IInstruction {
                 rm = rmreg.get3bitId();
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
+                this.lengthMax++;
                 return;
             }
 
@@ -337,6 +369,7 @@ export class Instruction extends i.Instruction implements IInstruction {
                 // throw Error('No Memory reference for Modrm byte.');
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
+                this.lengthMax++;
                 return;
             }
 
@@ -354,6 +387,7 @@ export class Instruction extends i.Instruction implements IInstruction {
                 rm = p.Modrm.RM.NEEDS_SIB; // SIB byte follows
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
+                this.lengthMax++;
                 return;
             }
 
@@ -370,6 +404,7 @@ export class Instruction extends i.Instruction implements IInstruction {
                 rm = m.base.get3bitId();
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
+                this.lengthMax++;
                 return;
             }
 
@@ -382,6 +417,7 @@ export class Instruction extends i.Instruction implements IInstruction {
                 rm = p.Modrm.RM.NEEDS_SIB; // SIB byte follows
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
+                this.lengthMax++;
                 return;
             }
 
@@ -420,13 +456,24 @@ export class Instruction extends i.Instruction implements IInstruction {
 
         this.sib = new p.Sib(scalefactor, I, B);
         this.length++;
+        this.lengthMax++;
     }
 
     protected createDisplacement() {
         var m: o.Memory = this.ops.getMemoryOperand() as o.Memory;
         if(m && m.displacement) {
             this.displacement = new p.Displacement(m.displacement);
-            this.length += this.displacement.value.size / 8;
+
+            if(m.displacement.variable) {                               // We don't know the size of displacement yet.
+                // Displacement will be at least 1 byte,
+                // but we skip `this.length` for now.
+                this.lengthMax += o.DisplacementValue.SIZE.DISP32 / 8;  // max 4 bytes
+            } else {
+                var size = this.displacement.value.size / 8;
+                this.length += size;
+                this.lengthMax += size;
+            }
+
         } else if(this.modrm && this.sib && (this.sib.B === p.Sib.BASE_NONE)) {
             // Some SIB byte encodings require displacement, if we don't have displacement yet
             // add zero displacement.
@@ -446,7 +493,10 @@ export class Instruction extends i.Instruction implements IInstruction {
                     break;
             }
             if(disp) this.displacement = new p.Displacement(disp);
-            this.length += this.displacement.value.size / 8;
+
+            var size = this.displacement.value.size / 8;
+            this.length += size;
+            this.lengthMax += size;
         }
     }
 
@@ -471,14 +521,20 @@ export class Instruction extends i.Instruction implements IInstruction {
                 //     throw TypeError(`Cannot have Immediate with ${SIZE.Q} bit Displacement.`);
                 immp = new p.Immediate(imm);
                 this.immediates[j] = immp;
-                this.length += immp.value.size >> 3;
+
+                var size = immp.value.size >> 3;
+                this.length += size;
+                this.lengthMax += size;
             } else {
                 var rel = this.ops.getRelative(j);
                 if(rel) {
                     var immval = oo.Immediate.factory(rel.size, 0);
                     immp = new p.Immediate(immval);
                     this.immediates[j] = immp;
-                    this.length += rel.size >> 3;
+
+                    var size = rel.size >> 3;
+                    this.length += size;
+                    this.lengthMax += size;
                 }
             }
         }

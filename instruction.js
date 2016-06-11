@@ -7,8 +7,8 @@ var __extends = (this && this.__extends) || function (d, b) {
 var o = require('./operand');
 var operand_1 = require('./operand');
 var util_1 = require('./util');
-exports.SIZE_UNKNOWN = -1;
-exports.OFFSET_UNKNOWN = -1;
+exports.SIZE_UNKNOWN = -Infinity;
+exports.OFFSET_UNKNOWN = -Infinity;
 var Expression = (function () {
     function Expression() {
         this.index = 0;
@@ -25,6 +25,11 @@ var Expression = (function () {
     };
     Expression.prototype.bytesMax = function () {
         return this.bytes();
+    };
+    Expression.prototype.isFixedSize = function () {
+        if (this.length === exports.SIZE_UNKNOWN)
+            return false;
+        return this.bytes() === this.bytesMax();
     };
     Expression.prototype.hasSize = function () {
         return this.bytes() !== exports.SIZE_UNKNOWN;
@@ -50,11 +55,10 @@ var Expression = (function () {
             if (prev.offset === exports.OFFSET_UNKNOWN)
                 this.offset = exports.OFFSET_UNKNOWN;
             else {
-                var bytes = prev.bytes();
-                if (bytes === exports.SIZE_UNKNOWN)
+                if (!prev.isFixedSize())
                     this.offset = exports.OFFSET_UNKNOWN;
                 else
-                    this.offset = prev.offset + bytes;
+                    this.offset = prev.offset + prev.bytes();
             }
         }
     };
@@ -90,12 +94,12 @@ var Expression = (function () {
     };
     Expression.prototype.formatOffset = function () {
         var offset = '______';
-        if (this.offset !== -1) {
+        if (this.offset >= 0) {
             offset = this.offset.toString(16).toUpperCase();
             offset = (new Array(7 - offset.length)).join('0') + offset;
         }
         var max_offset = '______';
-        if (this.offsetMax !== -1) {
+        if (this.offsetMax >= 0) {
             max_offset = this.offsetMax.toString(16).toUpperCase();
             max_offset = (new Array(7 - max_offset.length)).join('0') + max_offset;
         }
@@ -353,6 +357,18 @@ var DataVariable = (function (_super) {
     return DataVariable;
 }(ExpressionVariable));
 exports.DataVariable = DataVariable;
+var ExpressionVolatile = (function (_super) {
+    __extends(ExpressionVolatile, _super);
+    function ExpressionVolatile() {
+        _super.apply(this, arguments);
+        this.lengthMax = 0;
+    }
+    ExpressionVolatile.prototype.bytesMax = function () {
+        return this.lengthMax;
+    };
+    return ExpressionVolatile;
+}(ExpressionVariable));
+exports.ExpressionVolatile = ExpressionVolatile;
 var Instruction = (function (_super) {
     __extends(Instruction, _super);
     function Instruction() {
@@ -366,8 +382,8 @@ var Instruction = (function (_super) {
     Instruction.prototype.write = function (arr) {
         return arr;
     };
-    Instruction.prototype.evaluate = function () {
-        return _super.prototype.evaluate.call(this);
+    Instruction.prototype.getFixedSizeExpression = function () {
+        return this;
     };
     Instruction.prototype.toString = function (margin, comment) {
         if (margin === void 0) { margin = '    '; }
@@ -390,16 +406,8 @@ var Instruction = (function (_super) {
         return expression + cmt;
     };
     return Instruction;
-}(ExpressionVariable));
+}(ExpressionVolatile));
 exports.Instruction = Instruction;
-var ExpressionVolatile = (function (_super) {
-    __extends(ExpressionVolatile, _super);
-    function ExpressionVolatile() {
-        _super.apply(this, arguments);
-    }
-    return ExpressionVolatile;
-}(ExpressionVariable));
-exports.ExpressionVolatile = ExpressionVolatile;
 var InstructionSet = (function (_super) {
     __extends(InstructionSet, _super);
     function InstructionSet(ops, matches) {
@@ -459,7 +467,7 @@ var InstructionSet = (function (_super) {
         for (var _i = 0, _a = this.insn; _i < _a.length; _i++) {
             var ins = _a[_i];
             if (ins) {
-                var bytes = ins.bytes();
+                var bytes = ins.bytesMax();
                 if (bytes > max)
                     max = bytes;
             }

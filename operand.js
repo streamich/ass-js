@@ -212,6 +212,7 @@ var Immediate = (function (_super) {
     __extends(Immediate, _super);
     function Immediate() {
         _super.apply(this, arguments);
+        this.variable = null;
     }
     Immediate.factory = function (size, value, signed) {
         if (value === void 0) { value = 0; }
@@ -232,8 +233,17 @@ var Immediate = (function (_super) {
         if (val_size > size)
             throw TypeError("Value " + value + " too big for imm8.");
     };
+    Immediate.prototype.setVariable = function (variable) {
+        this.variable = variable;
+    };
     Immediate.prototype.cast = function (ImmediateClass) {
         return new ImmediateClass(this.value);
+    };
+    Immediate.prototype.toString = function () {
+        if (this.variable)
+            return this.variable.toString();
+        else
+            return _super.prototype.toString.call(this);
     };
     return Immediate;
 }(Constant));
@@ -399,9 +409,19 @@ var Variable = (function (_super) {
     Variable.prototype.evaluate = function (owner) {
         return 0;
     };
+    Variable.prototype.evaluatePreliminary = function (owner) {
+        return 0;
+    };
     return Variable;
 }(Operand));
 exports.Variable = Variable;
+function isTvariable(val) {
+    if (val instanceof Variable)
+        return true;
+    else
+        return isTnumber(val);
+}
+exports.isTvariable = isTvariable;
 var Relative = (function (_super) {
     __extends(Relative, _super);
     function Relative(target, offset) {
@@ -411,6 +431,9 @@ var Relative = (function (_super) {
         this.target = target;
         this.offset = offset;
     }
+    Relative.fromExpression = function (expr) {
+        return new Relative(expr);
+    };
     Relative.prototype.canEvaluate = function (owner) {
         if (!owner || (owner.offset === -1))
             return false;

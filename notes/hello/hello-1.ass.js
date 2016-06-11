@@ -1,0 +1,15 @@
+"use strict";
+var operand_1 = require('../../x86/operand');
+var code_1 = require('../../x86/x64/code');
+var StaticBuffer = require('../../../static-buffer/buffer').StaticBuffer;
+var _ = code_1.Code.create('hello_world_app');
+_.db('Hello World!\n');
+_.movq(operand_1.rax, 1);
+_.movq(operand_1.rdi, 1);
+_.lea(operand_1.rsi, operand_1.rip.disp(-34));
+_.movq(operand_1.rdx, 13);
+_.syscall();
+_.ret();
+var bin = _.compile();
+console.log(_.toString());
+StaticBuffer.from(bin, 'rwe').call([], 13);

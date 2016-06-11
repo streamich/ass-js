@@ -1,16 +1,35 @@
 import {R64, R32, R16, R8, R8H, SEG} from './regfile';
 import {number64, Tnumber, isTnumber, SIZE, TUiOperand, TUiOperandNormalized,
-    Operand, Constant, Relative, Register as RegisterBase, Memory as MemoryBase} from '../operand';
+    Operand, Constant, Immediate, Relative, Register as RegisterBase, Memory as MemoryBase} from '../operand';
 import * as o from '../operand';
 import * as t from './table';
+import * as ii from '../instruction';
 import * as i from './instruction';
 
 
-export class DisplacementValue extends Constant {
+export class DisplacementValue extends Immediate {
+
     static SIZE = {
         DISP8:  SIZE.B,
         DISP32: SIZE.D,
     };
+
+    static fromExpression(expr: ii.Expression) {
+        var rel = o.Relative.fromExpression(expr);
+        return DisplacementValue.fromVariable(rel);
+    }
+
+    static fromVariable(value: o.Tvariable) {
+        var disp: DisplacementValue;
+        if(value instanceof o.Variable) {
+            disp = new DisplacementValue(0);
+            disp.setVariable(value as o.Variable);
+        } else if(o.isTnumber(value)) {
+            disp = new DisplacementValue(value as o.Tnumber);
+        } else
+            throw TypeError('Displacement must be of type Tvariable.');
+        return disp;
+    }
 
     constructor(value: number|number64) {
         super(value, true);
@@ -61,7 +80,7 @@ export class Register extends RegisterBase {
         return (new Memory).ind(this, scale_factor);
     }
 
-    disp(value: number): Memory {
+    disp(value: o.Tvariable): Memory {
         return (new Memory).ref(this).disp(value);
     }
 
@@ -102,12 +121,9 @@ export class Register64 extends Register {
 }
 
 export class RegisterRip extends Register64 {
+    name = 'rip';
     constructor() {
         super(0);
-    }
-
-    getName() {
-        return 'rip';
     }
 }
 
@@ -299,8 +315,11 @@ export class Memory extends MemoryBase {
         return this;
     }
 
-    disp(value: number|number64): this {
-        this.displacement = new DisplacementValue(value);
+    disp(value: o.Tvariable|ii.Expression): this {
+        if(value instanceof ii.Expression)
+            this.displacement = DisplacementValue.fromExpression(value as ii.Expression);
+        else
+            this.displacement = DisplacementValue.fromVariable(value as o.Tvariable);
         return this;
     }
 

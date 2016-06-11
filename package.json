@@ -1,6 +1,6 @@
 {
-  "name": "rgasm",
-  "description": "Generates x86 machine code from assembly instructions",
+  "name": "ass-js",
+  "description": "Assembler.js",
   "version": "1.0.0",
   "keywords": [
     "x86",
@@ -17,7 +17,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/streamich/rgasm"
+    "url": "http://github.com/streamich/ass-js"
   },
   "main": "index.js"
 }

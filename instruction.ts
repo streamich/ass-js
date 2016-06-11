@@ -6,8 +6,8 @@ import * as c from './code';
 import {UInt64} from './util';
 
 
-export const SIZE_UNKNOWN = -1;
-export const OFFSET_UNKNOWN = -1;
+export const SIZE_UNKNOWN = -Infinity;
+export const OFFSET_UNKNOWN = -Infinity;
 
 
 export class Expression {
@@ -38,6 +38,11 @@ export class Expression {
         return this.bytes();
     }
 
+    isFixedSize(): boolean {
+        if(this.length === SIZE_UNKNOWN) return false;
+        return this.bytes() === this.bytesMax();
+    }
+
     // Whether the size of this `Expression` is determined.
     hasSize() {
         return this.bytes() !== SIZE_UNKNOWN;
@@ -63,9 +68,8 @@ export class Expression {
             }
             if(prev.offset === OFFSET_UNKNOWN) this.offset = OFFSET_UNKNOWN;
             else {
-                var bytes = prev.bytes();
-                if(bytes === SIZE_UNKNOWN) this.offset = OFFSET_UNKNOWN;
-                else this.offset = prev.offset + bytes;
+                if(!prev.isFixedSize()) this.offset = OFFSET_UNKNOWN;
+                else this.offset = prev.offset + prev.bytes();
             }
         }
     }
@@ -105,13 +109,13 @@ export class Expression {
 
     formatOffset() {
         var offset = '______';
-        if(this.offset !== -1) {
+        if(this.offset >= 0) {
             offset = this.offset.toString(16).toUpperCase();
             offset = (new Array(7 - offset.length)).join('0') + offset;
         }
 
         var max_offset = '______';
-        if(this.offsetMax !== -1) {
+        if(this.offsetMax >= 0) {
             max_offset = this.offsetMax.toString(16).toUpperCase();
             max_offset = (new Array(7 - max_offset.length)).join('0') + max_offset;
         }
@@ -412,7 +416,20 @@ export class DataVariable extends ExpressionVariable implements IData {
 }
 
 
-export class Instruction extends ExpressionVariable {
+// Expression which, not only has variable operands, but which may evaluate to different sizes.
+export abstract class ExpressionVolatile extends ExpressionVariable {
+    // If `Expression` can generate different size machine code this method forces it to pick one.
+    abstract getFixedSizeExpression();
+
+    lengthMax = 0;
+
+    bytesMax(): number {
+        return this.lengthMax;
+    }
+}
+
+
+export class Instruction extends ExpressionVolatile {
     def: Def = null; // Definition on how to construct this instruction.
 
     build(): this {
@@ -424,9 +441,10 @@ export class Instruction extends ExpressionVariable {
         return arr;
     }
 
-    evaluate(): boolean {
-        return super.evaluate();
+    getFixedSizeExpression() {
+        return this;
     }
+
 
     toString(margin = '    ', comment = true) {
         var parts = [];
@@ -446,13 +464,6 @@ export class Instruction extends ExpressionVariable {
 
         return expression + cmt;
     }
-}
-
-
-// Expression which, not only has operands, but which may evaluate to different sizes.
-export abstract class ExpressionVolatile extends ExpressionVariable {
-    // If `Expression` can generate different size machine code this method forces it to pick one.
-    abstract getFixedSizeExpression();
 }
 
 
@@ -523,7 +534,7 @@ export class InstructionSet extends ExpressionVolatile {
         var max = 0;
         for(var ins of this.insn) {
             if(ins) {
-                var bytes = ins.bytes();
+                var bytes = ins.bytesMax();
                 if (bytes > max) max = bytes;
             }
         }

@@ -1,8 +1,8 @@
 {rax, rdx, rsi, rdi, rip} = require '../x86/operand'
-{Code} = require '../x64/code'
-StaticBuffer = require('../../static-buffer/buffer').StaticBuffer
+{Code} = require '../x86/x64/code'
+{StaticBuffer} = require '../../static-buffer/buffer'
 
-_ = new Code
+_ = Code.create()
 
 msg = 'Hello World!\n'
 _.movq rax, 1
@@ -13,5 +13,4 @@ _.syscall()
 _.ret()
 _.db msg
 
-console.log _.toString()
 StaticBuffer.from(_.compile(), 'rwe').call()

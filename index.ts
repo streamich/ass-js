@@ -1,9 +1,4 @@
-import * as x86_x64 from './x86/x64/code';
+import * as _x86 from './x86/export';
 
 
-export namespace x86 {
-    export namespace x64 {
-        export var Code = x86_x64.Code;
-    }
-}
-
+export var x86 = _x86;

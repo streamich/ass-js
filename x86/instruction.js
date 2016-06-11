@@ -51,6 +51,7 @@ var Instruction = (function (_super) {
         this.displacement = null;
         this.immediates = [];
         this.length = 0;
+        this.lengthMax = 0;
         this.createPrefixes();
         this.createOpcode();
         this.createModrm();
@@ -93,6 +94,21 @@ var Instruction = (function (_super) {
             }
         return arr;
     };
+    Instruction.prototype.fixDisplacementSize = function () {
+        if (this.displacement && this.displacement.value.variable) {
+            var variable = this.displacement.value.variable;
+            var val = variable.evaluatePreliminary(this);
+            var size = oo.Constant.sizeClass(val);
+            if (size > o.DisplacementValue.SIZE.DISP8)
+                this.length += o.DisplacementValue.SIZE.DISP32 / 8;
+            else
+                this.length += o.DisplacementValue.SIZE.DISP8 / 8;
+        }
+    };
+    Instruction.prototype.getFixedSizeExpression = function () {
+        this.fixDisplacementSize();
+        return _super.prototype.getFixedSizeExpression.call(this);
+    };
     Instruction.prototype.evaluate = function () {
         this.ops.evaluate(this);
         var max = 2;
@@ -103,10 +119,18 @@ var Instruction = (function (_super) {
                 this.immediates[j].value.setValue(res);
             }
         }
+        if (this.displacement && this.displacement.value.variable) {
+            var value = this.displacement.value;
+            var variable = value.variable;
+            var val = variable.evaluate(this);
+            var size = value.size;
+            value.setValue(val);
+            if (value.size > size)
+                throw Error("Displacement does not fit in " + size + " bits.");
+            else
+                value.signExtend(size);
+        }
         return _super.prototype.evaluate.call(this);
-    };
-    Instruction.prototype.bytes = function () {
-        return this.length;
     };
     Instruction.prototype.lock = function () {
         if (!this.def.lock)
@@ -199,10 +223,12 @@ var Instruction = (function (_super) {
         if (this.needsOperandSizeOverride()) {
             this.pfxOpSize = new p.PrefixOperandSizeOverride;
             this.length++;
+            this.lengthMax++;
         }
         if (this.needsAddressSizeOverride()) {
             this.pfxAddrSize = new p.PrefixAddressSizeOverride;
             this.length++;
+            this.lengthMax++;
         }
         if (this.def.prefixes) {
             for (var _i = 0, _a = this.def.prefixes; _i < _a.length; _i++) {
@@ -210,6 +236,7 @@ var Instruction = (function (_super) {
                 this.prefixes.push(new p.PrefixStatic(val));
             }
             this.length += this.def.prefixes.length;
+            this.lengthMax += this.def.prefixes.length;
         }
     };
     Instruction.prototype.createOpcode = function () {
@@ -237,7 +264,9 @@ var Instruction = (function (_super) {
                 opcode.op = (opcode.op & p.Opcode.MASK_DIRECTION) | direction;
             }
         }
-        this.length += opcode.bytes();
+        var bytes = opcode.bytes();
+        this.length += bytes;
+        this.lengthMax += bytes;
     };
     Instruction.prototype.createModrm = function () {
         if (!this.def.useModrm)
@@ -258,6 +287,7 @@ var Instruction = (function (_super) {
                     rm = r.get3bitId();
                     this.modrm = new p.Modrm(mod, reg, rm);
                     this.length++;
+                    this.lengthMax++;
                     return;
                 }
             }
@@ -271,6 +301,7 @@ var Instruction = (function (_super) {
             if (!dst) {
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
+                this.lengthMax++;
                 return;
             }
             if ((dst instanceof o.Register) && (src instanceof o.Register)) {
@@ -279,12 +310,14 @@ var Instruction = (function (_super) {
                 rm = rmreg.get3bitId();
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
+                this.lengthMax++;
                 return;
             }
             var m = this.ops.getMemoryOperand();
             if (!m) {
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
+                this.lengthMax++;
                 return;
             }
             if (!m.base && !m.index && !m.displacement)
@@ -297,6 +330,7 @@ var Instruction = (function (_super) {
                 rm = p.Modrm.RM.NEEDS_SIB;
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
+                this.lengthMax++;
                 return;
             }
             if (m.base && !m.index) {
@@ -306,6 +340,7 @@ var Instruction = (function (_super) {
                 rm = m.base.get3bitId();
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
+                this.lengthMax++;
                 return;
             }
             if (m.base || m.index) {
@@ -316,6 +351,7 @@ var Instruction = (function (_super) {
                 rm = p.Modrm.RM.NEEDS_SIB;
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
+                this.lengthMax++;
                 return;
             }
             throw Error('Fatal error, unreachable code.');
@@ -349,12 +385,20 @@ var Instruction = (function (_super) {
             B = p.Sib.BASE_NONE;
         this.sib = new p.Sib(scalefactor, I, B);
         this.length++;
+        this.lengthMax++;
     };
     Instruction.prototype.createDisplacement = function () {
         var m = this.ops.getMemoryOperand();
         if (m && m.displacement) {
             this.displacement = new p.Displacement(m.displacement);
-            this.length += this.displacement.value.size / 8;
+            if (m.displacement.variable) {
+                this.lengthMax += o.DisplacementValue.SIZE.DISP32 / 8;
+            }
+            else {
+                var size = this.displacement.value.size / 8;
+                this.length += size;
+                this.lengthMax += size;
+            }
         }
         else if (this.modrm && this.sib && (this.sib.B === p.Sib.BASE_NONE)) {
             var disp = null;
@@ -374,7 +418,9 @@ var Instruction = (function (_super) {
             }
             if (disp)
                 this.displacement = new p.Displacement(disp);
-            this.length += this.displacement.value.size / 8;
+            var size = this.displacement.value.size / 8;
+            this.length += size;
+            this.lengthMax += size;
         }
     };
     Instruction.prototype.createImmediates = function () {
@@ -385,7 +431,9 @@ var Instruction = (function (_super) {
             if (imm) {
                 immp = new p.Immediate(imm);
                 this.immediates[j] = immp;
-                this.length += immp.value.size >> 3;
+                var size = immp.value.size >> 3;
+                this.length += size;
+                this.lengthMax += size;
             }
             else {
                 var rel = this.ops.getRelative(j);
@@ -393,7 +441,9 @@ var Instruction = (function (_super) {
                     var immval = oo.Immediate.factory(rel.size, 0);
                     immp = new p.Immediate(immval);
                     this.immediates[j] = immp;
-                    this.length += rel.size >> 3;
+                    var size = rel.size >> 3;
+                    this.length += size;
+                    this.lengthMax += size;
                 }
             }
         }

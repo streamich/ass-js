@@ -4,7 +4,12 @@ import * as o from '../x86/operand';
 import {Code} from '../x86/x64/code';
 
 
-var table = (new d.DefTable).create(t.table, t.defaults);
+console.log(Code.table.toString());
+
+
+// var table = (new d.DefTable).create(t.table, t.defaults);
+// console.log(table.toString());
+
 // var ops = new o.Operands([o.rax]);
 // var code = new Code;
 // console.log(table);
@@ -32,7 +37,7 @@ var table = (new d.DefTable).create(t.table, t.defaults);
 
 // var ops = new o.Operands([o.al]);
 
-console.log(table.toString());
+
 
 // console.log(table);
 // console.log(table.find('push', ops, o.SIZE.ANY));

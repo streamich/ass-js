@@ -12,15 +12,17 @@ const methods = code.Code.attachMethods({} as any, table);
 
 export class Code extends code.Code {
 
+    static table = table;
+
     private static _methodsAdded = false;
 
-    static create() {
+    static create(name: string) {
         if(!Code._methodsAdded) {
             extend(Code.prototype, methods);
             Code._methodsAdded = true;
         }
 
-        var newcode = new Code;
+        var newcode = new Code(name);
         // newcode.addMethods();
         return newcode;
     }

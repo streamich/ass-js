@@ -21,14 +21,15 @@ var Code = (function (_super) {
         this.operandSize = operand_1.SIZE.D;
         this.addressSize = operand_1.SIZE.Q;
     }
-    Code.create = function () {
+    Code.create = function (name) {
         if (!Code._methodsAdded) {
             util_1.extend(Code.prototype, methods);
             Code._methodsAdded = true;
         }
-        var newcode = new Code;
+        var newcode = new Code(name);
         return newcode;
     };
+    Code.table = exports.table;
     Code._methodsAdded = false;
     return Code;
 }(code.Code));

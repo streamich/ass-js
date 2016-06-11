@@ -4,11 +4,11 @@
 
   ref = require('../x86/operand'), rax = ref.rax, rdx = ref.rdx, rsi = ref.rsi, rdi = ref.rdi, rip = ref.rip;
 
-  Code = require('../x64/code').Code;
+  Code = require('../x86/x64/code').Code;
 
   StaticBuffer = require('../../static-buffer/buffer').StaticBuffer;
 
-  _ = new Code;
+  _ = Code.create();
 
   msg = 'Hello World!\n';
 
@@ -25,8 +25,6 @@
   _.ret();
 
   _.db(msg);
-
-  console.log(_.toString());
 
   StaticBuffer.from(_.compile(), 'rwe').call();
 

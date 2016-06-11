@@ -7,11 +7,29 @@ var __extends = (this && this.__extends) || function (d, b) {
 var regfile_1 = require('./regfile');
 var operand_1 = require('../operand');
 var o = require('../operand');
+var ii = require('../instruction');
 var DisplacementValue = (function (_super) {
     __extends(DisplacementValue, _super);
     function DisplacementValue(value) {
         _super.call(this, value, true);
     }
+    DisplacementValue.fromExpression = function (expr) {
+        var rel = o.Relative.fromExpression(expr);
+        return DisplacementValue.fromVariable(rel);
+    };
+    DisplacementValue.fromVariable = function (value) {
+        var disp;
+        if (value instanceof o.Variable) {
+            disp = new DisplacementValue(0);
+            disp.setVariable(value);
+        }
+        else if (o.isTnumber(value)) {
+            disp = new DisplacementValue(value);
+        }
+        else
+            throw TypeError('Displacement must be of type Tvariable.');
+        return disp;
+    };
     DisplacementValue.prototype.setValue32 = function (value) {
         _super.prototype.setValue32.call(this, value);
     };
@@ -20,7 +38,7 @@ var DisplacementValue = (function (_super) {
         DISP32: operand_1.SIZE.D,
     };
     return DisplacementValue;
-}(operand_1.Constant));
+}(operand_1.Immediate));
 exports.DisplacementValue = DisplacementValue;
 var Register = (function (_super) {
     __extends(Register, _super);
@@ -108,10 +126,8 @@ var RegisterRip = (function (_super) {
     __extends(RegisterRip, _super);
     function RegisterRip() {
         _super.call(this, 0);
+        this.name = 'rip';
     }
-    RegisterRip.prototype.getName = function () {
-        return 'rip';
-    };
     return RegisterRip;
 }(Register64));
 exports.RegisterRip = RegisterRip;
@@ -278,7 +294,10 @@ var Memory = (function (_super) {
         return this;
     };
     Memory.prototype.disp = function (value) {
-        this.displacement = new DisplacementValue(value);
+        if (value instanceof ii.Expression)
+            this.displacement = DisplacementValue.fromExpression(value);
+        else
+            this.displacement = DisplacementValue.fromVariable(value);
         return this;
     };
     Memory.prototype.toString = function () {

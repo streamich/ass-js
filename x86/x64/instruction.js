@@ -76,16 +76,13 @@ var Instruction = (function (_super) {
         }
         this.pfxRex = new p.PrefixRex(W, R, X, B);
         this.length++;
+        this.lengthMax++;
     };
     Instruction.prototype.createModrm = function () {
         var mem = this.ops.getMemoryOperand();
         if (mem && mem.base && (mem.base instanceof o.RegisterRip)) {
             if (mem.index || mem.scale)
                 throw TypeError('RIP-relative addressing does not support index and scale addressing.');
-            if (!mem.displacement)
-                mem.disp(0);
-            if (mem.displacement.size < operand_1.SIZE.D)
-                mem.displacement.zeroExtend(operand_1.SIZE.D);
             var reg = 0;
             if (this.def.opreg > -1) {
                 reg = this.def.opreg;
@@ -97,9 +94,32 @@ var Instruction = (function (_super) {
             }
             this.modrm = new p.Modrm(p.Modrm.MOD.INDIRECT, reg, p.Modrm.RM.INDIRECT_DISP);
             this.length++;
+            this.lengthMax++;
         }
         else
             _super.prototype.createModrm.call(this);
+    };
+    Instruction.prototype.fixDisplacementSize = function () {
+        var mem = this.ops.getMemoryOperand();
+        if (mem && (typeof mem == 'object') && (mem.base instanceof o.RegisterRip)) {
+        }
+        else
+            _super.prototype.fixDisplacementSize.call(this);
+    };
+    Instruction.prototype.createDisplacement = function () {
+        var mem = this.ops.getMemoryOperand();
+        if (mem && (typeof mem == 'object') && (mem.base instanceof o.RegisterRip)) {
+            if (!mem.displacement)
+                mem.disp(0);
+            var size = o.DisplacementValue.SIZE.DISP32;
+            if (mem.displacement.size < size)
+                mem.displacement.signExtend(size);
+            this.displacement = new p.Displacement(mem.displacement);
+            this.length += size / 8;
+            this.lengthMax += size / 8;
+        }
+        else
+            return _super.prototype.createDisplacement.call(this);
     };
     return Instruction;
 }(i.Instruction));
