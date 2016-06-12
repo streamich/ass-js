@@ -51,6 +51,7 @@ export class Code extends CodeBase {
     mode: t.MODE = t.MODE.X64;
 
     ClassInstruction: typeof i.Instruction = i.Instruction;
+    AlignExpression = i.Align;
     ClassOperands = o.Operands;
 
     protected createInstructionFromGroupSize(bySize: {[s: number]: d.Def[]}, size: oo.SIZE, ui_ops: oo.TOperand[]): any {

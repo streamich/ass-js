@@ -16,6 +16,7 @@ var Code = (function (_super) {
         _super.apply(this, arguments);
         this.mode = t.MODE.X64;
         this.ClassInstruction = i.Instruction;
+        this.AlignExpression = i.Align;
         this.ClassOperands = o.Operands;
     }
     Code.attachMethods = function (ctx, table) {

@@ -123,6 +123,94 @@ var PrefixRex = (function (_super) {
     return PrefixRex;
 }(Prefix));
 exports.PrefixRex = PrefixRex;
+var PrefixVex = (function (_super) {
+    __extends(PrefixVex, _super);
+    function PrefixVex(vexdef, R, X, B, vvvv) {
+        if (R === void 0) { R = 1; }
+        if (X === void 0) { X = 1; }
+        if (B === void 0) { B = 1; }
+        if (vvvv === void 0) { vvvv = 15; }
+        _super.call(this);
+        this.bytes = 2;
+        this.R = 1;
+        this.X = 1;
+        this.B = 1;
+        this.W = 1;
+        this.vvvv = 15;
+        this.mmmmm = 0;
+        this.L = 0;
+        this.pp = 0;
+        this.L = vexdef.L;
+        this.mmmmm = vexdef.mmmmm;
+        this.pp = vexdef.pp;
+        this.W = vexdef.W;
+        console.log(R, X, B, vvvv, this.W, this.mmmmm);
+        this.R = R;
+        this.X = X;
+        this.B = B;
+        this.vvvv = vvvv;
+        if ((this.X === 0) || (this.B === 0) ||
+            ((this.W === 0) && !vexdef.WIG) ||
+            (this.mmmmm === PrefixVex.MMMMM.x0F3A) || (this.mmmmm === PrefixVex.MMMMM.x0F38))
+            this.promoteTo3bytes();
+    }
+    PrefixVex.prototype.promoteTo3bytes = function () {
+        this.bytes = 3;
+    };
+    PrefixVex.prototype.write = function (arr) {
+        if (this.bytes === 2) {
+            arr.push(197);
+            arr.push((this.R << 7) | (this.vvvv << 3) | (this.L << 2) | this.pp);
+        }
+        else {
+            arr.push(196);
+            arr.push((this.R << 7) | (this.X << 6) | (this.B << 5) | this.mmmmm);
+            arr.push((this.W << 7) | (this.vvvv << 3) | (this.L << 2) | this.pp);
+        }
+        return arr;
+    };
+    PrefixVex.PP = {
+        x66: 1,
+        xF2: 3,
+        xF3: 2,
+    };
+    PrefixVex.MMMMM = {
+        x0F38: 2,
+        x0F3A: 3,
+        x0F: 1,
+    };
+    return PrefixVex;
+}(Prefix));
+exports.PrefixVex = PrefixVex;
+var PrefixEvex = (function (_super) {
+    __extends(PrefixEvex, _super);
+    function PrefixEvex() {
+        _super.apply(this, arguments);
+        this.R = 0;
+        this.X = 0;
+        this.B = 0;
+        this.Rp = 0;
+        this.mm = 0;
+        this.W = 0;
+        this.vvvv = 0;
+        this.pp = 0;
+        this.z = 0;
+        this.Lp = 0;
+        this.L = 0;
+        this.b = 0;
+        this.Vp = 0;
+        this.aaa = 0;
+    }
+    PrefixEvex.prototype.write = function (arr) {
+        arr.push(0x62);
+        arr.push((this.R << 7) | (this.X << 6) | (this.B << 5) | (this.Rp << 4) | this.mm);
+        arr.push((this.W << 7) | (this.vvvv << 3) | 0x00000100 | this.pp);
+        arr.push((this.z << 7) | (this.Lp << 6) | (this.L << 5) | (this.b << 4) | (this.Vp << 3) | this.aaa);
+        return arr;
+    };
+    return PrefixEvex;
+}(Prefix));
+exports.PrefixEvex = PrefixEvex;
 var Opcode = (function (_super) {
     __extends(Opcode, _super);
     function Opcode() {

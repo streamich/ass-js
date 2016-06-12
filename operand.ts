@@ -4,14 +4,30 @@ import * as i from './instruction';
 
 
 export enum SIZE {
-    ANY     = -1,   // Any size.
-    NONE    = 0,    // Either unknown or not specified yet.
-    B       = 8,
-    W       = 16,
-    D       = 32,
-    Q       = 64,
-    T       = 80,
-    O       = 128,
+    ANY     = -1,       // Any size.
+    NONE    = 0,        // Either unknown or not specified yet.
+    B       = 8,        // byte
+    W       = 16,       // word
+    D       = 32,       // double word = 2x word
+    Q       = 64,       // quad word = 4x word
+    T       = 80,       // ten = 10 bytes
+    O       = 128,      // octa word = 8x word
+    H       = 256,      // hexadeca word = 16x word
+    I       = 512,      // dItriaconta word = 32x word
+    X       = SIZE.O,   // xmm register
+    Y       = SIZE.H,   // ymm register
+    Z       = SIZE.Y,   // zmm register
+    A       = 1024,     // amm register
+}
+
+export enum SIZEB {
+    B1      = SIZE.B,
+    B2      = SIZE.W,
+    B4      = SIZE.D,
+    B8      = SIZE.Q,
+    B16     = SIZE.O,
+    B32     = SIZE.H,
+    B64     = SIZE.I,
 }
 
 
@@ -31,12 +47,38 @@ export function isNumber128(num) {
     else return false;
 }
 
+function isNumberOfDoubles(doubles, num) {
+    if(!(num instanceof Array) || (num.length !== doubles)) return false;
+    for(var j = 0; j < doubles; j++)
+        if(typeof num[j] !== 'number') return false;
+    return true;
+}
+
+// 256-bit numbers
+export type number256 = [number, number, number, number, number, number, number, number];
+export function isNumber256(num) { return isNumberOfDoubles(8, num); }
+
+// 512-bit numbers
+export type number512 = [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number];
+export function isNumber512(num) { return isNumberOfDoubles(16, num); }
+
+// AVX-512 extension says registers will be "at least" 512 bits, so can be 1024 bits and maybe even 2048 bits.
+export type number1024 = [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number];
+export type number2048 = [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number];
+export function isNumber1024(num) { return isNumberOfDoubles(32, num); }
+export function isNumber2048(num) { return isNumberOfDoubles(64, num); }
+
+
 // Combined type of all basic "numbers".
-export type Tnumber = number|number64|number128;
+export type Tnumber = number|number64|number128|number256|number512|number1024|number2048;
 export function isTnumber(num) {
     if(typeof num === 'number') return true;
-    else if(isNumber64(num)) return true;
-    else return isNumber128(num);
+    else if(isNumber64(num))    return true;
+    else if(isNumber128(num))   return true;
+    else if(isNumber256(num))   return true;
+    else if(isNumber512(num))   return true;
+    else if(isNumber1024(num))  return true;
+    else                        return isNumber2048(num);
 }
 
 
@@ -341,6 +383,21 @@ export abstract class Register extends Operand {
 
     getName() {
         return this.name;
+    }
+
+    idSize() { // In bits
+        if(this.id < 0b1000)    return 3;
+        if(this.id < 0b10000)   return 4;
+        if(this.id < 0b100000)  return 5;
+        throw Error('Register ID too big.');
+    }
+
+    get3bitId() {
+        return this.id & 0b111;
+    }
+
+    get4bitId() {
+        return this.id & 0b1111;
     }
 
     toNumber() {

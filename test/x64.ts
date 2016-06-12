@@ -238,6 +238,7 @@ describe('x64', function() {
                 var _ = code64();
                 _.adcx(rcx, rbx);
                 var bin = compile(_);
+                // console.log(new Buffer(bin));
                 expect(bin).to.eql([0x66, 0x48, 0x0F, 0x38, 0xF6, 0xCB]);
             });
             it('adcx rax, rax', function () { // 66 48 0f 38 f6 c0    	adcx   %rax,%rax

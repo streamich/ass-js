@@ -11,6 +11,25 @@ export const SIZE_UNKNOWN = -1;
 
 export abstract class Expression extends i.Expression {}
 
+
+export class Align extends i.Align {
+
+    static nop = [
+        [0x90],                                                 // 1 byte : NOP = XCHG (E)AX, (E)AX
+        [0x66, 0x90],                                           // 2 : 66 NOP
+        [0x0F, 0x1F, 0x00],                                     // 3 : NOP DWORD ptr [EAX]
+        [0x0F, 0x1F, 0x40, 0x00],                               // 4 : NOP DWORD ptr [EAX + 00H]
+        [0x0F, 0x1F, 0x44, 0x00, 0x00],                         // 5 : NOP DWORD ptr [EAX + EAX*1 + 00H]
+        [0x66, 0x0F, 0x1F, 0x44, 0x00, 0x00],                   // 6 : 66 NOP DWORD ptr [EAX + EAX*1 + 00H]
+        [0x0F, 0x1F, 0x80, 0x00, 0x00, 0x00, 0x00],             // 7 : NOP DWORD ptr [EAX + 00000000H]
+        [0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00],       // 8 : NOP DWORD ptr [EAX + EAX*1 + 00000000H]
+        [0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00], // 9 : 66 NOP DWORD ptr [EAX + EAX*1 + 00000000H]
+    ];
+    
+    templates = Align.nop;
+}
+
+
 export interface IInstruction {
     lock(): this;
     bt(): this;
@@ -46,6 +65,7 @@ export class Instruction extends i.Instruction implements IInstruction {
     pfxRepne: p.PrefixRepne = null;
     pfxSegment: p.PrefixStatic = null;
     prefixes: p.PrefixStatic[] = [];
+    pfxEx: p.PrefixRex|p.PrefixVex|p.PrefixEvex = null;  // One of REX, VEX, EVEX prefixes, only one allowed.
     opcode: p.Opcode = new p.Opcode; // required
     modrm: p.Modrm = null;
     sib: p.Sib = null;
@@ -86,13 +106,14 @@ export class Instruction extends i.Instruction implements IInstruction {
     }
 
     protected writePrefixes(arr: number[]) {
-        if(this.pfxLock)     this.pfxLock.write(arr);
-        if(this.pfxRep)      this.pfxRep.write(arr);
-        if(this.pfxRepne)    this.pfxRepne.write(arr);
-        if(this.pfxAddrSize) this.pfxAddrSize.write(arr);
-        if(this.pfxSegment)  this.pfxSegment.write(arr);
-        if(this.pfxOpSize)   this.pfxOpSize.write(arr);
+        if(this.pfxLock)        this.pfxLock.write(arr);
+        if(this.pfxRep)         this.pfxRep.write(arr);
+        if(this.pfxRepne)       this.pfxRepne.write(arr);
+        if(this.pfxAddrSize)    this.pfxAddrSize.write(arr);
+        if(this.pfxSegment)     this.pfxSegment.write(arr);
+        if(this.pfxOpSize)      this.pfxOpSize.write(arr);
         for(var pfx of this.prefixes) pfx.write(arr);
+        if(this.pfxEx)          this.pfxEx.write(arr);
     }
 
     write(arr: number[]): number[] {
@@ -258,6 +279,8 @@ export class Instruction extends i.Instruction implements IInstruction {
             this.lengthMax++;
         }
 
+        if(this.def.vex) this.createVexPrefix();
+
         // Mandatory prefixes required by op-code.
         if(this.def.prefixes) {
             for(var val of this.def.prefixes) {
@@ -266,6 +289,64 @@ export class Instruction extends i.Instruction implements IInstruction {
             this.length += this.def.prefixes.length;
             this.lengthMax += this.def.prefixes.length;
         }
+    }
+
+    protected createVexPrefix() {
+        // These bits in VEX are inverted, so they actually all mean "0" zeros.
+        var R = 1, X = 1, B = 1, vvvv = 0b1111;
+
+        var pos = this.def.opEncoding.indexOf('v');
+        if(pos > -1) {
+            var reg = this.ops.getRegisterOperand(pos);
+            if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode VEX.vvvv`);
+            vvvv = (~reg.get4bitId()) & 0b1111; // Inverted
+        }
+
+        pos = this.def.opEncoding.indexOf('r');
+        if(pos > -1) {
+            var reg = this.ops.getRegisterOperand(pos);
+            if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode VEX.R`);
+            if(reg.idSize() > 3) R = 0; // Inverted
+        }
+
+        pos = this.def.opEncoding.indexOf('m');
+        if(pos > -1) {
+            var reg = this.ops.getRegisterOperand(pos);
+            if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode VEX.B`);
+            if(reg.idSize() > 3) B = 0; // Inverted
+        } else {
+            var mem = this.ops.getMemoryOperand() as o.Memory;
+            if(mem.base && (mem.base.idSize() > 3)) B = 0;
+            if(mem.index && (mem.index.idSize() > 3)) X = 0;
+        }
+
+        // switch(this.def.vex.vvvv) {
+        //     case 'NDS':
+                // VEX.NDS: VEX.vvvv encodes the first source register in an instruction syntax where the content of
+                // source registers will be preserved.
+                // var r = this.ops.list[1] as o.Register;
+                // vvvv = (~r.get4bitId()) & 0b1111;
+                // break;
+            // case 'NDD':
+                // VEX.NDD: VEX.vvvv encodes the destination register that cannot be encoded by ModR/M:reg field.
+                // var r = this.ops.list[0] as o.Register;
+                // vvvv = (~r.get4bitId()) & 0b1111;
+                // break;
+            // case 'DDS':
+                // VEX.DDS: VEX.vvvv encodes the second source register in a three-operand instruction syntax where
+                // the content of first source register will be overwritten by the result.
+                // var r = this.ops.list[2] as o.Register;
+                // vvvv = (~r.get4bitId()) & 0b1111;
+                // break;
+            // If none of NDS, NDD, and DDS is present, VEX.vvvv must be 1111b
+            // {Already set to 0b1111}
+        // }
+
+        var vex = new p.PrefixVex(this.def.vex, R, X, B, vvvv);
+
+        this.pfxEx = vex;
+        this.length += vex.bytes;
+        this.lengthMax += vex.bytes;
     }
 
     protected createOpcode() {
@@ -325,7 +406,7 @@ export class Instruction extends i.Instruction implements IInstruction {
             if(has_opreg) {
                 // If we have `opreg`, then instruction has up to one operand.
                 reg = this.def.opreg;
-                var r: o.Register = this.ops.getRegisterOperand();
+                var r: o.Register = this.ops.getRegisterOperand() as o.Register;
                 if (r) {
                     mod = p.Modrm.MOD.REG_TO_REG;
                     rm = r.get3bitId();
@@ -335,9 +416,15 @@ export class Instruction extends i.Instruction implements IInstruction {
                     return;
                 }
             } else {
+                // var pos = this.def.opEncoding.indexOf('r');
+                // if(pos > -1) {
+                //
+                // }
+
                 // var r: o.Register = this.op.getRegisterOperand(this.regToRegDirectionRegIsDst);
-                var r: o.Register = this.ops.getRegisterOperand(reg_is_dst) as o.Register;
-                if (r) {
+                var r: o.Register = this.ops.getRegisterOperand(this.regToRegDirectionRegIsDst ? 0 : 1) as o.Register;
+                if(!r) r = this.ops.getRegisterOperand() as o.Register;
+                if(r) {
                     mod = p.Modrm.MOD.REG_TO_REG;
                     reg = r.get3bitId();
                 }
@@ -353,8 +440,9 @@ export class Instruction extends i.Instruction implements IInstruction {
             // Reg-to-reg instruction;
             if((dst instanceof o.Register) && (src instanceof o.Register)) {
                 mod = p.Modrm.MOD.REG_TO_REG;
-                // var rmreg: o.Register = (this.regToRegDirectionRegIsDst ? src : dst) as o.Register;
+                var regreg: o.Register = (reg_is_dst ? dst : src) as o.Register;
                 var rmreg: o.Register = (reg_is_dst ? src : dst) as o.Register;
+                reg = regreg.get3bitId();
                 rm = rmreg.get3bitId();
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;

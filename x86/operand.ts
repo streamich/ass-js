@@ -1,4 +1,4 @@
-import {R64, R32, R16, R8, R8H, SEG} from './regfile';
+import {R64, R32, R16, R8, R8H, SEG, X87, XMM, YMM, ZMM} from './regfile';
 import {number64, Tnumber, isTnumber, SIZE, TUiOperand, TUiOperandNormalized,
     Operand, Constant, Immediate, Relative, Register as RegisterBase, Memory as MemoryBase} from '../operand';
 import * as o from '../operand';
@@ -88,13 +88,11 @@ export class Register extends RegisterBase {
     isExtended() {
         return this.id > 0b111;
     }
-
-    get3bitId() {
-        return this.id & 0b111;
-    }
 }
 
-export class Register8 extends Register {
+export class RegisterGP extends Register {}
+
+export class Register8 extends RegisterGP {
     constructor(id: number) {
         super(id, SIZE.B);
     }
@@ -108,115 +106,80 @@ export class Register16 extends Register {
     }
 }
 
-export class Register32 extends Register {
+export class Register32 extends RegisterGP {
     constructor(id: number) {
         super(id, SIZE.D);
     }
 }
 
-export class Register64 extends Register {
+export class Register64 extends RegisterGP {
     constructor(id: number) {
         super(id, SIZE.Q);
     }
 }
 
-export class RegisterRip extends Register64 {
-    name = 'rip';
-    constructor() {
-        super(0);
+export class Register128 extends RegisterGP {
+    constructor(id: number) {
+        super(id, SIZE.O);
     }
 }
 
-export class RegisterSegment extends Register16 {
+export class Register256 extends RegisterGP {
+    constructor(id: number) {
+        super(id, SIZE.H);
+    }
+}
+
+export class Register512 extends RegisterGP {
+    constructor(id: number) {
+        super(id, SIZE.I);
+    }
+}
+
+export class RegisterRip extends Register {
+    name = 'rip';
+    constructor() {
+        super(0, SIZE.Q);
+    }
+}
+
+export class RegisterSegment extends Register {
+    constructor(id) {
+        super(id, SIZE.W);
+    }
+}
+
+export class RegisterVector extends Register {
 
 }
 
+export class RegisterMmx extends RegisterVector {
+    constructor(id: number) {
+        super(id, SIZE.O);
+        this.name = 'mmx' + id;
+    }
+}
 
-export var rax  = new Register64(R64.RAX);
-export var rbx  = new Register64(R64.RBX);
-export var rcx  = new Register64(R64.RCX);
-export var rdx  = new Register64(R64.RDX);
-export var rsi  = new Register64(R64.RSI);
-export var rdi  = new Register64(R64.RDI);
-export var rbp  = new Register64(R64.RBP);
-export var rsp  = new Register64(R64.RSP);
-export var r8   = new Register64(R64.R8);
-export var r9   = new Register64(R64.R9);
-export var r10  = new Register64(R64.R10);
-export var r11  = new Register64(R64.R11);
-export var r12  = new Register64(R64.R12);
-export var r13  = new Register64(R64.R13);
-export var r14  = new Register64(R64.R14);
-export var r15  = new Register64(R64.R15);
+export class RegisterXmm extends RegisterVector {
+    constructor(id: number) {
+        super(id, SIZE.O);
+        this.name = 'xmm' + id;
+    }
+}
 
-export var rip  = new RegisterRip;
+export class RegisterYmm extends RegisterVector {
+    constructor(id: number) {
+        super(id, SIZE.H);
+        this.name = 'ymm' + id;
+    }
+}
 
-
-export var eax  = new Register32(R32.EAX);
-export var ebx  = new Register32(R32.EBX);
-export var ecx  = new Register32(R32.ECX);
-export var edx  = new Register32(R32.EDX);
-export var esi  = new Register32(R32.ESI);
-export var edi  = new Register32(R32.EDI);
-export var ebp  = new Register32(R32.EBP);
-export var esp  = new Register32(R32.ESP);
-export var r8d  = new Register32(R32.R8D);
-export var r9d  = new Register32(R32.R9D);
-export var r10d = new Register32(R32.R10D);
-export var r11d = new Register32(R32.R11D);
-export var r12d = new Register32(R32.R12D);
-export var r13d = new Register32(R32.R13D);
-export var r14d = new Register32(R32.R14D);
-export var r15d = new Register32(R32.R15D);
-
-
-export var ax   = new Register16(R16.AX);
-export var bx   = new Register16(R16.BX);
-export var cx   = new Register16(R16.CX);
-export var dx   = new Register16(R16.DX);
-export var si   = new Register16(R16.SI);
-export var di   = new Register16(R16.DI);
-export var bp   = new Register16(R16.BP);
-export var sp   = new Register16(R16.SP);
-export var r8w  = new Register16(R16.R8W);
-export var r9w  = new Register16(R16.R9W);
-export var r10w = new Register16(R16.R10W);
-export var r11w = new Register16(R16.R11W);
-export var r12w = new Register16(R16.R12W);
-export var r13w = new Register16(R16.R13W);
-export var r14w = new Register16(R16.R14W);
-export var r15w = new Register16(R16.R15W);
-
-
-export var al   = new Register8(R8.AL);
-export var bl   = new Register8(R8.BL);
-export var cl   = new Register8(R8.CL);
-export var dl   = new Register8(R8.DL);
-export var sil  = new Register8(R8.SIL);
-export var dil  = new Register8(R8.DIL);
-export var bpl  = new Register8(R8.BPL);
-export var spl  = new Register8(R8.SPL);
-export var r8b  = new Register8(R8.R8B);
-export var r9b  = new Register8(R8.R9B);
-export var r10b = new Register8(R8.R10B);
-export var r11b = new Register8(R8.R11B);
-export var r12b = new Register8(R8.R12B);
-export var r13b = new Register8(R8.R13B);
-export var r14b = new Register8(R8.R14B);
-export var r15b = new Register8(R8.R15B);
-
-export var ah   = new Register8High(R8H.AH);
-export var bh   = new Register8High(R8H.BH);
-export var ch   = new Register8High(R8H.CH);
-export var dh   = new Register8High(R8H.DH);
-
-
-export var es   = new RegisterSegment(SEG.ES);
-export var cs   = new RegisterSegment(SEG.CS);
-export var ss   = new RegisterSegment(SEG.SS);
-export var ds   = new RegisterSegment(SEG.DS);
-export var fs   = new RegisterSegment(SEG.FS);
-export var gs   = new RegisterSegment(SEG.GS);
+export class RegisterZmm extends RegisterVector {
+    constructor(id: number) {
+        super(id, SIZE.I);
+        this.name = 'zmm' + id;
+    }
+}
 
 
 // # Scale
@@ -361,20 +324,20 @@ export class Operands extends o.Operands {
         return SIZE.NONE;
     }
 
-    getRegisterOperand(dst_first = true): Register {
-        var [dst, src] = this.list;
-        var first, second;
-        if(dst_first) {
-            first = dst;
-            second = src;
-        } else {
-            first = src;
-            second = dst;
-        }
-        if(first instanceof Register) return first as Register;
-        if(second instanceof Register) return second as Register;
-        return null;
-    }
+    // getRegisterOperand(dst_first = true): Register {
+    //     var [dst, src] = this.list;
+    //     var first, second;
+    //     if(dst_first) {
+    //         first = dst;
+    //         second = src;
+    //     } else {
+    //         first = src;
+    //         second = dst;
+    //     }
+    //     if(first instanceof Register) return first as Register;
+    //     if(second instanceof Register) return second as Register;
+    //     return null;
+    // }
 
     hasImmediate(): boolean {
         return !!this.getImmediate();
@@ -389,6 +352,121 @@ export class Operands extends o.Operands {
 }
 
 
-export interface Operands {
-    getMemoryOperand(): Memory;
+
+// ## Export Registers
+
+function validateRegId(id: number, min, max, Clazz) {
+    if(typeof id !== 'number') throw TypeError(Clazz.name + ' register ID must be a number.');
+    if(id < min) throw TypeError(`${Clazz.name} register ID must be at least ${min}.`);
+    if(id > max) throw TypeError(`${Clazz.name} register ID must be at most ${max}.`);
 }
+
+function createRegisterGenerator<T>(Clazz, min_id = 0, max_id = 15) {
+    var cache: T[];
+    return function(id: number): T {
+        validateRegId(id, min_id, max_id, Clazz);
+        if(!cache) cache = new Array(max_id + 1);
+        if(!cache[id]) cache[id] = new Clazz(id);
+        return cache[id];
+    };
+}
+
+
+export var rb   = createRegisterGenerator<Register8>(Register8, 0, 15);
+export var rw   = createRegisterGenerator<Register16>(Register16, 0, 15);
+export var rd   = createRegisterGenerator<Register32>(Register32, 0, 15);
+export var rq   = createRegisterGenerator<Register64>(Register64, 0, 15);
+export var r    = rq;
+export var rs   = createRegisterGenerator<RegisterSegment>(RegisterSegment, 0, 15);
+export var mmx  = createRegisterGenerator<RegisterMmx>(RegisterMmx, 0, 15);
+export var xmm  = createRegisterGenerator<RegisterXmm>(RegisterXmm, 0, 31);
+export var ymm  = createRegisterGenerator<RegisterYmm>(RegisterYmm, 0, 31);
+export var zmm  = createRegisterGenerator<RegisterZmm>(RegisterZmm, 0, 31);
+
+
+export var al   = rb(R8.AL);
+export var bl   = rb(R8.BL);
+export var cl   = rb(R8.CL);
+export var dl   = rb(R8.DL);
+export var sil  = rb(R8.SIL);
+export var dil  = rb(R8.DIL);
+export var bpl  = rb(R8.BPL);
+export var spl  = rb(R8.SPL);
+export var r8b  = rb(R8.R8B);
+export var r9b  = rb(R8.R9B);
+export var r10b = rb(R8.R10B);
+export var r11b = rb(R8.R11B);
+export var r12b = rb(R8.R12B);
+export var r13b = rb(R8.R13B);
+export var r14b = rb(R8.R14B);
+export var r15b = rb(R8.R15B);
+
+export var ah   = new Register8High(R8H.AH);
+export var bh   = new Register8High(R8H.BH);
+export var ch   = new Register8High(R8H.CH);
+export var dh   = new Register8High(R8H.DH);
+
+
+export var ax   = rw(R16.AX);
+export var bx   = rw(R16.BX);
+export var cx   = rw(R16.CX);
+export var dx   = rw(R16.DX);
+export var si   = rw(R16.SI);
+export var di   = rw(R16.DI);
+export var bp   = rw(R16.BP);
+export var sp   = rw(R16.SP);
+export var r8w  = rw(R16.R8W);
+export var r9w  = rw(R16.R9W);
+export var r10w = rw(R16.R10W);
+export var r11w = rw(R16.R11W);
+export var r12w = rw(R16.R12W);
+export var r13w = rw(R16.R13W);
+export var r14w = rw(R16.R14W);
+export var r15w = rw(R16.R15W);
+
+
+export var eax  = rd(R32.EAX);
+export var ebx  = rd(R32.EBX);
+export var ecx  = rd(R32.ECX);
+export var edx  = rd(R32.EDX);
+export var esi  = rd(R32.ESI);
+export var edi  = rd(R32.EDI);
+export var ebp  = rd(R32.EBP);
+export var esp  = rd(R32.ESP);
+export var r8d  = rd(R32.R8D);
+export var r9d  = rd(R32.R9D);
+export var r10d = rd(R32.R10D);
+export var r11d = rd(R32.R11D);
+export var r12d = rd(R32.R12D);
+export var r13d = rd(R32.R13D);
+export var r14d = rd(R32.R14D);
+export var r15d = rd(R32.R15D);
+
+
+export var rax  = rq(R64.RAX);
+export var rcx  = rq(R64.RCX);
+export var rdx  = rq(R64.RDX);
+export var rbx  = rq(R64.RBX);
+export var rsp  = rq(R64.RSP);
+export var rbp  = rq(R64.RBP);
+export var rsi  = rq(R64.RSI);
+export var rdi  = rq(R64.RDI);
+export var r8   = rq(R64.R8);
+export var r9   = rq(R64.R9);
+export var r10  = rq(R64.R10);
+export var r11  = rq(R64.R11);
+export var r12  = rq(R64.R12);
+export var r13  = rq(R64.R13);
+export var r14  = rq(R64.R14);
+export var r15  = rq(R64.R15);
+
+export var rip  = new RegisterRip;
+
+
+export var es   = rs(SEG.ES);
+export var cs   = rs(SEG.CS);
+export var ss   = rs(SEG.SS);
+export var ds   = rs(SEG.DS);
+export var fs   = rs(SEG.FS);
+export var gs   = rs(SEG.GS);
+

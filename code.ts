@@ -26,6 +26,7 @@ export class Code {
 
     ClassInstruction = i.Instruction;
     ClassOperands = o.Operands;
+    AlignExpression = i.Align;
 
     littleEndian = true; // Which way to encode constants by default.
 
@@ -79,10 +80,10 @@ export class Code {
 
     do2ndPass() {
         var last = this.expr[this.expr.length - 1];
-        var all_offsets_known = last.offset !== i.OFFSET_UNKNOWN;
+        var all_offsets_known = last.offset >= 0;
 
         // Edge case when only the last Expression has variable size.
-        var all_sizes_known = last.bytes() !== i.SIZE_UNKNOWN;
+        var all_sizes_known = last.bytes() >= 0;
 
         if(all_offsets_known && all_sizes_known) return; // Skip 2nd pass.
 
@@ -135,6 +136,15 @@ export class Code {
 
     ops(operands: any[], size: o.SIZE = this.operandSize) {
         return new o.Operands(operands, size);
+    }
+
+    align(bytes = 4, fill: number|number[][] = null) {
+        var align = new this.AlignExpression(bytes);
+        if(fill !== null) {
+            if(typeof fill === 'number') align.templates = [[fill]] as number[][];
+            else align.templates = fill;
+        }
+        return this.insert(align);
     }
 
     // DB volatile
@@ -211,7 +221,7 @@ export class Code {
     }
 
     dd(doubles: number|number[], littleEndian = this.littleEndian): Data {
-        if(typeof doubles === 'number') return this.dw([doubles as number]);
+        if(typeof doubles === 'number') return this.dd([doubles as number]);
         return this.db(Data.numbersToOctets(doubles as number[], 4, littleEndian));
     }
 

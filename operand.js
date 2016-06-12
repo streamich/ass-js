@@ -15,8 +15,24 @@ var instruction_1 = require('./instruction');
     SIZE[SIZE["Q"] = 64] = "Q";
     SIZE[SIZE["T"] = 80] = "T";
     SIZE[SIZE["O"] = 128] = "O";
+    SIZE[SIZE["H"] = 256] = "H";
+    SIZE[SIZE["I"] = 512] = "I";
+    SIZE[SIZE["X"] = 128] = "X";
+    SIZE[SIZE["Y"] = 256] = "Y";
+    SIZE[SIZE["Z"] = 256] = "Z";
+    SIZE[SIZE["A"] = 1024] = "A";
 })(exports.SIZE || (exports.SIZE = {}));
 var SIZE = exports.SIZE;
+(function (SIZEB) {
+    SIZEB[SIZEB["B1"] = 8] = "B1";
+    SIZEB[SIZEB["B2"] = 16] = "B2";
+    SIZEB[SIZEB["B4"] = 32] = "B4";
+    SIZEB[SIZEB["B8"] = 64] = "B8";
+    SIZEB[SIZEB["B16"] = 128] = "B16";
+    SIZEB[SIZEB["B32"] = 256] = "B32";
+    SIZEB[SIZEB["B64"] = 512] = "B64";
+})(exports.SIZEB || (exports.SIZEB = {}));
+var SIZEB = exports.SIZEB;
 function isNumber64(num) {
     if ((num instanceof Array) && (num.length === 2) && (typeof num[0] === 'number') && (typeof num[1] === 'number'))
         return true;
@@ -33,13 +49,37 @@ function isNumber128(num) {
         return false;
 }
 exports.isNumber128 = isNumber128;
+function isNumberOfDoubles(doubles, num) {
+    if (!(num instanceof Array) || (num.length !== doubles))
+        return false;
+    for (var j = 0; j < doubles; j++)
+        if (typeof num[j] !== 'number')
+            return false;
+    return true;
+}
+function isNumber256(num) { return isNumberOfDoubles(8, num); }
+exports.isNumber256 = isNumber256;
+function isNumber512(num) { return isNumberOfDoubles(16, num); }
+exports.isNumber512 = isNumber512;
+function isNumber1024(num) { return isNumberOfDoubles(32, num); }
+exports.isNumber1024 = isNumber1024;
+function isNumber2048(num) { return isNumberOfDoubles(64, num); }
+exports.isNumber2048 = isNumber2048;
 function isTnumber(num) {
     if (typeof num === 'number')
         return true;
     else if (isNumber64(num))
         return true;
+    else if (isNumber128(num))
+        return true;
+    else if (isNumber256(num))
+        return true;
+    else if (isNumber512(num))
+        return true;
+    else if (isNumber1024(num))
+        return true;
     else
-        return isNumber128(num);
+        return isNumber2048(num);
 }
 exports.isTnumber = isTnumber;
 var Operand = (function () {
@@ -359,6 +399,21 @@ var Register = (function (_super) {
     };
     Register.prototype.getName = function () {
         return this.name;
+    };
+    Register.prototype.idSize = function () {
+        if (this.id < 8)
+            return 3;
+        if (this.id < 16)
+            return 4;
+        if (this.id < 32)
+            return 5;
+        throw Error('Register ID too big.');
+    };
+    Register.prototype.get3bitId = function () {
+        return this.id & 7;
+    };
+    Register.prototype.get4bitId = function () {
+        return this.id & 15;
     };
     Register.prototype.toNumber = function () {
         return this.id;

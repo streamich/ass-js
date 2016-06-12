@@ -76,19 +76,24 @@ var Register = (function (_super) {
     Register.prototype.isExtended = function () {
         return this.id > 7;
     };
-    Register.prototype.get3bitId = function () {
-        return this.id & 7;
-    };
     return Register;
 }(operand_1.Register));
 exports.Register = Register;
+var RegisterGP = (function (_super) {
+    __extends(RegisterGP, _super);
+    function RegisterGP() {
+        _super.apply(this, arguments);
+    }
+    return RegisterGP;
+}(Register));
+exports.RegisterGP = RegisterGP;
 var Register8 = (function (_super) {
     __extends(Register8, _super);
     function Register8(id) {
         _super.call(this, id, operand_1.SIZE.B);
     }
     return Register8;
-}(Register));
+}(RegisterGP));
 exports.Register8 = Register8;
 var Register8High = (function (_super) {
     __extends(Register8High, _super);
@@ -112,7 +117,7 @@ var Register32 = (function (_super) {
         _super.call(this, id, operand_1.SIZE.D);
     }
     return Register32;
-}(Register));
+}(RegisterGP));
 exports.Register32 = Register32;
 var Register64 = (function (_super) {
     __extends(Register64, _super);
@@ -120,100 +125,93 @@ var Register64 = (function (_super) {
         _super.call(this, id, operand_1.SIZE.Q);
     }
     return Register64;
-}(Register));
+}(RegisterGP));
 exports.Register64 = Register64;
+var Register128 = (function (_super) {
+    __extends(Register128, _super);
+    function Register128(id) {
+        _super.call(this, id, operand_1.SIZE.O);
+    }
+    return Register128;
+}(RegisterGP));
+exports.Register128 = Register128;
+var Register256 = (function (_super) {
+    __extends(Register256, _super);
+    function Register256(id) {
+        _super.call(this, id, operand_1.SIZE.H);
+    }
+    return Register256;
+}(RegisterGP));
+exports.Register256 = Register256;
+var Register512 = (function (_super) {
+    __extends(Register512, _super);
+    function Register512(id) {
+        _super.call(this, id, operand_1.SIZE.I);
+    }
+    return Register512;
+}(RegisterGP));
+exports.Register512 = Register512;
 var RegisterRip = (function (_super) {
     __extends(RegisterRip, _super);
     function RegisterRip() {
-        _super.call(this, 0);
+        _super.call(this, 0, operand_1.SIZE.Q);
         this.name = 'rip';
     }
     return RegisterRip;
-}(Register64));
+}(Register));
 exports.RegisterRip = RegisterRip;
 var RegisterSegment = (function (_super) {
     __extends(RegisterSegment, _super);
-    function RegisterSegment() {
-        _super.apply(this, arguments);
+    function RegisterSegment(id) {
+        _super.call(this, id, operand_1.SIZE.W);
     }
     return RegisterSegment;
-}(Register16));
+}(Register));
 exports.RegisterSegment = RegisterSegment;
-exports.rax = new Register64(regfile_1.R64.RAX);
-exports.rbx = new Register64(regfile_1.R64.RBX);
-exports.rcx = new Register64(regfile_1.R64.RCX);
-exports.rdx = new Register64(regfile_1.R64.RDX);
-exports.rsi = new Register64(regfile_1.R64.RSI);
-exports.rdi = new Register64(regfile_1.R64.RDI);
-exports.rbp = new Register64(regfile_1.R64.RBP);
-exports.rsp = new Register64(regfile_1.R64.RSP);
-exports.r8 = new Register64(regfile_1.R64.R8);
-exports.r9 = new Register64(regfile_1.R64.R9);
-exports.r10 = new Register64(regfile_1.R64.R10);
-exports.r11 = new Register64(regfile_1.R64.R11);
-exports.r12 = new Register64(regfile_1.R64.R12);
-exports.r13 = new Register64(regfile_1.R64.R13);
-exports.r14 = new Register64(regfile_1.R64.R14);
-exports.r15 = new Register64(regfile_1.R64.R15);
-exports.rip = new RegisterRip;
-exports.eax = new Register32(regfile_1.R32.EAX);
-exports.ebx = new Register32(regfile_1.R32.EBX);
-exports.ecx = new Register32(regfile_1.R32.ECX);
-exports.edx = new Register32(regfile_1.R32.EDX);
-exports.esi = new Register32(regfile_1.R32.ESI);
-exports.edi = new Register32(regfile_1.R32.EDI);
-exports.ebp = new Register32(regfile_1.R32.EBP);
-exports.esp = new Register32(regfile_1.R32.ESP);
-exports.r8d = new Register32(regfile_1.R32.R8D);
-exports.r9d = new Register32(regfile_1.R32.R9D);
-exports.r10d = new Register32(regfile_1.R32.R10D);
-exports.r11d = new Register32(regfile_1.R32.R11D);
-exports.r12d = new Register32(regfile_1.R32.R12D);
-exports.r13d = new Register32(regfile_1.R32.R13D);
-exports.r14d = new Register32(regfile_1.R32.R14D);
-exports.r15d = new Register32(regfile_1.R32.R15D);
-exports.ax = new Register16(regfile_1.R16.AX);
-exports.bx = new Register16(regfile_1.R16.BX);
-exports.cx = new Register16(regfile_1.R16.CX);
-exports.dx = new Register16(regfile_1.R16.DX);
-exports.si = new Register16(regfile_1.R16.SI);
-exports.di = new Register16(regfile_1.R16.DI);
-exports.bp = new Register16(regfile_1.R16.BP);
-exports.sp = new Register16(regfile_1.R16.SP);
-exports.r8w = new Register16(regfile_1.R16.R8W);
-exports.r9w = new Register16(regfile_1.R16.R9W);
-exports.r10w = new Register16(regfile_1.R16.R10W);
-exports.r11w = new Register16(regfile_1.R16.R11W);
-exports.r12w = new Register16(regfile_1.R16.R12W);
-exports.r13w = new Register16(regfile_1.R16.R13W);
-exports.r14w = new Register16(regfile_1.R16.R14W);
-exports.r15w = new Register16(regfile_1.R16.R15W);
-exports.al = new Register8(regfile_1.R8.AL);
-exports.bl = new Register8(regfile_1.R8.BL);
-exports.cl = new Register8(regfile_1.R8.CL);
-exports.dl = new Register8(regfile_1.R8.DL);
-exports.sil = new Register8(regfile_1.R8.SIL);
-exports.dil = new Register8(regfile_1.R8.DIL);
-exports.bpl = new Register8(regfile_1.R8.BPL);
-exports.spl = new Register8(regfile_1.R8.SPL);
-exports.r8b = new Register8(regfile_1.R8.R8B);
-exports.r9b = new Register8(regfile_1.R8.R9B);
-exports.r10b = new Register8(regfile_1.R8.R10B);
-exports.r11b = new Register8(regfile_1.R8.R11B);
-exports.r12b = new Register8(regfile_1.R8.R12B);
-exports.r13b = new Register8(regfile_1.R8.R13B);
-exports.r14b = new Register8(regfile_1.R8.R14B);
-exports.r15b = new Register8(regfile_1.R8.R15B);
-exports.ah = new Register8High(regfile_1.R8H.AH);
-exports.bh = new Register8High(regfile_1.R8H.BH);
-exports.ch = new Register8High(regfile_1.R8H.CH);
-exports.dh = new Register8High(regfile_1.R8H.DH);
-exports.es = new RegisterSegment(regfile_1.SEG.ES);
-exports.cs = new RegisterSegment(regfile_1.SEG.CS);
-exports.ss = new RegisterSegment(regfile_1.SEG.SS);
-exports.ds = new RegisterSegment(regfile_1.SEG.DS);
-exports.fs = new RegisterSegment(regfile_1.SEG.FS);
-exports.gs = new RegisterSegment(regfile_1.SEG.GS);
+var RegisterVector = (function (_super) {
+    __extends(RegisterVector, _super);
+    function RegisterVector() {
+        _super.apply(this, arguments);
+    }
+    return RegisterVector;
+}(Register));
+exports.RegisterVector = RegisterVector;
+var RegisterMmx = (function (_super) {
+    __extends(RegisterMmx, _super);
+    function RegisterMmx(id) {
+        _super.call(this, id, operand_1.SIZE.O);
+        this.name = 'mmx' + id;
+    }
+    return RegisterMmx;
+}(RegisterVector));
+exports.RegisterMmx = RegisterMmx;
+var RegisterXmm = (function (_super) {
+    __extends(RegisterXmm, _super);
+    function RegisterXmm(id) {
+        _super.call(this, id, operand_1.SIZE.O);
+        this.name = 'xmm' + id;
+    }
+    return RegisterXmm;
+}(RegisterVector));
+exports.RegisterXmm = RegisterXmm;
+var RegisterYmm = (function (_super) {
+    __extends(RegisterYmm, _super);
+    function RegisterYmm(id) {
+        _super.call(this, id, operand_1.SIZE.H);
+        this.name = 'ymm' + id;
+    }
+    return RegisterYmm;
+}(RegisterVector));
+exports.RegisterYmm = RegisterYmm;
+var RegisterZmm = (function (_super) {
+    __extends(RegisterZmm, _super);
+    function RegisterZmm(id) {
+        _super.call(this, id, operand_1.SIZE.I);
+        this.name = 'zmm' + id;
+    }
+    return RegisterZmm;
+}(RegisterVector));
+exports.RegisterZmm = RegisterZmm;
 var Scale = (function (_super) {
     __extends(Scale, _super);
     function Scale(scale) {
@@ -362,24 +360,6 @@ var Operands = (function (_super) {
         }
         return operand_1.SIZE.NONE;
     };
-    Operands.prototype.getRegisterOperand = function (dst_first) {
-        if (dst_first === void 0) { dst_first = true; }
-        var _a = this.list, dst = _a[0], src = _a[1];
-        var first, second;
-        if (dst_first) {
-            first = dst;
-            second = src;
-        }
-        else {
-            first = src;
-            second = dst;
-        }
-        if (first instanceof Register)
-            return first;
-        if (second instanceof Register)
-            return second;
-        return null;
-    };
     Operands.prototype.hasImmediate = function () {
         return !!this.getImmediate();
     };
@@ -394,3 +374,109 @@ var Operands = (function (_super) {
     return Operands;
 }(o.Operands));
 exports.Operands = Operands;
+function validateRegId(id, min, max, Clazz) {
+    if (typeof id !== 'number')
+        throw TypeError(Clazz.name + ' register ID must be a number.');
+    if (id < min)
+        throw TypeError(Clazz.name + " register ID must be at least " + min + ".");
+    if (id > max)
+        throw TypeError(Clazz.name + " register ID must be at most " + max + ".");
+}
+function createRegisterGenerator(Clazz, min_id, max_id) {
+    if (min_id === void 0) { min_id = 0; }
+    if (max_id === void 0) { max_id = 15; }
+    var cache;
+    return function (id) {
+        validateRegId(id, min_id, max_id, Clazz);
+        if (!cache)
+            cache = new Array(max_id + 1);
+        if (!cache[id])
+            cache[id] = new Clazz(id);
+        return cache[id];
+    };
+}
+exports.rb = createRegisterGenerator(Register8, 0, 15);
+exports.rw = createRegisterGenerator(Register16, 0, 15);
+exports.rd = createRegisterGenerator(Register32, 0, 15);
+exports.rq = createRegisterGenerator(Register64, 0, 15);
+exports.r = exports.rq;
+exports.rs = createRegisterGenerator(RegisterSegment, 0, 15);
+exports.mmx = createRegisterGenerator(RegisterMmx, 0, 15);
+exports.xmm = createRegisterGenerator(RegisterXmm, 0, 31);
+exports.ymm = createRegisterGenerator(RegisterYmm, 0, 31);
+exports.zmm = createRegisterGenerator(RegisterZmm, 0, 31);
+exports.al = exports.rb(regfile_1.R8.AL);
+exports.bl = exports.rb(regfile_1.R8.BL);
+exports.cl = exports.rb(regfile_1.R8.CL);
+exports.dl = exports.rb(regfile_1.R8.DL);
+exports.sil = exports.rb(regfile_1.R8.SIL);
+exports.dil = exports.rb(regfile_1.R8.DIL);
+exports.bpl = exports.rb(regfile_1.R8.BPL);
+exports.spl = exports.rb(regfile_1.R8.SPL);
+exports.r8b = exports.rb(regfile_1.R8.R8B);
+exports.r9b = exports.rb(regfile_1.R8.R9B);
+exports.r10b = exports.rb(regfile_1.R8.R10B);
+exports.r11b = exports.rb(regfile_1.R8.R11B);
+exports.r12b = exports.rb(regfile_1.R8.R12B);
+exports.r13b = exports.rb(regfile_1.R8.R13B);
+exports.r14b = exports.rb(regfile_1.R8.R14B);
+exports.r15b = exports.rb(regfile_1.R8.R15B);
+exports.ah = new Register8High(regfile_1.R8H.AH);
+exports.bh = new Register8High(regfile_1.R8H.BH);
+exports.ch = new Register8High(regfile_1.R8H.CH);
+exports.dh = new Register8High(regfile_1.R8H.DH);
+exports.ax = exports.rw(regfile_1.R16.AX);
+exports.bx = exports.rw(regfile_1.R16.BX);
+exports.cx = exports.rw(regfile_1.R16.CX);
+exports.dx = exports.rw(regfile_1.R16.DX);
+exports.si = exports.rw(regfile_1.R16.SI);
+exports.di = exports.rw(regfile_1.R16.DI);
+exports.bp = exports.rw(regfile_1.R16.BP);
+exports.sp = exports.rw(regfile_1.R16.SP);
+exports.r8w = exports.rw(regfile_1.R16.R8W);
+exports.r9w = exports.rw(regfile_1.R16.R9W);
+exports.r10w = exports.rw(regfile_1.R16.R10W);
+exports.r11w = exports.rw(regfile_1.R16.R11W);
+exports.r12w = exports.rw(regfile_1.R16.R12W);
+exports.r13w = exports.rw(regfile_1.R16.R13W);
+exports.r14w = exports.rw(regfile_1.R16.R14W);
+exports.r15w = exports.rw(regfile_1.R16.R15W);
+exports.eax = exports.rd(regfile_1.R32.EAX);
+exports.ebx = exports.rd(regfile_1.R32.EBX);
+exports.ecx = exports.rd(regfile_1.R32.ECX);
+exports.edx = exports.rd(regfile_1.R32.EDX);
+exports.esi = exports.rd(regfile_1.R32.ESI);
+exports.edi = exports.rd(regfile_1.R32.EDI);
+exports.ebp = exports.rd(regfile_1.R32.EBP);
+exports.esp = exports.rd(regfile_1.R32.ESP);
+exports.r8d = exports.rd(regfile_1.R32.R8D);
+exports.r9d = exports.rd(regfile_1.R32.R9D);
+exports.r10d = exports.rd(regfile_1.R32.R10D);
+exports.r11d = exports.rd(regfile_1.R32.R11D);
+exports.r12d = exports.rd(regfile_1.R32.R12D);
+exports.r13d = exports.rd(regfile_1.R32.R13D);
+exports.r14d = exports.rd(regfile_1.R32.R14D);
+exports.r15d = exports.rd(regfile_1.R32.R15D);
+exports.rax = exports.rq(regfile_1.R64.RAX);
+exports.rcx = exports.rq(regfile_1.R64.RCX);
+exports.rdx = exports.rq(regfile_1.R64.RDX);
+exports.rbx = exports.rq(regfile_1.R64.RBX);
+exports.rsp = exports.rq(regfile_1.R64.RSP);
+exports.rbp = exports.rq(regfile_1.R64.RBP);
+exports.rsi = exports.rq(regfile_1.R64.RSI);
+exports.rdi = exports.rq(regfile_1.R64.RDI);
+exports.r8 = exports.rq(regfile_1.R64.R8);
+exports.r9 = exports.rq(regfile_1.R64.R9);
+exports.r10 = exports.rq(regfile_1.R64.R10);
+exports.r11 = exports.rq(regfile_1.R64.R11);
+exports.r12 = exports.rq(regfile_1.R64.R12);
+exports.r13 = exports.rq(regfile_1.R64.R13);
+exports.r14 = exports.rq(regfile_1.R64.R14);
+exports.r15 = exports.rq(regfile_1.R64.R15);
+exports.rip = new RegisterRip;
+exports.es = exports.rs(regfile_1.SEG.ES);
+exports.cs = exports.rs(regfile_1.SEG.CS);
+exports.ss = exports.rs(regfile_1.SEG.SS);
+exports.ds = exports.rs(regfile_1.SEG.DS);
+exports.fs = exports.rs(regfile_1.SEG.FS);
+exports.gs = exports.rs(regfile_1.SEG.GS);

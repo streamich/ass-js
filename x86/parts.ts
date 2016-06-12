@@ -1,6 +1,7 @@
 import {R64, R32, R16, R8} from './regfile';
 import * as oo from '../operand';
 import * as o from './operand';
+import * as d from './def';
 
 
 // # x86_64 Instruction
@@ -142,6 +143,150 @@ export class PrefixRex extends Prefix {
 
     write(arr: number[]): number[] {
         arr.push(PREFIX.REX | (this.W << 3) | (this.R << 2) | (this.X << 1) | this.B);
+        return arr;
+    }
+}
+
+// ### 2-byte VEX:
+// 76543210
+// 11000100
+//
+// 76543210
+// ||||||pp ---> pp
+// |||||L -----> L
+// |vvvv ------> vvvv
+// R ----------> R
+//
+//
+// ### 3-byte VEX:
+// 76543210
+// 11000101
+//
+// 76543210
+// |||mmmmm ---> mmmmm
+// ||B --------> B
+// |X ---------> X
+// R ----------> R
+//
+// 76543210
+// ||||||pp ---> pp
+// |||||L -----> L
+// |vvvv ------> vvvv
+// W ----------> W
+export class PrefixVex extends Prefix {
+
+    static PP = {
+        x66:    0b01,
+        xF2:    0b11,
+        xF3:    0b10,
+    };
+
+    static MMMMM = {
+        x0F38:  0b00010,
+        x0F3A:  0b00011,
+        x0F:    0b00001,
+    };
+
+    bytes = 2; // VEX can be either 2 or 3 bytes.
+
+    // R, X, B, W and vvvv are inverted.
+    R = 1;  // Must be 1, if not used, otherwise wrong instruction.
+    X = 1;  // Must be 1, if not used, otherwise wrong instruction.
+    B = 1;
+    W = 1;
+    vvvv = 0b1111; // must be 0b1111, if not used, otherwise CPU will #UD
+
+    mmmmm = 0;
+    L = 0;
+    pp = 0;
+    
+    constructor(vexdef: d.IVexDefinition, R = 1, X = 1, B = 1, vvvv = 0b1111) {
+        super();
+        this.L = vexdef.L;
+        this.mmmmm = vexdef.mmmmm;
+        this.pp = vexdef.pp;
+        this.W = vexdef.W;
+
+        console.log(R, X, B, vvvv, this.W, this.mmmmm);
+
+        this.R = R;
+        this.X = X;
+        this.B = B;
+        this.vvvv = vvvv;
+
+        if((this.X === 0) || (this.B === 0) ||
+                ((this.W === 0) && !vexdef.WIG) ||
+                (this.mmmmm === PrefixVex.MMMMM.x0F3A) || (this.mmmmm === PrefixVex.MMMMM.x0F38))
+            this.promoteTo3bytes();
+    }
+
+    promoteTo3bytes() {
+        this.bytes = 3;
+    }
+
+    write(arr: number[]): number[] {
+        if(this.bytes === 2) { // 2-byte VEX
+            arr.push(0b11000101); // 0xC5
+            arr.push((this.R << 7) | (this.vvvv << 3) | (this.L << 2) | this.pp);
+        } else { // 3-byte VEX
+            arr.push(0b11000100); // 0xC4
+            arr.push((this.R << 7) | (this.X << 6) | (this.B << 5) | this.mmmmm);
+            arr.push((this.W << 7) | (this.vvvv << 3) | (this.L << 2) | this.pp);
+        }
+        return arr;
+    }
+}
+
+
+// EVEX is 4 bytes:
+// 62H
+//
+// 76543210
+// ||||||mm ---> mm
+// ||||00 -----> always 00
+// |||~ -------> R-prime = Rp
+// ||B --------> B
+// |X ---------> X
+// R ----------> R
+//
+//
+// 76543210
+// ||||||pp ---> pp
+// |||||1 -----> always 1
+// |vvvv-------> vvvv
+// W ----------> W
+//
+// 76543210
+// |||||aaa ---> aaa
+// ||||~ ------> V-prime = Vp
+// |||b -------> b
+// ||L --------> L
+// |~ ---------> L-prime = Lp
+// z ----------> z
+export class PrefixEvex extends Prefix {
+
+    R = 0;
+    X = 0;
+    B = 0;
+    Rp = 0;
+    mm = 0;
+
+    W = 0;
+    vvvv = 0;
+    pp = 0;
+
+    z = 0;
+    Lp = 0;
+    L = 0;
+    b = 0;
+    Vp = 0;
+    aaa = 0;
+
+    write(arr: number[]): number[] {
+        arr.push(0x62);
+        arr.push((this.R << 7) | (this.X << 6) | (this.B << 5) | (this.Rp << 4) | this.mm);
+        arr.push((this.W << 7) | (this.vvvv << 3) | 0x00000100 | this.pp);
+        arr.push((this.z << 7) | (this.Lp << 6) | (this.L << 5) | (this.b << 4) | (this.Vp << 3) | this.aaa);
         return arr;
     }
 }

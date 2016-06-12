@@ -1,7 +1,7 @@
 {
   "name": "ass-js",
   "description": "Assembler.js",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "keywords": [
     "x86",
     "x64",

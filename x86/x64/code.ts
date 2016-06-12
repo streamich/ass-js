@@ -16,7 +16,7 @@ export class Code extends code.Code {
 
     private static _methodsAdded = false;
 
-    static create(name: string) {
+    static create(name: string = 'start') {
         if(!Code._methodsAdded) {
             extend(Code.prototype, methods);
             Code._methodsAdded = true;

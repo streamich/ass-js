@@ -18,6 +18,26 @@ var Expression = (function (_super) {
     return Expression;
 }(i.Expression));
 exports.Expression = Expression;
+var Align = (function (_super) {
+    __extends(Align, _super);
+    function Align() {
+        _super.apply(this, arguments);
+        this.templates = Align.nop;
+    }
+    Align.nop = [
+        [0x90],
+        [0x66, 0x90],
+        [0x0F, 0x1F, 0x00],
+        [0x0F, 0x1F, 0x40, 0x00],
+        [0x0F, 0x1F, 0x44, 0x00, 0x00],
+        [0x66, 0x0F, 0x1F, 0x44, 0x00, 0x00],
+        [0x0F, 0x1F, 0x80, 0x00, 0x00, 0x00, 0x00],
+        [0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00],
+        [0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00],
+    ];
+    return Align;
+}(i.Align));
+exports.Align = Align;
 var Instruction = (function (_super) {
     __extends(Instruction, _super);
     function Instruction() {
@@ -29,6 +49,7 @@ var Instruction = (function (_super) {
         this.pfxRepne = null;
         this.pfxSegment = null;
         this.prefixes = [];
+        this.pfxEx = null;
         this.opcode = new p.Opcode;
         this.modrm = null;
         this.sib = null;
@@ -77,6 +98,8 @@ var Instruction = (function (_super) {
             var pfx = _a[_i];
             pfx.write(arr);
         }
+        if (this.pfxEx)
+            this.pfxEx.write(arr);
     };
     Instruction.prototype.write = function (arr) {
         this.writePrefixes(arr);
@@ -230,6 +253,8 @@ var Instruction = (function (_super) {
             this.length++;
             this.lengthMax++;
         }
+        if (this.def.vex)
+            this.createVexPrefix();
         if (this.def.prefixes) {
             for (var _i = 0, _a = this.def.prefixes; _i < _a.length; _i++) {
                 var val = _a[_i];
@@ -238,6 +263,43 @@ var Instruction = (function (_super) {
             this.length += this.def.prefixes.length;
             this.lengthMax += this.def.prefixes.length;
         }
+    };
+    Instruction.prototype.createVexPrefix = function () {
+        var R = 1, X = 1, B = 1, vvvv = 15;
+        var pos = this.def.opEncoding.indexOf('v');
+        if (pos > -1) {
+            var reg = this.ops.getRegisterOperand(pos);
+            if (!reg)
+                throw Error("Could not find Register operand at position " + pos + " to encode VEX.vvvv");
+            vvvv = (~reg.get4bitId()) & 15;
+        }
+        pos = this.def.opEncoding.indexOf('r');
+        if (pos > -1) {
+            var reg = this.ops.getRegisterOperand(pos);
+            if (!reg)
+                throw Error("Could not find Register operand at position " + pos + " to encode VEX.R");
+            if (reg.idSize() > 3)
+                R = 0;
+        }
+        pos = this.def.opEncoding.indexOf('m');
+        if (pos > -1) {
+            var reg = this.ops.getRegisterOperand(pos);
+            if (!reg)
+                throw Error("Could not find Register operand at position " + pos + " to encode VEX.B");
+            if (reg.idSize() > 3)
+                B = 0;
+        }
+        else {
+            var mem = this.ops.getMemoryOperand();
+            if (mem.base && (mem.base.idSize() > 3))
+                B = 0;
+            if (mem.index && (mem.index.idSize() > 3))
+                X = 0;
+        }
+        var vex = new p.PrefixVex(this.def.vex, R, X, B, vvvv);
+        this.pfxEx = vex;
+        this.length += vex.bytes;
+        this.lengthMax += vex.bytes;
     };
     Instruction.prototype.createOpcode = function () {
         var def = this.def;
@@ -292,7 +354,9 @@ var Instruction = (function (_super) {
                 }
             }
             else {
-                var r = this.ops.getRegisterOperand(reg_is_dst);
+                var r = this.ops.getRegisterOperand(this.regToRegDirectionRegIsDst ? 0 : 1);
+                if (!r)
+                    r = this.ops.getRegisterOperand();
                 if (r) {
                     mod = p.Modrm.MOD.REG_TO_REG;
                     reg = r.get3bitId();
@@ -306,7 +370,9 @@ var Instruction = (function (_super) {
             }
             if ((dst instanceof o.Register) && (src instanceof o.Register)) {
                 mod = p.Modrm.MOD.REG_TO_REG;
+                var regreg = (reg_is_dst ? dst : src);
                 var rmreg = (reg_is_dst ? src : dst);
+                reg = regreg.get3bitId();
                 rm = rmreg.get3bitId();
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;

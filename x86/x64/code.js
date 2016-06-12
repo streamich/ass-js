@@ -22,6 +22,7 @@ var Code = (function (_super) {
         this.addressSize = operand_1.SIZE.Q;
     }
     Code.create = function (name) {
+        if (name === void 0) { name = 'start'; }
         if (!Code._methodsAdded) {
             util_1.extend(Code.prototype, methods);
             Code._methodsAdded = true;

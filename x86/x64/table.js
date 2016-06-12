@@ -4,7 +4,7 @@ var o = require('../operand');
 var t = require('../table');
 var table_1 = require('../../table');
 var table_2 = require('../table');
-exports.defaults = util_1.extend({}, t.defaults, { rex: false });
+exports.defaults = util_1.extend({}, t.defaults, { rex: false, ds: table_1.S.D });
 function tpl_and(o_al, o_imm, or_imm, o_reg, lock) {
     if (o_al === void 0) { o_al = 0x24; }
     if (o_imm === void 0) { o_imm = 0x80; }
@@ -488,4 +488,7 @@ exports.table = util_1.extend({}, t.table, {
     sysret: [{ o: 0x0F07 }],
     sysenter: [{ o: 0x0F34 }],
     sysexit: [{ o: 0x0F35 }],
+    vextractf128: [{ o: 0x19, vex: '256.66.0F3A.W0', ops: [[table_2.xmm, table_2.m], table_2.ymm, table_1.imm8], s: table_1.S.X }],
+    vcvtph2ps: [{ o: 0x13, vex: '256.66.0F38.W0', ops: [table_2.ymm, [table_2.xmm, table_2.m]], s: 256 }],
+    vfmadd132pd: [{ o: 0x98, vex: 'DDS.128.66.0F38.W1', en: 'rvm', ops: [table_2.xmm, table_2.xmm, [table_2.xmm, table_2.m]] }],
 });

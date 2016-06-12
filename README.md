@@ -155,6 +155,7 @@ and it calculated the `-34` value itself `<hello_world_app+[1] = -34>`, here `he
 Now to generate a prettier output (than `hello_word_app+[1]`), we can create a label expression ourselves and name it however we want:
 
 ```js
+var str = 'Hello World!\n';
 var str_lbl = _.label('my_string');
 _.db(str);
 
@@ -167,7 +168,7 @@ _.ret();
 ```
 
 Above `_.label('my_string')` creates *and inserts* label expression with name `my_string` just before our string, now if we print
-our code to console we get a better lookiing output:
+our code to console we get a better looking output:
 
     005     leaq    rsi, [rip + <my_string = -34>]  ; 00001B|00001B 0x48, 0x8D, 0x35, 0xDE, 0xFF, 0xFF, 0xFF
     

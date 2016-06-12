@@ -36,6 +36,7 @@ var Code = (function () {
         this.addressSize = operand_1.SIZE.D;
         this.ClassInstruction = i.Instruction;
         this.ClassOperands = o.Operands;
+        this.AlignExpression = i.Align;
         this.littleEndian = true;
         this.methods = {};
         this.label(start);
@@ -65,8 +66,8 @@ var Code = (function () {
     };
     Code.prototype.do2ndPass = function () {
         var last = this.expr[this.expr.length - 1];
-        var all_offsets_known = last.offset !== i.OFFSET_UNKNOWN;
-        var all_sizes_known = last.bytes() !== i.SIZE_UNKNOWN;
+        var all_offsets_known = last.offset >= 0;
+        var all_sizes_known = last.bytes() >= 0;
         if (all_offsets_known && all_sizes_known)
             return;
         var prev = this.expr[0];
@@ -105,6 +106,18 @@ var Code = (function () {
     Code.prototype.ops = function (operands, size) {
         if (size === void 0) { size = this.operandSize; }
         return new o.Operands(operands, size);
+    };
+    Code.prototype.align = function (bytes, fill) {
+        if (bytes === void 0) { bytes = 4; }
+        if (fill === void 0) { fill = null; }
+        var align = new this.AlignExpression(bytes);
+        if (fill !== null) {
+            if (typeof fill === 'number')
+                align.templates = [[fill]];
+            else
+                align.templates = fill;
+        }
+        return this.insert(align);
     };
     Code.prototype.dbv = function (a, b, c) {
         var ops;
@@ -183,7 +196,7 @@ var Code = (function () {
     Code.prototype.dd = function (doubles, littleEndian) {
         if (littleEndian === void 0) { littleEndian = this.littleEndian; }
         if (typeof doubles === 'number')
-            return this.dw([doubles]);
+            return this.dd([doubles]);
         return this.db(instruction_1.Data.numbersToOctets(doubles, 4, littleEndian));
     };
     Code.prototype.dq = function (quads, littleEndian) {

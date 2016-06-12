@@ -2,11 +2,11 @@ import {extend} from '../../util';
 import * as o from '../operand';
 import * as t from '../table';
 import {S, rel, rel8, rel16, rel32, imm, imm8, imm16, imm32, imm64, immu, immu8, immu16, immu32, immu64} from '../../table';
-import {M, r, r8, r16, r32, r64, sreg, m, m8, m16, m32, m64, rm8, rm16, rm32, rm64} from '../table';
+import {M, r, r8, r16, r32, r64, sreg, mmx, xmm, ymm, zmm, m, m8, m16, m32, m64, rm8, rm16, rm32, rm64} from '../table';
 
 
 export var defaults = extend<any>({}, t.defaults,
-    {rex: false});
+    {rex: false, ds: S.D});
 
 
 function tpl_and(o_al = 0x24, o_imm = 0x80, or_imm = 4, o_reg = 0x20, lock = true) {
@@ -925,4 +925,11 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     sysret:     [{o: 0x0F07}],
     sysenter:   [{o: 0x0F34}],
     sysexit:    [{o: 0x0F35}],
+
+
+    // VEX
+    vextractf128: [{o: 0x19, vex: '256.66.0F3A.W0', ops: [[xmm, m], ymm, imm8], s: S.X}],
+    vcvtph2ps: [{o: 0x13, vex: '256.66.0F38.W0', ops: [ymm, [xmm, m]], s: 256}],
+
+    vfmadd132pd: [{o: 0x98, vex: 'DDS.128.66.0F38.W1', en: 'rvm', ops: [xmm, xmm, [xmm, m]]}],
 });

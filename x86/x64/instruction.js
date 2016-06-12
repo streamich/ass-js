@@ -12,17 +12,13 @@ var Instruction = (function (_super) {
     __extends(Instruction, _super);
     function Instruction() {
         _super.apply(this, arguments);
-        this.pfxRex = null;
     }
-    Instruction.prototype.writePrefixes = function (arr) {
-        _super.prototype.writePrefixes.call(this, arr);
-        if (this.pfxRex)
-            this.pfxRex.write(arr);
-    };
     Instruction.prototype.needs32To64OperandSizeChange = function () {
         return this.def.operandSize === operand_1.SIZE.Q;
     };
     Instruction.prototype.needsRexPrefix = function () {
+        if (this.pfxEx)
+            return false;
         if (this.def.mandatoryRex)
             return true;
         if (!this.ops.list.length)
@@ -51,6 +47,16 @@ var Instruction = (function (_super) {
         var W = 0, R = 0, X = 0, B = 0;
         if (this.needs32To64OperandSizeChange() && (this.def.operandSizeDefault !== operand_1.SIZE.Q))
             W = 1;
+        var pos = this.def.opEncoding.indexOf('m');
+        if (pos > -1) {
+            var m = this.ops.getMemoryOperand();
+            if (m) {
+                if (m.base && (m.base.idSize() > 3))
+                    B = 1;
+                if (m.index && (m.index.idSize() > 3))
+                    X = 1;
+            }
+        }
         if ((dst instanceof o.Register) && (src instanceof o.Register)) {
             if (dst.isExtended())
                 R = 1;
@@ -61,20 +67,14 @@ var Instruction = (function (_super) {
             var r = this.ops.getRegisterOperand();
             var mem = this.ops.getMemoryOperand();
             if (r) {
-                if (r.isExtended())
+                if (r.idSize() > 3)
                     if (mem)
                         R = 1;
                     else
                         B = 1;
             }
-            if (mem) {
-                if (mem.base && mem.base.isExtended())
-                    B = 1;
-                if (mem.index && mem.index.isExtended())
-                    X = 1;
-            }
         }
-        this.pfxRex = new p.PrefixRex(W, R, X, B);
+        this.pfxEx = new p.PrefixRex(W, R, X, B);
         this.length++;
         this.lengthMax++;
     };

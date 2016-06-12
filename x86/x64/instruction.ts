@@ -6,19 +6,13 @@ import * as p from '../parts';
 
 export class Instruction extends i.Instruction {
 
-    pfxRex: p.PrefixRex = null;
-
-    protected writePrefixes(arr: number[]) {
-        super.writePrefixes(arr);
-        if(this.pfxRex) this.pfxRex.write(arr); // REX prefix must precede immediate op-code byte.
-    }
-
     protected needs32To64OperandSizeChange() {
         // Default operand size in x64 mode is 32 bits.
         return this.def.operandSize === SIZE.Q;
     }
 
     protected needsRexPrefix() {
+        if(this.pfxEx) return false; // VEX or EVEX already set
         if(this.def.mandatoryRex) return true;
         if(!this.ops.list.length) return false;
         // if(!this.ops.hasRegisterOrMemory()) return false;
@@ -50,27 +44,31 @@ export class Instruction extends i.Instruction {
 
         if(this.needs32To64OperandSizeChange() && (this.def.operandSizeDefault !== SIZE.Q)) W = 1;
 
+        var pos = this.def.opEncoding.indexOf('m');
+        if(pos > -1) {
+            var m = this.ops.getMemoryOperand() as o.Memory; // Memory operand is only one.
+            if(m) {
+                if(m.base && (m.base.idSize() > 3)) B = 1;
+                if(m.index && (m.index.idSize() > 3)) X = 1;
+            }
+        }
+
         if((dst instanceof o.Register) && (src instanceof o.Register)) {
             if((dst as o.Register).isExtended()) R = 1;
             if((src as o.Register).isExtended()) B = 1;
         } else {
 
-            var r: o.Register = this.ops.getRegisterOperand();
+            var r = this.ops.getRegisterOperand();
             var mem: o.Memory = this.ops.getMemoryOperand();
 
             if(r) {
-                if(r.isExtended())
+                if(r.idSize() > 3)
                     if(mem) R = 1;
                     else    B = 1;
             }
-
-            if(mem) {
-                if(mem.base && mem.base.isExtended()) B = 1;
-                if(mem.index && mem.index.isExtended()) X = 1;
-            }
         }
 
-        this.pfxRex = new p.PrefixRex(W, R, X, B);
+        this.pfxEx = new p.PrefixRex(W, R, X, B);
         this.length++;
         this.lengthMax++;
     }
@@ -83,7 +81,7 @@ export class Instruction extends i.Instruction {
     // > addressing, ModRM instructions can address memory relative to the 64-bit RIP using a signed
     // > 32-bit displacement.
     protected createModrm() {
-        var mem: o.Memory = this.ops.getMemoryOperand();
+        var mem: o.Memory = this.ops.getMemoryOperand() as o.Memory;
         if(mem && mem.base && (mem.base instanceof o.RegisterRip)) {
             if(mem.index || mem.scale)
                 throw TypeError('RIP-relative addressing does not support index and scale addressing.');
@@ -93,8 +91,8 @@ export class Instruction extends i.Instruction {
             if(this.def.opreg > -1) {
                 reg = this.def.opreg;
             } else {
-                var r: o.Register = this.ops.getRegisterOperand();
-                if (r) reg = r.get3bitId();
+                var r = this.ops.getRegisterOperand();
+                if(r) reg = r.get3bitId();
             }
 
             this.modrm = new p.Modrm(p.Modrm.MOD.INDIRECT, reg, p.Modrm.RM.INDIRECT_DISP);
@@ -113,7 +111,7 @@ export class Instruction extends i.Instruction {
     }
 
     protected createDisplacement() {
-        var mem = this.ops.getMemoryOperand();
+        var mem = this.ops.getMemoryOperand() as o.Memory;
         if(mem && (typeof mem == 'object') && (mem.base instanceof o.RegisterRip)) {
             // RIP-relative addressing has always 4-byte displacement.
 

@@ -105,6 +105,8 @@ export class Def {
     }
 
     toStringOperand(operand) {
+        if(typeof operand === 'number') return operand;
+        if(typeof operand === 'string') return operand;
         if(operand instanceof o.Operand) return operand.toString();
         else if(typeof operand === 'function') {
             if(operand === o.Register)      return 'r';
@@ -120,6 +122,34 @@ export class Def {
         var size = this.operandSize;
         if((size === o.SIZE.ANY) || (size === o.SIZE.NONE)) return this.mnemonic;
         return this.mnemonic + o.SIZE[size].toLowerCase();
+    }
+
+    toJsonOperands() {
+        var ops = [];
+        for(var op_tpl of this.operands) {
+            var op_out = [];
+            for(var op of op_tpl) {
+                op_out.push(this.toStringOperand(op));
+            }
+            if(op_out.length > 1) ops.push(op_out);
+            else ops.push(op_out[0]);
+        }
+        return ops;
+    }
+
+    toJson() {
+        var json: any = {
+            opcode: this.opcode,
+            opcodeHex: this.opcode.toString(16),
+            // mnemonic: this.mnemonic,
+        };
+
+        if(this.operandSize) json.operandSize = this.operandSize;
+
+        var ops = this.toJsonOperands();
+        if(ops.length) json.operands = ops;
+
+        return json;
     }
 
     toString() {
@@ -180,6 +210,17 @@ export class DefGroup {
         return sizes;
     }
 
+    toJson(): any {
+        var instructions = [];
+        for(var def of this.defs) {
+            instructions.push(def.toJson());
+        }
+        return {
+            mnemonic: this.mnemonic,
+            definitions: instructions,
+        };
+    }
+
     toString() {
         var defs = [];
         for(var def of this.defs) {
@@ -203,6 +244,14 @@ export class DefTable {
             this.groups[mnemonic] = group;
         }
         return this;
+    }
+
+    toJson() {
+        var json: any = {};
+        for(var group_name in this.groups) {
+            json[group_name] = this.groups[group_name].toJson();
+        }
+        return json;
     }
 
     toString() {

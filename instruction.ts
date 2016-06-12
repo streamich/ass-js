@@ -123,12 +123,14 @@ export class Expression {
         return offset + '|' + max_offset;
     }
 
+    formatToString(margin, expression, comment = '') {
+        expression = margin + expression;
+        var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
+        return expression + spaces + `; ${this.formatOffset()} ` + comment;
+    }
+
     toString(margin = '', comment = true): string {
-        var cmt = '';
-        if(comment) {
-            cmt = ` ; ${this.formatOffset()}`;
-        }
-        return margin + '[expression]' + cmt;
+        return this.formatToString(margin, '[expression]');
     }
 }
 
@@ -418,13 +420,87 @@ export class DataVariable extends ExpressionVariable implements IData {
 
 // Expression which, not only has variable operands, but which may evaluate to different sizes.
 export abstract class ExpressionVolatile extends ExpressionVariable {
-    // If `Expression` can generate different size machine code this method forces it to pick one.
-    abstract getFixedSizeExpression();
 
     lengthMax = 0;
 
     bytesMax(): number {
         return this.lengthMax;
+    }
+
+    // If `Expression` can generate different size machine code this method forces it to pick one.
+    getFixedSizeExpression() {
+        return this;
+    }
+}
+
+
+// Aligns data to some byte boundary.
+export class Align extends ExpressionVolatile {
+
+    length = SIZE_UNKNOWN;
+
+    // Align by 1 byte means "don't do any aligning", aligning by 2 bytes will insert at most 1 bytes.
+    by: number;
+
+    // Different size templates we use to fill in the empty bytes, templates grow sequentially by one byte in size.
+    templates = [
+        [0x00],
+    ];
+
+    octets: number[] = [];
+
+    constructor(by: number) {
+        super();
+        this.by = by;
+    }
+
+    bytesMax() {
+        return this.by - 1;
+    }
+
+    write(arr: number[]): number[] {
+        arr = arr.concat(this.octets);
+        return arr;
+    }
+
+    protected generateOctets() {
+        if(!this.length) return;
+
+        var bytes_left = this.bytes();
+        var max_tpl = this.templates.length;
+        while(bytes_left > 0) {
+            if(bytes_left > max_tpl) {
+                this.octets = this.octets.concat(this.templates[max_tpl - 1]);
+                bytes_left -= max_tpl;
+            } else {
+                this.octets = this.octets.concat(this.templates[bytes_left - 1]);
+                bytes_left = 0;
+            }
+        }
+    }
+
+    calcOffset() {
+        super.calcOffset();
+        var mod = (this.offset % this.by);
+        this.length = mod ? this.by - mod : 0;
+        this.generateOctets();
+    }
+
+    toString(margin = '    ', comment = true) {
+        var cmt = '';
+        if(comment) {
+            if(this.length >= 0) {
+                var octets = '';
+                if(this.length) {
+                    octets = '0x' + this.octets.map(function (byte) {
+                        var str = byte.toString(16).toUpperCase();
+                        return byte <= 0xF ? '0' + str : str;
+                    }).join(' 0x');
+                }
+                cmt = this.length + ' bytes ' + octets;
+            } else cmt = `max ${this.bytesMax()} bytes`;
+        }
+        return this.formatToString(margin, 'align ' + this.by, cmt);
     }
 }
 

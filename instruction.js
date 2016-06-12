@@ -105,14 +105,16 @@ var Expression = (function () {
         }
         return offset + '|' + max_offset;
     };
+    Expression.prototype.formatToString = function (margin, expression, comment) {
+        if (comment === void 0) { comment = ''; }
+        expression = margin + expression;
+        var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
+        return expression + spaces + ("; " + this.formatOffset() + " ") + comment;
+    };
     Expression.prototype.toString = function (margin, comment) {
         if (margin === void 0) { margin = ''; }
         if (comment === void 0) { comment = true; }
-        var cmt = '';
-        if (comment) {
-            cmt = " ; " + this.formatOffset();
-        }
-        return margin + '[expression]' + cmt;
+        return this.formatToString(margin, '[expression]');
     };
     Expression.commentColls = 44;
     return Expression;
@@ -366,9 +368,75 @@ var ExpressionVolatile = (function (_super) {
     ExpressionVolatile.prototype.bytesMax = function () {
         return this.lengthMax;
     };
+    ExpressionVolatile.prototype.getFixedSizeExpression = function () {
+        return this;
+    };
     return ExpressionVolatile;
 }(ExpressionVariable));
 exports.ExpressionVolatile = ExpressionVolatile;
+var Align = (function (_super) {
+    __extends(Align, _super);
+    function Align(by) {
+        _super.call(this);
+        this.length = exports.SIZE_UNKNOWN;
+        this.templates = [
+            [0x00],
+        ];
+        this.octets = [];
+        this.by = by;
+    }
+    Align.prototype.bytesMax = function () {
+        return this.by - 1;
+    };
+    Align.prototype.write = function (arr) {
+        arr = arr.concat(this.octets);
+        return arr;
+    };
+    Align.prototype.generateOctets = function () {
+        if (!this.length)
+            return;
+        var bytes_left = this.bytes();
+        var max_tpl = this.templates.length;
+        while (bytes_left > 0) {
+            if (bytes_left > max_tpl) {
+                this.octets = this.octets.concat(this.templates[max_tpl - 1]);
+                bytes_left -= max_tpl;
+            }
+            else {
+                this.octets = this.octets.concat(this.templates[bytes_left - 1]);
+                bytes_left = 0;
+            }
+        }
+    };
+    Align.prototype.calcOffset = function () {
+        _super.prototype.calcOffset.call(this);
+        var mod = (this.offset % this.by);
+        this.length = mod ? this.by - mod : 0;
+        this.generateOctets();
+    };
+    Align.prototype.toString = function (margin, comment) {
+        if (margin === void 0) { margin = '    '; }
+        if (comment === void 0) { comment = true; }
+        var cmt = '';
+        if (comment) {
+            if (this.length >= 0) {
+                var octets = '';
+                if (this.length) {
+                    octets = '0x' + this.octets.map(function (byte) {
+                        var str = byte.toString(16).toUpperCase();
+                        return byte <= 0xF ? '0' + str : str;
+                    }).join(' 0x');
+                }
+                cmt = this.length + ' bytes ' + octets;
+            }
+            else
+                cmt = "max " + this.bytesMax() + " bytes";
+        }
+        return this.formatToString(margin, 'align ' + this.by, cmt);
+    };
+    return Align;
+}(ExpressionVolatile));
+exports.Align = Align;
 var Instruction = (function (_super) {
     __extends(Instruction, _super);
     function Instruction() {
