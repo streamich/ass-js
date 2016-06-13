@@ -651,6 +651,13 @@ var Operands = (function () {
         else
             throw TypeError('Operand size mismatch.');
     };
+    Operands.prototype.getAtIndexOfClass = function (index, Clazz) {
+        var op = this.list[index];
+        if (op instanceof Clazz)
+            return op;
+        else
+            return null;
+    };
     Operands.prototype.getFirstOfClass = function (Clazz, skip) {
         if (skip === void 0) { skip = 0; }
         for (var _i = 0, _a = this.list; _i < _a.length; _i++) {

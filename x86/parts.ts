@@ -157,7 +157,6 @@ export class PrefixRex extends Prefix {
 // |vvvv ------> vvvv
 // R ----------> R
 //
-//
 // ### 3-byte VEX:
 // 76543210
 // 11000101
@@ -207,8 +206,6 @@ export class PrefixVex extends Prefix {
         this.pp = vexdef.pp;
         this.W = vexdef.W;
 
-        console.log(R, X, B, vvvv, this.W, this.mmmmm);
-
         this.R = R;
         this.X = X;
         this.B = B;
@@ -249,7 +246,6 @@ export class PrefixVex extends Prefix {
 // |X ---------> X
 // R ----------> R
 //
-//
 // 76543210
 // ||||||pp ---> pp
 // |||||1 -----> always 1
@@ -260,33 +256,40 @@ export class PrefixVex extends Prefix {
 // |||||aaa ---> aaa
 // ||||~ ------> V-prime = Vp
 // |||b -------> b
-// ||L --------> L
-// |~ ---------> L-prime = Lp
+// |LL --------> LL
 // z ----------> z
 export class PrefixEvex extends Prefix {
 
-    R = 0;
-    X = 0;
-    B = 0;
-    Rp = 0;
-    mm = 0;
+    // VEX includes
+    R       = 0b1;      // VEX.R - Inverted
+    X       = 0b1;      // VEX.X - Inverted
+    B       = 0b1;      // VEX.B - Inverted
+    W       = 0b1;      // VEX.W - Inverted
+    vvvv    = 0b1111;   // VEX.vvvv - Inverted
+    pp      = 0b00;     // VEX.pp
+    mm      = 0b00;     // Low 2 bits of VEX.mmmmm
 
-    W = 0;
-    vvvv = 0;
-    pp = 0;
+    // New in EVEX
+    Rp      = 0b1;      // REX.R extension - Inverted
+    z       = 0b0;      // Zeroing/merging
+    LL      = 0b00;     // Like VEX.L but extended to 2 bits.
+    b       = 0b0;      // Broadcast/RC/SAE context
+    Vp      = 0b1;      // VEX.vvvv exntension - Inverted
+    aaa     = 0b000;    // Opmask register ID
 
-    z = 0;
-    Lp = 0;
-    L = 0;
-    b = 0;
-    Vp = 0;
-    aaa = 0;
+    constructor(evexdef: d.IEvexDefinition) {
+        super();
+        this.LL = evexdef.L;
+        this.mm = evexdef.mmmmm & 0b11;
+        this.pp = evexdef.pp;
+        this.W = evexdef.W;
+    }
 
     write(arr: number[]): number[] {
         arr.push(0x62);
         arr.push((this.R << 7) | (this.X << 6) | (this.B << 5) | (this.Rp << 4) | this.mm);
         arr.push((this.W << 7) | (this.vvvv << 3) | 0x00000100 | this.pp);
-        arr.push((this.z << 7) | (this.Lp << 6) | (this.L << 5) | (this.b << 4) | (this.Vp << 3) | this.aaa);
+        arr.push((this.z << 7) | (this.LL << 5) | (this.b << 4) | (this.Vp << 3) | this.aaa);
         return arr;
     }
 }

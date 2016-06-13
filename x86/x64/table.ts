@@ -2,7 +2,9 @@ import {extend} from '../../util';
 import * as o from '../operand';
 import * as t from '../table';
 import {S, rel, rel8, rel16, rel32, imm, imm8, imm16, imm32, imm64, immu, immu8, immu16, immu32, immu64} from '../../table';
-import {M, r, r8, r16, r32, r64, sreg, mmx, xmm, ymm, zmm, m, m8, m16, m32, m64, rm8, rm16, rm32, rm64} from '../table';
+import {M, r, r8, r16, r32, r64, sreg, mmx, xmm, ymm, zmm,
+    m, m8, m16, m32, m64, rm8, rm16, rm32, rm64,
+    INS, EXT} from '../table';
 
 
 export var defaults = extend<any>({}, t.defaults,
@@ -36,18 +38,22 @@ function tpl_and(o_al = 0x24, o_imm = 0x80, or_imm = 4, o_reg = 0x20, lock = tru
         {o: o_imm + 3, or: or_imm, ops: [rm64, imm8]},
         // 20 /r AND r/m8, r8 MR Valid Valid r/m8 AND r8.
         // REX + 20 /r AND r/m8*, r8* MR Valid N.E. r/m64 AND r8 (sign-extended).
+        {o: o_reg, ops: [rm8, r8], en: 'mr', dbit: true},
         // 22 /r AND r8, r/m8 RM Valid Valid r8 AND r/m8.
         // REX + 22 /r AND r8*, r/m8* RM Valid N.E. r/m64 AND r8 (sign-extended).
-        {o: o_reg, ops: [rm8, rm8], dbit: true},
+        {o: o_reg + 2, ops: [r8, rm8], dbit: true},
         // 21 /r AND r/m16, r16 MR Valid Valid r/m16 AND r16.
+        {o: o_reg + 1, ops: [rm16, r16], en: 'mr', dbit: true},
         // 23 /r AND r16, r/m16 RM Valid Valid r16 AND r/m16.
-        {o: o_reg + 1, ops: [rm16, rm16], dbit: true},
+        {o: o_reg + 3, ops: [r16, rm16], dbit: true},
         // 21 /r AND r/m32, r32 MR Valid Valid r/m32 AND r32.
+        {o: o_reg + 1, ops: [rm32, r32], en: 'mr', dbit: true},
         // 23 /r AND r32, r/m32 RM Valid Valid r32 AND r/m32.
-        {o: o_reg + 1, ops: [rm32, rm32], dbit: true},
+        {o: o_reg + 3, ops: [r32, rm32], dbit: true},
         // REX.W + 21 /r AND r/m64, r64 MR Valid N.E. r/m64 AND r32.
+        {o: o_reg + 1, ops: [rm64, r64], en: 'mr', dbit: true},
         // REX.W + 23 /r AND r64, r/m64 RM Valid N.E. r64 AND r/m64.
-        {o: o_reg + 1, ops: [rm64, rm64], dbit: true},
+        {o: o_reg + 3, ops: [r64, rm64], dbit: true},
     ];
 }
 
@@ -203,23 +209,53 @@ function tpl_lss(op = 0x0FB2) {
 
 export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
 
+    // 0F 58 /r ADDPS xmm1, xmm2/m128 V/V SSE
+    addps: [{o: 0x0F58, ops: [xmm, [xmm, m]], ext: [EXT.SSE]}],
+    vaddps: [{o: 0x58, en: 'rvm'},
+        // VEX.NDS.128.0F 58 /r VADDPS xmm1,xmm2, xmm3/m128 V/V AVX
+        {vex: 'NDS.128.0F', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AVX]},
+        // VEX.NDS.256.0F 58 /r VADDPS ymm1, ymm2, ymm3/m256 V/V AVX
+        {vex: 'NDS.256.0F', ops: [ymm, ymm, [ymm, m]], ext: [EXT.AVX]},
+        // EVEX.NDS.128.0F.W0 58 /r VADDPS xmm1 {k1}{z}, xmm2, xmm3/m128/m32bcst V/V  AVX512VL AVX512F
+        // {evex: 'NDS.128.0F.W0', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AVX512VL,  EXT.AVX512F]},
+        // EVEX.NDS.256.0F.W0 58 /r VADDPS ymm1 {k1}{z}, ymm2, ymm3/m256/m32bcst V/V  AVX512VL AVX512F
+        // {evex: 'NDS.256.0F.W0', ops: [ymm, ymm, [ymm, m]], ext: [EXT.AVX512VL,  EXT.AVX512F]},
+        // EVEX.NDS.512.0F.W0 58 /r VADDPS zmm1 {k1}{z}, zmm2, zmm3/m512/m32bcst {er} V/V AVX512F
+        // {evex: 'NDS.512.0F.W0', ops: [zmm, zmm, [zmm, m]], ext: [EXT.AVX512F]},
+    ],
+    kandw: [{},
+        // VEX.L1.0F.W0 41 /r KANDW k1, k2, k3 V/V AVX512F
+        {o: 0x41, vex: 'L1.0F.W0', ops: [], ext: [EXT.AVX512F]},
+    ],
+
+    // DIVSD—Divide Scalar Double-Precision Floating-Point Value
+    divsd: [{o: 0xF20F5E, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vdivsd: [{o: 0x5E, en: 'rvm', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.128.F2.0F.WIG', ext: [EXT.AVX]},
+        {evex: 'NDS.LIG.F2.0F.W1', ext: [EXT.AVX512F]},
+    ],
+
     // ## Data Transfer
     // MOV Move data between general-purpose registers
     mov:[{},
         // 88 /r MOV r/m8,r8 MR Valid Valid Move r8 to r/m8.
         // REX + 88 /r MOV r/m8***,r8*** MR Valid N.E. Move r8 to r/m8.
+        {o: 0x88, ops: [rm8, r8], en: 'mr', dbit: true},
         // 8A /r MOV r8,r/m8 RM Valid Valid Move r/m8 to r8.
         // REX + 8A /r MOV r8***,r/m8*** RM Valid N.E. Move r/m8 to r8.
-        {o: 0x88, ops: [rm8, rm8], dbit: true},
+        {o: 0x8A, ops: [r8, rm8], dbit: true},
         // 89 /r MOV r/m16,r16 MR Valid Valid Move r16 to r/m16.
+        {o: 0x89, ops: [rm16, r16], en: 'mr', dbit: true},
         // 8B /r MOV r16,r/m16 RM Valid Valid Move r/m16 to r16.
-        {o: 0x89, ops: [rm16, rm16], dbit: true},
+        {o: 0x8B, ops: [r16, rm16], dbit: true},
         // 89 /r MOV r/m32,r32 MR Valid Valid Move r32 to r/m32.
+        {o: 0x89, ops: [rm32, r32], en: 'mr', dbit: true},
         // 8B /r MOV r32,r/m32 RM Valid Valid Move r/m32 to r32.
-        {o: 0x89, ops: [rm32, rm32], dbit: true},
+        {o: 0x8B, ops: [r32, rm32], dbit: true},
         // REX.W + 89 /r MOV r/m64,r64 MR Valid N.E. Move r64 to r/m64.
+        {o: 0x89, ops: [rm64, r64], en: 'mr', dbit: true},
         // REX.W + 8B /r MOV r64,r/m64 RM Valid N.E. Move r/m64 to r64.
-        {o: 0x89, ops: [rm64, rm64], dbit: true},
+        {o: 0x8B, ops: [r64, rm64], dbit: true},
 
         // 8C /r MOV r/m16,Sreg** MR Valid Valid Move segment register to r/m16.
         {o: 0x8C, ops: [rm16, sreg], s: S.W},

@@ -655,6 +655,12 @@ export class Operands {
         else throw TypeError('Operand size mismatch.');
     }
 
+    getAtIndexOfClass(index, Clazz) {
+        var op = this.list[index];
+        if(op instanceof Clazz) return op;
+        else return null;
+    }
+
     getFirstOfClass(Clazz, skip = 0) {
         for(var op of this.list) {
             if(op instanceof Clazz) {

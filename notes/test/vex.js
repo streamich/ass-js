@@ -1,14 +1,9 @@
 "use strict";
 var o = require('../../x86/operand');
 var code_1 = require('../../x86/x64/code');
-var d = require('../../x86/def');
-var _ = code_1.Code.create();
-console.log(d.Def.parseVexString('256.66.0F3A.W0'));
-console.log(d.Def.parseVexString('VEX.DDS.128.66.0F38.W0'));
-console.log(d.Def.parseVexString('VEX.DDS.LIG.66.0F38.W1'));
-_.vfmadd132pd(o.xmm(1), o.xmm(1), o.xmm(1));
-_.vfmadd132pd(o.xmm(12), o.xmm(12), o.xmm(12));
+var _ = new code_1.Code;
+_._('divsd', [o.xmm(1), o.xmm(2)]);
+_._('vdivsd', [o.xmm(1), o.xmm(2), o.xmm(3)]);
 console.log(_.toString());
 var bin = _.compile();
-console.log(_.toString());
 console.log(new Buffer(bin));

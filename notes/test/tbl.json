@@ -1,0 +1,66 @@
+{
+  "vaddps": {
+    "mnemonic": "vaddps",
+    "definitions": [
+      {
+        "opcode": 88,
+        "opcodeHex": "58",
+        "operandSize": 128,
+        "operands": [
+          "xmm",
+          "xmm",
+          [
+            "xmm",
+            "m"
+          ]
+        ],
+        "operandEncoding": "rm",
+        "vex": {
+          "vvvv": "NDS",
+          "L": 0,
+          "pp": 0,
+          "mmmmm": 1,
+          "W": 0,
+          "WIG": false
+        },
+        "mode": [
+          "x32",
+          "x64"
+        ],
+        "extensions": [
+          "AVX"
+        ]
+      },
+      {
+        "opcode": 88,
+        "opcodeHex": "58",
+        "operandSize": 256,
+        "operands": [
+          "ymm",
+          "ymm",
+          [
+            "ymm",
+            "m"
+          ]
+        ],
+        "operandEncoding": "rm",
+        "vex": {
+          "vvvv": "NDS",
+          "L": 1,
+          "pp": 0,
+          "mmmmm": 1,
+          "W": 0,
+          "WIG": false
+        },
+        "mode": [
+          "x32",
+          "x64"
+        ],
+        "extensions": [
+          "AVX"
+        ]
+      }
+    ],
+    "defaultOperandSize": 32
+  }
+}

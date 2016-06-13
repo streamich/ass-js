@@ -50,7 +50,8 @@ export class Code extends CodeBase {
 
     mode: t.MODE = t.MODE.X64;
 
-    ClassInstruction: typeof i.Instruction = i.Instruction;
+    ClassInstruction: any = i.Instruction;
+    ClassInstructionSet = i.InstructionSet;
     AlignExpression = i.Align;
     ClassOperands = o.Operands;
 
@@ -97,6 +98,14 @@ export class Code extends CodeBase {
     }
     
     imm(value: Tnumber, signed = true) {
-        return signed ? new o.Immediate(value) : new o.ImmediateUnsigned(value);
+        return signed ? new oo.Immediate(value) : new oo.ImmediateUnsigned(value);
+    }
+
+    lock() {
+        return this.tpl(i.TemplateLock);
+    }
+
+    rex(args: number[]) {
+        return this.tpl(i.TemplateRex, args);
     }
 }

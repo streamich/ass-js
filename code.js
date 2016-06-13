@@ -4,30 +4,6 @@ var instruction_1 = require('./instruction');
 var i = require('./instruction');
 var o = require('./operand');
 var util_1 = require('./util');
-var Symbol = (function () {
-    function Symbol() {
-    }
-    return Symbol;
-}());
-exports.Symbol = Symbol;
-var Block = (function () {
-    function Block() {
-    }
-    return Block;
-}());
-exports.Block = Block;
-var Section = (function () {
-    function Section() {
-    }
-    return Section;
-}());
-exports.Section = Section;
-var Assembler = (function () {
-    function Assembler() {
-    }
-    return Assembler;
-}());
-exports.Assembler = Assembler;
 var Code = (function () {
     function Code(start) {
         if (start === void 0) { start = 'start'; }
@@ -35,14 +11,121 @@ var Code = (function () {
         this.operandSize = operand_1.SIZE.D;
         this.addressSize = operand_1.SIZE.D;
         this.ClassInstruction = i.Instruction;
+        this.ClassInstructionSet = i.InstructionSet;
         this.ClassOperands = o.Operands;
         this.AlignExpression = i.Align;
         this.littleEndian = true;
-        this.methods = {};
         this.label(start);
     }
-    Code.prototype.addMethods = function () {
-        util_1.extend(this, this.methods);
+    Code.prototype._ = function (mnemonic, operands, size) {
+        if (operands === void 0) { operands = []; }
+        if (size === void 0) { size = o.SIZE.ANY; }
+        if (typeof mnemonic !== 'string')
+            throw TypeError('`mnemonic` argument must be a string.');
+        if (!(operands instanceof Array))
+            operands = [operands];
+        var ops = new this.ClassOperands(operands, size);
+        ops.normalizeExpressionToRelative();
+        var matches = this.table.matchDefinitions(mnemonic, ops, size);
+        if (!matches.list.length)
+            throw Error('Could not match operands to instruction definition.');
+        var iset = new this.ClassInstructionSet(ops, matches);
+        this.insert(iset);
+        var insn = iset.pickShortestInstruction();
+        if (insn) {
+            this.replace(insn, iset.index);
+            return insn;
+        }
+        else
+            return iset;
+    };
+    Code.prototype._8 = function (mnemonic) {
+        var operands = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            operands[_i - 1] = arguments[_i];
+        }
+        return this._(mnemonic, operands, 8);
+    };
+    Code.prototype._16 = function (mnemonic) {
+        var operands = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            operands[_i - 1] = arguments[_i];
+        }
+        return this._(mnemonic, operands, 16);
+    };
+    Code.prototype._32 = function (mnemonic) {
+        var operands = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            operands[_i - 1] = arguments[_i];
+        }
+        return this._(mnemonic, operands, 32);
+    };
+    Code.prototype._64 = function (mnemonic) {
+        var operands = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            operands[_i - 1] = arguments[_i];
+        }
+        return this._(mnemonic, operands, 64);
+    };
+    Code.prototype._128 = function (mnemonic) {
+        var operands = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            operands[_i - 1] = arguments[_i];
+        }
+        return this._(mnemonic, operands, 128);
+    };
+    Code.prototype._256 = function (mnemonic) {
+        var operands = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            operands[_i - 1] = arguments[_i];
+        }
+        return this._(mnemonic, operands, 256);
+    };
+    Code.prototype._512 = function (mnemonic) {
+        var operands = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            operands[_i - 1] = arguments[_i];
+        }
+        return this._(mnemonic, operands, 512);
+    };
+    Code.prototype.exportMethods = function (useNumbers, sizes, obj) {
+        var _this = this;
+        if (useNumbers === void 0) { useNumbers = false; }
+        if (sizes === void 0) { sizes = [o.SIZE.B, o.SIZE.W, o.SIZE.D, o.SIZE.Q]; }
+        if (obj === void 0) { obj = {}; }
+        var _loop_1 = function(mnemonic) {
+            obj[mnemonic] = function () {
+                var operands = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    operands[_i - 0] = arguments[_i];
+                }
+                return _this._(mnemonic, operands);
+            };
+            var _loop_2 = function(size) {
+                var method = useNumbers ? mnemonic + size : mnemonic + o.SIZE[size].toLowerCase();
+                obj[method] = function () {
+                    var operands = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        operands[_i - 0] = arguments[_i];
+                    }
+                    return _this._(mnemonic, operands, size);
+                };
+            };
+            for (var _i = 0, sizes_1 = sizes; _i < sizes_1.length; _i++) {
+                var size = sizes_1[_i];
+                _loop_2(size);
+            }
+        };
+        for (var mnemonic in this.table.table) {
+            _loop_1(mnemonic);
+        }
+        return obj;
+    };
+    Code.prototype.addMethods = function (useNumbers, sizes, obj) {
+        if (useNumbers === void 0) { useNumbers = false; }
+        if (sizes === void 0) { sizes = [o.SIZE.B, o.SIZE.W, o.SIZE.D, o.SIZE.Q]; }
+        if (obj === void 0) { obj = this.exportMethods(useNumbers, sizes); }
+        util_1.extend(this, obj);
     };
     Code.prototype.getStartLabel = function () {
         return this.expr[0];
@@ -59,39 +142,6 @@ var Code = (function () {
         this.expr[index] = expr;
         expr.calcOffsetMaxAndOffset();
         return expr;
-    };
-    Code.prototype.compile = function () {
-        this.do2ndPass();
-        return this.do3rdPass();
-    };
-    Code.prototype.do2ndPass = function () {
-        var last = this.expr[this.expr.length - 1];
-        var all_offsets_known = last.offset >= 0;
-        var all_sizes_known = last.bytes() >= 0;
-        if (all_offsets_known && all_sizes_known)
-            return;
-        var prev = this.expr[0];
-        prev.offset = 0;
-        for (var j = 1; j < this.expr.length; j++) {
-            var ins = this.expr[j];
-            if (ins instanceof i.ExpressionVolatile) {
-                var fixed = ins.getFixedSizeExpression();
-                this.replace(fixed, ins.index);
-                ins = fixed;
-            }
-            ins.calcOffset();
-            prev = ins;
-        }
-    };
-    Code.prototype.do3rdPass = function () {
-        var code = [];
-        for (var _i = 0, _a = this.expr; _i < _a.length; _i++) {
-            var ins = _a[_i];
-            if (ins instanceof i.ExpressionVariable)
-                ins.evaluate();
-            code = ins.write(code);
-        }
-        return code;
     };
     Code.prototype.lbl = function (name) {
         return new instruction_1.Label(name);
@@ -203,6 +253,9 @@ var Code = (function () {
         if (littleEndian === void 0) { littleEndian = this.littleEndian; }
         return this.db(instruction_1.Data.quadsToOctets(quads, littleEndian));
     };
+    Code.prototype.tpl = function (Clazz, args) {
+        return this.insert(new Clazz(args));
+    };
     Code.prototype.resb = function (length) {
         var data = new instruction_1.DataUninitialized(length);
         this.insert(data);
@@ -262,6 +315,39 @@ var Code = (function () {
             fs.closeSync(fd);
             return this.db(buf);
         }
+    };
+    Code.prototype.compile = function () {
+        this.do2ndPass();
+        return this.do3rdPass();
+    };
+    Code.prototype.do2ndPass = function () {
+        var last = this.expr[this.expr.length - 1];
+        var all_offsets_known = last.offset >= 0;
+        var all_sizes_known = last.bytes() >= 0;
+        if (all_offsets_known && all_sizes_known)
+            return;
+        var prev = this.expr[0];
+        prev.offset = 0;
+        for (var j = 1; j < this.expr.length; j++) {
+            var ins = this.expr[j];
+            if (ins instanceof i.ExpressionVolatile) {
+                var fixed = ins.getFixedSizeExpression();
+                this.replace(fixed, ins.index);
+                ins = fixed;
+            }
+            ins.calcOffset();
+            prev = ins;
+        }
+    };
+    Code.prototype.do3rdPass = function () {
+        var code = [];
+        for (var _i = 0, _a = this.expr; _i < _a.length; _i++) {
+            var ins = _a[_i];
+            if (ins instanceof i.ExpressionVariable)
+                ins.evaluate();
+            code = ins.write(code);
+        }
+        return code;
     };
     Code.prototype.toString = function (lineNumbers, hex) {
         if (lineNumbers === void 0) { lineNumbers = true; }

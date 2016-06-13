@@ -9,17 +9,18 @@ import {IVexDefinition} from "./table";
 
 
 export type IVexDefinition = t.IVexDefinition;
+export type IEvexDefinition = t.IEvexDefinition;
 
 export class Def extends d.Def {
 
     // 256.66.0F3A.W0 => {L: 1, pp: 1, mmmmm: 1, W: 0}
-    static parseVexString(vstr: string): t.IVexDefinition {
+    static parseVexString(vstr: string): IVexDefinition {
         var vdef: t.IVexDefinition = {
             vvvv:   '',
             L:      0b0,
             pp:     0b00,
-            mmmmm:  0b00000, // 00000B is reserved, will #UD
-            W:      0b0,
+            mmmmm:  0b00001,    // 00000B is reserved, will #UD
+            W:      0b1,        // Inverted, 1 means 2-byte VEX, or ignored.
             WIG:    false,
         };
 
@@ -30,6 +31,7 @@ export class Def extends d.Def {
 
         // L: 128, 256, LIG, LZ
         if(vstr.indexOf('256') > -1)        vdef.L = 0b1;
+        else if(vstr.indexOf('512') > -1)   vdef.L = 0b10; // EVEX
 
         // pp: 66, F2, F3
         if(vstr.indexOf('.66.') > -1)       vdef.pp = 0b01;
@@ -42,12 +44,16 @@ export class Def extends d.Def {
         else if(vstr.indexOf('0F') > -1)    vdef.mmmmm = 0b00001; // Could still be 2-byte VEX prefix
 
         // W: W0, W1
-        if(vstr.indexOf('W1') > -1)         vdef.W = 0b1;
+        if(vstr.indexOf('W0') > -1)         vdef.W = 0b0;
 
         // WIG
         if(vstr.indexOf('WIG') > -1)        vdef.WIG = true;
 
         return vdef;
+    }
+
+    static parseEvexString(estr: string): t.IEvexDefinition {
+        return Def.parseVexString(estr) as t.IEvexDefinition;
     }
 
     opreg: number;
@@ -56,15 +62,16 @@ export class Def extends d.Def {
     lock: boolean;
     regInOp: boolean;
     opcodeDirectionBit: boolean;
-    mandatoryRex: boolean;
     useModrm: boolean;
     rep: boolean;
     repne: boolean;
     prefixes: number[];
-    vex: t.IVexDefinition;
     opEncoding: string;
+    rex: t.TRexDefinition;
+    vex: t.IVexDefinition;
+    evex: t.IEvexDefinition;
     mode: t.MODE;
-    cpuid: t.CPUID;
+    extensions: t.EXT[];
 
 
     constructor(group: DefGroup, def: t.Definition) {
@@ -75,19 +82,20 @@ export class Def extends d.Def {
         this.lock               = def.lock;
         this.regInOp            = def.r;
         this.opcodeDirectionBit = def.dbit;
-        this.mandatoryRex       = def.rex;
+        this.rex                = def.rex;
         this.useModrm           = def.mr;
         this.rep                = def.rep;
         this.repne              = def.repne;
         this.prefixes           = def.pfx;
         this.opEncoding         = def.en;
         this.mode               = def.mod;
-        this.cpuid              = def.cpu;
+        this.extensions         = def.ext;
 
-        if(typeof def.vex === 'string')
-            this.vex = Def.parseVexString(def.vex as string);
-        else
-            this.vex = def.vex as t.IVexDefinition;
+        if(typeof def.vex === 'string') this.vex = Def.parseVexString(def.vex as string);
+        else this.vex = def.vex as t.IVexDefinition;
+
+        if(typeof def.evex === 'string') this.vex = Def.parseEvexString(def.evex as string);
+        else this.evex = def.evex as t.IEvexDefinition;
     }
 
     protected matchOperandTemplate(tpl: t.TOperandTemplate, operand: TUiOperandNormalized): t.TOperandTemplate|any {
@@ -156,7 +164,7 @@ export class Def extends d.Def {
         if(this.rep) json.prefixRep = true;
         if(this.repne) json.prefixRepne = true;
 
-        if(this.mandatoryRex) json.mandatoryRex = true;
+        if(this.rex) json.rex = this.rex;
         if(!this.useModrm) json.skipMorm = true;
 
         if(this.mode) {
@@ -165,12 +173,9 @@ export class Def extends d.Def {
             if(this.mode & t.MODE.X64) json.mode.push('x64');
         }
 
-        if(this.cpuid) {
-            json.cpuid = [];
-            if(this.cpuid & t.CPUID.MMX) json.cpuid.push('MMX');
-            if(this.cpuid & t.CPUID.SSE2) json.cpuid.push('SSE2');
-            if(this.cpuid & t.CPUID.AVX) json.cpuid.push('AVX');
-            if(this.cpuid & t.CPUID.AVX2) json.cpuid.push('AVX2');
+        if(this.extensions) {
+            json.extensions = [];
+            for(var ext of this.extensions) json.extensions.push(t.EXT[ext]);
         }
 
         return json;
@@ -181,12 +186,13 @@ export class Def extends d.Def {
         if(this.opreg > -1) opregstr = ' /' + this.opreg;
 
         var lock = this.lock ? ' LOCK' : '';
-        var rex = this.mandatoryRex ? ' REX' : '';
+        var rex = this.rex ? ' REX ' + this.rex : '';
+        var vex = this.vex ? ' VEX ' + JSON.stringify(this.vex) : '';
 
         var dbit = '';
         if(this.opcodeDirectionBit) dbit = ' d-bit';
 
-        return super.toString() + opregstr + lock + rex + dbit;
+        return super.toString() + opregstr + lock + rex + vex + dbit;
     }
 }
 

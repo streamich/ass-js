@@ -304,6 +304,26 @@ export class Data extends Expression implements IData {
     }
 }
 
+// A pre-filled template with some binary data.
+export class Template extends Data {
+    name = 'template';
+    args: any[];
+
+    constructor(args = []) {
+        super();
+        this.args = args;
+    }
+
+    toString(margin = '    ', comment = true) {
+        var expression = this.name + this.args.join(', ');
+        var cmt = '';
+        if(comment) {
+            cmt = `${this.bytes()} bytes`;
+        }
+        return this.formatToString(margin, expression, cmt);
+    }
+}
+
 
 // Expressions that have operands, operands might reference (in case of `Relative`) other expressions, which
 // have not been insert into code yet, so we might not know the how those operands evaluate on first two passes.
@@ -428,7 +448,7 @@ export abstract class ExpressionVolatile extends ExpressionVariable {
     }
 
     // If `Expression` can generate different size machine code this method forces it to pick one.
-    getFixedSizeExpression() {
+    getFixedSizeExpression(): Expression {
         return this;
     }
 }
@@ -517,11 +537,6 @@ export class Instruction extends ExpressionVolatile {
         return arr;
     }
 
-    getFixedSizeExpression() {
-        return this;
-    }
-
-
     toString(margin = '    ', comment = true) {
         var parts = [];
         parts.push(this.def.getMnemonic());
@@ -535,7 +550,7 @@ export class Instruction extends ExpressionVolatile {
             var octets = this.write([]).map(function(byte) {
                 return byte <= 0xF ? '0' + byte.toString(16).toUpperCase() : byte.toString(16).toUpperCase();
             });
-            cmt = spaces + `; ${this.formatOffset()} 0x` + octets.join(', 0x');// + ' / ' + this.def.toString();
+            cmt = spaces + `; ${this.formatOffset()} 0x` + octets.join(', 0x') + ` ${this.bytes()} bytes`;// + ' / ' + this.def.toString();
         }
 
         return expression + cmt;
@@ -710,6 +725,7 @@ export class InstructionSet extends ExpressionVolatile {
             var ops = this.createInstructionOperands(insn, match.opTpl);
             ops.validateSize();
             insn.ops = ops;
+
             insn.bind(this.code);
             insn.build();
             this.insn[j] = insn;

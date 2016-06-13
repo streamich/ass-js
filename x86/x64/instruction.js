@@ -19,7 +19,7 @@ var Instruction = (function (_super) {
     Instruction.prototype.needsRexPrefix = function () {
         if (this.pfxEx)
             return false;
-        if (this.def.mandatoryRex)
+        if (this.def.rex)
             return true;
         if (!this.ops.list.length)
             return false;

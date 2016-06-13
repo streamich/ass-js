@@ -80,7 +80,7 @@ export class Register extends RegisterBase {
         return (new Memory).ind(this, scale_factor);
     }
 
-    disp(value: o.Tvariable): Memory {
+    disp(value: o.Tvariable|ii.Exp): Memory {
         return (new Memory).ref(this).disp(value);
     }
 
@@ -178,6 +178,13 @@ export class RegisterZmm extends RegisterVector {
     constructor(id: number) {
         super(id, SIZE.I);
         this.name = 'zmm' + id;
+    }
+}
+
+export class RegisterK extends RegisterVector {
+    constructor(id: number) {
+        super(id, SIZE.Q);
+        this.name = 'k' + id;
     }
 }
 
@@ -344,9 +351,15 @@ export class Operands extends o.Operands {
     }
 
     hasExtendedRegister(): boolean {
-        var [dst, src] = this.list;
-        if(dst && dst.reg() && (dst.reg() as Register).isExtended()) return true;
-        if(src && src.reg() && (src.reg() as Register).isExtended()) return true;
+        for(var op of this.list) {
+            if(op instanceof o.Register) {
+                if((op as o.Register).idSize() > 3) return true;
+            } else if(op instanceof o.Memory) {
+                var mem = op as Memory;
+                if(mem.base && (mem.base.idSize() > 3)) return true;
+                if(mem.index && (mem.index.idSize() > 3)) return true;
+            }
+        }
         return false;
     }
 }
@@ -382,6 +395,7 @@ export var mmx  = createRegisterGenerator<RegisterMmx>(RegisterMmx, 0, 15);
 export var xmm  = createRegisterGenerator<RegisterXmm>(RegisterXmm, 0, 31);
 export var ymm  = createRegisterGenerator<RegisterYmm>(RegisterYmm, 0, 31);
 export var zmm  = createRegisterGenerator<RegisterZmm>(RegisterZmm, 0, 31);
+export var k    = createRegisterGenerator<RegisterK>(RegisterK, 0, 7);
 
 
 export var al   = rb(R8.AL);

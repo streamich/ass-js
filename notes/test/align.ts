@@ -5,8 +5,9 @@ import {Code} from '../../x86/x64/code';
 var _ = Code.create();
 
 
-_.mov(r8, 1);
-_.syscall();
+
+_._('mov', [r8, 1]);
+_._('syscall');
 _.align(20, [[1], [1, 2]]);
 
 

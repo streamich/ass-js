@@ -24,7 +24,7 @@ export var rel16    = Relative16;
 export var rel32    = Relative32;
 
 
-export type TOperandTemplate = Register | typeof Register | typeof Memory |
+export type TOperandTemplate = number | Register | typeof Register | typeof Memory |
     typeof Relative | typeof Relative8 | typeof Relative16 | typeof Relative32 |
     typeof Immediate | typeof Immediate8 | typeof Immediate16 | typeof Immediate32 | typeof Immediate64 |
     typeof ImmediateUnsigned | typeof ImmediateUnsigned8 | typeof ImmediateUnsigned16 | typeof ImmediateUnsigned32 | typeof ImmediateUnsigned64;

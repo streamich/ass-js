@@ -6,18 +6,6 @@ import * as d from './def';
 import {UInt64, extend} from './util';
 
 
-export class Symbol {}
-export class Block {}
-export class Section {}
-export class Assembler {}
-
-
-// Expressions are compiled in 3 passes:
-//
-//  - *1st pass* -- maximum offset `maxOffset` for each expression is computed, some expression might not know
-//  their size jet, not all expressions are known, future references. First pass is when user performs insertion of commands.
-//  - *2nd pass* -- all expressions known now, each expression should pick its right size, exact `offset` is computed for each expression.
-//  - *3rd pass* -- now we know exact `offset` of each expression, so in this pass we fill in the addresses.
 export class Code {
     expr: Expression[] = [];
 
@@ -25,22 +13,85 @@ export class Code {
     addressSize = SIZE.D;    // Default address size.
 
     ClassInstruction = i.Instruction;
+    ClassInstructionSet = i.InstructionSet;
     ClassOperands = o.Operands;
     AlignExpression = i.Align;
 
     littleEndian = true; // Which way to encode constants by default.
 
-    // Collection of all assembly instructions: mov, push, ret, retq, etc...
-    // When needed `addMethods()` adds these funcitons to the `Code` object,
-    // some segments, for example, data segment may not need these methods.
-    methods: any = {};
+    table: d.DefTable;
 
     constructor(start: string = 'start') {
         this.label(start);
     }
 
-    addMethods() {
-        extend(this, this.methods);
+    _(mnemonic: string, operands: o.TUiOperand|o.TUiOperand[] = [], size: o.SIZE = o.SIZE.ANY): i.Instruction|i.InstructionSet {
+        if(typeof mnemonic !== 'string') throw TypeError('`mnemonic` argument must be a string.');
+
+        if(!(operands instanceof Array)) operands = [operands] as o.TUiOperand[];
+        var ops = new this.ClassOperands(operands as o.TUiOperand[], size);
+        ops.normalizeExpressionToRelative();
+
+        var matches = this.table.matchDefinitions(mnemonic, ops, size);
+        if(!matches.list.length)
+            throw Error('Could not match operands to instruction definition.');
+
+        var iset = new this.ClassInstructionSet(ops, matches);
+        this.insert(iset);
+
+        var insn = iset.pickShortestInstruction();
+        if(insn) {
+            this.replace(insn, iset.index);
+            return insn;
+        } else
+            return iset;
+    }
+
+    _8(mnemonic: string, ...operands: o.TUiOperand[]) {
+        return this._(mnemonic, operands, 8);
+    }
+
+    _16(mnemonic: string, ...operands: o.TUiOperand[]) {
+        return this._(mnemonic, operands, 16);
+    }
+
+    _32(mnemonic: string, ...operands: o.TUiOperand[]) {
+        return this._(mnemonic, operands, 32);
+    }
+
+    _64(mnemonic: string, ...operands: o.TUiOperand[]) {
+        return this._(mnemonic, operands, 64);
+    }
+
+    _128(mnemonic: string, ...operands: o.TUiOperand[]) {
+        return this._(mnemonic, operands, 128);
+    }
+
+    _256(mnemonic: string, ...operands: o.TUiOperand[]) {
+        return this._(mnemonic, operands, 256);
+    }
+
+    _512(mnemonic: string, ...operands: o.TUiOperand[]) {
+        return this._(mnemonic, operands, 512);
+    }
+
+    exportMethods(useNumbers = false, sizes = [o.SIZE.B, o.SIZE.W, o.SIZE.D, o.SIZE.Q], obj: any = {}) {
+        for(let mnemonic in this.table.table) {
+            obj[mnemonic] = (...operands: o.TUiOperand[]) => {
+                return this._(mnemonic, operands);
+            };
+            for(let size of sizes) {
+                let method = useNumbers ? mnemonic + size : mnemonic + o.SIZE[size].toLowerCase();
+                obj[method] = (...operands: o.TUiOperand[]) => {
+                    return this._(mnemonic, operands, size);
+                };
+            }
+        }
+        return obj;
+    }
+
+    addMethods(useNumbers = false, sizes = [o.SIZE.B, o.SIZE.W, o.SIZE.D, o.SIZE.Q], obj = this.exportMethods(useNumbers, sizes)) {
+        extend(this, obj);
     }
 
     getStartLabel(): Label {
@@ -51,12 +102,6 @@ export class Code {
         this.replace(expr, this.expr.length);
         expr.build();
         return expr;
-        // expr.index = index;
-        // expr.bind(this);
-        // this.expr[index] = expr;
-        // expr.calcOffsetMaxAndOffset(); // 1st pass
-        // expr.build();
-        // return expr;
     }
 
     replace(expr: Expression, index = this.expr.length): Expression {
@@ -65,61 +110,6 @@ export class Code {
         this.expr[index] = expr;
         expr.calcOffsetMaxAndOffset(); // 1st pass
         return expr;
-    }
-
-    compile(): number[] {
-        // 1st pass is performed as instructions are `insert`ed, `.offsetMax` is calculated, and possibly `.offset`.
-
-        // Instructions without size can now determine their size based on `.offsetMax` and
-        // calculate their real `.offset`.
-        this.do2ndPass();
-
-        // Offsets are now know, here we evaluate references.
-        return this.do3rdPass();
-    }
-
-    do2ndPass() {
-        var last = this.expr[this.expr.length - 1];
-        var all_offsets_known = last.offset >= 0;
-
-        // Edge case when only the last Expression has variable size.
-        var all_sizes_known = last.bytes() >= 0;
-
-        if(all_offsets_known && all_sizes_known) return; // Skip 2nd pass.
-
-        var prev = this.expr[0];
-        prev.offset = 0;
-        for(var j = 1; j < this.expr.length; j++) {
-            var ins = this.expr[j];
-
-            if(ins instanceof i.ExpressionVolatile) {
-                var fixed = (ins as i.ExpressionVolatile).getFixedSizeExpression();
-                this.replace(fixed, ins.index);
-                ins = fixed;
-                // (ins as i.ExpressionVolatile).determineSize();
-            }
-
-            // var bytes = prev.bytes();
-            // if(bytes === i.SIZE_UNKNOWN)
-            //     throw Error(`Instruction [${j}] does not have size.`);
-            // ins.offset = prev.offset + bytes;
-            
-            // Need to call method, as `InstructionSet` contains multiple `Instruction`s,
-            // that all need offset updated of picked instruction.
-            ins.calcOffset();
-
-            prev = ins;
-        }
-    }
-
-    do3rdPass() {
-        var code: number[] = [];
-        for(var ins of this.expr) {
-            if(ins instanceof i.ExpressionVariable)
-                (ins as i.ExpressionVariable).evaluate();
-            code = ins.write(code); // 3rd pass
-        }
-        return code;
     }
 
     lbl(name: string): Label {
@@ -147,7 +137,7 @@ export class Code {
         return this.insert(align);
     }
 
-    // DB volatile
+    // DB variable
     dbv(ops: o.Operands, littleEndian: boolean): i.DataVariable;
     dbv(expr: i.Expression, size: number, littleEndian: boolean): i.DataVariable;
     dbv(rel: o.Relative, size: number, littleEndian: boolean): i.DataVariable;
@@ -180,7 +170,7 @@ export class Code {
         return data;
     }
 
-    db(num: number, times: number): Data;
+    db(num: number, times?: number): Data;
     db(str: string, encoding?: string): Data;
     db(octets: number[]): Data;
     db(buf: Buffer): Data;
@@ -227,6 +217,10 @@ export class Code {
 
     dq(quads: Tnumber[], littleEndian = this.littleEndian): Data {
         return this.db(Data.quadsToOctets(quads, littleEndian));
+    }
+
+    tpl(Clazz: typeof i.Template, args?: any[]): i.Expression {
+        return this.insert(new Clazz(args));
     }
 
     resb(length: number): DataUninitialized {
@@ -298,6 +292,67 @@ export class Code {
             fs.closeSync(fd);
             return this.db(buf);
         }
+    }
+
+    // Expressions are compiled in 3 passes:
+    //
+    //  - *1st pass* -- maximum offset `maxOffset` for each expression is computed, some expression might not know
+    //  their size jet, not all expressions are known, future references. First pass is when user performs insertion of commands.
+    //  - *2nd pass* -- all expressions known now, each expression should pick its right size, exact `offset` is computed for each expression.
+    //  - *3rd pass* -- now we know exact `offset` of each expression, so in this pass we fill in the addresses.
+    compile(): number[] {
+        // 1st pass is performed as instructions are `insert`ed, `.offsetMax` is calculated, and possibly `.offset`.
+
+        // Instructions without size can now determine their size based on `.offsetMax` and
+        // calculate their real `.offset`.
+        this.do2ndPass();
+
+        // Offsets are now know, here we evaluate references.
+        return this.do3rdPass();
+    }
+
+    do2ndPass() {
+        var last = this.expr[this.expr.length - 1];
+        var all_offsets_known = last.offset >= 0;
+
+        // Edge case when only the last Expression has variable size.
+        var all_sizes_known = last.bytes() >= 0;
+
+        if(all_offsets_known && all_sizes_known) return; // Skip 2nd pass.
+
+        var prev = this.expr[0];
+        prev.offset = 0;
+        for(var j = 1; j < this.expr.length; j++) {
+            var ins = this.expr[j];
+
+            if(ins instanceof i.ExpressionVolatile) {
+                var fixed = (ins as i.ExpressionVolatile).getFixedSizeExpression();
+                this.replace(fixed, ins.index);
+                ins = fixed;
+                // (ins as i.ExpressionVolatile).determineSize();
+            }
+
+            // var bytes = prev.bytes();
+            // if(bytes === i.SIZE_UNKNOWN)
+            //     throw Error(`Instruction [${j}] does not have size.`);
+            // ins.offset = prev.offset + bytes;
+
+            // Need to call method, as `InstructionSet` contains multiple `Instruction`s,
+            // that all need offset updated of picked instruction.
+            ins.calcOffset();
+
+            prev = ins;
+        }
+    }
+
+    do3rdPass() {
+        var code: number[] = [];
+        for(var ins of this.expr) {
+            if(ins instanceof i.ExpressionVariable)
+                (ins as i.ExpressionVariable).evaluate();
+            code = ins.write(code); // 3rd pass
+        }
+        return code;
     }
 
     toString(lineNumbers = true, hex = true) {

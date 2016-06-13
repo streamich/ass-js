@@ -16,6 +16,7 @@ var Code = (function (_super) {
         _super.apply(this, arguments);
         this.mode = t.MODE.X64;
         this.ClassInstruction = i.Instruction;
+        this.ClassInstructionSet = i.InstructionSet;
         this.AlignExpression = i.Align;
         this.ClassOperands = o.Operands;
     }
@@ -98,7 +99,13 @@ var Code = (function (_super) {
     };
     Code.prototype.imm = function (value, signed) {
         if (signed === void 0) { signed = true; }
-        return signed ? new o.Immediate(value) : new o.ImmediateUnsigned(value);
+        return signed ? new oo.Immediate(value) : new oo.ImmediateUnsigned(value);
+    };
+    Code.prototype.lock = function () {
+        return this.tpl(i.TemplateLock);
+    };
+    Code.prototype.rex = function (args) {
+        return this.tpl(i.TemplateRex, args);
     };
     return Code;
 }(code_1.Code));

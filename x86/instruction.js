@@ -18,6 +18,29 @@ var Expression = (function (_super) {
     return Expression;
 }(i.Expression));
 exports.Expression = Expression;
+var TemplateLock = (function (_super) {
+    __extends(TemplateLock, _super);
+    function TemplateLock() {
+        _super.apply(this, arguments);
+        this.name = 'lock';
+        this.octets = [p.PREFIX.LOCK];
+    }
+    return TemplateLock;
+}(i.Template));
+exports.TemplateLock = TemplateLock;
+var TemplateRex = (function (_super) {
+    __extends(TemplateRex, _super);
+    function TemplateRex(args) {
+        _super.call(this, args);
+        this.name = 'rex';
+        this.args = [0, 0, 0, 0];
+        var _a = this.args, W = _a[0], R = _a[1], X = _a[2], B = _a[3];
+        var rex = new p.PrefixRex(W, R, X, B);
+        rex.write(this.octets);
+    }
+    return TemplateRex;
+}(i.Template));
+exports.TemplateRex = TemplateRex;
 var Align = (function (_super) {
     __extends(Align, _super);
     function Align() {
@@ -66,6 +89,7 @@ var Instruction = (function (_super) {
         this.pfxRepne = null;
         this.pfxSegment = null;
         this.prefixes = [];
+        this.pfxEx = null;
         this.opcode = new p.Opcode;
         this.modrm = null;
         this.sib = null;
@@ -255,6 +279,8 @@ var Instruction = (function (_super) {
         }
         if (this.def.vex)
             this.createVexPrefix();
+        else if (this.def.evex)
+            this.createEvexPrefix();
         if (this.def.prefixes) {
             for (var _i = 0, _a = this.def.prefixes; _i < _a.length; _i++) {
                 var val = _a[_i];
@@ -268,14 +294,14 @@ var Instruction = (function (_super) {
         var R = 1, X = 1, B = 1, vvvv = 15;
         var pos = this.def.opEncoding.indexOf('v');
         if (pos > -1) {
-            var reg = this.ops.getRegisterOperand(pos);
+            var reg = this.ops.getAtIndexOfClass(pos, o.Register);
             if (!reg)
                 throw Error("Could not find Register operand at position " + pos + " to encode VEX.vvvv");
             vvvv = (~reg.get4bitId()) & 15;
         }
         pos = this.def.opEncoding.indexOf('r');
         if (pos > -1) {
-            var reg = this.ops.getRegisterOperand(pos);
+            var reg = this.ops.getAtIndexOfClass(pos, o.Register);
             if (!reg)
                 throw Error("Could not find Register operand at position " + pos + " to encode VEX.R");
             if (reg.idSize() > 3)
@@ -283,23 +309,71 @@ var Instruction = (function (_super) {
         }
         pos = this.def.opEncoding.indexOf('m');
         if (pos > -1) {
-            var reg = this.ops.getRegisterOperand(pos);
-            if (!reg)
-                throw Error("Could not find Register operand at position " + pos + " to encode VEX.B");
-            if (reg.idSize() > 3)
+            var reg = this.ops.getAtIndexOfClass(pos, o.Register);
+            if (reg && (reg.idSize() > 3))
                 B = 0;
         }
-        else {
-            var mem = this.ops.getMemoryOperand();
+        var mem = this.ops.getMemoryOperand();
+        if (mem) {
             if (mem.base && (mem.base.idSize() > 3))
                 B = 0;
             if (mem.index && (mem.index.idSize() > 3))
                 X = 0;
         }
-        var vex = new p.PrefixVex(this.def.vex, R, X, B, vvvv);
-        this.pfxEx = vex;
-        this.length += vex.bytes;
-        this.lengthMax += vex.bytes;
+        this.pfxEx = new p.PrefixVex(this.def.vex, R, X, B, vvvv);
+        this.length += this.pfxEx.bytes;
+        this.lengthMax += this.pfxEx.bytes;
+    };
+    Instruction.prototype.createEvexPrefix = function () {
+        var evex = this.pfxEx = new p.PrefixEvex(this.def.evex);
+        this.length += 3;
+        this.lengthMax += 3;
+        var pos = this.def.opEncoding.indexOf('v');
+        if (pos > -1) {
+            var reg = this.ops.getAtIndexOfClass(pos, o.Register);
+            if (!reg)
+                throw Error("Could not find Register operand at position " + pos + " to encode EVEX.vvvv");
+            evex.vvvv = (~reg.get4bitId()) & 15;
+            evex.Vp = reg.id & 16 ? 0 : 1;
+        }
+        pos = this.def.opEncoding.indexOf('r');
+        if (pos > -1) {
+            var reg = this.ops.getAtIndexOfClass(pos, o.Register);
+            if (!reg)
+                throw Error("Could not find Register operand at position " + pos + " to encode VEX.R");
+            var id_size = reg.idSize();
+            if (id_size > 3)
+                evex.R = 0;
+            if (id_size > 4)
+                evex.Rp = 0;
+        }
+        pos = this.def.opEncoding.indexOf('m');
+        if (pos > -1) {
+            var reg = this.ops.getAtIndexOfClass(pos, o.Register);
+            if (reg && (reg.idSize() > 3))
+                evex.B = 0;
+        }
+        var mem = this.ops.getMemoryOperand();
+        if (mem) {
+            if (mem.base && (mem.base.idSize() > 3))
+                evex.B = 0;
+            if (mem.index && (mem.index.idSize() > 3))
+                evex.X = 0;
+        }
+    };
+    Instruction.prototype.mask = function (k) {
+        if (!(this.pfxEx instanceof p.PrefixEvex))
+            throw Error('Cannot set mask on non-EVEX instruction.');
+        if (k.id === 0)
+            throw TypeError('Mask register 000 cannot be used as mask.');
+        this.pfxEx.aaa = k.get3bitId();
+        return this;
+    };
+    Instruction.prototype.z = function () {
+        if (!(this.pfxEx instanceof p.PrefixEvex))
+            throw Error('Cannot set z-bit on non-EVEX instruction.');
+        this.pfxEx.z = 1;
+        return this;
     };
     Instruction.prototype.createOpcode = function () {
         var def = this.def;
@@ -335,12 +409,13 @@ var Instruction = (function (_super) {
             return;
         if (!this.ops.hasRegisterOrMemory())
             return;
+        var encoding = this.def.opEncoding;
+        var mod = 0, reg = 0, rm = 0;
         var _a = this.ops.list, dst = _a[0], src = _a[1];
         var has_opreg = (this.def.opreg > -1);
         var dst_in_modrm = !this.def.regInOp && !!dst;
         if (has_opreg || dst_in_modrm) {
-            var mod = 0, reg = 0, rm = 0;
-            var reg_is_dst = !!(this.opcode.op & p.Opcode.DIRECTION.REG_IS_DST);
+            var reg_is_dst = this.def.opEncoding[0] !== 'm' ? true : false;
             if (has_opreg) {
                 reg = this.def.opreg;
                 var r = this.ops.getRegisterOperand();
@@ -354,26 +429,51 @@ var Instruction = (function (_super) {
                 }
             }
             else {
-                var r = this.ops.getRegisterOperand(this.regToRegDirectionRegIsDst ? 0 : 1);
-                if (!r)
-                    r = this.ops.getRegisterOperand();
-                if (r) {
+                if ((encoding.length === 2) && (dst instanceof o.Register) && (src instanceof o.Register)) {
                     mod = p.Modrm.MOD.REG_TO_REG;
-                    reg = r.get3bitId();
+                    var regreg = (reg_is_dst ? dst : src);
+                    var rmreg = (reg_is_dst ? src : dst);
+                    reg = regreg.get3bitId();
+                    rm = rmreg.get3bitId();
+                    this.modrm = new p.Modrm(mod, reg, rm);
+                    this.length++;
+                    this.lengthMax++;
+                    return;
+                }
+                var rpos = encoding.indexOf('r');
+                var rreg;
+                if ((rpos > -1) && (rreg = this.ops.getAtIndexOfClass(rpos, o.Register))) {
+                    reg = rreg.get3bitId();
+                }
+                else {
+                    var r = this.ops.getRegisterOperand(this.regToRegDirectionRegIsDst ? 0 : 1);
+                    if (!r)
+                        r = this.ops.getRegisterOperand();
+                    if (r) {
+                        mod = p.Modrm.MOD.REG_TO_REG;
+                        reg = r.get3bitId();
+                    }
                 }
             }
-            if (!dst) {
+            var mpos = encoding.indexOf('m');
+            if (mpos > -1) {
+                var mreg = this.ops.getAtIndexOfClass(mpos, o.Register);
+                if (mreg) {
+                    mod = p.Modrm.MOD.REG_TO_REG;
+                    rm = mreg.get3bitId();
+                    this.modrm = new p.Modrm(mod, reg, rm);
+                    this.length++;
+                    this.lengthMax++;
+                    return;
+                }
+            }
+            else {
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
                 this.lengthMax++;
                 return;
             }
-            if ((dst instanceof o.Register) && (src instanceof o.Register)) {
-                mod = p.Modrm.MOD.REG_TO_REG;
-                var regreg = (reg_is_dst ? dst : src);
-                var rmreg = (reg_is_dst ? src : dst);
-                reg = regreg.get3bitId();
-                rm = rmreg.get3bitId();
+            if (!dst) {
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
                 this.lengthMax++;

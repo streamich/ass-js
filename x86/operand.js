@@ -212,6 +212,15 @@ var RegisterZmm = (function (_super) {
     return RegisterZmm;
 }(RegisterVector));
 exports.RegisterZmm = RegisterZmm;
+var RegisterK = (function (_super) {
+    __extends(RegisterK, _super);
+    function RegisterK(id) {
+        _super.call(this, id, operand_1.SIZE.Q);
+        this.name = 'k' + id;
+    }
+    return RegisterK;
+}(RegisterVector));
+exports.RegisterK = RegisterK;
 var Scale = (function (_super) {
     __extends(Scale, _super);
     function Scale(scale) {
@@ -364,11 +373,20 @@ var Operands = (function (_super) {
         return !!this.getImmediate();
     };
     Operands.prototype.hasExtendedRegister = function () {
-        var _a = this.list, dst = _a[0], src = _a[1];
-        if (dst && dst.reg() && dst.reg().isExtended())
-            return true;
-        if (src && src.reg() && src.reg().isExtended())
-            return true;
+        for (var _i = 0, _a = this.list; _i < _a.length; _i++) {
+            var op = _a[_i];
+            if (op instanceof o.Register) {
+                if (op.idSize() > 3)
+                    return true;
+            }
+            else if (op instanceof o.Memory) {
+                var mem = op;
+                if (mem.base && (mem.base.idSize() > 3))
+                    return true;
+                if (mem.index && (mem.index.idSize() > 3))
+                    return true;
+            }
+        }
         return false;
     };
     return Operands;
@@ -405,6 +423,7 @@ exports.mmx = createRegisterGenerator(RegisterMmx, 0, 15);
 exports.xmm = createRegisterGenerator(RegisterXmm, 0, 31);
 exports.ymm = createRegisterGenerator(RegisterYmm, 0, 31);
 exports.zmm = createRegisterGenerator(RegisterZmm, 0, 31);
+exports.k = createRegisterGenerator(RegisterK, 0, 7);
 exports.al = exports.rb(regfile_1.R8.AL);
 exports.bl = exports.rb(regfile_1.R8.BL);
 exports.cl = exports.rb(regfile_1.R8.CL);

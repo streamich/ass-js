@@ -12,6 +12,24 @@ export const SIZE_UNKNOWN = -1;
 export abstract class Expression extends i.Expression {}
 
 
+export class TemplateLock extends i.Template {
+    name = 'lock';
+    octets = [p.PREFIX.LOCK];
+}
+
+export class TemplateRex extends i.Template {
+    name = 'rex';
+    args = [0, 0, 0, 0];
+
+    constructor(args) {
+        super(args);
+        var [W, R, X, B] = this.args;
+        var rex = new p.PrefixRex(W, R, X, B);
+        rex.write(this.octets);
+    }
+}
+
+
 export class Align extends i.Align {
 
     static nop = [
@@ -87,6 +105,7 @@ export class Instruction extends i.Instruction implements IInstruction {
         this.pfxRepne = null;
         this.pfxSegment = null;
         this.prefixes = [];
+        this.pfxEx = null;
         this.opcode = new p.Opcode; // required
         this.modrm = null;
         this.sib = null;
@@ -280,6 +299,8 @@ export class Instruction extends i.Instruction implements IInstruction {
         }
 
         if(this.def.vex) this.createVexPrefix();
+        else if(this.def.evex) this.createEvexPrefix();
+
 
         // Mandatory prefixes required by op-code.
         if(this.def.prefixes) {
@@ -297,27 +318,28 @@ export class Instruction extends i.Instruction implements IInstruction {
 
         var pos = this.def.opEncoding.indexOf('v');
         if(pos > -1) {
-            var reg = this.ops.getRegisterOperand(pos);
+            var reg = this.ops.getAtIndexOfClass(pos, o.Register) as o.Register;
             if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode VEX.vvvv`);
             vvvv = (~reg.get4bitId()) & 0b1111; // Inverted
         }
 
         pos = this.def.opEncoding.indexOf('r');
         if(pos > -1) {
-            var reg = this.ops.getRegisterOperand(pos);
+            var reg = this.ops.getAtIndexOfClass(pos, o.Register) as o.Register;
             if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode VEX.R`);
             if(reg.idSize() > 3) R = 0; // Inverted
         }
 
         pos = this.def.opEncoding.indexOf('m');
         if(pos > -1) {
-            var reg = this.ops.getRegisterOperand(pos);
-            if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode VEX.B`);
-            if(reg.idSize() > 3) B = 0; // Inverted
-        } else {
-            var mem = this.ops.getMemoryOperand() as o.Memory;
-            if(mem.base && (mem.base.idSize() > 3)) B = 0;
-            if(mem.index && (mem.index.idSize() > 3)) X = 0;
+            var reg = this.ops.getAtIndexOfClass(pos, o.Register) as o.Register;
+            if(reg && (reg.idSize() > 3)) B = 0; // Inverted
+        }
+
+        var mem = this.ops.getMemoryOperand() as o.Memory;
+        if(mem) {
+            if (mem.base && (mem.base.idSize() > 3)) B = 0;
+            if (mem.index && (mem.index.idSize() > 3)) X = 0;
         }
 
         // switch(this.def.vex.vvvv) {
@@ -342,11 +364,62 @@ export class Instruction extends i.Instruction implements IInstruction {
             // {Already set to 0b1111}
         // }
 
-        var vex = new p.PrefixVex(this.def.vex, R, X, B, vvvv);
+        this.pfxEx = new p.PrefixVex(this.def.vex, R, X, B, vvvv);
+        this.length += (this.pfxEx as p.PrefixVex).bytes;
+        this.lengthMax += (this.pfxEx as p.PrefixVex).bytes;
+    }
 
-        this.pfxEx = vex;
-        this.length += vex.bytes;
-        this.lengthMax += vex.bytes;
+    protected createEvexPrefix() {
+        var evex = this.pfxEx = new p.PrefixEvex(this.def.evex);
+        this.length += 3;
+        this.lengthMax += 3;
+
+        var pos = this.def.opEncoding.indexOf('v');
+        if(pos > -1) {
+            var reg = this.ops.getAtIndexOfClass(pos, o.Register) as o.Register;
+            if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode EVEX.vvvv`);
+            evex.vvvv = (~reg.get4bitId()) & 0b1111; // Inverted
+            evex.Vp = reg.id & 0b10000 ? 0 : 1; // Inverted
+        }
+
+        pos = this.def.opEncoding.indexOf('r');
+        if(pos > -1) {
+            var reg = this.ops.getAtIndexOfClass(pos, o.Register) as o.Register;
+            if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode VEX.R`);
+            var id_size = reg.idSize();
+            if(id_size > 3) evex.R = 0; // Inverted
+            if(id_size > 4) evex.Rp = 0; // Inverted
+        }
+
+        pos = this.def.opEncoding.indexOf('m');
+        if(pos > -1) {
+            var reg = this.ops.getAtIndexOfClass(pos, o.Register) as o.Register;
+            if(reg && (reg.idSize() > 3)) evex.B = 0; // Inverted
+        }
+
+        var mem = this.ops.getMemoryOperand() as o.Memory;
+        if(mem) {
+            if (mem.base && (mem.base.idSize() > 3)) evex.B = 0; // Inverted
+            if (mem.index && (mem.index.idSize() > 3)) evex.X = 0; // Inverted
+        }
+    }
+
+    // Set mask register for `EVEX` instructions.
+    mask(k: o.RegisterK): this {
+        if(!(this.pfxEx instanceof p.PrefixEvex))
+            throw Error('Cannot set mask on non-EVEX instruction.');
+        if(k.id === 0)
+            throw TypeError('Mask register 000 cannot be used as mask.');
+        (this.pfxEx as p.PrefixEvex).aaa = k.get3bitId();
+        return this;
+    }
+
+    // Set `z` bit for `EVEX` instructions.
+    z(): this {
+        if(!(this.pfxEx instanceof p.PrefixEvex))
+            throw Error('Cannot set z-bit on non-EVEX instruction.');
+        (this.pfxEx as p.PrefixEvex).z = 1;
+        return this;
     }
 
     protected createOpcode() {
@@ -395,13 +468,16 @@ export class Instruction extends i.Instruction implements IInstruction {
         if(!this.def.useModrm) return;
         if(!this.ops.hasRegisterOrMemory()) return;
 
+        var encoding = this.def.opEncoding;
+        var mod = 0, reg = 0, rm = 0;
+
         var [dst, src] = this.ops.list;
         var has_opreg = (this.def.opreg > -1);
         var dst_in_modrm = !this.def.regInOp && !!dst; // Destination operand is NOT encoded in main op-code byte.
         if(has_opreg || dst_in_modrm) {
-            var mod = 0, reg = 0, rm = 0;
 
-            var reg_is_dst = !!(this.opcode.op & p.Opcode.DIRECTION.REG_IS_DST);
+            // var reg_is_dst = !!(this.opcode.op & p.Opcode.DIRECTION.REG_IS_DST);
+            var reg_is_dst = this.def.opEncoding[0] !== 'm' ? true : false;
 
             if(has_opreg) {
                 // If we have `opreg`, then instruction has up to one operand.
@@ -416,18 +492,51 @@ export class Instruction extends i.Instruction implements IInstruction {
                     return;
                 }
             } else {
-                // var pos = this.def.opEncoding.indexOf('r');
-                // if(pos > -1) {
-                //
-                // }
 
-                // var r: o.Register = this.op.getRegisterOperand(this.regToRegDirectionRegIsDst);
-                var r: o.Register = this.ops.getRegisterOperand(this.regToRegDirectionRegIsDst ? 0 : 1) as o.Register;
-                if(!r) r = this.ops.getRegisterOperand() as o.Register;
-                if(r) {
+                // Reg-to-reg instruction;
+                if((encoding.length === 2) && (dst instanceof o.Register) && (src instanceof o.Register)) {
                     mod = p.Modrm.MOD.REG_TO_REG;
-                    reg = r.get3bitId();
+                    var regreg: o.Register = (reg_is_dst ? dst : src) as o.Register;
+                    var rmreg: o.Register = (reg_is_dst ? src : dst) as o.Register;
+                    reg = regreg.get3bitId();
+                    rm = rmreg.get3bitId();
+                    this.modrm = new p.Modrm(mod, reg, rm);
+                    this.length++;
+                    this.lengthMax++;
+                    return;
                 }
+
+                var rpos = encoding.indexOf('r');
+                var rreg;
+                if((rpos > -1) && (rreg = this.ops.getAtIndexOfClass(rpos, o.Register) as o.Register)) {
+                    reg = rreg.get3bitId();
+                } else {
+                    // var r: o.Register = this.op.getRegisterOperand(this.regToRegDirectionRegIsDst);
+                    var r: o.Register = this.ops.getRegisterOperand(this.regToRegDirectionRegIsDst ? 0 : 1) as o.Register;
+                    if(!r) r = this.ops.getRegisterOperand() as o.Register;
+                    if(r) {
+                        mod = p.Modrm.MOD.REG_TO_REG;
+                        reg = r.get3bitId();
+                    }
+                }
+            }
+
+            var mpos = encoding.indexOf('m');
+            if(mpos > -1) {
+                var mreg = this.ops.getAtIndexOfClass(mpos, o.Register) as o.Register;
+                if(mreg) {
+                    mod = p.Modrm.MOD.REG_TO_REG;
+                    rm = (mreg as o.Register).get3bitId();
+                    this.modrm = new p.Modrm(mod, reg, rm);
+                    this.length++;
+                    this.lengthMax++;
+                    return;
+                }
+            } else {
+                this.modrm = new p.Modrm(mod, reg, rm);
+                this.length++;
+                this.lengthMax++;
+                return;
             }
 
             if(!dst) { // No destination operand, just opreg.
@@ -437,24 +546,13 @@ export class Instruction extends i.Instruction implements IInstruction {
                 return;
             }
 
-            // Reg-to-reg instruction;
-            if((dst instanceof o.Register) && (src instanceof o.Register)) {
-                mod = p.Modrm.MOD.REG_TO_REG;
-                var regreg: o.Register = (reg_is_dst ? dst : src) as o.Register;
-                var rmreg: o.Register = (reg_is_dst ? src : dst) as o.Register;
-                reg = regreg.get3bitId();
-                rm = rmreg.get3bitId();
-                this.modrm = new p.Modrm(mod, reg, rm);
-                this.length++;
-                this.lengthMax++;
-                return;
-            }
-
             // `o.Memory` class makes sure that ESP cannot be a SIB index register and
             // that EBP always has displacement value even if 0x00.
+            // Memory operand can be encoded in only one way (Modrm.rm + SIB) so we
+            // ignore here `def.opEncoding` field.
             var m: o.Memory = this.ops.getMemoryOperand() as o.Memory;
+
             if(!m) {
-                // throw Error('No Memory reference for Modrm byte.');
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
                 this.lengthMax++;
@@ -695,6 +793,3 @@ export class InstructionSet extends i.InstructionSet implements IInstruction {
     }
 }
 
-export interface InstructionSet {
-    pickShortestInstruction(): Instruction;
-}

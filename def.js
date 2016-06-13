@@ -180,7 +180,10 @@ var Def = (function () {
         var operandsstr = '';
         if (operands.length)
             operandsstr = ' ' + operands.join(',');
-        return this.getMnemonic() + opcode + operandsstr;
+        var size = '';
+        if (this.operandSize > 0)
+            size = ' ' + this.operandSize + '-bit';
+        return this.mnemonic + size + opcode + operandsstr;
     };
     return Def;
 }());
@@ -239,17 +242,31 @@ var DefGroup = (function () {
 }());
 exports.DefGroup = DefGroup;
 var DefTable = (function () {
-    function DefTable() {
+    function DefTable(table, defaults) {
         this.DefGroupClass = DefGroup;
         this.groups = {};
+        this.table = table;
+        this.defaults = defaults;
     }
-    DefTable.prototype.create = function (table, defaults) {
-        for (var mnemonic in table) {
-            var group = new this.DefGroupClass(this, mnemonic);
-            group.createDefinitions(table[mnemonic], defaults);
-            this.groups[mnemonic] = group;
+    DefTable.prototype.getGroup = function (mnemonic) {
+        if (!this.groups[mnemonic]) {
+            this.createGroup(mnemonic);
         }
-        return this;
+        return this.groups[mnemonic];
+    };
+    DefTable.prototype.createGroup = function (mnemonic) {
+        var group = new this.DefGroupClass(this, mnemonic);
+        group.createDefinitions(this.table[mnemonic], this.defaults);
+        this.groups[mnemonic] = group;
+    };
+    DefTable.prototype.matchDefinitions = function (mnemonic, ops, size) {
+        if (size === void 0) { size = o.SIZE.ANY; }
+        var group = this.getGroup(mnemonic);
+        if (!group)
+            throw Error("No such mnemonic \"" + mnemonic + "\".");
+        var matches = new DefMatchList;
+        matches.matchAll(group.defs, ops, size);
+        return matches;
     };
     DefTable.prototype.toJson = function () {
         var json = {};
@@ -280,7 +297,11 @@ var DefMatchList = (function () {
     function DefMatchList() {
         this.list = [];
     }
-    DefMatchList.prototype.match = function (def, ops) {
+    DefMatchList.prototype.match = function (def, ops, size) {
+        if (size !== o.SIZE.ANY) {
+            if (size !== def.operandSize)
+                return;
+        }
         var tpl = def.matchOperands(ops);
         if (tpl) {
             var match = new DefMatch;
@@ -289,10 +310,11 @@ var DefMatchList = (function () {
             this.list.push(match);
         }
     };
-    DefMatchList.prototype.matchAll = function (defs, ops) {
+    DefMatchList.prototype.matchAll = function (defs, ops, size) {
+        if (size === void 0) { size = o.SIZE.ANY; }
         for (var _i = 0, defs_1 = defs; _i < defs_1.length; _i++) {
             var def = defs_1[_i];
-            this.match(def, ops);
+            this.match(def, ops, size);
         }
     };
     return DefMatchList;

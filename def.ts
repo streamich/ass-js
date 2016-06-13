@@ -166,7 +166,10 @@ export class Def {
         var operandsstr = '';
         if(operands.length) operandsstr = ' ' + operands.join(',');
 
-        return this.getMnemonic() + opcode + operandsstr;
+        var size = '';
+        if(this.operandSize > 0) size = ' ' + this.operandSize + '-bit';
+
+        return this.mnemonic + size + opcode + operandsstr;
     }
 }
 
@@ -237,14 +240,46 @@ export class DefTable {
 
     groups: {[s: string]: DefGroup;}|any = {};
 
-    create(table: t.TableDefinition, defaults: t.Definition): this {
-        for(var mnemonic in table) {
-            var group = new this.DefGroupClass(this, mnemonic);
-            group.createDefinitions(table[mnemonic], defaults);
-            this.groups[mnemonic] = group;
-        }
-        return this;
+    table: t.TableDefinition;
+
+    defaults: t.Definition;
+
+    constructor(table: t.TableDefinition, defaults: t.Definition) {
+        this.table = table;
+        this.defaults = defaults;
     }
+
+    getGroup(mnemonic: string): DefGroup {
+        if(!this.groups[mnemonic]) {
+            this.createGroup(mnemonic);
+        }
+        return this.groups[mnemonic];
+    }
+
+    protected createGroup(mnemonic: string) {
+        var group = new this.DefGroupClass(this, mnemonic);
+        group.createDefinitions(this.table[mnemonic], this.defaults);
+        this.groups[mnemonic] = group;
+    }
+
+    matchDefinitions(mnemonic: string, ops: o.Operands, size: o.SIZE = o.SIZE.ANY): DefMatchList {
+        var group = this.getGroup(mnemonic);
+        if(!group)
+            throw Error(`No such mnemonic "${mnemonic}".`);
+
+        var matches = new DefMatchList;
+        matches.matchAll(group.defs, ops, size);
+        return matches;
+    }
+
+    // create(table: t.TableDefinition, defaults: t.Definition): this {
+    //     for(var mnemonic in table) {
+    //         var group = new this.DefGroupClass(this, mnemonic);
+    //         group.createDefinitions(table[mnemonic], defaults);
+    //         this.groups[mnemonic] = group;
+    //     }
+    //     return this;
+    // }
 
     toJson() {
         var json: any = {};
@@ -273,7 +308,11 @@ export class DefMatch {
 export class DefMatchList {
     list: DefMatch[] = [];
 
-    match(def: Def, ops: o.Operands) {
+    match(def: Def, ops: o.Operands, size: o.SIZE) {
+        if(size !== o.SIZE.ANY) {
+            if(size !== def.operandSize) return;
+        }
+
         var tpl = def.matchOperands(ops);
         if(tpl) {
             var match = new DefMatch;
@@ -283,7 +322,7 @@ export class DefMatchList {
         }
     }
 
-    matchAll(defs: Def[], ops: o.Operands) {
-        for(var def of defs) this.match(def, ops);
+    matchAll(defs: Def[], ops: o.Operands, size: o.SIZE = o.SIZE.ANY) {
+        for(var def of defs) this.match(def, ops, size);
     }
 }

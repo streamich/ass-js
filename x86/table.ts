@@ -7,18 +7,59 @@ import {Register, Register8, Register16, Register32, Register64, RegisterSegment
 
 
 export enum MODE {
-    X32     = 0b01,
-    X64     = 0b01,
-    BOTH    = MODE.X32 | MODE.X64,
+    REAL    = 0b1,
+    PROT    = 0b10,
+    X32     = 0b100,
+    X64     = 0b1000,
+    X32_64  = MODE.X32 | MODE.X64,
 }
 
+// Instructoins
+export enum INS {
+    NONE        = 0b0,
+    MMX         = 0b1,
+    AES_NI      = 0b10,
+    CLMUL       = 0b100,
+    FMA3        = 0b1000,
+}
 
-export enum CPUID {
-    NONE    = 0b00000,
-    MMX     = 0b00001,
-    SSE2    = 0b00010,
-    AVX     = 0b00100,
-    AVX2    = 0b01000,
+// Extensions
+export enum EXT {
+    NONE,
+    x86_64,
+    Intel_64,
+    MPX,
+    TXT,
+    TSX,
+    SGX,
+    VT_x,
+    VT_d,
+    SHA,
+    AES,
+    SSE,
+    SSE2,
+    SSE3,
+    SSSE3,
+    SSE4,
+    SSE4_1,
+    SSE4_2,
+    ADX,
+    AVX,
+    AVX2,
+    AVX3, // AVX-512
+    AVX512F = EXT.AVX3, // Foundation
+    AVX512CDI,
+    AVX512PFI,
+    AVX512ERI,
+    AVX512VL,
+    AVX512VLI,
+    AVX512BW,
+    AVX512DQ,
+    AVX512IFMA52,
+    AVX512VBMI,
+    FMA3,
+    FMA4,
+    CDI,
 }
 
 
@@ -52,6 +93,8 @@ export type TOperandTemplate = t.TOperandTemplate |
     typeof Memory8 | typeof Memory16 | typeof Memory32 | typeof Memory64;
 
 
+export type TRexDefinition = [number, number, number, number];
+
 // "VEX.DDS.LIG.66.0F38.W1" => {vvvv: 'DDS', L: 0, pp: 1, mmmmm: 2, W: 1}
 export interface IVexDefinition {
     L: number;
@@ -62,6 +105,10 @@ export interface IVexDefinition {
     WIG: boolean;
 }
 
+export interface IEvexDefinition extends IVexDefinition {
+
+}
+
 
 export interface Definition extends t.Definition {
     ds?: number;                                    // Default size, usually 32 bits on x64, some instructions default to 64 bits.
@@ -70,15 +117,16 @@ export interface Definition extends t.Definition {
     or?: number;                                    // Opreg - 3bit opcode part in modrm.reg field, -1 if none.
     r?: boolean;                                    // 3bit register encoded in lowest opcode bits.
     dbit?: boolean;                                 // Whether it is allowed to change `d` bit in opcode. `en` encoding field is ignored then.
-    rex?: boolean;                                  // Whether REX prefix is mandatory for this instruction.
     mr?: boolean;                                   // Whether to include Mod-REG-R/M byte if deemed necessary.
     rep?: boolean;                                  // REP and REPE/REPZ prefix allowed.
     repne?: boolean;                                // REPNE/REPNZ prefix allowed.
     pfx?: number[];                                 // List of mandatory prefixes.
-    vex?: string|IVexDefinition;                    // VEX prefix definitions string as it appears in manual, e.g. "256.66.0F3A.W0"
     en?: string;                                    // Operand encoding, e.g. "rvmr" -> (1) modmr.reg; (2) VEX.vvv; (3) modrm.rm; (4) imm8
     mod?: MODE;                                     // CPU mode
-    cpu?: CPUID;                                    // CPUID feature required.
+    rex?: TRexDefinition;                           // Whether REX prefix is mandatory for this instruction. Holds array of [W, R, X, B].
+    vex?: string|IVexDefinition;                    // VEX prefix definitions string as it appears in manual, e.g. "256.66.0F3A.W0"
+    evex?: string|IEvexDefinition;                  // VEX prefix definitions string as it appears in manual, e.g. "256.66.0F3A.W0"
+    ext?: EXT[];                                    // CPUID extensions required to run this instruction.
 }
 export type GroupDefinition = Definition[];
 export type TableDefinition = {[s: string]: GroupDefinition};
@@ -86,8 +134,8 @@ export type TableDefinition = {[s: string]: GroupDefinition};
 
 // x86 global defaults
 export var defaults: Definition = extend<Definition>({}, t.defaults,
-    {ds: S.D, lock: false, or: -1, r: false, dbit: false, rex: false, mr: true, rep: false, repne: false,
-        pfx: null, vex: null, en: 'rm', mod: MODE.BOTH, cpu: CPUID.NONE});
+    {ds: S.D, lock: false, or: -1, r: false, dbit: false, rex: null, mr: true, rep: false, repne: false,
+        pfx: null, vex: null, evex: null, en: 'rm', mod: M.X32_64, ext: null});
 
 
 // Instruction are divided in groups, each group consists of list

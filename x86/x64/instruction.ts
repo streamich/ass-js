@@ -13,9 +13,10 @@ export class Instruction extends i.Instruction {
 
     protected needsRexPrefix() {
         if(this.pfxEx) return false; // VEX or EVEX already set
-        if(this.def.mandatoryRex) return true;
+        if(this.def.rex) return true;
         if(!this.ops.list.length) return false;
         // if(!this.ops.hasRegisterOrMemory()) return false;
+        
         if(this.ops.hasExtendedRegister()) return true;
 
         var [dst, src] = this.ops.list;
@@ -59,7 +60,7 @@ export class Instruction extends i.Instruction {
         } else {
 
             var r = this.ops.getRegisterOperand();
-            var mem: o.Memory = this.ops.getMemoryOperand();
+            var mem: o.Memory = this.ops.getMemoryOperand() as o.Memory;
 
             if(r) {
                 if(r.idSize() > 3)

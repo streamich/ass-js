@@ -273,6 +273,27 @@ var Data = (function (_super) {
     return Data;
 }(Expression));
 exports.Data = Data;
+var Template = (function (_super) {
+    __extends(Template, _super);
+    function Template(args) {
+        if (args === void 0) { args = []; }
+        _super.call(this);
+        this.name = 'template';
+        this.args = args;
+    }
+    Template.prototype.toString = function (margin, comment) {
+        if (margin === void 0) { margin = '    '; }
+        if (comment === void 0) { comment = true; }
+        var expression = this.name + this.args.join(', ');
+        var cmt = '';
+        if (comment) {
+            cmt = this.bytes() + " bytes";
+        }
+        return this.formatToString(margin, expression, cmt);
+    };
+    return Template;
+}(Data));
+exports.Template = Template;
 var ExpressionVariable = (function (_super) {
     __extends(ExpressionVariable, _super);
     function ExpressionVariable(ops) {
@@ -450,9 +471,6 @@ var Instruction = (function (_super) {
     Instruction.prototype.write = function (arr) {
         return arr;
     };
-    Instruction.prototype.getFixedSizeExpression = function () {
-        return this;
-    };
     Instruction.prototype.toString = function (margin, comment) {
         if (margin === void 0) { margin = '    '; }
         if (comment === void 0) { comment = true; }
@@ -469,7 +487,7 @@ var Instruction = (function (_super) {
             var octets = this.write([]).map(function (byte) {
                 return byte <= 0xF ? '0' + byte.toString(16).toUpperCase() : byte.toString(16).toUpperCase();
             });
-            cmt = spaces + ("; " + this.formatOffset() + " 0x") + octets.join(', 0x');
+            cmt = spaces + ("; " + this.formatOffset() + " 0x") + octets.join(', 0x') + (" " + this.bytes() + " bytes");
         }
         return expression + cmt;
     };

@@ -5,12 +5,9 @@ main:
         syscall
 
 avx:
-    vbroadcastss (%rax), %xmm2
-    VCVTPH2PS (%rax), %ymm1
-    vpcmpeqb %ymm2,%ymm9,%ymm11
-    vpcmpeqb %xmm2,%xmm9,%xmm11
-    vfmadd132pd %xmm1, %xmm1, %xmm1
-    vfmadd132pd %xmm12, %xmm12, %xmm12
+        divsd %xmm2, %xmm1
+        vdivsd %xmm3, %xmm2, %xmm1
+        vdivsd %xmm3, %xmm2, %xmm1 {%k1} {z}
 
 system:
         syscall

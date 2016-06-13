@@ -19,26 +19,30 @@ var Def = (function (_super) {
         this.lock = def.lock;
         this.regInOp = def.r;
         this.opcodeDirectionBit = def.dbit;
-        this.mandatoryRex = def.rex;
+        this.rex = def.rex;
         this.useModrm = def.mr;
         this.rep = def.rep;
         this.repne = def.repne;
         this.prefixes = def.pfx;
         this.opEncoding = def.en;
         this.mode = def.mod;
-        this.cpuid = def.cpu;
+        this.extensions = def.ext;
         if (typeof def.vex === 'string')
             this.vex = Def.parseVexString(def.vex);
         else
             this.vex = def.vex;
+        if (typeof def.evex === 'string')
+            this.vex = Def.parseEvexString(def.evex);
+        else
+            this.evex = def.evex;
     }
     Def.parseVexString = function (vstr) {
         var vdef = {
             vvvv: '',
             L: 0,
             pp: 0,
-            mmmmm: 0,
-            W: 0,
+            mmmmm: 1,
+            W: 1,
             WIG: false,
         };
         if (vstr.indexOf('NDS') > -1)
@@ -49,6 +53,8 @@ var Def = (function (_super) {
             vdef.vvvv = 'DDS';
         if (vstr.indexOf('256') > -1)
             vdef.L = 1;
+        else if (vstr.indexOf('512') > -1)
+            vdef.L = 2;
         if (vstr.indexOf('.66.') > -1)
             vdef.pp = 1;
         else if (vstr.indexOf('.F2.') > -1)
@@ -61,11 +67,14 @@ var Def = (function (_super) {
             vdef.mmmmm = 3;
         else if (vstr.indexOf('0F') > -1)
             vdef.mmmmm = 1;
-        if (vstr.indexOf('W1') > -1)
-            vdef.W = 1;
+        if (vstr.indexOf('W0') > -1)
+            vdef.W = 0;
         if (vstr.indexOf('WIG') > -1)
             vdef.WIG = true;
         return vdef;
+    };
+    Def.parseEvexString = function (estr) {
+        return Def.parseVexString(estr);
     };
     Def.prototype.matchOperandTemplate = function (tpl, operand) {
         var OperandClass = tpl;
@@ -169,8 +178,8 @@ var Def = (function (_super) {
             json.prefixRep = true;
         if (this.repne)
             json.prefixRepne = true;
-        if (this.mandatoryRex)
-            json.mandatoryRex = true;
+        if (this.rex)
+            json.rex = this.rex;
         if (!this.useModrm)
             json.skipMorm = true;
         if (this.mode) {
@@ -180,16 +189,12 @@ var Def = (function (_super) {
             if (this.mode & t.MODE.X64)
                 json.mode.push('x64');
         }
-        if (this.cpuid) {
-            json.cpuid = [];
-            if (this.cpuid & t.CPUID.MMX)
-                json.cpuid.push('MMX');
-            if (this.cpuid & t.CPUID.SSE2)
-                json.cpuid.push('SSE2');
-            if (this.cpuid & t.CPUID.AVX)
-                json.cpuid.push('AVX');
-            if (this.cpuid & t.CPUID.AVX2)
-                json.cpuid.push('AVX2');
+        if (this.extensions) {
+            json.extensions = [];
+            for (var _i = 0, _a = this.extensions; _i < _a.length; _i++) {
+                var ext = _a[_i];
+                json.extensions.push(t.EXT[ext]);
+            }
         }
         return json;
     };
@@ -198,11 +203,12 @@ var Def = (function (_super) {
         if (this.opreg > -1)
             opregstr = ' /' + this.opreg;
         var lock = this.lock ? ' LOCK' : '';
-        var rex = this.mandatoryRex ? ' REX' : '';
+        var rex = this.rex ? ' REX ' + this.rex : '';
+        var vex = this.vex ? ' VEX ' + JSON.stringify(this.vex) : '';
         var dbit = '';
         if (this.opcodeDirectionBit)
             dbit = ' d-bit';
-        return _super.prototype.toString.call(this) + opregstr + lock + rex + dbit;
+        return _super.prototype.toString.call(this) + opregstr + lock + rex + vex + dbit;
     };
     return Def;
 }(d.Def));
