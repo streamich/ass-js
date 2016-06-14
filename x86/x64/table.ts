@@ -2,10 +2,13 @@ import {extend} from '../../util';
 import * as o from '../operand';
 import * as t from '../table';
 import {S, rel, rel8, rel16, rel32, imm, imm8, imm16, imm32, imm64, immu, immu8, immu16, immu32, immu64} from '../../table';
-import {M, r, r8, r16, r32, r64, sreg, mmx, xmm, ymm, zmm,
-    m, m8, m16, m32, m64, rm8, rm16, rm32, rm64,
+import {M, r, r8, r16, r32, r64, mm, st, xmm, ymm, zmm, bnd, cr, dr, sreg,
+    m, m8, m16, m32, m64, m128, m256, m512, rm8, rm16, rm32, rm64,
     INS, EXT} from '../table';
 
+
+export var cr0_7 = [o.cr(0), o.cr(1), o.cr(2), o.cr(3), o.cr(4), o.cr(5), o.cr(6), o.cr(7)];
+export var dr0_7 = [o.dr(0), o.dr(1), o.dr(2), o.dr(3), o.dr(4), o.dr(5), o.dr(6), o.dr(7)];
 
 export var defaults = extend<any>({}, t.defaults,
     {rex: false, ds: S.D});
@@ -57,7 +60,7 @@ function tpl_and(o_al = 0x24, o_imm = 0x80, or_imm = 4, o_reg = 0x20, lock = tru
     ];
 }
 
-function tpl_not(o = 0xF6, or = 2, lock = true) {
+function tpl_not(o = 0xF6, or = 2, lock = true): t.Definition[] {
     return [{o: o + 1, or: or, lock: lock},
         // F6 /2 NOT r/m8 M Valid Valid Reverse each bit of r/m8.
         // REX + F6 /2 NOT r/m8* M Valid N.E. Reverse each bit of r/m8.
@@ -71,8 +74,8 @@ function tpl_not(o = 0xF6, or = 2, lock = true) {
     ];
 }
 
-function tpl_sar(or = 7, o_r = 0xD0, o_imm = 0xC0, mns = null) {
-    return [{or: or, mns: mns},
+function tpl_sar(or = 7, o_r = 0xD0, o_imm = 0xC0) {
+    return [{or: or},
         // D0 /7 SAR r/m8, 1 M1 Valid Valid Signed divide* r/m8 by 2, once.
         // REX + D0 /7 SAR r/m8**, 1 M1 Valid N.E. Signed divide* r/m8 by 2, once.
         {o: o_r, ops: [rm8, 1]},
@@ -121,7 +124,7 @@ function tpl_shrd(op = 0x0FAC) {
 }
 
 function tpl_bt(o_r = 0x0FA3, or_imm = 4, o_imm = 0x0FBA) {
-    return [{},
+    return [{en: 'mr'},
         // 0F A3 /r BT r/m16, r16 MR Valid Valid Store selected bit in CF flag.
         {o: o_r, ops: [rm16, r16]},
         // 0F A3 /r BT r/m32, r32 MR Valid Valid Store selected bit in CF flag.
@@ -138,13 +141,13 @@ function tpl_bt(o_r = 0x0FA3, or_imm = 4, o_imm = 0x0FBA) {
 }
 
 function tpl_bsf(op = 0x0FBC) {
-    return [{},
+    return [{o: op},
         // 0F BC /r BSF r16, r/m16 RM Valid Valid Bit scan forward on r/m16.
-        {o: op, ops: [r16, rm16]},
+        {ops: [r16, rm16]},
         // 0F BC /r BSF r32, r/m32 RM Valid Valid Bit scan forward on r/m32.
-        {o: op, ops: [r32, rm32]},
+        {ops: [r32, rm32]},
         // REX.W + 0F BC /r BSF r64, r/m64 RM Valid N.E. Bit scan forward on r/m64.
-        {o: op, ops: [r64, rm64]},
+        {ops: [r64, rm64]},
     ];
 }
 
@@ -157,8 +160,8 @@ function tpl_ja(op = 0x77, op2 = 0x0F87) {
     ];
 }
 
-function tpl_cmovc(op = 0x0F42, mns = null) {
-    return [{o: op, mns: mns},
+function tpl_cmovc(op = 0x0F42) {
+    return [{o: op},
         // 0F 42 /r CMOVC r16, r/m16 RM Valid Valid Move if carry (CF=1).
         {ops: [r16, rm16]},
         // 0F 42 /r CMOVC r32, r/m32 RM Valid Valid Move if carry (CF=1).
@@ -206,34 +209,1133 @@ function tpl_lss(op = 0x0FB2) {
     ];
 }
 
+function tpl_blsi(op = 0xF3, or = 3) {
+    return [{o: op, or: or, en: 'vm', ext: [EXT.BMI1]},
+        {vex: 'NDD.LZ.0F38.W0', ops: [r32, rm32]},
+        {vex: 'NDD.LZ.0F38.W1', ops: [r64, rm64], mod: M.X64},
+    ];
+}
+
+function tpl_bndcl(op = 0xF30F1A) {
+    return [{o: op, ext: [EXT.MPX]},
+        {ops: [bnd, rm32], mod: M.X32},
+        {ops: [bnd, rm64], mod: M.X64},
+    ];
+}
+
+
+// TODO:
+// TODO: CALL - ptr16:16 vs m16:16
+// TODO: test `mib` operands, that require SIB and have no SCALE and INDEX
+// TODO: JMP - memory and pointer legacy references.
+
+
+var _dec = tpl_not(0xFE, 1);
+_dec.push({o: 0x48, r: true, ops: [r16], mod: M.COMP | M.LEG});
+_dec.push({o: 0x48, r: true, ops: [r32], mod: M.COMP | M.LEG});
+
+var _inc = tpl_not(0xFE, 0);
+_inc.push({o: 0x40, r: true, ops: [r16], mod: M.COMP | M.LEG});
+_inc.push({o: 0x40, r: true, ops: [r32], mod: M.COMP | M.LEG});
+
 
 export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
+
+
+    // # A-letter
+    aaa: [{o: 0x37, mod: M.OLD}],
+    
+    aad: [{mod: M.OLD},
+        {o: 0xD50A},
+        {o: 0xD5, ops: [imm8]},
+    ],
+    aam: [{mod: M.OLD},
+        {o: 0xD40A},
+        {o: 0xD4, ops: [imm8]},
+    ],
+    aas: [{o: 0x3F, mod: M.OLD}],
+
+    addpd: [{o: 0x660F58, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vaddpd: [{o: 0x58, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.66.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.66.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
 
     // 0F 58 /r ADDPS xmm1, xmm2/m128 V/V SSE
     addps: [{o: 0x0F58, ops: [xmm, [xmm, m]], ext: [EXT.SSE]}],
     vaddps: [{o: 0x58, en: 'rvm'},
         // VEX.NDS.128.0F 58 /r VADDPS xmm1,xmm2, xmm3/m128 V/V AVX
-        {vex: 'NDS.128.0F', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AVX]},
+        {vex: 'NDS.128.0F.WIG', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AVX]},
         // VEX.NDS.256.0F 58 /r VADDPS ymm1, ymm2, ymm3/m256 V/V AVX
-        {vex: 'NDS.256.0F', ops: [ymm, ymm, [ymm, m]], ext: [EXT.AVX]},
+        {vex: 'NDS.256.0F.WIG', ops: [ymm, ymm, [ymm, m]], ext: [EXT.AVX]},
         // EVEX.NDS.128.0F.W0 58 /r VADDPS xmm1 {k1}{z}, xmm2, xmm3/m128/m32bcst V/V  AVX512VL AVX512F
-        // {evex: 'NDS.128.0F.W0', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AVX512VL,  EXT.AVX512F]},
+        {evex: 'NDS.128.0F.W0', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AVX512VL,  EXT.AVX512F]},
         // EVEX.NDS.256.0F.W0 58 /r VADDPS ymm1 {k1}{z}, ymm2, ymm3/m256/m32bcst V/V  AVX512VL AVX512F
-        // {evex: 'NDS.256.0F.W0', ops: [ymm, ymm, [ymm, m]], ext: [EXT.AVX512VL,  EXT.AVX512F]},
+        {evex: 'NDS.256.0F.W0', ops: [ymm, ymm, [ymm, m]], ext: [EXT.AVX512VL,  EXT.AVX512F]},
         // EVEX.NDS.512.0F.W0 58 /r VADDPS zmm1 {k1}{z}, zmm2, zmm3/m512/m32bcst {er} V/V AVX512F
-        // {evex: 'NDS.512.0F.W0', ops: [zmm, zmm, [zmm, m]], ext: [EXT.AVX512F]},
+        {evex: 'NDS.512.0F.W0', ops: [zmm, zmm, [zmm, m]], ext: [EXT.AVX512F]},
     ],
     kandw: [{},
         // VEX.L1.0F.W0 41 /r KANDW k1, k2, k3 V/V AVX512F
         {o: 0x41, vex: 'L1.0F.W0', ops: [], ext: [EXT.AVX512F]},
     ],
 
-    // DIVSD—Divide Scalar Double-Precision Floating-Point Value
+    addsd: [{o: 0xF20F58, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vaddsd: [{o: 0x58, vex: 'NDS.LIG.F2.0F.WIG', en: 'rvm', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AVX]}],
+
+    addss: [{o: 0xF30F58, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vaddss: [{o: 0x58, vex: 'NDS.LIG.F3.0F.WIG', en: 'rvm', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AVX]}],
+
+    addsubpd: [{o: 0x660FD0, ops: [xmm, [xmm, m]], ext: [EXT.SSE3]}],
+    vaddsubpd: [{o: 0xD0, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.66.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.66.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
+    addsubps: [{o: 0xF20FD0, ops: [xmm, [xmm, m]], ext: [EXT.SSE3]}],
+    vaddsubps: [{o: 0xD0, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.F2.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.F2.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
+    aesdec: [{o: 0x0F38DE, pfx: [0x66], ops: [xmm, [xmm, m]], ext: [EXT.AES]}],
+    vaesdec: [{o: 0xDE, vex: 'NDS.128.66.0F38.WIG', en: 'rvm', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AES, EXT.AVX]}],
+
+    aesdeclast: [{o: 0x0F38DF, pfx: [0x66], ops: [xmm, [xmm, m]], ext: [EXT.AES]}],
+    vaesdeclast: [{o: 0xDF, vex: 'NDS.128.66.0F38.WIG', en: 'rvm', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AES, EXT.AVX]}],
+
+    aesenc: [{o: 0x0F38DC, pfx: [0x66], ops: [xmm, [xmm, m]], ext: [EXT.AES]}],
+    vaesenc: [{o: 0xDC, vex: 'NDS.128.66.0F38.WIG', en: 'rvm', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AES, EXT.AVX]}],
+
+    aesenclast: [{o: 0x0F38DD, pfx: [0x66], ops: [xmm, [xmm, m]], ext: [EXT.AES]}],
+    vaesenclast: [{o: 0xDD, vex: 'NDS.128.66.0F38.WIG', en: 'rvm', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AES, EXT.AVX]}],
+
+    aesimc: [{o: 0x0F38DB, pfx: [0x66], ops: [xmm, [xmm, m]], ext: [EXT.AES]}],
+    vaesimc: [{o: 0xDB, vex: '128.66.0F38.WIG', ops: [xmm, [xmm, m]], ext: [EXT.AES, EXT.AVX]}],
+
+    aeskeygenassist: [{o: 0x0F3ADF, pfx: [0x66], ops: [xmm, [xmm, m], imm8], ext: [EXT.AES]}],
+    vaeskeygenassist: [{o: 0xDF, vex: '128.66.0F3A.WIG', ops: [xmm, [xmm, m], imm8], ext: [EXT.AES, EXT.AVX]}],
+
+    andn: [{o: 0xF2, en: 'rvm', ext: [EXT.BMI1]},
+        {vex: 'NDS.LZ.0F38.W0', ops: [r32, r32, rm32]},
+        {vex: 'NDS.LZ.0F38.W1', ops: [r64, r64, rm64], mod: M.X64},
+    ],
+
+    andpd: [{o: 0x660F54, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vandpd: [{o: 0x54, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.66.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.66.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
+    andps: [{o: 0x0F54, ops: [xmm, [xmm, m]], ext: [EXT.SSE]}],
+    vandps: [{o: 0x54, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
+    andnpd: [{o: 0x660F55, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vandnpd: [{o: 0x55, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.66.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.66.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
+    andnps: [{o: 0x0F55, ops: [xmm, [xmm, m]], ext: [EXT.SSE]}],
+    vandnps: [{o: 0x55, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
+    arpl: [{o: 0x63, ops: [rm16, r16], mod: M.OLD}],
+
+
+
+    // # B-letter
+    blendpd: [{o: 0x0F3A0F, pfx: [0x66], ops: [xmm, [xmm, m], imm8], ext: [EXT.SSE4_1]}],
+    vblendpd: [{o: 0x0D, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.66.0F3A.WIG', ops: [xmm, xmm, [xmm, m], imm8]},
+        {vex: 'NDS.256.66.0F3A.WIG', ops: [ymm, ymm, [ymm, m], imm8]},
+    ],
+
+    bextr: [{o: 0xF7, en: 'rmv', ext: [EXT.BMI1]},
+        {vex: 'NDS.LZ.0F38.W0', ops: [r32, rm32, r32]},
+        {vex: 'NDS.LZ.0F38.W1', ops: [r64, rm64, r64], mod: M.X64},
+    ],
+
+    blendps: [{o: 0x0F3A0C, pfx: [0x66], ops: [xmm, [xmm, m], imm8], ext: [EXT.SSE4_1]}],
+    vblendps: [{o: 0x0C, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.66.0F3A.WIG', ops: [xmm, xmm, [xmm, m], imm8]},
+        {vex: 'NDS.256.66.0F3A.WIG', ops: [ymm, ymm, [ymm, m], imm8]},
+    ],
+
+    blendvpd: [{o: 0x0F3815, pfx: [0x66], ops: [xmm, [xmm, m]], ext: [EXT.SSE4_1]}],
+    vblendvpd: [{o: 0x4B, en: 'rvmr', ext: [EXT.AVX]},
+        {vex: 'NDS.128.66.0F3A.W0', ops: [xmm, xmm, [xmm, m], xmm]},
+        {vex: 'NDS.256.66.0F3A.W0', ops: [ymm, ymm, [ymm, m], ymm]},
+    ],
+
+    blendvps: [{o: 0x0F3814, pfx: [0x66], ops: [xmm, [xmm, m]], ext: [EXT.SSE4_1]}],
+    vblendvps: [{o: 0x4A, en: 'rvmr', ext: [EXT.AVX]},
+        {vex: 'NDS.128.66.0F3A.W0', ops: [xmm, xmm, [xmm, m], xmm]},
+        {vex: 'NDS.256.66.0F3A.W0', ops: [ymm, ymm, [ymm, m], ymm]},
+    ],
+
+    blsi: tpl_blsi(),
+    blsmsk: tpl_blsi(0xF3, 2),
+    blsr: tpl_blsi(0xF3, 1),
+
+    bndcl: tpl_bndcl(),
+    bndcu: tpl_bndcl(0xF20F1A),
+    bndcn: tpl_bndcl(0xF20F1B),
+    bndmk: tpl_bndcl(0xF30F1B),
+
+    bndldx: [{o: 0x0F1A, ops: [bnd, m], ext: [EXT.MPX]}],
+
+    bndmov: [{pfx: [0x66, 0x0F], ext: [EXT.MPX]},
+        {o: 0x1A, ops: [bnd, [bnd, m]], dbit: true},
+        {o: 0x1B, ops: [[bnd, m], bnd], en: 'mr', dbit: true},
+    ],
+
+    bndstx: [{o: 0x0F1B, ops: [m, bnd], en: 'mr', ext: [EXT.MPX]}],
+
+    bound: [{o: 0x62, mod: M.OLD},
+        {ops: [r16, m]},
+        {ops: [r32, m]},
+    ],
+
+    bzhi: [{o: 0xF5, en: 'rmv', ext: [EXT.BMI2]},
+        {vex: 'NDS.LZ.0F38.W0', ops: [r32, rm32, r32]},
+        {vex: 'NDS.LZ.0F38.W1', ops: [r64, rm64, r64], mod: M.X64},
+    ],
+
+
+
+    // # C-letter
+    clflush: [{o: 0x0FAE, or: 7, ops: [m]}],
+    clflushopt: [{o: 0x660FAE, or: 7, ops: [m]}],
+
+    clts: [{o: 0x0F06}],
+
+    cmppd: [{o: 0x660FC2, ops: [xmm, [xmm, m], imm8], ext: [EXT.SSE2]}],
+    vcmppd: [{o: 0xC2, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.66.0F.WIG', ops: [xmm, xmm, [xmm, m], imm8]},
+        {vex: 'NDS.256.66.0F.WIG', ops: [ymm, ymm, [ymm, m], imm8]},
+    ],
+
+    cmpps: [{o: 0x0FC2, ops: [xmm, [xmm, m], imm8], ext: [EXT.SSE]}],
+    vcmpps: [{o: 0xC2, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.0F.WIG C2', ops: [xmm, xmm, [xmm, m], imm8]},
+        {vex: 'NDS.256.0F.WIG C2', ops: [ymm, ymm, [ymm, m], imm8]},
+    ],
+
+    cmpsd: [{o: 0xF20FC2, ops: [xmm, [xmm, m], imm8], ext: [EXT.SSE2]}],
+    vcmpsd: [{o: 0xC2, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.LIG.F2.0F.WIG', ops: [xmm, xmm, [xmm, m], imm8]},
+    ],
+
+    cmpss: [{o: 0xF30FC2, ops: [xmm, [xmm, m], imm8], ext: [EXT.SSE]}],
+    vcmpss: [{o: 0xC2, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.LIG.F3.0F.WIG', ops: [xmm, xmm, [xmm, m], imm8]},
+    ],
+
+    comisd: [{o: 0x660F2F, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vcomisd: [{o: 0x2F, vex: 'LIG.66.0F.WIG', ops: [xmm, [xmm, m]], ext: [EXT.AVX]}],
+
+    comiss: [{o: 0x0F2F, ops: [xmm, [xmm, m]], ext: [EXT.SSE]}],
+    vcomiss: [{o: 0x2F, vex: 'LIG.0F.WIG', ops: [xmm, [xmm, m]], ext: [EXT.AVX]}],
+
+    cvtdq2pd: [{o: 0xF30FE6, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vcvtdq2pd: [{o: 0xE6, ext: [EXT.AVX]},
+        {vex: '128.F3.0F.WIG', ops: [xmm, [xmm, m]]},
+        {vex: '256.F3.0F.WIG', ops: [ymm, [ymm, m]]},
+    ],
+
+    cvtdq2ps: [{o: 0x0F5B, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vcvtdq2ps: [{o: 0x5B, ext: [EXT.AVX]},
+        {vex: '128.0F.WIG', ops: [xmm, [xmm, m]]},
+        {vex: '256.0F.WIG', ops: [ymm, [ymm, m]]},
+    ],
+
+    cvtpd2dq: [{o: 0xF20FE6, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vcvtpd2dq: [{o: 0xE6, ext: [EXT.AVX]},
+        {vex: '128.F2.0F.WIG', ops: [xmm, [xmm, m]]},
+        {vex: '256.F2.0F.WIG', ops: [ymm, [ymm, m]]},
+    ],
+
+    cvtpd2pi: [{o: 0x660F2D, ops: [xmm, [xmm, m]]}],
+
+    cvtpd2ps: [{o: 0x660F5A, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vcvtpd2ps: [{o: 0x5A, ext: [EXT.AVX]},
+        {vex: '128.66.0F.WIG', ops: [xmm, [xmm, m]]},
+        {vex: '256.66.0F.WIG', ops: [ymm, [ymm, m]]},
+    ],
+
+    cvtpi2pd: [{o: 0x660F2A, ops: [xmm, [xmm, m]]}],
+
+    cvtpi2ps: [{o: 0x0F2A, ops: [xmm, [xmm, m]]}],
+
+    cvtps2dq: [{o: 0x660F5B, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vcvtps2dq: [{o: 0x5B, ext: [EXT.AVX]},
+        {vex: '128.66.0F.WIG', ops: [xmm, [xmm, m]]},
+        {vex: '256.66.0F.WIG', ops: [ymm, [ymm, m]]},
+    ],
+
+    cvtps2pd: [{o: 0x0F5A, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vcvtps2pd: [{o: 0x5A, ext: [EXT.AVX]},
+        {vex: '128.0F.WIG', ops: [xmm, [xmm, m]]},
+        {vex: '256.0F.WIG', ops: [ymm, [ymm, m]]},
+    ],
+
+    cvtps2pi: [{o: 0x0F2D, ops: [xmm, [xmm, m]]}],
+
+    cvtsd2si: [{o: 0xF20F2D, ops: [r32, [xmm, m]], ext: [EXT.SSE2]}],
+    vcvtsd2si: [{o: 0x2D, ext: [EXT.AVX]},
+        {o: 0x0F2D, pfx: [0xF2], ops: [r64, [xmm, m]], ext: [EXT.SSE2], mod: M.X64},
+        {vex: 'LIG.F2.0F.W0', ops: [r32, [xmm, m]]},
+        {vex: 'LIG.F2.0F.W1', ops: [r64, [xmm, m]], mod: M.X64},
+    ],
+
+    cvtsd2ss: [{o: 0xF20F5A, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vcvtsd2ss: [{o: 0x5A, vex: 'NDS.LIG.F2.0F.WIG', ops: [xmm, xmm, [xmm, m]], en: 'rvm', ext: [EXT.AVX]}],
+
+    cvtsi2sd: [{o: 0x0F2A, pfx: [0xF2], ext: [EXT.SSE2]},
+        {ops: [xmm, rm32]},
+        {ops: [xmm, rm64]},
+    ],
+    vcvtsi2sd: [{o: 0x2A, ext: [EXT.AVX], en: 'rvm'},
+        {vex: 'NDS.LIG.F2.0F.W0', ops: [xmm, xmm, rm32]},
+        {vex: 'NDS.LIG.F2.0F.W1', ops: [xmm, xmm, rm64]},
+    ],
+
+    cvtsi2ss: [{o: 0x0F2A, pfx: [0xF3], ext: [EXT.SSE]},
+        {ops: [xmm, rm32]},
+        {ops: [xmm, rm64]},
+    ],
+    vcvtsi2ss: [{o: 0x2A, ext: [EXT.AVX], en: 'rvm'},
+        {vex: 'NDS.LIG.F3.0F.W0', ops: [xmm, xmm, rm32]},
+        {vex: 'NDS.LIG.F3.0F.W1', ops: [xmm, xmm, rm64]},
+    ],
+
+    cvtss2sd: [{o: 0xF30F5A, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vcvtss2sd: [{o: 0x5A, vex: 'NDS.LIG.F3.0F.WIG', ops: [xmm, xmm, [xmm, m]], en: 'rvm', ext: [EXT.AVX]}],
+
+    cvtss2si: [{o: 0x0F2D, pfx: [0xF3], ext: [EXT.SSE]},
+        {ops: [r32, [xmm, m]]},
+        {ops: [r64, [xmm, m]], mod: M.X64},
+    ],
+    vcvtss2si: [{o: 0x2D, ext: [EXT.AVX]},
+        {vex: 'LIG.F3.0F.W0', ops: [r32, [xmm, m]]},
+        {vex: 'LIG.F3.0F.W1', ops: [r64, [xmm, m]], mod: M.X64},
+    ],
+
+    cvttpd2dq: [{o: 0x660FE6, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vcvttpd2dq: [{o: 0xE6, ext: [EXT.AVX]},
+        {vex: '128.66.0F.WIG', ops: [xmm, [xmm, m]]},
+        {vex: '256.66.0F.WIG', ops: [ymm, [ymm, m]]},
+    ],
+
+    cvttpd2pi: [{o: 0x660F2C, ops: [xmm, [xmm, m]]}],
+
+    cvttps2dq: [{o: 0xF30F5B, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vcvttps2dq: [{o: 0x5B, ext: [EXT.AVX]},
+        {vex: '128.F3.0F.WIG', ops: [xmm, [xmm, m]]},
+        {vex: '256.F3.0F.WIG', ops: [ymm, [ymm, m]]},
+    ],
+
+    cvttps2pi: [{o: 0x0F2C, ops: [xmm, [xmm, m]]}],
+
+    cvttsd2si: [{o: 0x0F2C, pfx: [0xF2], ext: [EXT.SSE2]},
+        {ops: [r32, [xmm, m]]},
+        {ops: [r64, [xmm, m]], mod: M.X64},
+    ],
+    vcvttsd2si: [{o: 0x2C, ext: [EXT.AVX]},
+        {vex: 'LIG.F2.0F.W0', ops: [r32, [xmm, m]]},
+        {vex: 'LIG.F2.0F.W1', ops: [r64, [xmm, m]], mod: M.X64},
+    ],
+
+    cvttss2si: [{o: 0x0F2C, pfx: [0xF3], ext: [EXT.SSE]},
+        {ops: [r32, [xmm, m]]},
+        {ops: [r64, [xmm, m]], mod: M.X64},
+    ],
+    vcvttss2si: [{o: 0x2C, ext: [EXT.AVX]},
+        {vex: 'LIG.F3.0F.W0', ops: [r32, [xmm, m]]},
+        {vex: 'LIG.F3.0F.W1', ops: [r64, [xmm, m]], mod: M.X64},
+    ],
+
+
+
+    // # D-letter
+    daa: [{o: 0x27, mod: M.OLD}],
+    das: [{o: 0x2F, mod: M.OLD}],
+
+    divpd: [{o: 0x660F5E, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vdivpd: [{o: 0x5E, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.66.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.66.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
+    divps: [{o: 0x0F5E, ops: [xmm, [xmm, m]], ext: [EXT.SSE]}],
+    vdivps: [{o: 0x5E, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
     divsd: [{o: 0xF20F5E, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
     vdivsd: [{o: 0x5E, en: 'rvm', ops: [xmm, xmm, [xmm, m]]},
-        {vex: 'NDS.128.F2.0F.WIG', ext: [EXT.AVX]},
+        {vex: 'NDS.LIG.F2.0F.WIG', ext: [EXT.AVX]},
         {evex: 'NDS.LIG.F2.0F.W1', ext: [EXT.AVX512F]},
     ],
+
+    divss: [{o: 0xF30F5E, ops: [xmm, [xmm, m]], ext: [EXT.SSE]}],
+    vdivss: [{o: 0x5E, en: 'rvm', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.LIG.F3.0F.WIG', ext: [EXT.AVX]},
+    ],
+
+    dppd: [{o: 0x0F3A41, pfx: [0x66], ops: [xmm, [xmm, m], imm8], ext: [EXT.SSE4_1]}],
+    vdppd: [{o: 0x41, vex: 'NDS.128.66.0F3A.WIG', ops: [xmm, xmm, [xmm, m], imm8], ext: [EXT.AVX]}],
+
+    dpps: [{o: 0x0F3A40, pfx: [0x66], ops: [xmm, [xmm, m], imm8], ext: [EXT.SSE4_1]}],
+    vdpps: [{o: 0x40, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.66.0F3A.WIG', ops: [xmm, xmm, [xmm, m], imm8]},
+        {vex: 'NDS.256.66.0F3A.WIG', ops: [ymm, ymm, [ymm, m], imm8]},
+    ],
+
+
+
+    // # E-letter
+    emms: [{o: 0x0F77}],
+
+    extractps: [{o: 0x0F3A17, pfx: [0x66], en: 'mr', ops: [r32, xmm, imm8], ext: [EXT.SSE4_1]}],
+    vextractps: [{o: 0x17, en: 'mr', vex: '128.66.0F3A.WIG', ops: [rm32, xmm, imm8], ext: [EXT.AVX]}],
+
+
+
+    // # F-letter
+    f2xm1: [{o: 0xD9F0}],
+    fabs: [{o: 0xD9E1}],
+
+    fadd: [{},
+        {o: 0xD8, or: 0, ops: [m], s: S.D},
+        {o: 0xDC, or: 0, ops: [m], s: S.Q},
+        {o: 0xD8, ops: [o.st(0), st]},
+        {o: 0xDC, ops: [st, o.st(0)]},
+    ],
+    faddp: [{},
+        {o: 0xDE, ops: [st, o.st(0)]},
+        {o: 0xDEC1},
+    ],
+    fiadd: [{or: 0},
+        {o: 0xDA, ops: [m], s: S.D},
+        {o: 0xDE, ops: [m], s: S.W},
+    ],
+
+    fbld: [{o: 0xDF, or: 4, ops: [m]}],
+    fbstp: [{o: 0xDF, or: 6, ops: [m]}],
+    fchs: [{o: 0xD9E0}],
+    fclex: [{o: 0x9BDBE2}],
+    fnclex: [{o: 0xDBE2}],
+
+    fcmovb:     [{o: 0xDA, or: 0, ops: [st]}],
+    fcmove:     [{o: 0xDA, or: 1, ops: [st]}],
+    fcmovbe:    [{o: 0xDA, or: 2, ops: [st]}],
+    fcmovu:     [{o: 0xDA, or: 3, ops: [st]}],
+    fcmovnb:    [{o: 0xDB, or: 0, ops: [st]}],
+    fcmovne:    [{o: 0xDB, or: 1, ops: [st]}],
+    fcmovnbe:   [{o: 0xDB, or: 2, ops: [st]}],
+    fcmovnu:    [{o: 0xDB, or: 3, ops: [st]}],
+
+    fcom: [{or: 2},
+        {o: 0xD8, ops: [m], s: S.D},
+        {o: 0xDC, ops: [m], s: S.Q},
+        {o: 0xD8, ops: [st]},
+        {o: 0xD8D1},
+    ],
+    fcomp: [{or: 3},
+        {o: 0xD8, ops: [m], s: S.D},
+        {o: 0xDC, ops: [m], s: S.Q},
+        {o: 0xD8, ops: [st]},
+        {o: 0xD8D9},
+    ],
+    fcompp: [{o: 0xDED9}],
+
+    fcomi:  [{o: 0xDB, or: 6, ops: [st]}],
+    fcomip: [{o: 0xDF, or: 6, ops: [st]}],
+    fucomi: [{o: 0xDB, or: 5, ops: [st]}],
+    fucomip:[{o: 0xDF, or: 5, ops: [st]}],
+
+    fcos:       [{o: 0xD9FF}],
+    fdecstp:    [{o: 0xD9F6}],
+
+    fdiv: [{},
+        {o: 0xD8, or: 6, ops: [m], s: S.D},
+        {o: 0xDC, or: 6, ops: [m], s: S.Q},
+        {o: 0xD8, i: 0xF0, ops: [o.st(0), st]},
+        {o: 0xDC, i: 0xF8, ops: [st, o.st(0)]},
+    ],
+    fdivp: [{},
+        {o: 0xDE, i: 0xF8, ops: [st, o.st(0)]},
+        {o: 0xDEF9},
+    ],
+    fidiv: [{or: 6},
+        {o: 0xDA, ops: [m], s: S.D},
+        {o: 0xDE, ops: [m], s: S.W},
+    ],
+
+    fdivr: [{},
+        {o: 0xD8, or: 7, ops: [m], s: S.D},
+        {o: 0xDC, or: 7, ops: [m], s: S.Q},
+        {o: 0xD8, i: 0xF8, ops: [o.st(0), st]},
+        {o: 0xDC, i: 0xF0, ops: [st, o.st(0)]},
+    ],
+    fdivrp: [{o: 0xDE},
+        {i: 0xF0, ops: [st, o.st(0)]},
+        {i: 0xF1},
+    ],
+    fidivr: [{or: 7},
+        {o: 0xDA, ops: [m], s: S.D},
+        {o: 0xDE, ops: [m], s: S.W},
+    ],
+
+    ffree: [{o: 0xDD, i: 0xC0, ops: [st]}],
+
+    ficom: [{or: 2},
+        {o: 0xDE, ops: [m], s: S.W},
+        {o: 0xDA, ops: [m], s: S.D},
+    ],
+    ficomp: [{or: 3},
+        {o: 0xDE, ops: [m], s: S.W},
+        {o: 0xDA, ops: [m], s: S.D},
+    ],
+
+    fild: [{},
+        {o: 0xDF, or: 0, ops: [m], s: S.W},
+        {o: 0xDB, or: 0, ops: [m], s: S.D},
+        {o: 0xDF, or: 5, ops: [m], s: S.Q},
+    ],
+
+    fincstp: [{o: 0xD9F7}],
+    finit: [{o: 0x9BDBE3}],
+    fninit: [{o: 0xDBE3}],
+
+    fist: [{or: 2, ops: [m]},
+        {o: 0xDF, s: S.W},
+        {o: 0xDB, s: S.D},
+    ],
+    fistp: [{ops: [m]},
+        {o: 0xDF, or: 3, s: S.W},
+        {o: 0xDB, or: 3, s: S.D},
+        {o: 0xDF, or: 7, s: S.Q},
+    ],
+
+    fisttp: [{or: 1, ops: [m]},
+        {o: 0xDF, s: S.W},
+        {o: 0xDB, s: S.D},
+        {o: 0xDD, s: S.Q},
+    ],
+
+    fld: [{},
+        {o: 0xD9, or: 0, ops: [m], s: S.D},
+        {o: 0xDD, or: 0, ops: [m], s: S.Q},
+        {o: 0xDB, or: 5, ops: [m], s: S.T},
+        {o: 0xD9, i: 0xC0, ops: [st]},
+    ],
+
+    fld1:   [{o: 0xD9E8}],
+    fldl2t: [{o: 0xD9E9}],
+    fldl2e: [{o: 0xD9EA}],
+    fldpi:  [{o: 0xD9EB}],
+    fldlg2: [{o: 0xD9EC}],
+    fldln2: [{o: 0xD9ED}],
+    fldz:   [{o: 0xD9EE}],
+
+    fldcw: [{o: 0xD9, or: 5, ops: [m], s: S.W}],
+
+    fldenv: [{o: 0xD9, or: 4, ops: [m]}], // TODO: Size? What is `m14/28byte`
+
+    fmul: [{},
+        {o: 0xD8, or: 1, ops: [m], s: S.D},
+        {o: 0xDC, or: 1, ops: [m], s: S.Q},
+        {o: 0xD8, i: 0xC8, ops: [o.st(0), st]},
+        {o: 0xDC, i: 0xC8, ops: [st, o.st(0)]},
+    ],
+    fmulp: [{},
+        {o: 0xDE, i: 0xC8, ops: [st, o.st(0)]},
+        {o: 0xDEC9},
+    ],
+    fimul: [{or: 1},
+        {o: 0xDA, ops: [m], s: S.D},
+        {o: 0xDE, ops: [m], s: S.Q},
+    ],
+
+    fnop:   [{o: 0xD9D0}],
+    fpatan: [{o: 0xD9F3}],
+    fprem:  [{o: 0xD9F8}],
+    fprem1: [{o: 0xD9F5}],
+    fptan:  [{o: 0xD9F2}],
+    frndint:[{o: 0xD9FC}],
+
+    frstor: [{o: 0xDD, or: 4, ops: [m]}], // TODO: m94/108byte ?
+
+    fsave: [{o: 0x9BDD, or: 6, ops: [m]}],
+    fnsave: [{o: 0xDD, or: 6, ops: [m]}],
+
+    fscale: [{o: 0xD9FD}],
+    fsin: [{o: 0xD9FE}],
+    fsincos: [{o: 0xD9FB}],
+    fsqrt: [{o: 0xD9FA}],
+
+    fst: [{},
+        {o: 0xD9, or: 2, ops: [m], s: S.D},
+        {o: 0xDD, or: 2, ops: [m], s: S.Q},
+        {o: 0xDD, i: 0xD0, ops: [st]},
+    ],
+    fstp: [{},
+        {o: 0xD9, or: 3, ops: [m], s: S.D},
+        {o: 0xDD, or: 3, ops: [m], s: S.Q},
+        {o: 0xDB, or: 7, ops: [m], s: S.T},
+        {o: 0xDD, i: 0xD8, ops: [st]},
+    ],
+
+    fstcw: [{o: 0x9BD9, or: 7, ops: [m], s: S.W}],
+    fnstcw: [{o: 0xD9, or: 7, ops: [m], s: S.W}],
+
+    fstenv: [{o: 0x9BD9, or: 6, ops: [m]}],
+    fnstenv: [{o: 0xD9, or: 6, ops: [m]}],
+
+    fstsw: [{},
+        {o: 0x9BDD, or: 7, ops: [m], s: S.W},
+        {o: 0x9BDFE0, mr: false, ops: [o.ax]},
+    ],
+    fnstsw: [{},
+        {o: 0xDD, or: 7, ops: [m], s: S.W},
+        {o: 0xDFE0, mr: false, ops: [o.ax]},
+    ],
+
+    fsub: [{},
+        {o: 0xD8, or: 4, ops: [m], s: S.D},
+        {o: 0xDC, or: 4, ops: [m], s: S.Q},
+        {o: 0xD8, i: 0xE0, ops: [o.st(0), st]},
+        {o: 0xDC, i: 0xE8, ops: [st, o.st(0)]},
+    ],
+    fsubp: [{},
+        {o: 0xDE, i: 0xE8, ops: [st, o.st(0)]},
+        {o: 0xDEE9},
+    ],
+    fisub: [{or: 4},
+        {o: 0xDA, ops: [m], s: S.D},
+        {o: 0xDE, ops: [m], s: S.W},
+    ],
+
+    fsubr: [{},
+        {o: 0xD8, or: 5, ops: [m], s: S.D},
+        {o: 0xDC, or: 5, ops: [m], s: S.Q},
+        {o: 0xD8, i: 0xE8, ops: [o.st(0), st]},
+        {o: 0xDC, i: 0xE0, ops: [st, o.st(0)]},
+    ],
+    fsubrp: [{},
+        {o: 0xDE, i: 0xE0, ops: [st, o.st(0)]},
+        {o: 0xDEE1},
+    ],
+    fisubr: [{or: 5},
+        {o: 0xDA, ops: [m], s: S.D},
+        {o: 0xDE, ops: [m], s: S.W},
+    ],
+
+    ftst: [{o: 0xD9E4}],
+
+    fucom: [{o: 0xDD, i: 0xE0, ops: [st]}],
+    fucomp: [{o: 0xDD, i: 0xE8, ops: [st]}],
+    fucompp: [{o: 0xDAE9}],
+
+    fxam: [{o: 0xD9E5}],
+
+    fxch: [{o: 0xD9, i: 0xC8, ops: [st]}],
+
+    fxrstor: [{o: 0x0FAE, or: 1, ops: [m], s: 512}],
+    fxrstor64: [{o: 0x0FAE, or: 1, ops: [m], s: 512, mod: M.X64}],
+
+    fxsave: [{o: 0x0FAE, or: 0, ops: [m], s: 512}],
+    fxsave64: [{o: 0x0FAE, or: 0, ops: [m], s: 512, mod: M.X64}],
+
+    fxtract:    [{o: 0xD9F4}],
+    fyl2x:      [{o: 0xD9F1}],
+    fyl2xp1:    [{o: 0xD9F9}],
+
+
+
+    // # H-letter
+    haddpd: [{o: 0x660F7C, ops: [xmm, [xmm, m]], ext: [EXT.SSE3]}],
+    vhaddpd: [{o: 0x7C, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.66.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.66.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
+    haddps: [{o: 0xF20F7C, ops: [xmm, [xmm, m]], ext: [EXT.SSE3]}],
+    vhaddps: [{o: 0x7C, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.F2.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.F2.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
+    hlt: [{o: 0xF4}],
+
+    hsubpd: [{o: 0x660F7D, ops: [xmm, [xmm, m]], ext: [EXT.SSE3]}],
+    vhsubpd: [{o: 0x7D, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.66.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.66.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
+    hsubps: [{o: 0xF20F7D, ops: [xmm, [xmm, m]], ext: [EXT.SSE3]}],
+    vhsubps: [{o: 0x7D, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.F2.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.F2.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
+
+
+    // # I-letter
+    insertps: [{o: 0x0F3A21, pfx: [0x66], ops: [xmm, [xmm, m], imm8], ext: [EXT.SSE4_1]}],
+    vinsertps: [{o: 0x21, vex: 'NDS.128.66.0F3A.WIG', en: 'rvm', ops: [xmm, xmm, [xmm, m], imm8], ext: [EXT.AVX]}],
+
+    invd: [{o: 0x0F08}],
+
+    invlpg: [{o: 0x0F01, or: 7, ops: [m]}],
+
+    invpcid: [{o: 0x3882, pfx: [0x66, 0x0F], ext: [EXT.INVPCID]},
+        {ops: [r32, m], mod: M.X32},
+        {ops: [r64, m], mod: M.X64},
+    ],
+
+
+
+    // # J-letter
+
+
+
+
+    // # L-letter
+    lahf: [{o: 0x9F, mod: M.COMP | M.LEG}],
+
+    lar: [{o: 0x0F02},
+        {ops: [r16, rm16]},
+        {ops: [r, rm32]},
+    ],
+
+    lddqu: [{o: 0xF20FF0, ops: [xmm, m], ext: [EXT.SSE3]}],
+    vlddqu: [{o: 0xF0, ext: [EXT.AVX]},
+        {vex: '128.F2.0F.WIG', ops: [xmm, m]},
+        {vex: '256.F2.0F.WIG', ops: [ymm, m]},
+    ],
+
+    ldmxcsr: [{o: 0x0FAE, or: 2, ops: [m], s: S.D, ext: [EXT.SSE]}],
+    vldmxcsr: [{o: 0xAE, or: 2, vex: 'VEX.LZ.0F.WIG', ops: [m], ext: [EXT.AVX]}],
+
+    lfence: [{o: 0x0FAEE8}],
+
+    lgdt: [{o: 0x0F01, or: 2}, // TODO: Fix memory sizes.
+        {ops: [m]},
+    ],
+    lidt: [{o: 0x0F01, or: 3},
+        {ops: [m]},
+    ],
+
+    lldt: [{o: 0x0F00, or: 2, ops: [rm16]}],
+    lmsw: [{o: 0x0F01, or: 6, ops: [rm16]}],
+
+    lock: [{o: 0xF0}],
+
+    lsl: [{o: 0x0F03},
+        {ops: [r16, rm16]},
+        {ops: [r32, rm32]},
+        {ops: [r64, rm32]},
+    ],
+
+    ltr: [{o: 0x0F00, or: 3, ops: [rm16]}],
+
+    lzcnt: [{o: 0x0FBD, pfx: [0xF3], ext: [EXT.LZCNT]},
+        {ops: [r16, rm16]},
+        {ops: [r32, rm32]},
+        {ops: [r64, rm64]},
+    ],
+
+
+
+    // # M-letter
+    maskmovdqu: [{o: 0x660FF7, ops: [xmm, xmm], ext: [EXT.SSE2]}],
+    vmaskmovdqu: [{o: 0xF7, vex: '128.66.0F.WIG', ops: [xmm, xmm], ext: [EXT.AVX]}],
+    maskmovq: [{o: 0x0FF7, ops: [mm, mm]}],
+
+    maxpd: [{o: 0x660F5F, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vmaxpd: [{o: 0x5F, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.66.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.66.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
+    maxps: [{o: 0x0F5F, ops: [xmm, [xmm, m]], ext: [EXT.SSE]}],
+    vmaxps: [{o: 0x5F, en: 'rvm', ext: [EXT.AVX]},
+        {vex: 'NDS.128.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
+    maxsd: [{o: 0xF20F5F, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vmaxsd: [{o: 0x5F, vex: 'NDS.LIG.F2.0F.WIG', en: 'rvm', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AVX]}],
+
+    maxss: [{o: 0xF30F5F, ops: [xmm, [xmm, m]], ext: [EXT.SSE]}],
+    vmaxss: [{o: 0x5F, vex: 'NDS.LIG.F3.0F.WIG', en: 'rvm', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AVX]}],
+
+    mfence: [{o: 0x0FAEF0}],
+
+    minpd: [{o: 0x660F5D, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vminpd: [{o: 0x5D, ext: [EXT.AVX]},
+        {vex: 'NDS.128.66.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.66.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
+    minps: [{o: 0x0F5D, ops: [xmm, [xmm, m]], ext: [EXT.SSE]}],
+    vminps: [{o: 0x5D, ext: [EXT.AVX]},
+        {vex: 'NDS.128.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
+        {vex: 'NDS.256.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
+    ],
+
+    minsd: [{o: 0xF20F5D, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
+    vminsd: [{o: 0x5D, vex: 'NDS.LIG.F2.0F.WIG', en: 'rvm', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AVX]}],
+
+    minss: [{o: 0xF30F5D, ops: [xmm, [xmm, m]], ext: [EXT.SSE]}],
+    vminss: [{o: 0x5D, vex: 'NDS.LIG.F3.0F.WIG', en: 'rvm', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AVX]}],
+
+    monitor: [{o: 0x0F01C8}],
+
+    movapd: [{pfx: [0x66, 0x0F], ext: [EXT.SSE2]},
+        {o: 0x28, ops: [xmm, [xmm, m]], dbit: true},
+        {o: 0x29, ops: [[xmm, m], xmm], dbit: true, en: 'mr'},
+    ],
+    vmovapd: [{ext: [EXT.AVX]},
+        {o: 0x28, vex: '128.66.0F.WIG', ops: [xmm, [xmm, m]], dbit: true},
+        {o: 0x29, vex: '128.66.0F.WIG', ops: [[xmm, m], xmm], dbit: true, en: 'mr'},
+        {o: 0x28, vex: '256.66.0F.WIG', ops: [ymm, [ymm, m]], dbit: true},
+        {o: 0x29, vex: '256.66.0F.WIG', ops: [[ymm, m], ymm], dbit: true, en: 'mr'},
+    ],
+
+    movaps: [{pfx: [0x0F], ext: [EXT.SSE]},
+        {o: 0x28, ops: [xmm, [xmm, m]], dbit: true},
+        {o: 0x29, ops: [[xmm, m], xmm], dbit: true, en: 'mr'},
+    ],
+    vmovaps: [{ext: [EXT.AVX]},
+        {o: 0x28, vex: '128.0F.WIG', ops: [xmm, [xmm, m]], dbit: true},
+        {o: 0x29, vex: '128.0F.WIG', ops: [[xmm, m], xmm], dbit: true, en: 'mr'},
+        {o: 0x28, vex: '256.0F.WIG', ops: [ymm, [ymm, m]], dbit: true},
+        {o: 0x29, vex: '256.0F.WIG', ops: [[ymm, m], ymm], dbit: true, en: 'mr'},
+    ],
+
+    movd: [{},
+        // 0F 6E /r MOVD mm, r/m32 RM V/V MMX Move doubleword from r/m32 to mm.
+        {o: 0x0F6E, ops: [mm, rm32], ext: [EXT.MMX]},
+        // 0F 7E /r MOVD r/m32, mm MR V/V MMX Move doubleword from mm to r/m32.
+        {o: 0x0F7E, ops: [rm32, mm], ext: [EXT.MMX]},
+        // 66 0F 6E /r MOVD xmm, r/m32 RM V/V SSE2 Move doubleword from r/m32 to xmm.
+        {o: 0x0F6E, pfx: [0x66], ops: [xmm, rm32], ext: [EXT.SSE2]},
+        // 66 0F 7E /r MOVD r/m32, xmm MR V/V SSE2 Move doubleword from xmm register to r/m32.
+        {o: 0x0F7E, pfx: [0x66], ops: [rm32, xmm], ext: [EXT.SSE2]},
+    ],
+    vmovd: [{ext: [EXT.AVX]},
+        // VEX.128.66.0F.W0 6E / VMOVD xmm1, r32/m32 RM V/V AVX Move doubleword from r/m32 to xmm1.
+        {o: 0x6E, vex: '128.66.0F.W0', ops: [xmm, rm32]},
+        // VEX.128.66.0F.W0 7E /r VMOVD r32/m32, xmm1 MR V/V AVX Move doubleword from xmm1 register to r/m32.
+        {o: 0x7E, vex: '128.66.0F.W0', ops: [rm32, xmm]},
+    ],
+    movq: [{mod: M.X64},
+        // REX.W + 0F 6E /r MOVQ mm, r/m64 RM V/N.E. MMX Move quadword from r/m64 to mm.
+        {o: 0x0F6E, ops: [mm, rm64], ext: [EXT.MMX]},
+        // REX.W + 0F 7E /r MOVQ r/m64, mm MR V/N.E. MMX Move quadword from mm to r/m64.
+        {o: 0x0F7E, ops: [rm64, mm], ext: [EXT.MMX]},
+        // 66 REX.W 0F 6E /r MOVQ xmm, r/m64 RM V/N.E. SSE2 Move quadword from r/m64 to xmm.
+        {o: 0x0F6E, pfx: [0x66], ops: [xmm, rm64], ext: [EXT.SSE2]},
+        // 66 REX.W 0F 7E /r MOVQ r/m64, xmm MR V/N.E. SSE2 Move quadword from xmm register to r/m64.
+        {o: 0x0F7E, pfx: [0x66], ops: [rm64, xmm], ext: [EXT.SSE2]},
+
+        // MOVQ—Move Quadword
+        // 0F 6F /r MOVQ mm, mm/m64 RM V/V MMX Move quadword from mm/m64 to mm.
+        {o: 0x0F6F, ops: [mm, [mm, m64]], ext: [EXT.MMX]},
+        // 0F 7F /r MOVQ mm/m64, mm MR V/V MMX Move quadword from mm to mm/m64.
+        {o: 0x0F7F, ops: [[mm, m64], mm], en: 'mr', ext: [EXT.MMX]},
+        // F3 0F 7E /r MOVQ xmm1, xmm2/m64 RM V/V SSE2 Move quadword from xmm2/mem64 to xmm1.
+        {o: 0xF30F7E, ops: [xmm, [xmm, m64]], ext: [EXT.SSE2]},
+        // 66 0F D6 /r MOVQ xmm2/m64, xmm1 MR V/V SSE2 Move quadword from xmm1 to xmm2/mem64.
+        {o: 0x660FD6, ops: [[xmm, m64], xmm], en: 'mr', ext: [EXT.SSE2]},
+    ],
+    vmovq: [{mod: M.X64, ext: [EXT.AVX]},
+        // VEX.128.66.0F.W1 6E /r VMOVQ xmm1, r64/m64 RM V/N.E. AVX Move quadword from r/m64 to xmm1.
+        {o: 0x6E, vex: '128.66.0F.W1', ops: [xmm, rm64]},
+        // VEX.128.66.0F.W1 7E /r VMOVQ r64/m64, xmm1 MR V/N.E. AVX Move quadword from xmm1 register to r/m64.
+        {o: 0x7E, vex: '128.66.0F.W1', ops: [rm64, xmm], en: 'mr'},
+        // VEX.128.F3.0F.WIG 7E /r VMOVQ xmm1, xmm2 RM V/V AVX Move quadword from xmm2 to xmm1.
+        {o: 0x7E, vex: '128.F3.0F.WIG', ops: [xmm, xmm]},
+        // VEX.128.F3.0F.WIG 7E /r VMOVQ xmm1, m64 RM V/V AVX Load quadword from m64 to xmm1.
+        {o: 0x7E, vex: '128.F3.0F.WIG', ops: [xmm, m64], s: S.Q},
+        // VEX.128.66.0F.WIG D6 /r VMOVQ xmm1/m64, xmm2 MR V/V AVX Move quadword from
+        {o: 0xD6, vex: '128.66.0F.WIG', ops: [[xmm, m64], xmm], en: 'mr'},
+    ],
+
+    movddup: [{o: 0xF20F12, ops: [xmm, [xmm, m]], ext: [EXT.SSE3]}],
+    vmovddup: [{o: 0x12, ext: [EXT.AVX]},
+        {vex: '128.F2.0F.WIG', ops: [xmm, [xmm, m]]},
+        {vex: '256.F2.0F.WIG', ops: [ymm, [ymm, m]]},
+    ],
+
+    movdqa: [{pfx: [0x66, 0x0F], ext: [EXT.SSE2]},
+        {o: 0x6F, ops: [xmm, [xmm, m]]},
+        {o: 0x7F, ops: [[xmm, m], xmm], en: 'mr'},
+    ],
+    vmovdqa: [{ext: [EXT.AVX]},
+        {o: 0x6F, vex: '128.66.0F.WIG', ops: [xmm, [xmm, m]]},
+        {o: 0x7F, vex: '128.66.0F.WIG', ops: [[xmm, m], xmm], en: 'mr'},
+        {o: 0x6F, vex: '256.66.0F.WIG', ops: [ymm, [ymm, m]]},
+        {o: 0x7F, vex: '256.66.0F.WIG', ops: [[ymm, m], ymm], en: 'mr'},
+    ],
+
+    movdqu: [{pfx: [0xF3, 0x0F], ext: [EXT.SSE2]},
+        {o: 0x6F, ops: [xmm, [xmm, m]]},
+        {o: 0x7F, ops: [[xmm, m], xmm], en: 'mr'},
+    ],
+    vmovdqu: [{ext: [EXT.AVX]},
+        {o: 0x6F, vex: '128.F3.0F.WIG', ops: [xmm, [xmm, m]]},
+        {o: 0x7F, vex: '128.F3.0F.WIG', ops: [[xmm, m], xmm], en: 'mr'},
+        {o: 0x6F, vex: '256.F3.0F.WIG', ops: [ymm, [ymm, m]]},
+        {o: 0x7F, vex: '256.F3.0F.WIG', ops: [[ymm, m], ymm], en: 'mr'},
+    ],
+
+    movdq2q: [{o: 0xF20FD6, ops: [mm, xmm]}],
+
+    movhlps: [{o: 0x0F12, ops: [xmm, xmm], ext: [EXT.SSE]}],
+    vmovhlps: [{o: 0x12, vex: 'NDS.128.0F.WIG', en: 'rvm', ops: [xmm, xmm, xmm], ext: [EXT.AVX]}],
+
+    movhpd: [{pfx: [0x66, 0x0F], ext: [EXT.SSE2]},
+        {o: 0x16, ops: [xmm, m64], dbit: true},
+        {o: 0x17, ops: [m64, xmm], dbit: true, en: 'mr'},
+    ],
+    vmovhpd: [{ext: [EXT.AVX]},
+        {o: 0x16, vex: 'NDS.128.66.0F.WIG', ops: [xmm, xmm, m64], en: 'rvm'},
+        {o: 0x17, vex: '128.66.0F.WIG', ops: [m64, xmm], en: 'mr'},
+    ],
+
+    movhps: [{pfx: [0x0F], ext: [EXT.SSE]},
+        {o: 0x16, ops: [xmm, m64], dbit: true},
+        {o: 0x17, ops: [m64, xmm], dbit: true, en: 'mr'},
+    ],
+    vmovhps: [{ext: [EXT.AVX]},
+        {o: 0x16, vex: 'NDS.128.0F.WIG', ops: [xmm, xmm, m64], en: 'rvm'},
+        {o: 0x17, vex: '128.0F.WIG', ops: [m64, xmm], en: 'mr'},
+    ],
+
+    movlhps: [{o: 0x0F16, ops: [xmm, xmm], ext: [EXT.SSE]}],
+    vmovlhps: [{o: 0x16, vex: 'NDS.128.0F.WIG', en: 'rvm', ops: [xmm, xmm, xmm], ext: [EXT.AVX]}],
+
+    movlpd: [{pfx: [0x66, 0x0F], ext: [EXT.SSE2]},
+        {o: 0x12, ops: [xmm, m64], dbit: true},
+        {o: 0x13, ops: [m64, xmm], dbit: true, en: 'mr'},
+    ],
+    vmovlpd: [{ext: [EXT.AVX]},
+        {o: 0x12, vex: 'NDS.128.66.0F.WIG', ops: [xmm, xmm, m64], en: 'rvm'},
+        {o: 0x13, vex: '128.66.0F.WIG', ops: [m64, xmm], en: 'mr'},
+    ],
+
+    movlps: [{pfx: [0x0F], ext: [EXT.SSE]},
+        {o: 0x12, ops: [xmm, m64], dbit: true},
+        {o: 0x13, ops: [m64, xmm], dbit: true, en: 'mr'},
+    ],
+    vmovlps: [{ext: [EXT.AVX]},
+        {o: 0x12, vex: 'NDS.128.0F.WIG', ops: [xmm, xmm, m64], en: 'rvm'},
+        {o: 0x13, vex: '128.0F.WIG', ops: [m64, xmm], en: 'mr'},
+    ],
+
+    movmskpd: [{o: 0x660F50, ops: [r, xmm], ext: [EXT.SSE2]}],
+    vmovmskpd: [{o: 0x50, ext: [EXT.AVX]},
+        {vex: '128.66.0F.WIG', ops: [r, xmm]},
+        {vex: '256.66.0F.WIG', ops: [r, ymm]},
+    ],
+
+    movmskps: [{o: 0x0F50, ops: [r, xmm], ext: [EXT.SSE]}],
+    vmovmskps: [{o: 0x50, ext: [EXT.AVX]},
+        {vex: '128.0F.WIG', ops: [r, xmm]},
+        {vex: '256.0F.WIG', ops: [r, ymm]},
+    ],
+
+    movntdqa: [{o: 0x382A, pfx: [0x66, 0x0F], ops: [xmm, m128], ext: [EXT.SSE4_1]}],
+    vmovntdqa: [{o: 0x2A},
+        {vex: '128.66.0F38.WIG', ops: [xmm, m128], ext: [EXT.AVX]},
+        {vex: '256.66.0F38.WIG', ops: [ymm, m256], ext: [EXT.AVX2]},
+    ],
+
+    movntdq: [{o: 0xE7, pfx: [0x66, 0x0F], en: 'mr', ops: [m128, xmm], ext: [EXT.SSE2]}],
+    vmovntdq: [{o: 0xE7, ext: [EXT.AVX]},
+        {vex: '128.66.0F.WIG', en: 'mr', ops: [m128, xmm]},
+        {vex: '256.66.0F.WIG', en: 'mr', ops: [m256, ymm]},
+    ],
+
+    movnti: [{o: 0x0FC3, en: 'mr'},
+        {ops: [m32, r32]},
+        {ops: [m64, r64]},
+    ],
+
+    movntpd: [{o: 0x2B, pfx: [0x66, 0x0F], en: 'mr', ops: [m128, xmm], ext: [EXT.SSE2]}],
+    vmovntpd: [{o: 0x2B, ext: [EXT.AVX]},
+        {vex: '128.66.0F.WIG', en: 'mr', ops: [m128, xmm]},
+        {vex: '256.66.0F.WIG', en: 'mr', ops: [m256, ymm]},
+    ],
+
+    movntps: [{o: 0x2B, pfx: [0x0F], en: 'mr', ops: [m128, xmm], ext: [EXT.SSE]}],
+    vmovntps: [{o: 0x2B, en: 'mr', ext: [EXT.AVX]},
+        {vex: '128.0F.WIG', ops: [m128, xmm]},
+        {vex: '256.0F.WIG', ops: [m256, ymm]},
+    ],
+
+    movntq: [{o: 0x0FE7, ops: [m64, mm], en: 'mr'}],
+    movq2dq: [{o: 0xF30FD6, ops: [xmm, mm]}],
+
+    movsd: [{pfx: [0xF2, 0x0F], ext: [EXT.SSE2]},
+        {o: 0x10, ops: [xmm, [xmm, m64]], dbit: true},
+        {o: 0x11, ops: [[xmm, m64], xmm], dbit: true, en: 'mr'},
+    ],
+    vmovsd: [{ext: [EXT.AVX]},
+        {o: 0x10, vex: 'NDS.LIG.F2.0F.WIG', ops: [xmm, xmm, xmm], en: 'rvm'},
+        {o: 0x10, vex: 'LIG.F2.0F.WIG', ops: [xmm, m64], en: 'rm'},
+        {o: 0x11, vex: 'NDS.LIG.F2.0F.WIG', ops: [xmm, xmm, xmm], en: 'mvr'},
+        {o: 0x11, vex: 'LIG.F2.0F.WIG', ops: [m64, xmm], en: 'mr'},
+    ],
+
+    movshdup: [{o: 0xF30F16, ops: [xmm, [xmm, m128]], ext: [EXT.SSE3]}],
+    vmovshdup: [{o: 0x16, ext: [EXT.AVX]},
+        {vex: '128.F3.0F.WIG', ops: [xmm, [xmm, m128]]},
+        {vex: '256.F3.0F.WIG', ops: [ymm, [ymm, m256]]},
+    ],
+
+    movsldup: [{o: 0xF30F12, ops: [xmm, [xmm, m128]], ext: [EXT.SSE3]}],
+    vmovsldup: [{o: 0x12, ext: [EXT.AVX]},
+        {vex: '128.F3.0F.WIG', ops: [xmm, [xmm, m128]]},
+        {vex: '256.F3.0F.WIG', ops: [ymm, [ymm, m256]]},
+    ],
+
+    movss: [{ext: [EXT.SSE]},
+        {o: 0xF30F10, ops: [xmm, [xmm, m32]]},
+        {o: 0xF30F11, ops: [[xmm, m32], xmm], en: 'mr'},
+    ],
+    vmovss: [{ext: [EXT.AVX]},
+        {o: 0x10, vex: 'NDS.LIG.F3.0F.WIG', ops: [xmm, xmm, xmm], en: 'rvm'},
+        {o: 0x10, vex: 'LIG.F3.0F.WIG', ops: [xmm, m32]},
+        {o: 0x11, vex: 'NDS.LIG.F3.0F.WIG', ops: [xmm, xmm, xmm], en: 'mvr'},
+        {o: 0x11, vex: 'LIG.F3.0F.WIG', ops: [m32, xmm], en: 'mr'},
+    ],
+
+    movupd: [{ext: [EXT.SSE2]},
+        {o: 0x660F10, ops: [xmm, [xmm, m128]]},
+        {o: 0x660F11, ops: [[xmm, m128], xmm], en: 'mr'},
+    ],
+    vmovupd: [{ext: [EXT.AVX]},
+        {o: 0x10, vex: '128.66.0F.WIG', ops: [xmm, [xmm, m128]]},
+        {o: 0x10, vex: '256.66.0F.WIG', ops: [ymm, [ymm, m256]]},
+        {o: 0x11, vex: '128.66.0F.WIG', ops: [xmm, [xmm, m128]], en: 'mr'},
+        {o: 0x11, vex: '256.66.0F.WIG', ops: [ymm, [ymm, m256]], en: 'mr'},
+    ],
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // ## Data Transfer
     // MOV Move data between general-purpose registers
@@ -284,6 +1386,20 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
         {o: 0xC7, or: 0, ops: [rm32, imm32]},
         // REX.W + C7 /0 io MOV r/m64, imm32 MI Valid N.E. Move imm32 sign extended to 64-bits to r/m64.
         {o: 0xC7, or: 0, ops: [rm64, imm32]},
+
+        // MOV—Move to/from Control Registers
+        {o: 0x0F20, ops: [r32, cr0_7], dbit: true, s: S.D, mod: M.COMP | M.LEG},
+        {o: 0x0F20, ops: [r64, cr0_7], dbit: true, s: S.Q, mod: M.X64},
+        {o: 0x0F20, or: 0, ops: [r64, o.cr(8)], s: S.Q, mod: M.X64},
+        {o: 0x0F22, ops: [cr0_7, r32], dbit: true, s: S.D, mod: M.COMP | M.LEG},
+        {o: 0x0F22, ops: [cr0_7, r64], dbit: true, s: S.Q, mod: M.X64},
+        {o: 0x0F22, or: 0, ops: [o.cr(8), r64], s: S.Q, mod: M.X64},
+
+        // MOV—Move to/from Debug Registers
+        {o: 0x0F21, ops: [r32, dr0_7], dbit: true, s: S.D, mod: M.COMP | M.LEG},
+        {o: 0x0F23, ops: [dr0_7, r32], dbit: true, s: S.D, mod: M.COMP | M.LEG},
+        {o: 0x0F21, ops: [r64, dr0_7], dbit: true, s: S.Q, mod: M.X64},
+        {o: 0x0F23, ops: [dr0_7, r64], dbit: true, s: S.Q, mod: M.X64},
     ],
     movabs: [{},
         // A0 MOV AL,moffs8* FD Valid Valid Move byte at (seg:offset) to AL.
@@ -306,25 +1422,35 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
         {o: 0xA3, ops: [imm64, o.rax]},
     ],
     // CMOVE/CMOVZ Conditional move if equal/Conditional move if zero
-    cmove: tpl_cmovc(0x0F44, ['cmovz']),
+    cmove: tpl_cmovc(0x0F44),
+    cmovz: ['cmove'],
     // CMOVNE/CMOVNZ Conditional move if not equal/Conditional move if not zero
-    cmovne: tpl_cmovc(0x0F45, ['cmovnz']),
+    cmovne: tpl_cmovc(0x0F45),
+    cmovnz: ['cmovne'],
     // CMOVA/CMOVNBE Conditional move if above/Conditional move if not below or equal
-    cmova: tpl_cmovc(0x0F47, ['cmovnbe']),
+    cmova: tpl_cmovc(0x0F47),
+    cmovnbe: ['cmova'],
     // CMOVAE/CMOVNB Conditional move if above or equal/Conditional move if not below
-    cmovae: tpl_cmovc(0x0F43, ['cmovnb']),
+    cmovae: tpl_cmovc(0x0F43),
+    cmovnb: ['cmovae'],
     // CMOVB/CMOVNAE Conditional move if below/Conditional move if not above or equal
-    cmovb: tpl_cmovc(0x0F42, ['cmovnae']),
+    cmovb: tpl_cmovc(0x0F42),
+    cmovnae: ['cmovb'],
     // CMOVBE/CMOVNA Conditional move if below or equal/Conditional move if not above
-    cmovbe: tpl_cmovc(0x0F46, ['cmovna']),
+    cmovbe: tpl_cmovc(0x0F46),
+    cmovna: ['cmovbe'],
     // CMOVG/CMOVNLE Conditional move if greater/Conditional move if not less or equal
-    cmovg: tpl_cmovc(0x0F4F, ['cmovnle']),
+    cmovg: tpl_cmovc(0x0F4F),
+    cmovnle: ['cmovg'],
     // CMOVGE/CMOVNL Conditional move if greater or equal/Conditional move if not less
-    cmovge: tpl_cmovc(0x0F4D, ['cmovnl']),
+    cmovge: tpl_cmovc(0x0F4D),
+    cmovnl: ['cmovge'],
     // CMOVL/CMOVNGE Conditional move if less/Conditional move if not greater or equal
-    cmovl: tpl_cmovc(0x0F4C, ['cmovnge']),
+    cmovl: tpl_cmovc(0x0F4C),
+    cmovnge: ['cmovl'],
     // CMOVLE/CMOVNG Conditional move if less or equal/Conditional move if not greater
-    cmovle: tpl_cmovc(0x0F4E, ['cmovng']),
+    cmovle: tpl_cmovc(0x0F4E),
+    cmovng: ['cmovle'],
     // CMOVC Conditional move if carry
     cmovc: tpl_cmovc(),
     // CMOVNC Conditional move if not carry
@@ -338,9 +1464,11 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     // CMOVNS Conditional move if not sign (non-negative)
     cmovns: tpl_cmovc(0x0F4B),
     // CMOVP/CMOVPE Conditional move if parity/Conditional move if parity even
-    cmovp: tpl_cmovc(0x0F4A, ['cmovpe']),
+    cmovp: tpl_cmovc(0x0F4A),
+    cmovpe: ['cmovp'],
     // CMOVNP/CMOVPO Conditional move if not parity/Conditional move if parity odd
-    cmovnp: tpl_cmovc(0x0F4B, ['cmovpo']),
+    cmovnp: tpl_cmovc(0x0F4B),
+    cmovpo: ['cmovnp'],
     // XCHG Exchange
     xchg: [{},
         // 90+rw XCHG AX, r16 O Valid Valid Exchange r16 with AX.
@@ -371,11 +1499,11 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
         {o: 0x87, ops: [rm64, rm64]},
     ],
     // BSWAP Byte swap
-    bswap: [{},
+    bswap: [{o: 0x0FC8, r: true},
         // 0F C8+rd BSWAP r32 O Valid* Valid Reverses the byte order of a 32-bit register.
-        {o: 0x0FC8, r: true, ops: [r32]},
+        {ops: [r32]},
         // REX.W + 0F C8+rd BSWAP r64 O Valid N.E. Reverses the byte order of a 64-bit register.
-        {o: 0x0FC8, r: true, ops: [r64]},
+        {ops: [r64]},
     ],
     // XADD Exchange and add
     xadd: tpl_xadd(0x0FC0),
@@ -450,9 +1578,9 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
         {o: 0x0FBF, ops: [r32, rm16], s: S.D},
         // REX.W + 0F BF /r MOVSX r64, r/m16 RM Valid N.E. Move word to quadword with sign-extension.
         {o: 0x0FBF, ops: [r64, rm16], s: S.Q},
-        // REX.W** + 63 /r MOVSXD r64, r/m32 RM Valid N.E. Move doubleword to quadword with signextension.
-        {o: 0x0FBF, ops: [r64, rm32], s: S.Q},
     ],
+    // REX.W** + 63 /r MOVSXD r64, r/m32 RM Valid N.E. Move doubleword to quadword with signextension.
+    movsxd: [{o: 0x63, ops: [r64, rm32], s: S.Q}],
     // MOVZX Move and zero extend
     movzx: [{},
         // 0F B6 /r MOVZX r16, r/m8 RM Valid Valid Move byte to word with zero-extension.
@@ -470,9 +1598,15 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
 
     // ## Binary Arithmetic
     // ADCX Unsigned integer add with carry
-    adcx: [{o: 0x0F38F6, pfx: [0x66], ops: [r64, rm64]}],
+    adcx: [{o: 0x0F38F6, pfx: [0x66], ext: [EXT.ADX]},
+        {ops: [r32, rm32]},
+        {ops: [r64, rm64], mod: M.X64},
+    ],
     // ADOX Unsigned integer add with overflow
-    adox: [{o: 0x0F38F6, pfx: [0xF3], ops: [r64, rm64]}],
+    adox: [{o: 0x0F38F6, pfx: [0xF3], ext: [EXT.ADX]},
+        {ops: [r32, rm32]},
+        {ops: [r64, rm64], mod: M.X64},
+    ],
     // ADD Integer add
     add: tpl_and(0x04, 0x80, 0, 0x00),
     // ADC Add with carry
@@ -517,9 +1651,9 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     // DIV Unsigned divide
     div: tpl_not(0xF6, 6, false),
     // INC Increment
-    inc: tpl_not(0xFE, 0),
+    inc: _inc,
     // DEC Decrement
-    dec: tpl_not(0xFE, 1),
+    dec: _dec,
     // NEG Negate
     neg: tpl_not(0xF6, 3),
     // CMP Compare
@@ -543,7 +1677,8 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     // SHR Shift logical right
     shr: tpl_sar(5),
     // SAL/SHL Shift arithmetic left/Shift logical left
-    shl: tpl_sar(4, 0xD0, 0xC0, ['sal']),
+    shl: tpl_sar(4, 0xD0, 0xC0),
+    sal: ['shl'],
     // SHRD Shift right double
     shrd: tpl_shrd(),
     // SHLD Shift left double
@@ -572,25 +1707,37 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     // BSR Bit scan reverse
     bsr: tpl_bsf(0x0FBD),
     // SETE/SETZ Set byte if equal/Set byte if zero
-    sete: [{o: 0x0F94, ops: [rm8], mns: ['setz']}],
+    sete: [{o: 0x0F94, ops: [rm8]}],
+    setz: ['sete'],
     // SETNE/SETNZ Set byte if not equal/Set byte if not zero
-    setne: [{o: 0x0F95, ops: [rm8], mns: ['setnz']}],
+    setne: [{o: 0x0F95, ops: [rm8]}],
+    setnz: ['setne'],
     // SETA/SETNBE Set byte if above/Set byte if not below or equal
-    seta: [{o: 0x0F97, ops: [rm8], mns: ['setnbe']}],
+    seta: [{o: 0x0F97, ops: [rm8]}],
+    setnbe: ['seta'],
     // SETAE/SETNB/SETNC Set byte if above or equal/Set byte if not below/Set byte if not carry
-    setae: [{o: 0x0F93, ops: [rm8], mns: ['setnb', 'setnc']}],
+    setae: [{o: 0x0F93, ops: [rm8]}],
+    setnb: ['setae'],
+    setnc: ['setae'],
     // SETB/SETNAE/SETCSet byte if below/Set byte if not above or equal/Set byte if carry
-    setb: [{o: 0x0F92, ops: [rm8], mns: ['setnae', 'setc']}],
+    setb: [{o: 0x0F92, ops: [rm8]}],
+    setnae: ['setb'],
+    setc: ['setb'],
     // SETBE/SETNA Set byte if below or equal/Set byte if not above
-    setbe: [{o: 0x0F96, ops: [rm8], mns: ['setna']}],
+    setbe: [{o: 0x0F96, ops: [rm8]}],
+    setna: ['setbe'],
     // SETG/SETNLE Set byte if greater/Set byte if not less or equal
-    setg: [{o: 0x0F9F, ops: [rm8], mns: ['setnle']}],
+    setg: [{o: 0x0F9F, ops: [rm8]}],
+    setnle: ['setg'],
     // SETGE/SETNL Set byte if greater or equal/Set byte if not less
-    setge: [{o: 0x0F9D, ops: [rm8], mns: ['setnl']}],
+    setge: [{o: 0x0F9D, ops: [rm8]}],
+    setnl: ['setge'],
     // SETL/SETNGE Set byte if less/Set byte if not greater or equal
-    setl: [{o: 0x0F9C, ops: [rm8], mns: ['setnge']}],
+    setl: [{o: 0x0F9C, ops: [rm8]}],
+    setnge: ['setl'],
     // SETLE/SETNG Set byte if less or equal/Set byte if not greater
-    setle: [{o: 0x0F9E, ops: [rm8], mns: ['setng']}],
+    setle: [{o: 0x0F9E, ops: [rm8]}],
+    setng: ['setle'],
     // SETS Set byte if sign (negative)
     sets: [{o: 0x0F98, ops: [rm8]}],
     // SETNS Set byte if not sign (non-negative)
@@ -600,9 +1747,11 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     // SETNO Set byte if not overflow
     setno: [{o: 0x0F91, ops: [rm8]}],
     // SETPE/SETP Set byte if parity even/Set byte if parity
-    setp: [{o: 0x0F9A, ops: [rm8], mns: ['setpe']}],
+    setp: [{o: 0x0F9A, ops: [rm8]}],
+    setpe: ['setp'],
     // SETPO/SETNP Set byte if parity odd/Set byte if not parity
-    setnp: [{o: 0x0F9B, ops: [rm8], mns: ['setpo']}],
+    setnp: [{o: 0x0F9B, ops: [rm8]}],
+    setpo: ['setnp'],
     // TEST Logical compare
     test: [{},
         // A8 ib TEST AL, imm8 I Valid Valid AND imm8 with AL; set SF, ZF, PF according to result.
@@ -715,15 +1864,18 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     loop: [{o: 0xE2, ops: [rel8]}],
     // LOOPZ/LOOPE Loop with ECX and zero/Loop with ECX and equal
     // E1 cb LOOPE rel8 D Valid Valid Decrement count; jump short if count ≠ 0 and ZF = 1.
-    loope: [{o: 0xE1, ops: [rel8], mns: ['loopz']}],
+    loope: [{o: 0xE1, ops: [rel8]}],
+    loopz: ['loope'],
     // LOOPNZ/LOOPNE Loop with ECX and not zero/Loop with ECX and not equal
     // E0 cb LOOPNE rel8 D Valid Valid Decrement count; jump short if count ≠ 0 and ZF = 0.
-    loopne: [{o: 0xE0, ops: [rel8], mns: ['loopnz']}],
+    loopne: [{o: 0xE0, ops: [rel8]}],
+    loopnz: ['loopne'],
     // CALL Call procedure
     call: [{ds: S.Q},
-        // E8 cd CALL rel32 M Valid Valid Call near, relative, displacement relative to next instruction. 32-bit displacement sign extended to 64-bits in 64-bit mode.
+        {o: 0xE8, ops: [rel16], mod: M.OLD},
         {o: 0xE8, ops: [rel32]},
-        // FF /2 CALL r/m64 M Valid N.E. Call near, absolute indirect, address given in r/m64.
+        {o: 0xFF, or: 2, ops: [rm16], mod: M.OLD},
+        {o: 0xFF, or: 2, ops: [rm32], mod: M.OLD},
         {o: 0xFF, or: 2, ops: [rm64]},
     ],
     lcall: [{ds: S.Q},
@@ -744,11 +1896,10 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
         {o: 0xCA, ops: [imm16]}
     ],
     // IRET Return from interrupt
-    iret: [{o: 0xCF}
-        // CF IRET NP Valid Valid Interrupt return (16-bit operand size).
-        // CF IRETD NP Valid Valid Interrupt return (32-bit operand size).
-        // REX.W + CF IRETQ NP Valid N.E. Interrupt return (64-bit operand size).
-    ],
+    iret: [{o: 0xCF}],
+    iretd: [{o: 0xCF}],
+    iretq: [{o: 0xCF, rex: [1, 0, 0, 0]}],
+
 
 
     // ## String
@@ -760,6 +1911,10 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     scas: tpl_movs(0xAE),
     // LODS/LODSB Load string/Load byte string
     lods: tpl_movs(0xAC),
+    lodsb: [{o: 0xAC, s: S.B}],
+    lodsw: [{o: 0xAD, s: S.W}],
+    lodsd: [{o: 0xAD, s: S.D}],
+    lodsq: [{o: 0xAD, s: S.Q}],
     // STOS Store string/Store byte string
     stos: tpl_movs(0xAA),
 
@@ -804,6 +1959,9 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
         // INS/INSD Input string from port/Input doubleword string from port
         {s: S.D},
     ],
+    insb: [{o: 0x6C}],
+    insw: [{o: 0x6D}],
+    insd: [{o: 0x6D}],
     // OUTS
     outs: [{o: 0x6F},
         // OUTS/OUTSB Output string to port/Output byte string to port
@@ -817,16 +1975,16 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
 
     // ## Enter and Leave
     // ENTER High-level procedure entry
-    enter: [{},
+    enter: [{o: 0xC8, ops: [imm16, imm8]},
         // C8 iw 00 ENTER imm16, 0 II Valid Valid Create a stack frame for a procedure.
         // C8 iw 01 ENTER imm16,1 II Valid Valid Create a stack frame with a nested pointer for a procedure.
         // C8 iw ib ENTER imm16, imm8 II Valid Valid Create a stack frame
-        {o: 0xC8, ops: [imm16, imm8]},
     ],
     // LEAVE High-level procedure exit
     leave: [{o: 0xC9},
         {s: S.W},
-        {s: S.Q},
+        {s: S.D, mod: M.COMP | M.LEG},
+        {s: S.Q, mod: M.X64},
     ],
 
 
@@ -849,10 +2007,18 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     sti: [{o: 0xFB}],
     // CLI Clear the interrupt flag
     cli: [{o: 0xFA}],
+    clac: [{o: 0x0F01CA}],
 
 
     // ## Segment Register
-    // LFS Load far pointer using FS
+    lds: [{o: 0xC5, mod: M.COMP | M.LEG},
+        {ops: [r16, m]},
+        {ops: [r32, m]},
+    ],
+    les: [{o: 0xC4, mod: M.COMP | M.LEG},
+        {ops: [r16, m]},
+        {ops: [r32, m]},
+    ],
     lfs: tpl_lss(0x0FB4),
     // LGS Load far pointer using GS
     lgs: tpl_lss(0x0FB5),
@@ -863,9 +2029,9 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     // ## Miscellaneous
     // LEA Load effective address
     lea: [{o: 0x8D},
-        {ops: [r64, m]},
-        {ops: [r32, m]},
         {ops: [r16, m]},
+        {ops: [r32, m]},
+        {ops: [r64, m]},
     ],
     // NOP No operation
     // TODO: Come back, review this.
@@ -886,17 +2052,17 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     // MOVBE Move data after swapping data bytes
     movbe: [{},
         // 0F 38 F0 /r MOVBE r16, m16 RM Valid Valid Reverse byte order in m16 and move to r16.
-        {o: 0x0F38F0, ops: [r16, m16]},
+        {o: 0x0F38F0, ops: [r16, m16], dbit: true},
         // 0F 38 F0 /r MOVBE r32, m32 RM Valid Valid Reverse byte order in m32 and move to r32.
-        {o: 0x0F38F0, ops: [r32, m32]},
+        {o: 0x0F38F0, ops: [r32, m32], dbit: true},
         // REX.W + 0F 38 F0 /r MOVBE r64, m64 RM Valid N.E. Reverse byte order in m64 and move to r64.
-        {o: 0x0F38F0, ops: [r64, m64]},
+        {o: 0x0F38F0, ops: [r64, m64], dbit: true},
         // 0F 38 F1 /r MOVBE m16, r16 MR Valid Valid Reverse byte order in r16 and move to m16.
-        {o: 0x0F38F1, ops: [m16, r16]},
+        {o: 0x0F38F1, ops: [m16, r16], dbit: true},
         // 0F 38 F1 /r MOVBE m32, r32 MR Valid Valid Reverse byte order in r32 and move to m32.
-        {o: 0x0F38F1, ops: [m32, r32]},
+        {o: 0x0F38F1, ops: [m32, r32], dbit: true},
         // REX.W + 0F 38 F1 /r MOVBE m64, r64 MR Valid N.E. Reverse byte order in r64 and move to m64.
-        {o: 0x0F38F1, ops: [m64, r64]},
+        {o: 0x0F38F1, ops: [m64, r64], dbit: true},
     ],
     // PREFETCHW Prefetch data into cache in anticipation of write
     prefetchw: [{o: 0x0F0D, or: 1, ops: [m]}],

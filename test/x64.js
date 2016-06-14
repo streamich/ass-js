@@ -1,6 +1,7 @@
 "use strict";
 var chai_1 = require('chai');
 var operand_1 = require('../x86/operand');
+var o = require('../x86/operand');
 var code_1 = require('../x86/x64/code');
 describe('x64', function () {
     function code64() {
@@ -9,14 +10,6 @@ describe('x64', function () {
     function compile(code) {
         return code.compile();
     }
-    describe('toString()', function () {
-        it('incq rbx', function () {
-            var _ = code64();
-            _._('inc', [operand_1.rbx], 64);
-            var str = _.toString(false, false);
-            chai_1.expect(str).to.equal('start:\n    incq    rbx');
-        });
-    });
     describe('data', function () {
         describe('db', function () {
             it('octets', function () {
@@ -1229,6 +1222,52 @@ describe('x64', function () {
             _._('lea', [operand_1.r9, _.mem(0x43)]);
             var bin = compile(_);
             chai_1.expect(bin).to.eql([0x4C, 0x8D, 0x0C, 0x25, 0x43, 0, 0, 0]);
+        });
+    });
+    describe('x87', function () {
+        it('fadd [rax]', function () {
+            var _ = code64();
+            _._('fadd', o.rax.ref());
+            var bin = compile(_);
+            chai_1.expect([0xD8, 0x00]).to.eql(bin);
+        });
+        it('fadd %st(0), %st(0)', function () {
+            var _ = code64();
+            _._('fadd', [o.st(0), o.st(0)]);
+            var bin = compile(_);
+            chai_1.expect([0xD8, 0xC0]).to.eql(bin);
+        });
+        it('fadd %st(0), %st(1)', function () {
+            var _ = code64();
+            _._('fadd', [o.st(0), o.st(1)]);
+            var bin = compile(_);
+            chai_1.expect([0xD8, 0xC1]).to.eql(bin);
+        });
+    });
+    describe('AVX', function () {
+        it('divsd xmm1, xmm2', function () {
+            var _ = code64();
+            _._('divsd', [o.xmm(1), o.xmm(2)]);
+            var bin = compile(_);
+            chai_1.expect([0xF2, 0x0F, 0x5E, 0xCA]).to.eql(bin);
+        });
+        it('vdivsd xmm1, xmm2, xmm3', function () {
+            var _ = code64();
+            _._('vdivsd', [o.xmm(1), o.xmm(2), o.xmm(3)]);
+            var bin = compile(_);
+            chai_1.expect([0xC5, 0xEB, 0x5E, 0xCB]).to.eql(bin);
+        });
+        it('vdivsd xmm1 {k1} {z}, xmm2, xmm3', function () {
+            var _ = code64();
+            _._('vdivsd', [o.xmm(1), o.xmm(2), o.xmm(3)], { mask: o.k(1), z: 1 });
+            var bin = compile(_);
+            chai_1.expect([0x62, 0xF1, 0xEF, 0x89, 0x5E, 0xCB]).to.eql(bin);
+        });
+        it('vdivsd xmm13 {k7}, xmm14, xmm15', function () {
+            var _ = code64();
+            _._('vdivsd', [o.xmm(13), o.xmm(14), o.xmm(15)], { mask: o.k(7) });
+            var bin = compile(_);
+            chai_1.expect([0x62, 0x51, 0x8F, 0x0F, 0x5E, 0xEF]).to.eql(bin);
         });
     });
 });

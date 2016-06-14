@@ -37,9 +37,9 @@ export interface Definition {
                                                         // has no operands or does not need them (like INT 0x80), or one of `SIZE.X`,
                                                         // it cannot have size of `SIZE.ANY`.
     ops?: (any|TOperandTemplate|TOperandTemplate[])[];  // Operands this instruction accepts.
-    mns?: string[];                                     // Other mnemonics for exactly the same instruction, basically proxies.
 }
-export type GroupDefinition = Definition[];
+export type Tproxy = [string]; // Proxy to some other mnemonic, which have exactly the same definition.
+export type GroupDefinition = (Definition|Tproxy)[];
 export type TableDefinition = {[s: string]: GroupDefinition};
 
 // Global defaults

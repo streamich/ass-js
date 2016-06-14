@@ -1,11 +1,18 @@
 import * as oo from '../operand';
 import * as o from './operand';
+import * as c from '../code';
 import {Code as CodeBase} from '../code';
 import * as t from './table';
 import * as d from './def';
 import * as i from './instruction';
 import {number64, Tnumber} from '../operand';
 import {UInt64, extend} from '../util';
+
+
+export interface IInstructionOptions extends c.IInstructionOptions {
+    mask?: o.RegisterK;
+    z: number|boolean;
+}
 
 
 export class Code extends CodeBase {
@@ -75,6 +82,22 @@ export class Code extends CodeBase {
             return insn;
         } else
             return iset;
+    }
+
+    protected matchDefinitions(mnemonic: string, ops: o.Operands, opts: IInstructionOptions): d.DefMatchList {
+        var matches = super.matchDefinitions(mnemonic, ops, opts);
+
+        // If EVEX-specific options provided by user,
+        // remove instruction definition matches that don't have EVEX prefix.
+        var needs_evex = opts.mask || (typeof opts.z !== 'undefined');
+        if(needs_evex) {
+            for(var j = matches.list.length - 1; j >= 0; j--) {
+                var def = matches.list[j].def as d.Def;
+                if(!def.evex) matches.list.splice(j, 1);
+            }
+        }
+
+        return matches;
     }
 
     // Displacement is up to 4 bytes in size, and 8 bytes for some specific MOV instructions, AMD64 Vol.2 p.24:

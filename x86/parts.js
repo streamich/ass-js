@@ -206,7 +206,7 @@ var PrefixEvex = (function (_super) {
     PrefixEvex.prototype.write = function (arr) {
         arr.push(0x62);
         arr.push((this.R << 7) | (this.X << 6) | (this.B << 5) | (this.Rp << 4) | this.mm);
-        arr.push((this.W << 7) | (this.vvvv << 3) | 0x00000100 | this.pp);
+        arr.push((this.W << 7) | (this.vvvv << 3) | 4 | this.pp);
         arr.push((this.z << 7) | (this.LL << 5) | (this.b << 4) | (this.Vp << 3) | this.aaa);
         return arr;
     };

@@ -256,16 +256,18 @@ var DefTable = (function () {
     };
     DefTable.prototype.createGroup = function (mnemonic) {
         var group = new this.DefGroupClass(this, mnemonic);
-        group.createDefinitions(this.table[mnemonic], this.defaults);
+        var definitions = this.table[mnemonic];
+        if ((definitions.length === 1) && (typeof definitions[0] === 'string'))
+            definitions = this.table[definitions[0]];
+        group.createDefinitions(definitions, this.defaults);
         this.groups[mnemonic] = group;
     };
-    DefTable.prototype.matchDefinitions = function (mnemonic, ops, size) {
-        if (size === void 0) { size = o.SIZE.ANY; }
+    DefTable.prototype.matchDefinitions = function (mnemonic, ops, opts) {
         var group = this.getGroup(mnemonic);
         if (!group)
             throw Error("No such mnemonic \"" + mnemonic + "\".");
         var matches = new DefMatchList;
-        matches.matchAll(group.defs, ops, size);
+        matches.matchAll(group.defs, ops, opts);
         return matches;
     };
     DefTable.prototype.toJson = function () {
@@ -297,9 +299,9 @@ var DefMatchList = (function () {
     function DefMatchList() {
         this.list = [];
     }
-    DefMatchList.prototype.match = function (def, ops, size) {
-        if (size !== o.SIZE.ANY) {
-            if (size !== def.operandSize)
+    DefMatchList.prototype.match = function (def, ops, opts) {
+        if (opts.size !== o.SIZE.ANY) {
+            if (opts.size !== def.operandSize)
                 return;
         }
         var tpl = def.matchOperands(ops);
@@ -310,11 +312,10 @@ var DefMatchList = (function () {
             this.list.push(match);
         }
     };
-    DefMatchList.prototype.matchAll = function (defs, ops, size) {
-        if (size === void 0) { size = o.SIZE.ANY; }
+    DefMatchList.prototype.matchAll = function (defs, ops, opts) {
         for (var _i = 0, defs_1 = defs; _i < defs_1.length; _i++) {
             var def = defs_1[_i];
-            this.match(def, ops, size);
+            this.match(def, ops, opts);
         }
     };
     return DefMatchList;

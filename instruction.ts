@@ -527,6 +527,7 @@ export class Align extends ExpressionVolatile {
 
 export class Instruction extends ExpressionVolatile {
     def: Def = null; // Definition on how to construct this instruction.
+    opts: c.IInstructionOptions = null; // Instruction options provided by user.
 
     build(): this {
         super.build();
@@ -537,23 +538,25 @@ export class Instruction extends ExpressionVolatile {
         return arr;
     }
 
-    toString(margin = '    ', comment = true) {
+    protected toStringExpression() {
         var parts = [];
         parts.push(this.def.getMnemonic());
         if((parts.join(' ')).length < 8) parts.push((new Array(7 - (parts.join(' ')).length)).join(' '));
         if(this.ops.list.length) parts.push(this.ops.toString());
-        var expression = margin + parts.join(' ');
+        return parts.join(' ');
+    }
 
+    toString(margin = '    ', comment = true) {
+        var expression = margin + this.toStringExpression();
         var cmt = '';
         if(comment) {
-            var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
             var octets = this.write([]).map(function(byte) {
                 return byte <= 0xF ? '0' + byte.toString(16).toUpperCase() : byte.toString(16).toUpperCase();
             });
-            cmt = spaces + `; ${this.formatOffset()} 0x` + octets.join(', 0x') + ` ${this.bytes()} bytes`;// + ' / ' + this.def.toString();
+            cmt = `0x` + octets.join(', 0x') + ` ${this.bytes()} bytes`;// + ' / ' + this.def.toString();
         }
 
-        return expression + cmt;
+        return this.formatToString(margin, expression, cmt);
     }
 }
 
@@ -564,10 +567,12 @@ export class InstructionSet extends ExpressionVolatile {
     matches: DefMatchList = null;
     insn: Instruction[] = [];
     picked: number = -1; // Index of instruction that was eventually chosen.
+    opts: c.IInstructionOptions = null; // Instruction options provided by user.
 
-    constructor(ops: o.Operands, matches: DefMatchList) {
+    constructor(ops: o.Operands, matches: DefMatchList, opts: c.IInstructionOptions) {
         super(ops);
         this.matches = matches;
+        this.opts = opts;
     }
 
     write(arr: number[]): number[] {
@@ -721,6 +726,7 @@ export class InstructionSet extends ExpressionVolatile {
             var insn = new this.code.ClassInstruction;
             insn.index = this.index;
             insn.def = match.def;
+            insn.opts = this.opts;
 
             var ops = this.createInstructionOperands(insn, match.opTpl);
             ops.validateSize();

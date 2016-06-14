@@ -86,6 +86,18 @@ var Code = (function (_super) {
         else
             return iset;
     };
+    Code.prototype.matchDefinitions = function (mnemonic, ops, opts) {
+        var matches = _super.prototype.matchDefinitions.call(this, mnemonic, ops, opts);
+        var needs_evex = opts.mask || (typeof opts.z !== 'undefined');
+        if (needs_evex) {
+            for (var j = matches.list.length - 1; j >= 0; j--) {
+                var def = matches.list[j].def;
+                if (!def.evex)
+                    matches.list.splice(j, 1);
+            }
+        }
+        return matches;
+    };
     Code.prototype.mem = function (disp) {
         if (typeof disp === 'number')
             return o.Memory.factory(this.addressSize).disp(disp);

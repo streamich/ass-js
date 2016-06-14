@@ -239,16 +239,17 @@ var Instruction = (function (_super) {
         this.pfxSegment = new p.PrefixStatic(p.PREFIX.GS);
         return this;
     };
-    Instruction.prototype.toString = function (margin, hex) {
-        if (margin === void 0) { margin = '    '; }
-        if (hex === void 0) { hex = true; }
-        var parts = [];
+    Instruction.prototype.toStringExpression = function () {
+        var expression = _super.prototype.toStringExpression.call(this);
         if (this.pfxLock)
-            parts.push(this.pfxLock.toString());
+            expression += " {" + this.pfxLock.toString() + "}";
         if (this.pfxSegment)
-            parts.push(this.pfxSegment.toString());
-        parts.push(_super.prototype.toString.call(this, margin, hex));
-        return parts.join(' ');
+            expression += " {" + this.pfxSegment.toString() + "}";
+        if (this.opts.mask)
+            expression += " {" + this.opts.mask.toString() + "}";
+        if (this.opts.z)
+            expression += " {z}";
+        return expression;
     };
     Instruction.prototype.needsOperandSizeOverride = function () {
         if ((this.code.operandSize === operand_1.SIZE.D) && (this.def.operandSize === operand_1.SIZE.W))
@@ -360,6 +361,10 @@ var Instruction = (function (_super) {
             if (mem.index && (mem.index.idSize() > 3))
                 evex.X = 0;
         }
+        if (this.opts.mask)
+            this.mask(this.opts.mask);
+        if (typeof this.opts.z !== 'undefined')
+            this.z(this.opts.z);
     };
     Instruction.prototype.mask = function (k) {
         if (!(this.pfxEx instanceof p.PrefixEvex))
@@ -369,10 +374,11 @@ var Instruction = (function (_super) {
         this.pfxEx.aaa = k.get3bitId();
         return this;
     };
-    Instruction.prototype.z = function () {
+    Instruction.prototype.z = function (value) {
+        if (value === void 0) { value = 1; }
         if (!(this.pfxEx instanceof p.PrefixEvex))
             throw Error('Cannot set z-bit on non-EVEX instruction.');
-        this.pfxEx.z = 1;
+        this.pfxEx.z = value ? 1 : 0;
         return this;
     };
     Instruction.prototype.createOpcode = function () {

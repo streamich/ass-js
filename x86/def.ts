@@ -94,7 +94,7 @@ export class Def extends d.Def {
         if(typeof def.vex === 'string') this.vex = Def.parseVexString(def.vex as string);
         else this.vex = def.vex as t.IVexDefinition;
 
-        if(typeof def.evex === 'string') this.vex = Def.parseEvexString(def.evex as string);
+        if(typeof def.evex === 'string') this.evex = Def.parseEvexString(def.evex as string);
         else this.evex = def.evex as t.IEvexDefinition;
     }
 
@@ -159,6 +159,7 @@ export class Def extends d.Def {
         if(this.opcodeDirectionBit) json.setOpcodeDirectionBit = true;
 
         if(this.vex) json.vex = this.vex;
+        if(this.evex) json.evex = this.evex;
         if(this.prefixes) json.extraPrefixes = this.prefixes;
 
         if(this.rep) json.prefixRep = true;
@@ -188,11 +189,12 @@ export class Def extends d.Def {
         var lock = this.lock ? ' LOCK' : '';
         var rex = this.rex ? ' REX ' + this.rex : '';
         var vex = this.vex ? ' VEX ' + JSON.stringify(this.vex) : '';
+        var evex = this.evex ? ' EVEX ' + JSON.stringify(this.evex) : '';
 
         var dbit = '';
         if(this.opcodeDirectionBit) dbit = ' d-bit';
 
-        return super.toString() + opregstr + lock + rex + vex + dbit;
+        return super.toString() + opregstr + lock + rex + vex + evex + dbit;
     }
 }
 

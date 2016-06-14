@@ -463,6 +463,7 @@ var Instruction = (function (_super) {
     function Instruction() {
         _super.apply(this, arguments);
         this.def = null;
+        this.opts = null;
     }
     Instruction.prototype.build = function () {
         _super.prototype.build.call(this);
@@ -471,37 +472,41 @@ var Instruction = (function (_super) {
     Instruction.prototype.write = function (arr) {
         return arr;
     };
-    Instruction.prototype.toString = function (margin, comment) {
-        if (margin === void 0) { margin = '    '; }
-        if (comment === void 0) { comment = true; }
+    Instruction.prototype.toStringExpression = function () {
         var parts = [];
         parts.push(this.def.getMnemonic());
         if ((parts.join(' ')).length < 8)
             parts.push((new Array(7 - (parts.join(' ')).length)).join(' '));
         if (this.ops.list.length)
             parts.push(this.ops.toString());
-        var expression = margin + parts.join(' ');
+        return parts.join(' ');
+    };
+    Instruction.prototype.toString = function (margin, comment) {
+        if (margin === void 0) { margin = '    '; }
+        if (comment === void 0) { comment = true; }
+        var expression = margin + this.toStringExpression();
         var cmt = '';
         if (comment) {
-            var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
             var octets = this.write([]).map(function (byte) {
                 return byte <= 0xF ? '0' + byte.toString(16).toUpperCase() : byte.toString(16).toUpperCase();
             });
-            cmt = spaces + ("; " + this.formatOffset() + " 0x") + octets.join(', 0x') + (" " + this.bytes() + " bytes");
+            cmt = "0x" + octets.join(', 0x') + (" " + this.bytes() + " bytes");
         }
-        return expression + cmt;
+        return this.formatToString(margin, expression, cmt);
     };
     return Instruction;
 }(ExpressionVolatile));
 exports.Instruction = Instruction;
 var InstructionSet = (function (_super) {
     __extends(InstructionSet, _super);
-    function InstructionSet(ops, matches) {
+    function InstructionSet(ops, matches, opts) {
         _super.call(this, ops);
         this.matches = null;
         this.insn = [];
         this.picked = -1;
+        this.opts = null;
         this.matches = matches;
+        this.opts = opts;
     }
     InstructionSet.prototype.write = function (arr) {
         if (this.picked === -1)
@@ -646,6 +651,7 @@ var InstructionSet = (function (_super) {
             var insn = new this.code.ClassInstruction;
             insn.index = this.index;
             insn.def = match.def;
+            insn.opts = this.opts;
             var ops = this.createInstructionOperands(insn, match.opTpl);
             ops.validateSize();
             insn.ops = ops;

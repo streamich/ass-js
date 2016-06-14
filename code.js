@@ -17,19 +17,34 @@ var Code = (function () {
         this.littleEndian = true;
         this.label(start);
     }
-    Code.prototype._ = function (mnemonic, operands, size) {
-        if (operands === void 0) { operands = []; }
-        if (size === void 0) { size = o.SIZE.ANY; }
-        if (typeof mnemonic !== 'string')
-            throw TypeError('`mnemonic` argument must be a string.');
-        if (!(operands instanceof Array))
-            operands = [operands];
-        var ops = new this.ClassOperands(operands, size);
-        ops.normalizeExpressionToRelative();
-        var matches = this.table.matchDefinitions(mnemonic, ops, size);
+    Code.prototype.matchDefinitions = function (mnemonic, ops, opts) {
+        var matches = this.table.matchDefinitions(mnemonic, ops, opts);
         if (!matches.list.length)
             throw Error('Could not match operands to instruction definition.');
-        var iset = new this.ClassInstructionSet(ops, matches);
+        return matches;
+    };
+    Code.prototype._ = function (mnemonic, operands, options) {
+        if (operands === void 0) { operands = []; }
+        if (options === void 0) { options = { size: o.SIZE.ANY }; }
+        if (typeof mnemonic !== 'string')
+            throw TypeError('`mnemonic` argument must be a string.');
+        var opts;
+        if (typeof options === 'number') {
+            opts = { size: options };
+        }
+        else if (typeof options === 'object') {
+            opts = options;
+        }
+        else
+            throw TypeError("options must be a number or object.");
+        if (typeof opts.size === 'undefined')
+            opts.size = o.SIZE.ANY;
+        if (!(operands instanceof Array))
+            operands = [operands];
+        var ops = new this.ClassOperands(operands, opts.size);
+        ops.normalizeExpressionToRelative();
+        var matches = this.matchDefinitions(mnemonic, ops, opts);
+        var iset = new this.ClassInstructionSet(ops, matches, opts);
         this.insert(iset);
         var insn = iset.pickShortestInstruction();
         if (insn) {

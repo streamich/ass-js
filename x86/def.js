@@ -32,7 +32,7 @@ var Def = (function (_super) {
         else
             this.vex = def.vex;
         if (typeof def.evex === 'string')
-            this.vex = Def.parseEvexString(def.evex);
+            this.evex = Def.parseEvexString(def.evex);
         else
             this.evex = def.evex;
     }
@@ -172,6 +172,8 @@ var Def = (function (_super) {
             json.setOpcodeDirectionBit = true;
         if (this.vex)
             json.vex = this.vex;
+        if (this.evex)
+            json.evex = this.evex;
         if (this.prefixes)
             json.extraPrefixes = this.prefixes;
         if (this.rep)
@@ -205,10 +207,11 @@ var Def = (function (_super) {
         var lock = this.lock ? ' LOCK' : '';
         var rex = this.rex ? ' REX ' + this.rex : '';
         var vex = this.vex ? ' VEX ' + JSON.stringify(this.vex) : '';
+        var evex = this.evex ? ' EVEX ' + JSON.stringify(this.evex) : '';
         var dbit = '';
         if (this.opcodeDirectionBit)
             dbit = ' d-bit';
-        return _super.prototype.toString.call(this) + opregstr + lock + rex + vex + dbit;
+        return _super.prototype.toString.call(this) + opregstr + lock + rex + vex + evex + dbit;
     };
     return Def;
 }(d.Def));

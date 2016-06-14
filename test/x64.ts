@@ -3,6 +3,7 @@ import {rax, rbx, rcx, rdx, rbp, rsp, rsi, rdi, r8, r9, r10, r11, r12, r13, r15,
         ebx, eax, esp, ebp, ecx,
         r10d, ax, bx, cx, dx, al, bl, cl, dl, ah, ch, dil, bpl, spl, r8b, r10b,
         rip} from '../x86/operand';
+import * as o from '../x86/operand';
 import {Code} from '../x86/x64/code';
 
 
@@ -15,15 +16,6 @@ describe('x64', function() {
     function compile(code: Code) {
         return code.compile();
     }
-
-    describe('toString()', function() {
-        it('incq rbx', function() {
-            var _ = code64();
-            _._('inc', [rbx], 64);
-            var str = _.toString(false, false);
-            expect(str).to.equal('start:\n    incq    rbx');
-        });
-    });
 
     describe('data', function() {
         describe('db', function() {
@@ -1253,6 +1245,54 @@ describe('x64', function() {
             _._('lea', [r9, _.mem(0x43)]);
             var bin = compile(_);
             expect(bin).to.eql([0x4C, 0x8D, 0x0C, 0x25, 0x43, 0, 0, 0]);
+        });
+    });
+
+    describe('x87', function() {
+        it('fadd [rax]', function() { // d8 00                	fadds  (%rax)
+            var _ = code64();
+            _._('fadd', o.rax.ref());
+            var bin = compile(_);
+            expect([0xD8, 0x00]).to.eql(bin);
+        });
+        it('fadd %st(0), %st(0)', function() { // d8 c0                	fadd   %st(0),%st
+            var _ = code64();
+            _._('fadd', [o.st(0), o.st(0)]);
+            var bin = compile(_);
+            expect([0xD8, 0xC0]).to.eql(bin);
+        });
+        it('fadd %st(0), %st(1)', function() { // d8 c1                	fadd   %st(1),%st
+            var _ = code64();
+            _._('fadd', [o.st(0), o.st(1)]);
+            var bin = compile(_);
+            expect([0xD8, 0xC1]).to.eql(bin);
+        });
+    });
+
+    describe('AVX', function() {
+        it('divsd xmm1, xmm2', function() { // f2 0f 5e ca          	divsd  %xmm2,%xmm1
+            var _ = code64();
+            _._('divsd', [o.xmm(1), o.xmm(2)]);
+            var bin = compile(_);
+            expect([0xF2, 0x0F, 0x5E, 0xCA]).to.eql(bin);
+        });
+        it('vdivsd xmm1, xmm2, xmm3', function() { // c5 eb 5e cb          	vdivsd %xmm3,%xmm2,%xmm1
+            var _ = code64();
+            _._('vdivsd', [o.xmm(1), o.xmm(2), o.xmm(3)]);
+            var bin = compile(_);
+            expect([0xC5, 0xEB, 0x5E, 0xCB]).to.eql(bin);
+        });
+        it('vdivsd xmm1 {k1} {z}, xmm2, xmm3', function() { // 62 f1 ef 89 5e cb    	vdivsd %xmm3,%xmm2,%xmm1{%k1}{z}
+            var _ = code64();
+            _._('vdivsd', [o.xmm(1), o.xmm(2), o.xmm(3)], {mask: o.k(1), z: 1});
+            var bin = compile(_);
+            expect([0x62, 0xF1, 0xEF, 0x89, 0x5E, 0xCB]).to.eql(bin);
+        });
+        it('vdivsd xmm13 {k7}, xmm14, xmm15', function() { // 62 51 8f 0f 5e ef    	vdivsd %xmm15,%xmm14,%xmm13{%k7}
+            var _ = code64();
+            _._('vdivsd', [o.xmm(13), o.xmm(14), o.xmm(15)], {mask: o.k(7)});
+            var bin = compile(_);
+            expect([0x62, 0x51, 0x8F, 0x0F, 0x5E, 0xEF]).to.eql(bin);
         });
     });
 });

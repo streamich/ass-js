@@ -1,0 +1,11 @@
+"use strict";
+var code_1 = require('../../x86/x64/code');
+var _ = new code_1.Code;
+var ehdr = _.label('ehdr');
+_.db(0x7F);
+_.db("ELF");
+_.db([1, 1, 1, 0]);
+_.db(0, 8);
+_.dw(2);
+_.dw(3);
+_.dd(1);

@@ -5,6 +5,7 @@ import * as t from './table';
 import * as i from '../instruction';
 import * as p from './parts';
 import * as d from './def';
+import * as c from './code';
 
 
 export const SIZE_UNKNOWN = -1;
@@ -74,6 +75,7 @@ export interface IInstruction {
 export class Instruction extends i.Instruction implements IInstruction {
     def: d.Def;
     ops: o.Operands;
+    opts: c.IInstructionOptions;
 
     // Instruction parts.
     pfxOpSize: p.PrefixOperandSizeOverride = null;
@@ -263,12 +265,13 @@ export class Instruction extends i.Instruction implements IInstruction {
         return this;
     }
 
-    toString(margin = '    ', hex = true) {
-        var parts = [];
-        if(this.pfxLock) parts.push(this.pfxLock.toString());
-        if(this.pfxSegment) parts.push(this.pfxSegment.toString());
-        parts.push(super.toString(margin, hex));
-        return parts.join(' ');
+    protected toStringExpression() {
+        var expression = super.toStringExpression();
+        if(this.pfxLock) expression += ` {${this.pfxLock.toString()}}`;
+        if(this.pfxSegment) expression += ` {${this.pfxSegment.toString()}}`;
+        if(this.opts.mask) expression += ` {${this.opts.mask.toString()}}`;
+        if(this.opts.z) expression += ` {z}`;
+        return expression;
     }
 
     protected needsOperandSizeOverride() {
@@ -402,6 +405,9 @@ export class Instruction extends i.Instruction implements IInstruction {
             if (mem.base && (mem.base.idSize() > 3)) evex.B = 0; // Inverted
             if (mem.index && (mem.index.idSize() > 3)) evex.X = 0; // Inverted
         }
+
+        if(this.opts.mask) this.mask(this.opts.mask);
+        if(typeof this.opts.z !== 'undefined') this.z(this.opts.z);
     }
 
     // Set mask register for `EVEX` instructions.
@@ -415,10 +421,10 @@ export class Instruction extends i.Instruction implements IInstruction {
     }
 
     // Set `z` bit for `EVEX` instructions.
-    z(): this {
+    z(value: number|boolean = 1): this {
         if(!(this.pfxEx instanceof p.PrefixEvex))
             throw Error('Cannot set z-bit on non-EVEX instruction.');
-        (this.pfxEx as p.PrefixEvex).z = 1;
+        (this.pfxEx as p.PrefixEvex).z = value ? 1 : 0;
         return this;
     }
 

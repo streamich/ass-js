@@ -1,20 +1,27 @@
 import {extend} from '../util';
 import {S, rel, rel8, rel16, rel32, imm, imm8, imm16, imm32, imm64, immu, immu8, immu16, immu32, immu64} from '../table';
 import * as t from '../table';
-import {Register, Register8, Register16, Register32, Register64, RegisterSegment,
-    RegisterMmx, RegisterXmm, RegisterYmm, RegisterZmm,
-    Memory, Memory8, Memory16, Memory32, Memory64} from './operand';
+import {
+    Register, Register8, Register16, Register32, Register64,
+    RegisterMm, RegisterSt, RegisterXmm, RegisterYmm, RegisterZmm,
+    RegisterSegment, RegisterCr, RegisterDr, RegisterBounds,
+    Memory, Memory8, Memory16, Memory32, Memory64, Memory128, Memory256, Memory512
+} from './operand';
 
 
 export enum MODE {
-    REAL    = 0b1,
-    PROT    = 0b10,
-    X32     = 0b100,
-    X64     = 0b1000,
-    X32_64  = MODE.X32 | MODE.X64,
+    REAL        = 0b1,
+    PROT        = 0b10,
+    COMP        = 0b100,
+    LEG         = 0b1000,
+    OLD         = MODE.COMP | MODE.LEG,
+    X32         = 0b10000,
+    X64         = 0b100000,
+    X32_64      = MODE.X32 | MODE.X64,
+    ALL         = MODE.REAL | MODE.PROT | MODE.COMP | MODE.LEG | MODE.X32 | MODE.X64,
 }
 
-// Instructoins
+// Instructins
 export enum INS {
     NONE        = 0b0,
     MMX         = 0b1,
@@ -34,8 +41,13 @@ export enum EXT {
     SGX,
     VT_x,
     VT_d,
+    BMI1,
+    BMI2,
     SHA,
     AES,
+    INVPCID,
+    LZCNT,
+    MMX,
     SSE,
     SSE2,
     SSE3,
@@ -72,15 +84,22 @@ export var r16      = Register16;
 export var r32      = Register32;
 export var r64      = Register64;
 export var sreg     = RegisterSegment;
-export var mmx      = RegisterMmx;
+export var mm       = RegisterMm;
+export var st       = RegisterSt;
 export var xmm      = RegisterXmm;
 export var ymm      = RegisterYmm;
 export var zmm      = RegisterZmm;
+export var bnd      = RegisterBounds;
+export var cr       = RegisterCr;
+export var dr       = RegisterDr;
 export var m        = Memory;
 export var m8       = Memory8;
 export var m16      = Memory16;
 export var m32      = Memory32;
 export var m64      = Memory64;
+export var m128     = Memory128;
+export var m256     = Memory256;
+export var m512     = Memory512;
 export var rm8      = [Register8,  Memory];
 export var rm16     = [Register16, Memory];
 export var rm32     = [Register32, Memory];
@@ -89,7 +108,9 @@ export var rm64     = [Register64, Memory];
 
 export type TOperandTemplate = t.TOperandTemplate |
     typeof Register8 | typeof Register16 | typeof Register32 | typeof Register64 |
-    typeof RegisterMmx | typeof RegisterXmm | typeof RegisterYmm | typeof RegisterZmm |
+    typeof RegisterMm | typeof RegisterSt |
+    typeof RegisterXmm | typeof RegisterYmm | typeof RegisterZmm |
+    typeof RegisterSegment | typeof RegisterCr | typeof RegisterDr |
     typeof Memory8 | typeof Memory16 | typeof Memory32 | typeof Memory64;
 
 
@@ -105,9 +126,7 @@ export interface IVexDefinition {
     WIG: boolean;
 }
 
-export interface IEvexDefinition extends IVexDefinition {
-
-}
+export interface IEvexDefinition extends IVexDefinition {}
 
 
 export interface Definition extends t.Definition {
@@ -115,6 +134,7 @@ export interface Definition extends t.Definition {
     lock?: boolean;                                 // Whether LOCK prefix allowed.
     ops?: (TOperandTemplate|TOperandTemplate[])[];  // Operands this instruction accepts.
     or?: number;                                    // Opreg - 3bit opcode part in modrm.reg field, -1 if none.
+    i?: number;                                     // Hex octet, when +i provided in x87 floating point operations.
     r?: boolean;                                    // 3bit register encoded in lowest opcode bits.
     dbit?: boolean;                                 // Whether it is allowed to change `d` bit in opcode. `en` encoding field is ignored then.
     mr?: boolean;                                   // Whether to include Mod-REG-R/M byte if deemed necessary.
@@ -123,7 +143,7 @@ export interface Definition extends t.Definition {
     pfx?: number[];                                 // List of mandatory prefixes.
     en?: string;                                    // Operand encoding, e.g. "rvmr" -> (1) modmr.reg; (2) VEX.vvv; (3) modrm.rm; (4) imm8
     mod?: MODE;                                     // CPU mode
-    rex?: TRexDefinition;                           // Whether REX prefix is mandatory for this instruction. Holds array of [W, R, X, B].
+    rex?: TRexDefinition|boolean;                   // Whether REX prefix is mandatory for this instruction. Holds array of [W, R, X, B].
     vex?: string|IVexDefinition;                    // VEX prefix definitions string as it appears in manual, e.g. "256.66.0F3A.W0"
     evex?: string|IEvexDefinition;                  // VEX prefix definitions string as it appears in manual, e.g. "256.66.0F3A.W0"
     ext?: EXT[];                                    // CPUID extensions required to run this instruction.
@@ -134,8 +154,8 @@ export type TableDefinition = {[s: string]: GroupDefinition};
 
 // x86 global defaults
 export var defaults: Definition = extend<Definition>({}, t.defaults,
-    {ds: S.D, lock: false, or: -1, r: false, dbit: false, rex: null, mr: true, rep: false, repne: false,
-        pfx: null, vex: null, evex: null, en: 'rm', mod: M.X32_64, ext: null});
+    {ds: S.D, lock: false, or: -1, i: null, r: false, dbit: false, rex: null, mr: true, rep: false, repne: false,
+        pfx: null, vex: null, evex: null, en: 'rm', mod: M.ALL, ext: null});
 
 
 // Instruction are divided in groups, each group consists of list

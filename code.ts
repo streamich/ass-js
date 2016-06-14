@@ -6,6 +6,11 @@ import * as d from './def';
 import {UInt64, extend} from './util';
 
 
+export interface IInstructionOptions {
+    size: o.SIZE;
+}
+
+
 export class Code {
     expr: Expression[] = [];
 
@@ -25,18 +30,32 @@ export class Code {
         this.label(start);
     }
 
-    _(mnemonic: string, operands: o.TUiOperand|o.TUiOperand[] = [], size: o.SIZE = o.SIZE.ANY): i.Instruction|i.InstructionSet {
-        if(typeof mnemonic !== 'string') throw TypeError('`mnemonic` argument must be a string.');
-
-        if(!(operands instanceof Array)) operands = [operands] as o.TUiOperand[];
-        var ops = new this.ClassOperands(operands as o.TUiOperand[], size);
-        ops.normalizeExpressionToRelative();
-
-        var matches = this.table.matchDefinitions(mnemonic, ops, size);
+    protected matchDefinitions(mnemonic: string, ops: o.Operands, opts: IInstructionOptions): d.DefMatchList {
+        var matches = this.table.matchDefinitions(mnemonic, ops, opts);
         if(!matches.list.length)
             throw Error('Could not match operands to instruction definition.');
+        return matches;
+    }
 
-        var iset = new this.ClassInstructionSet(ops, matches);
+    _(mnemonic: string, operands: o.TUiOperand|o.TUiOperand[] = [], options: o.SIZE|IInstructionOptions|any = {size: o.SIZE.ANY}): i.Instruction|i.InstructionSet {
+        if(typeof mnemonic !== 'string') throw TypeError('`mnemonic` argument must be a string.');
+
+        var opts: IInstructionOptions;
+        if(typeof options === 'number') {
+            opts = {size: options as number};
+        } else if(typeof options === 'object') {
+            opts = options;
+        } else
+            throw TypeError(`options must be a number or object.`);
+        if(typeof opts.size === 'undefined') opts.size = o.SIZE.ANY;
+
+        if(!(operands instanceof Array)) operands = [operands] as o.TUiOperand[];
+        var ops = new this.ClassOperands(operands as o.TUiOperand[], opts.size);
+        ops.normalizeExpressionToRelative();
+
+        var matches = this.matchDefinitions(mnemonic, ops, opts);
+
+        var iset = new this.ClassInstructionSet(ops, matches, opts);
         this.insert(iset);
 
         var insn = iset.pickShortestInstruction();

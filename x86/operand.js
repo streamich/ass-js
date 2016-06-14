@@ -168,6 +168,40 @@ var RegisterSegment = (function (_super) {
     return RegisterSegment;
 }(Register));
 exports.RegisterSegment = RegisterSegment;
+var RegisterBounds = (function (_super) {
+    __extends(RegisterBounds, _super);
+    function RegisterBounds(id) {
+        _super.call(this, id, operand_1.SIZE.O);
+    }
+    return RegisterBounds;
+}(Register));
+exports.RegisterBounds = RegisterBounds;
+var RegisterFloatingPoint = (function (_super) {
+    __extends(RegisterFloatingPoint, _super);
+    function RegisterFloatingPoint() {
+        _super.apply(this, arguments);
+    }
+    return RegisterFloatingPoint;
+}(Register));
+exports.RegisterFloatingPoint = RegisterFloatingPoint;
+var RegisterMm = (function (_super) {
+    __extends(RegisterMm, _super);
+    function RegisterMm(id) {
+        _super.call(this, id, operand_1.SIZE.O);
+        this.name = 'mm' + id;
+    }
+    return RegisterMm;
+}(RegisterFloatingPoint));
+exports.RegisterMm = RegisterMm;
+var RegisterSt = (function (_super) {
+    __extends(RegisterSt, _super);
+    function RegisterSt(id) {
+        _super.call(this, id, operand_1.SIZE.T);
+        this.name = 'st' + id;
+    }
+    return RegisterSt;
+}(RegisterFloatingPoint));
+exports.RegisterSt = RegisterSt;
 var RegisterVector = (function (_super) {
     __extends(RegisterVector, _super);
     function RegisterVector() {
@@ -176,15 +210,6 @@ var RegisterVector = (function (_super) {
     return RegisterVector;
 }(Register));
 exports.RegisterVector = RegisterVector;
-var RegisterMmx = (function (_super) {
-    __extends(RegisterMmx, _super);
-    function RegisterMmx(id) {
-        _super.call(this, id, operand_1.SIZE.O);
-        this.name = 'mmx' + id;
-    }
-    return RegisterMmx;
-}(RegisterVector));
-exports.RegisterMmx = RegisterMmx;
 var RegisterXmm = (function (_super) {
     __extends(RegisterXmm, _super);
     function RegisterXmm(id) {
@@ -219,8 +244,26 @@ var RegisterK = (function (_super) {
         this.name = 'k' + id;
     }
     return RegisterK;
-}(RegisterVector));
+}(Register));
 exports.RegisterK = RegisterK;
+var RegisterCr = (function (_super) {
+    __extends(RegisterCr, _super);
+    function RegisterCr(id) {
+        _super.call(this, id, operand_1.SIZE.Q);
+        this.name = 'cr' + id;
+    }
+    return RegisterCr;
+}(Register));
+exports.RegisterCr = RegisterCr;
+var RegisterDr = (function (_super) {
+    __extends(RegisterDr, _super);
+    function RegisterDr(id) {
+        _super.call(this, id, operand_1.SIZE.Q);
+        this.name = 'dr' + id;
+    }
+    return RegisterDr;
+}(Register));
+exports.RegisterDr = RegisterDr;
 var Scale = (function (_super) {
     __extends(Scale, _super);
     function Scale(scale) {
@@ -356,6 +399,33 @@ var Memory64 = (function (_super) {
     return Memory64;
 }(Memory));
 exports.Memory64 = Memory64;
+var Memory128 = (function (_super) {
+    __extends(Memory128, _super);
+    function Memory128() {
+        _super.apply(this, arguments);
+        this.size = operand_1.SIZE.O;
+    }
+    return Memory128;
+}(Memory));
+exports.Memory128 = Memory128;
+var Memory256 = (function (_super) {
+    __extends(Memory256, _super);
+    function Memory256() {
+        _super.apply(this, arguments);
+        this.size = operand_1.SIZE.H;
+    }
+    return Memory256;
+}(Memory));
+exports.Memory256 = Memory256;
+var Memory512 = (function (_super) {
+    __extends(Memory512, _super);
+    function Memory512() {
+        _super.apply(this, arguments);
+        this.size = operand_1.SIZE.I;
+    }
+    return Memory512;
+}(Memory));
+exports.Memory512 = Memory512;
 var Operands = (function (_super) {
     __extends(Operands, _super);
     function Operands() {
@@ -418,12 +488,16 @@ exports.rw = createRegisterGenerator(Register16, 0, 15);
 exports.rd = createRegisterGenerator(Register32, 0, 15);
 exports.rq = createRegisterGenerator(Register64, 0, 15);
 exports.r = exports.rq;
-exports.rs = createRegisterGenerator(RegisterSegment, 0, 15);
-exports.mmx = createRegisterGenerator(RegisterMmx, 0, 15);
+exports.seg = createRegisterGenerator(RegisterSegment, 0, 15);
+exports.mm = createRegisterGenerator(RegisterMm, 0, 15);
+exports.st = createRegisterGenerator(RegisterSt, 0, 7);
 exports.xmm = createRegisterGenerator(RegisterXmm, 0, 31);
 exports.ymm = createRegisterGenerator(RegisterYmm, 0, 31);
 exports.zmm = createRegisterGenerator(RegisterZmm, 0, 31);
 exports.k = createRegisterGenerator(RegisterK, 0, 7);
+exports.bnd = createRegisterGenerator(RegisterBounds, 0, 3);
+exports.cr = createRegisterGenerator(RegisterCr, 0, 15);
+exports.dr = createRegisterGenerator(RegisterDr, 0, 15);
 exports.al = exports.rb(regfile_1.R8.AL);
 exports.bl = exports.rb(regfile_1.R8.BL);
 exports.cl = exports.rb(regfile_1.R8.CL);
@@ -493,9 +567,9 @@ exports.r13 = exports.rq(regfile_1.R64.R13);
 exports.r14 = exports.rq(regfile_1.R64.R14);
 exports.r15 = exports.rq(regfile_1.R64.R15);
 exports.rip = new RegisterRip;
-exports.es = exports.rs(regfile_1.SEG.ES);
-exports.cs = exports.rs(regfile_1.SEG.CS);
-exports.ss = exports.rs(regfile_1.SEG.SS);
-exports.ds = exports.rs(regfile_1.SEG.DS);
-exports.fs = exports.rs(regfile_1.SEG.FS);
-exports.gs = exports.rs(regfile_1.SEG.GS);
+exports.es = exports.seg(regfile_1.SEG.ES);
+exports.cs = exports.seg(regfile_1.SEG.CS);
+exports.ss = exports.seg(regfile_1.SEG.SS);
+exports.ds = exports.seg(regfile_1.SEG.DS);
+exports.fs = exports.seg(regfile_1.SEG.FS);
+exports.gs = exports.seg(regfile_1.SEG.GS);

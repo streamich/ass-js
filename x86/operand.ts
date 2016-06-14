@@ -80,7 +80,7 @@ export class Register extends RegisterBase {
         return (new Memory).ind(this, scale_factor);
     }
 
-    disp(value: o.Tvariable|ii.Exp): Memory {
+    disp(value: o.Tvariable|ii.Expression): Memory {
         return (new Memory).ref(this).disp(value);
     }
 
@@ -149,15 +149,34 @@ export class RegisterSegment extends Register {
     }
 }
 
-export class RegisterVector extends Register {
+export class RegisterBounds extends Register {
+    constructor(id) {
+        super(id, SIZE.O);
+    }
+}
+
+
+export class RegisterFloatingPoint extends Register {
 
 }
 
-export class RegisterMmx extends RegisterVector {
+export class RegisterMm extends RegisterFloatingPoint {
     constructor(id: number) {
         super(id, SIZE.O);
-        this.name = 'mmx' + id;
+        this.name = 'mm' + id;
     }
+}
+
+export class RegisterSt extends RegisterFloatingPoint {
+    constructor(id: number) {
+        super(id, SIZE.T);
+        this.name = 'st' + id;
+    }
+}
+
+
+export class RegisterVector extends Register {
+
 }
 
 export class RegisterXmm extends RegisterVector {
@@ -181,10 +200,24 @@ export class RegisterZmm extends RegisterVector {
     }
 }
 
-export class RegisterK extends RegisterVector {
+export class RegisterK extends Register {
     constructor(id: number) {
         super(id, SIZE.Q);
         this.name = 'k' + id;
+    }
+}
+
+export class RegisterCr extends Register { // Control registers.
+    constructor(id: number) {
+        super(id, SIZE.Q);
+        this.name = 'cr' + id;
+    }
+}
+
+export class RegisterDr extends Register { // Debug registers.
+    constructor(id: number) {
+        super(id, SIZE.Q);
+        this.name = 'dr' + id;
     }
 }
 
@@ -319,6 +352,18 @@ export class Memory64 extends Memory {
     size = SIZE.Q;
 }
 
+export class Memory128 extends Memory {
+    size = SIZE.O;
+}
+
+export class Memory256 extends Memory {
+    size = SIZE.H;
+}
+
+export class Memory512 extends Memory {
+    size = SIZE.I;
+}
+
 export type TInstructionOperand             = Register|Memory|o.Immediate|Relative; // `Tnumber` gets converted to `Immediate` or `Relative` to current instruction. `Relative` is converted to `Immediate`.
 
 // Collection of operands an instruction might have.
@@ -390,12 +435,16 @@ export var rw   = createRegisterGenerator<Register16>(Register16, 0, 15);
 export var rd   = createRegisterGenerator<Register32>(Register32, 0, 15);
 export var rq   = createRegisterGenerator<Register64>(Register64, 0, 15);
 export var r    = rq;
-export var rs   = createRegisterGenerator<RegisterSegment>(RegisterSegment, 0, 15);
-export var mmx  = createRegisterGenerator<RegisterMmx>(RegisterMmx, 0, 15);
+export var seg  = createRegisterGenerator<RegisterSegment>(RegisterSegment, 0, 15);
+export var mm   = createRegisterGenerator<RegisterMm>(RegisterMm, 0, 15);
+export var st   = createRegisterGenerator<RegisterSt>(RegisterSt, 0, 7);
 export var xmm  = createRegisterGenerator<RegisterXmm>(RegisterXmm, 0, 31);
 export var ymm  = createRegisterGenerator<RegisterYmm>(RegisterYmm, 0, 31);
 export var zmm  = createRegisterGenerator<RegisterZmm>(RegisterZmm, 0, 31);
 export var k    = createRegisterGenerator<RegisterK>(RegisterK, 0, 7);
+export var bnd  = createRegisterGenerator<RegisterBounds>(RegisterBounds, 0, 3);
+export var cr   = createRegisterGenerator<RegisterCr>(RegisterCr, 0, 15);
+export var dr   = createRegisterGenerator<RegisterDr>(RegisterDr, 0, 15);
 
 
 export var al   = rb(R8.AL);
@@ -477,10 +526,10 @@ export var r15  = rq(R64.R15);
 export var rip  = new RegisterRip;
 
 
-export var es   = rs(SEG.ES);
-export var cs   = rs(SEG.CS);
-export var ss   = rs(SEG.SS);
-export var ds   = rs(SEG.DS);
-export var fs   = rs(SEG.FS);
-export var gs   = rs(SEG.GS);
+export var es   = seg(SEG.ES);
+export var cs   = seg(SEG.CS);
+export var ss   = seg(SEG.SS);
+export var ds   = seg(SEG.DS);
+export var fs   = seg(SEG.FS);
+export var gs   = seg(SEG.GS);
 

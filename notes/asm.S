@@ -8,6 +8,20 @@ avx:
         divsd %xmm2, %xmm1
         vdivsd %xmm3, %xmm2, %xmm1
         vdivsd %xmm3, %xmm2, %xmm1 {%k1} {z}
+        vdivsd %xmm15, %xmm14, %xmm13 {%k7}
+        andn %eax, %ebx, %ecx
+        bndcl (%rax), %bnd0
+        bndldx (%rax), %bnd0
+        fadd (%rax)
+        fadd %ST(0)
+        fadd %ST(1)
+
+        fdiv %st(1), %st(0)
+        fdiv %st(0), %st(1)
+
+        fdivr %st, %st(0)
+        fdivr %st(0), %st
+        fdivr %st(0)
 
 system:
         syscall

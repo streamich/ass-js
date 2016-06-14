@@ -1,7 +1,10 @@
 import * as o from './operand';
 import * as t from './table';
 import {extend} from './util';
+import * as c from './code';
 
+
+type TInstructionOptions = c.IInstructionOptions;
 
 export class Def {
     group: DefGroup = null;
@@ -258,17 +261,22 @@ export class DefTable {
 
     protected createGroup(mnemonic: string) {
         var group = new this.DefGroupClass(this, mnemonic);
-        group.createDefinitions(this.table[mnemonic], this.defaults);
+
+        var definitions = this.table[mnemonic];
+        if((definitions.length === 1) && (typeof definitions[0] === 'string'))
+            definitions = this.table[definitions[0]];
+
+        group.createDefinitions(definitions, this.defaults);
         this.groups[mnemonic] = group;
     }
 
-    matchDefinitions(mnemonic: string, ops: o.Operands, size: o.SIZE = o.SIZE.ANY): DefMatchList {
+    matchDefinitions(mnemonic: string, ops: o.Operands, opts: TInstructionOptions): DefMatchList {
         var group = this.getGroup(mnemonic);
         if(!group)
             throw Error(`No such mnemonic "${mnemonic}".`);
 
         var matches = new DefMatchList;
-        matches.matchAll(group.defs, ops, size);
+        matches.matchAll(group.defs, ops, opts);
         return matches;
     }
 
@@ -308,9 +316,9 @@ export class DefMatch {
 export class DefMatchList {
     list: DefMatch[] = [];
 
-    match(def: Def, ops: o.Operands, size: o.SIZE) {
-        if(size !== o.SIZE.ANY) {
-            if(size !== def.operandSize) return;
+    match(def: Def, ops: o.Operands, opts: TInstructionOptions) {
+        if(opts.size !== o.SIZE.ANY) {
+            if(opts.size !== def.operandSize) return;
         }
 
         var tpl = def.matchOperands(ops);
@@ -322,7 +330,7 @@ export class DefMatchList {
         }
     }
 
-    matchAll(defs: Def[], ops: o.Operands, size: o.SIZE = o.SIZE.ANY) {
-        for(var def of defs) this.match(def, ops, size);
+    matchAll(defs: Def[], ops: o.Operands, opts: TInstructionOptions) {
+        for(var def of defs) this.match(def, ops, opts);
     }
 }
