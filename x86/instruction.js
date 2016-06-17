@@ -345,14 +345,28 @@ var Instruction = (function (_super) {
             var id_size = reg.idSize();
             if (id_size > 3)
                 evex.R = 0;
-            if (id_size > 4)
+            if (id_size > 4) {
                 evex.Rp = 0;
+                if (reg.id & 8)
+                    evex.R = 0;
+                else
+                    evex.R = 1;
+            }
         }
         pos = this.def.opEncoding.indexOf('m');
         if (pos > -1) {
             var reg = this.ops.getAtIndexOfClass(pos, o.Register);
-            if (reg && (reg.idSize() > 3))
-                evex.B = 0;
+            if (reg) {
+                if (reg.idSize() > 3)
+                    evex.B = 0;
+                if (reg.idSize() > 4) {
+                    evex.X = 0;
+                    if (reg.id & 8)
+                        evex.B = 0;
+                    else
+                        evex.B = 1;
+                }
+            }
         }
         var mem = this.ops.getMemoryOperand();
         if (mem) {
@@ -387,8 +401,8 @@ var Instruction = (function (_super) {
         opcode.op = def.opcode;
         var _a = this.ops.list, dst = _a[0], src = _a[1];
         if (def.regInOp) {
-            if (!dst || !dst.isRegister())
-                throw TypeError("Operation needs destination register.");
+            if (!dst || (!dst.isRegister()))
+                throw TypeError("Operation needs destination Register.");
             opcode.op = (opcode.op & p.Opcode.MASK_OP) | dst.get3bitId();
         }
         else {

@@ -323,6 +323,10 @@ export class DefMatchList {
 
         var tpl = def.matchOperands(ops);
         if(tpl) {
+
+            // If registers are 5-bit wide, we can encode them only with EVEX, not VEX.
+            if((def as any).vex && ops.has5bitRegister()) return;
+
             var match = new DefMatch;
             match.def = def;
             match.opTpl = tpl;

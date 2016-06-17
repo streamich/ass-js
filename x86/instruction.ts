@@ -345,28 +345,6 @@ export class Instruction extends i.Instruction implements IInstruction {
             if (mem.index && (mem.index.idSize() > 3)) X = 0;
         }
 
-        // switch(this.def.vex.vvvv) {
-        //     case 'NDS':
-                // VEX.NDS: VEX.vvvv encodes the first source register in an instruction syntax where the content of
-                // source registers will be preserved.
-                // var r = this.ops.list[1] as o.Register;
-                // vvvv = (~r.get4bitId()) & 0b1111;
-                // break;
-            // case 'NDD':
-                // VEX.NDD: VEX.vvvv encodes the destination register that cannot be encoded by ModR/M:reg field.
-                // var r = this.ops.list[0] as o.Register;
-                // vvvv = (~r.get4bitId()) & 0b1111;
-                // break;
-            // case 'DDS':
-                // VEX.DDS: VEX.vvvv encodes the second source register in a three-operand instruction syntax where
-                // the content of first source register will be overwritten by the result.
-                // var r = this.ops.list[2] as o.Register;
-                // vvvv = (~r.get4bitId()) & 0b1111;
-                // break;
-            // If none of NDS, NDD, and DDS is present, VEX.vvvv must be 1111b
-            // {Already set to 0b1111}
-        // }
-
         this.pfxEx = new p.PrefixVex(this.def.vex, R, X, B, vvvv);
         this.length += (this.pfxEx as p.PrefixVex).bytes;
         this.lengthMax += (this.pfxEx as p.PrefixVex).bytes;
@@ -391,13 +369,24 @@ export class Instruction extends i.Instruction implements IInstruction {
             if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode VEX.R`);
             var id_size = reg.idSize();
             if(id_size > 3) evex.R = 0; // Inverted
-            if(id_size > 4) evex.Rp = 0; // Inverted
+            if(id_size > 4) {
+                evex.Rp = 0; // Inverted
+                if(reg.id & 0b1000) evex.R = 0;
+                else evex.R = 1;
+            }
         }
 
         pos = this.def.opEncoding.indexOf('m');
         if(pos > -1) {
             var reg = this.ops.getAtIndexOfClass(pos, o.Register) as o.Register;
-            if(reg && (reg.idSize() > 3)) evex.B = 0; // Inverted
+            if(reg) {
+                if (reg.idSize() > 3) evex.B = 0; // Inverted
+                if (reg.idSize() > 4) {
+                    evex.X = 0; // Inverted
+                    if(reg.id & 0b1000) evex.B = 0;
+                    else evex.B = 1;
+                }
+            }
         }
 
         var mem = this.ops.getMemoryOperand() as o.Memory;
@@ -437,8 +426,8 @@ export class Instruction extends i.Instruction implements IInstruction {
 
         if(def.regInOp) {
             // We have register encoded in op-code here.
-            if(!dst || !(dst as oo.Operand).isRegister())
-                throw TypeError(`Operation needs destination register.`);
+            if(!dst || (!(dst as oo.Operand).isRegister()))
+                throw TypeError(`Operation needs destination Register.`);
             opcode.op = (opcode.op & p.Opcode.MASK_OP) | (dst as o.Register).get3bitId();
         } else {
             // Direction bit `d`

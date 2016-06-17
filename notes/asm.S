@@ -4,24 +4,18 @@
 main:
         syscall
 
-avx:
-        divsd %xmm2, %xmm1
-        vdivsd %xmm3, %xmm2, %xmm1
-        vdivsd %xmm3, %xmm2, %xmm1 {%k1} {z}
-        vdivsd %xmm15, %xmm14, %xmm13 {%k7}
-        andn %eax, %ebx, %ecx
-        bndcl (%rax), %bnd0
-        bndldx (%rax), %bnd0
-        fadd (%rax)
-        fadd %ST(0)
-        fadd %ST(1)
+addps:
+        addps %xmm1, %xmm2
+        vaddps %xmm1, %xmm2, %xmm3
+        vaddps (%rax), %xmm1, %xmm2
+        vaddps %ymm10, %ymm11, %ymm12
+        vaddps %zmm20, %zmm20, %zmm20
+        vaddps %zmm20, %zmm21, %zmm22
 
-        fdiv %st(1), %st(0)
-        fdiv %st(0), %st(1)
+divsd:
 
-        fdivr %st, %st(0)
-        fdivr %st(0), %st
-        fdivr %st(0)
+        vdivsd %xmm0, %xmm0, %xmm0 {z}
+        pop (%rsi)
 
 system:
         syscall

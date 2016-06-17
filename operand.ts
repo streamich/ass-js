@@ -55,30 +55,32 @@ function isNumberOfDoubles(doubles, num) {
 }
 
 // 256-bit numbers
-export type number256 = [number, number, number, number, number, number, number, number];
-export function isNumber256(num) { return isNumberOfDoubles(8, num); }
+// export type number256 = [number, number, number, number, number, number, number, number];
+// export function isNumber256(num) { return isNumberOfDoubles(8, num); }
 
 // 512-bit numbers
-export type number512 = [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number];
-export function isNumber512(num) { return isNumberOfDoubles(16, num); }
+// export type number512 = [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number];
+// export function isNumber512(num) { return isNumberOfDoubles(16, num); }
 
 // AVX-512 extension says registers will be "at least" 512 bits, so can be 1024 bits and maybe even 2048 bits.
-export type number1024 = [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number];
-export type number2048 = [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number];
-export function isNumber1024(num) { return isNumberOfDoubles(32, num); }
-export function isNumber2048(num) { return isNumberOfDoubles(64, num); }
+// export type number1024 = [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number];
+// export type number2048 = [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number];
+// export function isNumber1024(num) { return isNumberOfDoubles(32, num); }
+// export function isNumber2048(num) { return isNumberOfDoubles(64, num); }
 
 
 // Combined type of all basic "numbers".
-export type Tnumber = number|number64|number128|number256|number512|number1024|number2048;
+export type Tnumber = number|number64|number128;
+// export type Tnumber = number|number64|number128|number256|number512|number1024|number2048;
 export function isTnumber(num) {
     if(typeof num === 'number') return true;
     else if(isNumber64(num))    return true;
-    else if(isNumber128(num))   return true;
-    else if(isNumber256(num))   return true;
-    else if(isNumber512(num))   return true;
-    else if(isNumber1024(num))  return true;
-    else                        return isNumber2048(num);
+    // else if(isNumber128(num))   return true;
+    // else if(isNumber256(num))   return true;
+    // else if(isNumber512(num))   return true;
+    // else if(isNumber1024(num))  return true;
+    // else                        return isNumber2048(num);
+    else                        return isNumber128(num);
 }
 
 
@@ -728,6 +730,19 @@ export class Operands {
     evaluate(owner: i.Expression) {
         for(var op of this.list)
             if(op instanceof Variable) (op as Variable).evaluate(owner);
+    }
+
+    // EVEX may encode up to 4 operands, 32 registers, so register can be up to 5-bits wide,
+    // we need to check for that because in that case we cannot use VEX.
+    has5bitRegister() {
+        for(var j = 0; j < 4; j++) {
+            var op = this.list[j];
+            if(!op) break;
+            if(op instanceof Register) {
+                if((op as Register).idSize() > 4) return true;
+            }
+        }
+        return false;
     }
 
     toString() {

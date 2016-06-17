@@ -306,6 +306,8 @@ var DefMatchList = (function () {
         }
         var tpl = def.matchOperands(ops);
         if (tpl) {
+            if (def.vex && ops.has5bitRegister())
+                return;
             var match = new DefMatch;
             match.def = def;
             match.opTpl = tpl;

@@ -907,6 +907,16 @@ describe('x64', function () {
                 chai_1.expect(bin).to.eql([0xE0, 0xFE]);
             });
         });
+        describe('call', function () {
+            it('call rel32', function () {
+                var _ = code64();
+                var start = _.label('start');
+                _._('call', start);
+                var bin = compile(_);
+                console.log(_.toString());
+                chai_1.expect([0xE8, 0xFB, 0xFF, 0xFF, 0xFF]).to.eql(bin);
+            });
+        });
     });
     describe('Enter and Leave', function () {
         describe('enter', function () {
@@ -1245,29 +1255,69 @@ describe('x64', function () {
         });
     });
     describe('AVX', function () {
-        it('divsd xmm1, xmm2', function () {
-            var _ = code64();
-            _._('divsd', [o.xmm(1), o.xmm(2)]);
-            var bin = compile(_);
-            chai_1.expect([0xF2, 0x0F, 0x5E, 0xCA]).to.eql(bin);
+        describe('addps', function () {
+            it('addps xmm2, xmm1', function () {
+                var _ = code64();
+                _._('addps', [o.xmm(2), o.xmm(1)]);
+                var bin = compile(_);
+                chai_1.expect([0x0F, 0x58, 0xD1]).to.eql(bin);
+            });
+            it('vaddps xmm3, xmm2, xmm1', function () {
+                var _ = code64();
+                _._('vaddps', [o.xmm(3), o.xmm(2), o.xmm(1)]);
+                var bin = compile(_);
+                chai_1.expect([0xc5, 0xe8, 0x58, 0xD9]).to.eql(bin);
+            });
+            it('vaddps xmm2, xmm1, [rax]', function () {
+                var _ = code64();
+                _._('vaddps', [o.xmm(2), o.xmm(1), o.rax.ref()]);
+                var bin = compile(_);
+                chai_1.expect([0xc5, 0xF0, 0x58, 0x10]).to.eql(bin);
+            });
+            it('vaddps ymm12, ymm11, ymm10', function () {
+                var _ = code64();
+                _._('vaddps', [o.ymm(12), o.ymm(11), o.ymm(10)]);
+                var bin = compile(_);
+                chai_1.expect([0xc4, 0x41, 0x24, 0x58, 0xe2]).to.eql(bin);
+            });
+            it('vaddps zmm20, zmm20, zmm20', function () {
+                var _ = code64();
+                _._('vaddps', [o.zmm(20), o.zmm(20), o.zmm(20)]);
+                var bin = compile(_);
+                chai_1.expect([0x62, 0xA1, 0x5C, 0x40, 0x58, 0xE4]).to.eql(bin);
+            });
+            it('vaddps zmm22, zmm21, zmm20', function () {
+                var _ = code64();
+                _._('vaddps', [o.zmm(22), o.zmm(21), o.zmm(20)]);
+                var bin = compile(_);
+                chai_1.expect([0x62, 0xA1, 0x54, 0x40, 0x58, 0xF4]).to.eql(bin);
+            });
         });
-        it('vdivsd xmm1, xmm2, xmm3', function () {
-            var _ = code64();
-            _._('vdivsd', [o.xmm(1), o.xmm(2), o.xmm(3)]);
-            var bin = compile(_);
-            chai_1.expect([0xC5, 0xEB, 0x5E, 0xCB]).to.eql(bin);
-        });
-        it('vdivsd xmm1 {k1} {z}, xmm2, xmm3', function () {
-            var _ = code64();
-            _._('vdivsd', [o.xmm(1), o.xmm(2), o.xmm(3)], { mask: o.k(1), z: 1 });
-            var bin = compile(_);
-            chai_1.expect([0x62, 0xF1, 0xEF, 0x89, 0x5E, 0xCB]).to.eql(bin);
-        });
-        it('vdivsd xmm13 {k7}, xmm14, xmm15', function () {
-            var _ = code64();
-            _._('vdivsd', [o.xmm(13), o.xmm(14), o.xmm(15)], { mask: o.k(7) });
-            var bin = compile(_);
-            chai_1.expect([0x62, 0x51, 0x8F, 0x0F, 0x5E, 0xEF]).to.eql(bin);
+        describe('divsd', function () {
+            it('divsd xmm1, xmm2', function () {
+                var _ = code64();
+                _._('divsd', [o.xmm(1), o.xmm(2)]);
+                var bin = compile(_);
+                chai_1.expect([0xF2, 0x0F, 0x5E, 0xCA]).to.eql(bin);
+            });
+            it('vdivsd xmm1, xmm2, xmm3', function () {
+                var _ = code64();
+                _._('vdivsd', [o.xmm(1), o.xmm(2), o.xmm(3)]);
+                var bin = compile(_);
+                chai_1.expect([0xC5, 0xEB, 0x5E, 0xCB]).to.eql(bin);
+            });
+            it('vdivsd xmm1 {k1} {z}, xmm2, xmm3', function () {
+                var _ = code64();
+                _._('vdivsd', [o.xmm(1), o.xmm(2), o.xmm(3)], { mask: o.k(1), z: 1 });
+                var bin = compile(_);
+                chai_1.expect([0x62, 0xF1, 0xEF, 0x89, 0x5E, 0xCB]).to.eql(bin);
+            });
+            it('vdivsd xmm13 {k7}, xmm14, xmm15', function () {
+                var _ = code64();
+                _._('vdivsd', [o.xmm(13), o.xmm(14), o.xmm(15)], { mask: o.k(7) });
+                var bin = compile(_);
+                chai_1.expect([0x62, 0x51, 0x8F, 0x0F, 0x5E, 0xEF]).to.eql(bin);
+            });
         });
     });
 });

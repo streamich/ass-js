@@ -87,13 +87,21 @@ export class Code extends CodeBase {
     protected matchDefinitions(mnemonic: string, ops: o.Operands, opts: IInstructionOptions): d.DefMatchList {
         var matches = super.matchDefinitions(mnemonic, ops, opts);
 
-        // If EVEX-specific options provided by user,
-        // remove instruction definition matches that don't have EVEX prefix.
-        var needs_evex = opts.mask || (typeof opts.z !== 'undefined');
-        if(needs_evex) {
-            for(var j = matches.list.length - 1; j >= 0; j--) {
-                var def = matches.list[j].def as d.Def;
+        for(var j = matches.list.length - 1; j >= 0; j--) {
+            var def = matches.list[j].def as d.Def;
+
+            // Check mode of CPU.
+            if(!(this.mode & def.mode)) {
+                matches.list.splice(j, 1);
+                continue;
+            }
+
+            // If EVEX-specific options provided by user,
+            // remove instruction definition matches that don't have EVEX prefix.
+            var needs_evex = opts.mask || (typeof opts.z !== 'undefined');
+            if(needs_evex) {
                 if(!def.evex) matches.list.splice(j, 1);
+                continue;
             }
         }
 

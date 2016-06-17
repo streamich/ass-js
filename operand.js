@@ -57,29 +57,13 @@ function isNumberOfDoubles(doubles, num) {
             return false;
     return true;
 }
-function isNumber256(num) { return isNumberOfDoubles(8, num); }
-exports.isNumber256 = isNumber256;
-function isNumber512(num) { return isNumberOfDoubles(16, num); }
-exports.isNumber512 = isNumber512;
-function isNumber1024(num) { return isNumberOfDoubles(32, num); }
-exports.isNumber1024 = isNumber1024;
-function isNumber2048(num) { return isNumberOfDoubles(64, num); }
-exports.isNumber2048 = isNumber2048;
 function isTnumber(num) {
     if (typeof num === 'number')
         return true;
     else if (isNumber64(num))
         return true;
-    else if (isNumber128(num))
-        return true;
-    else if (isNumber256(num))
-        return true;
-    else if (isNumber512(num))
-        return true;
-    else if (isNumber1024(num))
-        return true;
     else
-        return isNumber2048(num);
+        return isNumber128(num);
 }
 exports.isTnumber = isTnumber;
 var Operand = (function () {
@@ -728,6 +712,18 @@ var Operands = (function () {
             if (op instanceof Variable)
                 op.evaluate(owner);
         }
+    };
+    Operands.prototype.has5bitRegister = function () {
+        for (var j = 0; j < 4; j++) {
+            var op = this.list[j];
+            if (!op)
+                break;
+            if (op instanceof Register) {
+                if (op.idSize() > 4)
+                    return true;
+            }
+        }
+        return false;
     };
     Operands.prototype.toString = function () {
         return this.list.map(function (op) { return op.toString(); }).join(', ');

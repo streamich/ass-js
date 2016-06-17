@@ -206,6 +206,8 @@ export class PrefixVex extends Prefix {
         this.pp = vexdef.pp;
         this.W = vexdef.W;
 
+        if(vexdef.WIG) this.W = 0b0; // When WIG "W ignored", set to "0" to make compatible with GAS.
+
         this.R = R;
         this.X = X;
         this.B = B;

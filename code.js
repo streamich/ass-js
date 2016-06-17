@@ -20,7 +20,7 @@ var Code = (function () {
     Code.prototype.matchDefinitions = function (mnemonic, ops, opts) {
         var matches = this.table.matchDefinitions(mnemonic, ops, opts);
         if (!matches.list.length)
-            throw Error('Could not match operands to instruction definition.');
+            throw Error("Could not match operands to instruction definition " + mnemonic + ".");
         return matches;
     };
     Code.prototype._ = function (mnemonic, operands, options) {

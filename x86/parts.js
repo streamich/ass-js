@@ -144,6 +144,8 @@ var PrefixVex = (function (_super) {
         this.mmmmm = vexdef.mmmmm;
         this.pp = vexdef.pp;
         this.W = vexdef.W;
+        if (vexdef.WIG)
+            this.W = 0;
         this.R = R;
         this.X = X;
         this.B = B;

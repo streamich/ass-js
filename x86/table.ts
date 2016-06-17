@@ -100,10 +100,19 @@ export var m64      = Memory64;
 export var m128     = Memory128;
 export var m256     = Memory256;
 export var m512     = Memory512;
-export var rm8      = [Register8,  Memory];
-export var rm16     = [Register16, Memory];
-export var rm32     = [Register32, Memory];
-export var rm64     = [Register64, Memory];
+export var rm8      = [r8,  m];
+export var rm16     = [r16, m];
+export var rm32     = [r32, m];
+export var rm64     = [r64, m];
+export var xmmm             = [xmm, m];
+export var xmm_xmmm         = [xmm, xmmm];
+export var xmm_xmm_xmmm     = [xmm, xmm, xmmm];
+export var ymmm             = [ymm, m];
+export var ymm_ymmm         = [ymm, ymmm];
+export var ymm_ymm_ymmm     = [ymm, ymm, ymmm];
+export var zmmm             = [zmm, m];
+export var zmm_zmmm         = [zmm, zmmm];
+export var zmm_zmm_zmmm     = [zmm, zmm, zmmm];
 
 
 export type TOperandTemplate = t.TOperandTemplate |

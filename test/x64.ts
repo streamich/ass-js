@@ -924,6 +924,16 @@ describe('x64', function() {
                 expect(bin).to.eql([0xE0, 0xFE]);
             });
         });
+        describe('call', function () {
+            it('call rel32', function () { // In 64-bit mode
+                var _ = code64();
+                var start = _.label('start');
+                _._('call', start);
+                var bin = compile(_);
+                console.log(_.toString());
+                expect([0xE8, 0xFB, 0xFF, 0xFF, 0xFF]).to.eql(bin);
+            });
+        });
     });
 
     describe('Enter and Leave', function () {
@@ -1270,29 +1280,69 @@ describe('x64', function() {
     });
 
     describe('AVX', function() {
-        it('divsd xmm1, xmm2', function() { // f2 0f 5e ca          	divsd  %xmm2,%xmm1
-            var _ = code64();
-            _._('divsd', [o.xmm(1), o.xmm(2)]);
-            var bin = compile(_);
-            expect([0xF2, 0x0F, 0x5E, 0xCA]).to.eql(bin);
+        describe('addps', function() {
+            it('addps xmm2, xmm1', function() { // 0f 58 d1             	addps  %xmm1,%xmm2
+                var _ = code64();
+                _._('addps', [o.xmm(2), o.xmm(1)]);
+                var bin = compile(_);
+                expect([0x0F, 0x58, 0xD1]).to.eql(bin);
+            });
+            it('vaddps xmm3, xmm2, xmm1', function() { // c5 e8 58 d9          	vaddps %xmm1,%xmm2,%xmm3
+                var _ = code64();
+                _._('vaddps', [o.xmm(3), o.xmm(2), o.xmm(1)]);
+                var bin = compile(_);
+                expect([0xc5, 0xe8, 0x58, 0xD9]).to.eql(bin);
+            });
+            it('vaddps xmm2, xmm1, [rax]', function() { // c5 f0 58 10          	vaddps (%rax),%xmm1,%xmm2
+                var _ = code64();
+                _._('vaddps', [o.xmm(2), o.xmm(1), o.rax.ref()]);
+                var bin = compile(_);
+                expect([0xc5, 0xF0, 0x58, 0x10]).to.eql(bin);
+            });
+            it('vaddps ymm12, ymm11, ymm10', function() { // c4 41 24 58 e2       	vaddps %ymm10,%ymm11,%ymm12
+                var _ = code64();
+                _._('vaddps', [o.ymm(12), o.ymm(11), o.ymm(10)]);
+                var bin = compile(_);
+                expect([0xc4, 0x41, 0x24, 0x58, 0xe2]).to.eql(bin);
+            });
+            it('vaddps zmm20, zmm20, zmm20', function() { // 62 a1 5c 40 58 e4    	vaddps %zmm20,%zmm20,%zmm20
+                var _ = code64();
+                _._('vaddps', [o.zmm(20), o.zmm(20), o.zmm(20)]);
+                var bin = compile(_);
+                expect([0x62, 0xA1, 0x5C, 0x40, 0x58, 0xE4]).to.eql(bin);
+            });
+            it('vaddps zmm22, zmm21, zmm20', function() { // 62 a1 54 40 58 f4    	vaddps %zmm20,%zmm21,%zmm22
+                var _ = code64();
+                _._('vaddps', [o.zmm(22), o.zmm(21), o.zmm(20)]);
+                var bin = compile(_);
+                expect([0x62, 0xA1, 0x54, 0x40, 0x58, 0xF4]).to.eql(bin);
+            });
         });
-        it('vdivsd xmm1, xmm2, xmm3', function() { // c5 eb 5e cb          	vdivsd %xmm3,%xmm2,%xmm1
-            var _ = code64();
-            _._('vdivsd', [o.xmm(1), o.xmm(2), o.xmm(3)]);
-            var bin = compile(_);
-            expect([0xC5, 0xEB, 0x5E, 0xCB]).to.eql(bin);
-        });
-        it('vdivsd xmm1 {k1} {z}, xmm2, xmm3', function() { // 62 f1 ef 89 5e cb    	vdivsd %xmm3,%xmm2,%xmm1{%k1}{z}
-            var _ = code64();
-            _._('vdivsd', [o.xmm(1), o.xmm(2), o.xmm(3)], {mask: o.k(1), z: 1});
-            var bin = compile(_);
-            expect([0x62, 0xF1, 0xEF, 0x89, 0x5E, 0xCB]).to.eql(bin);
-        });
-        it('vdivsd xmm13 {k7}, xmm14, xmm15', function() { // 62 51 8f 0f 5e ef    	vdivsd %xmm15,%xmm14,%xmm13{%k7}
-            var _ = code64();
-            _._('vdivsd', [o.xmm(13), o.xmm(14), o.xmm(15)], {mask: o.k(7)});
-            var bin = compile(_);
-            expect([0x62, 0x51, 0x8F, 0x0F, 0x5E, 0xEF]).to.eql(bin);
+        describe('divsd', function() {
+            it('divsd xmm1, xmm2', function() { // f2 0f 5e ca          	divsd  %xmm2,%xmm1
+                var _ = code64();
+                _._('divsd', [o.xmm(1), o.xmm(2)]);
+                var bin = compile(_);
+                expect([0xF2, 0x0F, 0x5E, 0xCA]).to.eql(bin);
+            });
+            it('vdivsd xmm1, xmm2, xmm3', function() { // c5 eb 5e cb          	vdivsd %xmm3,%xmm2,%xmm1
+                var _ = code64();
+                _._('vdivsd', [o.xmm(1), o.xmm(2), o.xmm(3)]);
+                var bin = compile(_);
+                expect([0xC5, 0xEB, 0x5E, 0xCB]).to.eql(bin);
+            });
+            it('vdivsd xmm1 {k1} {z}, xmm2, xmm3', function() { // 62 f1 ef 89 5e cb    	vdivsd %xmm3,%xmm2,%xmm1{%k1}{z}
+                var _ = code64();
+                _._('vdivsd', [o.xmm(1), o.xmm(2), o.xmm(3)], {mask: o.k(1), z: 1});
+                var bin = compile(_);
+                expect([0x62, 0xF1, 0xEF, 0x89, 0x5E, 0xCB]).to.eql(bin);
+            });
+            it('vdivsd xmm13 {k7}, xmm14, xmm15', function() { // 62 51 8f 0f 5e ef    	vdivsd %xmm15,%xmm14,%xmm13{%k7}
+                var _ = code64();
+                _._('vdivsd', [o.xmm(13), o.xmm(14), o.xmm(15)], {mask: o.k(7)});
+                var bin = compile(_);
+                expect([0x62, 0x51, 0x8F, 0x0F, 0x5E, 0xEF]).to.eql(bin);
+            });
         });
     });
 });

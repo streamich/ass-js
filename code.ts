@@ -33,7 +33,7 @@ export class Code {
     protected matchDefinitions(mnemonic: string, ops: o.Operands, opts: IInstructionOptions): d.DefMatchList {
         var matches = this.table.matchDefinitions(mnemonic, ops, opts);
         if(!matches.list.length)
-            throw Error('Could not match operands to instruction definition.');
+            throw Error(`Could not match operands to instruction definition ${mnemonic}.`);
         return matches;
     }
 
