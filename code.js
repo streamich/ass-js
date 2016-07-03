@@ -266,7 +266,17 @@ var Code = (function () {
     };
     Code.prototype.dq = function (quads, littleEndian) {
         if (littleEndian === void 0) { littleEndian = this.littleEndian; }
-        return this.db(instruction_1.Data.quadsToOctets(quads, littleEndian));
+        var tnums;
+        if (typeof quads === 'number')
+            tnums = [quads];
+        else
+            tnums = quads;
+        for (var j = 0; j < tnums.length; j++) {
+            var num = tnums[j];
+            if (typeof num === 'number')
+                tnums[j] = [util_1.UInt64.lo(num), util_1.UInt64.hi(num)];
+        }
+        return this.db(instruction_1.Data.quadsToOctets(tnums, littleEndian));
     };
     Code.prototype.tpl = function (Clazz, args) {
         return this.insert(new Clazz(args));
@@ -336,11 +346,6 @@ var Code = (function () {
         return this.do3rdPass();
     };
     Code.prototype.do2ndPass = function () {
-        var last = this.expr[this.expr.length - 1];
-        var all_offsets_known = last.offset >= 0;
-        var all_sizes_known = last.bytes() >= 0;
-        if (all_offsets_known && all_sizes_known)
-            return;
         var prev = this.expr[0];
         prev.offset = 0;
         for (var j = 1; j < this.expr.length; j++) {

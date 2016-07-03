@@ -4,6 +4,11 @@
 main:
         syscall
 
+cmpxchg:
+        cmpxchg %rbx, %rcx
+        cmpxchg %rbx, (%rcx)
+        lock cmpxchg %rbx, (%rcx)
+
 addps:
         addps %xmm1, %xmm2
         vaddps %xmm1, %xmm2, %xmm3

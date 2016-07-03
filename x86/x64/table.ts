@@ -186,7 +186,7 @@ function tpl_cmovc(op = 0x0F42) {
 }
 
 function tpl_xadd(op = 0, lock = true) {
-    return [{o: op + 1, lock: lock},
+    return [{o: op + 1, en: 'mr', lock: lock},
         // 0F C0 /r XADD r/m8, r8 MR Valid Valid Exchange r8 and r/m8; load sum into r/m8.
         // REX + 0F C0 /r XADD r/m8*, r8* MR Valid N.E. Exchange r8 and r/m8; load sum into r/m8.
         {o: op, ops: [rm8, r8]},
@@ -232,8 +232,8 @@ function tpl_blsi(op = 0xF3, or = 3) {
 
 function tpl_bndcl(op = 0xF30F1A) {
     return [{o: op, ext: [EXT.MPX]},
-        {ops: [bnd, rm32], mod: M.X32},
-        {ops: [bnd, rm64], mod: M.X64},
+        {ops: [bnd, rm32], mod: M.X32, s: S.D},
+        {ops: [bnd, rm64], mod: M.X64, s: S.Q},
     ];
 }
 
@@ -501,44 +501,44 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
 
     cvtps2pi: [{o: 0x0F2D, ops: [xmm, [xmm, m]]}],
 
-    cvtsd2si: [{o: 0xF20F2D, ops: [r32, [xmm, m]], ext: [EXT.SSE2]}],
+    cvtsd2si: [{o: 0xF20F2D, ops: [r32, [xmm, m]], s: S.D, ext: [EXT.SSE2]}],
     vcvtsd2si: [{o: 0x2D, ext: [EXT.AVX]},
-        {o: 0x0F2D, pfx: [0xF2], ops: [r64, [xmm, m]], ext: [EXT.SSE2], mod: M.X64},
-        {vex: 'LIG.F2.0F.W0', ops: [r32, [xmm, m]]},
-        {vex: 'LIG.F2.0F.W1', ops: [r64, [xmm, m]], mod: M.X64},
+        {o: 0x0F2D, pfx: [0xF2], ops: [r64, [xmm, m]], s: S.Q, ext: [EXT.SSE2], mod: M.X64},
+        {vex: 'LIG.F2.0F.W0', ops: [r32, [xmm, m]], s: S.D},
+        {vex: 'LIG.F2.0F.W1', ops: [r64, [xmm, m]], s: S.Q, mod: M.X64},
     ],
 
     cvtsd2ss: [{o: 0xF20F5A, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
     vcvtsd2ss: [{o: 0x5A, vex: 'NDS.LIG.F2.0F.WIG', ops: [xmm, xmm, [xmm, m]], en: 'rvm', ext: [EXT.AVX]}],
 
     cvtsi2sd: [{o: 0x0F2A, pfx: [0xF2], ext: [EXT.SSE2]},
-        {ops: [xmm, rm32]},
-        {ops: [xmm, rm64]},
+        {ops: [xmm, rm32], s: S.D},
+        {ops: [xmm, rm64], s: S.Q},
     ],
     vcvtsi2sd: [{o: 0x2A, ext: [EXT.AVX], en: 'rvm'},
-        {vex: 'NDS.LIG.F2.0F.W0', ops: [xmm, xmm, rm32]},
-        {vex: 'NDS.LIG.F2.0F.W1', ops: [xmm, xmm, rm64]},
+        {vex: 'NDS.LIG.F2.0F.W0', ops: [xmm, xmm, rm32], s: S.D},
+        {vex: 'NDS.LIG.F2.0F.W1', ops: [xmm, xmm, rm64], s: S.Q},
     ],
 
     cvtsi2ss: [{o: 0x0F2A, pfx: [0xF3], ext: [EXT.SSE]},
-        {ops: [xmm, rm32]},
-        {ops: [xmm, rm64]},
+        {ops: [xmm, rm32], s: S.D},
+        {ops: [xmm, rm64], s: S.Q},
     ],
     vcvtsi2ss: [{o: 0x2A, ext: [EXT.AVX], en: 'rvm'},
-        {vex: 'NDS.LIG.F3.0F.W0', ops: [xmm, xmm, rm32]},
-        {vex: 'NDS.LIG.F3.0F.W1', ops: [xmm, xmm, rm64]},
+        {vex: 'NDS.LIG.F3.0F.W0', ops: [xmm, xmm, rm32], s: S.D},
+        {vex: 'NDS.LIG.F3.0F.W1', ops: [xmm, xmm, rm64], s: S.Q},
     ],
 
     cvtss2sd: [{o: 0xF30F5A, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
     vcvtss2sd: [{o: 0x5A, vex: 'NDS.LIG.F3.0F.WIG', ops: [xmm, xmm, [xmm, m]], en: 'rvm', ext: [EXT.AVX]}],
 
     cvtss2si: [{o: 0x0F2D, pfx: [0xF3], ext: [EXT.SSE]},
-        {ops: [r32, [xmm, m]]},
-        {ops: [r64, [xmm, m]], mod: M.X64},
+        {ops: [r32, [xmm, m]], s: S.D},
+        {ops: [r64, [xmm, m]], s: S.Q, mod: M.X64},
     ],
     vcvtss2si: [{o: 0x2D, ext: [EXT.AVX]},
-        {vex: 'LIG.F3.0F.W0', ops: [r32, [xmm, m]]},
-        {vex: 'LIG.F3.0F.W1', ops: [r64, [xmm, m]], mod: M.X64},
+        {vex: 'LIG.F3.0F.W0', ops: [r32, [xmm, m]], s: S.D},
+        {vex: 'LIG.F3.0F.W1', ops: [r64, [xmm, m]], s: S.Q, mod: M.X64},
     ],
 
     cvttpd2dq: [{o: 0x660FE6, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
@@ -558,21 +558,21 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     cvttps2pi: [{o: 0x0F2C, ops: [xmm, [xmm, m]]}],
 
     cvttsd2si: [{o: 0x0F2C, pfx: [0xF2], ext: [EXT.SSE2]},
-        {ops: [r32, [xmm, m]]},
-        {ops: [r64, [xmm, m]], mod: M.X64},
+        {ops: [r32, [xmm, m]], s: S.D},
+        {ops: [r64, [xmm, m]], s: S.Q, mod: M.X64},
     ],
     vcvttsd2si: [{o: 0x2C, ext: [EXT.AVX]},
-        {vex: 'LIG.F2.0F.W0', ops: [r32, [xmm, m]]},
-        {vex: 'LIG.F2.0F.W1', ops: [r64, [xmm, m]], mod: M.X64},
+        {vex: 'LIG.F2.0F.W0', ops: [r32, [xmm, m]], s: S.D},
+        {vex: 'LIG.F2.0F.W1', ops: [r64, [xmm, m]], s: S.Q, mod: M.X64},
     ],
 
     cvttss2si: [{o: 0x0F2C, pfx: [0xF3], ext: [EXT.SSE]},
-        {ops: [r32, [xmm, m]]},
-        {ops: [r64, [xmm, m]], mod: M.X64},
+        {ops: [r32, [xmm, m]], s: S.D},
+        {ops: [r64, [xmm, m]], s: S.Q, mod: M.X64},
     ],
     vcvttss2si: [{o: 0x2C, ext: [EXT.AVX]},
-        {vex: 'LIG.F3.0F.W0', ops: [r32, [xmm, m]]},
-        {vex: 'LIG.F3.0F.W1', ops: [r64, [xmm, m]], mod: M.X64},
+        {vex: 'LIG.F3.0F.W0', ops: [r32, [xmm, m]], s: S.D},
+        {vex: 'LIG.F3.0F.W1', ops: [r64, [xmm, m]], s: S.Q, mod: M.X64},
     ],
 
 
@@ -618,8 +618,8 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     // # E-letter
     emms: [{o: 0x0F77}],
 
-    extractps: [{o: 0x0F3A17, pfx: [0x66], en: 'mr', ops: [r32, xmm, imm8], ext: [EXT.SSE4_1]}],
-    vextractps: [{o: 0x17, en: 'mr', vex: '128.66.0F3A.WIG', ops: [rm32, xmm, imm8], ext: [EXT.AVX]}],
+    extractps: [{o: 0x0F3A17, pfx: [0x66], en: 'mr', ops: [r32, xmm, imm8], s: S.D, ext: [EXT.SSE4_1]}],
+    vextractps: [{o: 0x17, en: 'mr', vex: '128.66.0F3A.WIG', ops: [rm32, xmm, imm8], s: S.Q, ext: [EXT.AVX]}],
 
 
 
@@ -959,7 +959,7 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     lsl: [{o: 0x0F03},
         {ops: [r16, rm16]},
         {ops: [r32, rm32]},
-        {ops: [r64, rm32]},
+        {ops: [r64, rm32], s: S.Q},
     ],
 
     ltr: [{o: 0x0F00, or: 3, ops: [rm16]}],
@@ -1041,51 +1041,51 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
 
     movd: [{},
         // 0F 6E /r MOVD mm, r/m32 RM V/V MMX Move doubleword from r/m32 to mm.
-        {o: 0x0F6E, ops: [mm, rm32], ext: [EXT.MMX]},
+        {o: 0x0F6E, ops: [mm, rm32], s: S.D, ext: [EXT.MMX]},
         // 0F 7E /r MOVD r/m32, mm MR V/V MMX Move doubleword from mm to r/m32.
-        {o: 0x0F7E, ops: [rm32, mm], ext: [EXT.MMX]},
+        {o: 0x0F7E, ops: [rm32, mm], s: S.D, ext: [EXT.MMX]},
         // 66 0F 6E /r MOVD xmm, r/m32 RM V/V SSE2 Move doubleword from r/m32 to xmm.
-        {o: 0x0F6E, pfx: [0x66], ops: [xmm, rm32], ext: [EXT.SSE2]},
+        {o: 0x0F6E, pfx: [0x66], ops: [xmm, rm32], s: S.D, ext: [EXT.SSE2]},
         // 66 0F 7E /r MOVD r/m32, xmm MR V/V SSE2 Move doubleword from xmm register to r/m32.
-        {o: 0x0F7E, pfx: [0x66], ops: [rm32, xmm], ext: [EXT.SSE2]},
+        {o: 0x0F7E, pfx: [0x66], ops: [rm32, xmm], s: S.D, ext: [EXT.SSE2]},
     ],
     vmovd: [{ext: [EXT.AVX]},
         // VEX.128.66.0F.W0 6E / VMOVD xmm1, r32/m32 RM V/V AVX Move doubleword from r/m32 to xmm1.
-        {o: 0x6E, vex: '128.66.0F.W0', ops: [xmm, rm32]},
+        {o: 0x6E, vex: '128.66.0F.W0', ops: [xmm, rm32], s: S.D},
         // VEX.128.66.0F.W0 7E /r VMOVD r32/m32, xmm1 MR V/V AVX Move doubleword from xmm1 register to r/m32.
-        {o: 0x7E, vex: '128.66.0F.W0', ops: [rm32, xmm]},
+        {o: 0x7E, vex: '128.66.0F.W0', ops: [rm32, xmm], s: S.D},
     ],
     movq: [{mod: M.X64},
         // REX.W + 0F 6E /r MOVQ mm, r/m64 RM V/N.E. MMX Move quadword from r/m64 to mm.
-        {o: 0x0F6E, ops: [mm, rm64], ext: [EXT.MMX]},
+        {o: 0x0F6E, ops: [mm, rm64], s: S.Q, ext: [EXT.MMX]},
         // REX.W + 0F 7E /r MOVQ r/m64, mm MR V/N.E. MMX Move quadword from mm to r/m64.
-        {o: 0x0F7E, ops: [rm64, mm], ext: [EXT.MMX]},
+        {o: 0x0F7E, ops: [rm64, mm], s: S.Q, ext: [EXT.MMX]},
         // 66 REX.W 0F 6E /r MOVQ xmm, r/m64 RM V/N.E. SSE2 Move quadword from r/m64 to xmm.
-        {o: 0x0F6E, pfx: [0x66], ops: [xmm, rm64], ext: [EXT.SSE2]},
+        {o: 0x0F6E, pfx: [0x66], ops: [xmm, rm64], s: S.Q, ext: [EXT.SSE2]},
         // 66 REX.W 0F 7E /r MOVQ r/m64, xmm MR V/N.E. SSE2 Move quadword from xmm register to r/m64.
-        {o: 0x0F7E, pfx: [0x66], ops: [rm64, xmm], ext: [EXT.SSE2]},
+        {o: 0x0F7E, pfx: [0x66], ops: [rm64, xmm], s: S.Q, ext: [EXT.SSE2]},
 
         // MOVQ—Move Quadword
         // 0F 6F /r MOVQ mm, mm/m64 RM V/V MMX Move quadword from mm/m64 to mm.
-        {o: 0x0F6F, ops: [mm, [mm, m64]], ext: ext_mmx},
+        {o: 0x0F6F, ops: [mm, [mm, m64]], s: S.Q, ext: ext_mmx},
         // 0F 7F /r MOVQ mm/m64, mm MR V/V MMX Move quadword from mm to mm/m64.
-        {o: 0x0F7F, ops: [[mm, m64], mm], en: 'mr', ext: ext_mmx},
+        {o: 0x0F7F, ops: [[mm, m64], mm], s: S.Q, en: 'mr', ext: ext_mmx},
         // F3 0F 7E /r MOVQ xmm1, xmm2/m64 RM V/V SSE2 Move quadword from xmm2/mem64 to xmm1.
-        {o: 0xF30F7E, ops: [xmm, [xmm, m64]], ext: ext_sse2},
+        {o: 0xF30F7E, ops: [xmm, [xmm, m64]], s: S.Q, ext: ext_sse2},
         // 66 0F D6 /r MOVQ xmm2/m64, xmm1 MR V/V SSE2 Move quadword from xmm1 to xmm2/mem64.
-        {o: 0x660FD6, ops: [[xmm, m64], xmm], en: 'mr', ext: ext_sse2},
+        {o: 0x660FD6, ops: [[xmm, m64], xmm], s: S.Q, en: 'mr', ext: ext_sse2},
     ],
     vmovq: [{mod: M.X64, ext: [EXT.AVX]},
         // VEX.128.66.0F.W1 6E /r VMOVQ xmm1, r64/m64 RM V/N.E. AVX Move quadword from r/m64 to xmm1.
-        {o: 0x6E, vex: '128.66.0F.W1', ops: [xmm, rm64]},
+        {o: 0x6E, vex: '128.66.0F.W1', ops: [xmm, rm64], s: S.Q},
         // VEX.128.66.0F.W1 7E /r VMOVQ r64/m64, xmm1 MR V/N.E. AVX Move quadword from xmm1 register to r/m64.
-        {o: 0x7E, vex: '128.66.0F.W1', ops: [rm64, xmm], en: 'mr'},
+        {o: 0x7E, vex: '128.66.0F.W1', ops: [rm64, xmm], s: S.Q, en: 'mr'},
         // VEX.128.F3.0F.WIG 7E /r VMOVQ xmm1, xmm2 RM V/V AVX Move quadword from xmm2 to xmm1.
         {o: 0x7E, vex: '128.F3.0F.WIG', ops: [xmm, xmm]},
         // VEX.128.F3.0F.WIG 7E /r VMOVQ xmm1, m64 RM V/V AVX Load quadword from m64 to xmm1.
         {o: 0x7E, vex: '128.F3.0F.WIG', ops: [xmm, m64], s: S.Q},
         // VEX.128.66.0F.WIG D6 /r VMOVQ xmm1/m64, xmm2 MR V/V AVX Move quadword from
-        {o: 0xD6, vex: '128.66.0F.WIG', ops: [[xmm, m64], xmm], en: 'mr'},
+        {o: 0xD6, vex: '128.66.0F.WIG', ops: [[xmm, m64], xmm], s: S.Q, en: 'mr'},
     ],
 
     movddup: [{o: 0xF20F12, ops: [xmm, [xmm, m]], ext: [EXT.SSE3]}],

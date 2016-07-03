@@ -2,11 +2,13 @@
 
 `x86` assembler in JavaScript.
 
-```js
-import * as ass from 'ass-js';
-var {rax, rbx} = ass.x86;
+> THIS PACKAGE IS IN DEVELOPMENT, THERE ARE BUGS, SOME INSTRUCTIONS ARE MISSING.
 
-var _ = ass.x86.x64.Code.create();
+```js
+import {rax, rbx} from 'ass-js/x86/operand'; // x86 registers that we will use.
+import {Code} from 'ass-js/x86/x64/code'; // Code object that will `.compile()` our code.
+
+var _ = Code.create();
 _.mov(rax, rbx);
 console.log(_.compile());
 console.log(_.toString());
@@ -15,8 +17,15 @@ console.log(_.toString());
 See supported instructions:
 
 ```js
-console.log(ass.x86.x64.Code.table.toString());
+_.table.createAll();
+console.log(_.table.toString());
+console.log(_.table.toJson());
 ```
+
+Goals:
+ 1. Create a generic assembler, first with `x86` support and then add `ARM` support.
+ 2. Full support for all `x86` instructions, including: *AVX*, *AVX-2* and *AVX-3* instructions.
+
 
 ## Examples
 
@@ -42,34 +51,34 @@ var StaticBuffer = require('static-buffer/buffer').StaticBuffer;
 Now we create our `Code` object, we name it `_`, which will hold all our assembler instructions and then compile them.
 
 ```js
-var _ = Code.create('hello_world_app');
+var _ = new Code('hello_world_app');
 ```
 
 Finally we can create our *"Hello World"* app in `x86` assembler for *Linux*:
 
 ```js
 _.db('Hello World!\n');
-_.movq(rax, 1);
-_.movq(rdi, 1);
-_.lea(rsi, rip.disp(-34));
-_.movq(rdx, 13);
-_.syscall();
-_.ret();
+_._('mov', [rax, 1]);
+_._('mov', [rdi, 1]);
+_._('lea', [rsi, rip.disp(-34)]);
+_._('mov', [rdx, 13]);
+_._('syscall');
+_._('ret');
 ```
 
 Let's look at it line-by-line:
 
  - `_.db('Hello World!\n');` -- simply adds `"Hello World!\n"` string to our code.
- - `_.movq(rax, 1);` -- stores `1` in `rax` register, which will tell Linux kernel to execute syscall No. 1, which is
+ - `_._('mov', [rax, 1]);` -- stores `1` in `rax` register, which will tell Linux kernel to execute syscall No. 1, which is
  `write` syscall, that writes some data to some file descriptor.
- - `_.movq(rdi, 1);` -- stores `1` in `rdi` register, which represents a file descriptor to which Linux kernel will
+ - `_._('mov', [rdi, 1]);` -- stores `1` in `rdi` register, which represents a file descriptor to which Linux kernel will
  write the data, `1` stands for `STDOUT` which will be the console in our case.
- - `_.lea(rsi, rip.disp(-34));` -- this expression stores the address of the beginning of our `"Hello World!\n"` string
+ - `_._('lea', [rsi, rip.disp(-34)]);` -- this expression stores the address of the beginning of our `"Hello World!\n"` string
  into the `rsi` register, here we use *"RIP-relative addressing"*, where we basically say that our string actually started
  `34` bytes before the end of this instruction.
- - `_.movq(rdx, 13);` -- stores `13` in `rdx` register which tells the kernel the length of our string we want to print.
- - `_.syscall();` -- this command tells the Linux kernel to execute our system call with the arguments we just provided.
- - `_.ret();` -- this command is required by `StaticBuffer` that we will use to execute this code, it will basically stop
+ - `_._('mov', [rdx, 13]);` -- stores `13` in `rdx` register which tells the kernel the length of our string we want to print.
+ - `_._('syscall');` -- this command tells the Linux kernel to execute our system call with the arguments we just provided.
+ - `_._('ret');` -- this command is required by `StaticBuffer` that we will use to execute this code, it will basically stop
  executing any further machine instructions and `return` to `JavaScript`.
  
 To view your program you can print it using `console.log(_.toString());` it will output something like this:
@@ -106,12 +115,12 @@ const STDOUT = 1;
 
 var str = 'Hello World!\n';
 _.db(str);
-_.movq(rax, SYS_write);
-_.movq(rdi, STDOUT);
-_.lea(rsi, rip.disp(-34));
-_.movq(rdx, 13);
-_.syscall();
-_.ret();
+_._('mov', [rax, SYS_write]);
+_._('mov', [rdi, STDOUT]);
+_._('lea', [rsi, rip.disp(-34)]);
+_._('mov', [rdx, 13]);
+_._('syscall');
+_._('ret');
 ```
 
 We still have location of our string `rip.disp(-34)` and its length `13` hard-coded, let's fix that as well. The latter one is
@@ -125,12 +134,12 @@ Luckily every command you run on code object `_` returns an `Expression`, and yo
 ```js
 var str = 'Hello World!\n';
 var db = _.db(str);
-_.movq(rax, SYS_write);
-_.movq(rdi, STDOUT);
-_.lea(rsi, rip.disp(db));
-_.movq(rdx, str.length);
-_.syscall();
-_.ret();
+_._('mov', [rax, SYS_write]);
+_._('mov', [rdi, STDOUT]);
+_._('lea', [rsi, rip.disp(db)]);
+_._('mov', [rdx, str.length]);
+_._('syscall');
+_._('ret');
 ```
 
 Now if your would print the code as string `console.log(_.toString())`, you would get something like this:
@@ -159,12 +168,12 @@ var str = 'Hello World!\n';
 var str_lbl = _.label('my_string');
 _.db(str);
 
-_.movq(rax, SYS_write);
-_.movq(rdi, STDOUT);
-_.lea(rsi, rip.disp(str_lbl));
-_.movq(rdx, str.length);
-_.syscall();
-_.ret();
+_._('mov', [rax, SYS_write]);
+_._('mov', [rdi, STDOUT]);
+_._('lea', [rsi, rip.disp(str_lbl)]);
+_._('mov', [rdx, str.length]);
+_._('syscall');
+_._('ret');
 ```
 
 Above `_.label('my_string')` creates *and inserts* label expression with name `my_string` just before our string, now if we print
@@ -181,12 +190,12 @@ here is what you do:
 var str = 'Hello World!\n';
 var str_lbl = _.lbl('my_string');
 
-_.movq(rax, SYS_write);
-_.movq(rdi, STDOUT);
-_.lea(rsi, rip.disp(str_lbl));
-_.movq(rdx, str.length);
-_.syscall();
-_.ret();
+_._('mov', [rax, SYS_write]);
+_._('mov', [rdi, STDOUT]);
+_._('lea', [rsi, rip.disp(str_lbl)]);
+_._('mov', [rdx, str.length]);
+_._('syscall');
+_._('ret');
 
 _.insert(str_lbl);
 _.db(str);

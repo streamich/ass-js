@@ -140,3 +140,8 @@ export class Code extends CodeBase {
         return this.tpl(i.TemplateRex, args);
     }
 }
+
+
+export interface Code {
+    _(mnemonic: string, operands?: oo.TUiOperand|oo.TUiOperand[], options?: oo.SIZE|IInstructionOptions|any): i.Instruction;
+}

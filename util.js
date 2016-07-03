@@ -22,8 +22,6 @@ var UInt64 = (function () {
         if (lo === void 0) { lo = UInt64.lo(a); }
         var hi = a - lo;
         hi /= 4294967296;
-        if ((hi < 0) || (hi >= 1048576))
-            throw Error("Not an int52: " + a);
         return hi;
     };
     UInt64.lo = function (a) {
@@ -36,6 +34,20 @@ var UInt64 = (function () {
         if (lo < 0)
             lo += 4294967296;
         return hi * 4294967296 + lo;
+    };
+    UInt64.toNumber = function (num64) {
+        var lo = num64[0], hi = num64[1];
+        if (lo < 0)
+            lo += 4294967296;
+        return hi * 4294967296 + lo;
+    };
+    UInt64.toNumber64 = function (num) {
+        var lo = num | 0;
+        if (lo < 0)
+            lo += 4294967296;
+        var hi = num - lo;
+        hi /= 4294967296;
+        return [lo, hi];
     };
     return UInt64;
 }());

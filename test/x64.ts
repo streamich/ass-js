@@ -223,7 +223,7 @@ describe('x64', function() {
             expect(bin).to.eql([0x48, 0xC7, 0xC5, 0xCD, 0xCC, 0xFF, 0xFF]);
         });
     });
-
+    
     describe('Binary Arithmetic', function() {
         describe('adcx', function () {
             it('adcx rcx, rbx', function () { // 66 48 0f 38 f6 cb    	adcx   %rbx,%rcx
@@ -930,7 +930,6 @@ describe('x64', function() {
                 var start = _.label('start');
                 _._('call', start);
                 var bin = compile(_);
-                console.log(_.toString());
                 expect([0xE8, 0xFB, 0xFF, 0xFF, 0xFF]).to.eql(bin);
             });
         });
@@ -1255,6 +1254,31 @@ describe('x64', function() {
             _._('lea', [r9, _.mem(0x43)]);
             var bin = compile(_);
             expect(bin).to.eql([0x4C, 0x8D, 0x0C, 0x25, 0x43, 0, 0, 0]);
+        });
+    });
+
+    describe('Data Transfer', function() {
+        describe('cmpxchg', function () {
+            it('cmpxchg rcx, rbx', function () { // 48 0f b1 d9          	cmpxchg %rbx,%rcx
+                var _ = code64();
+                _._('cmpxchg', [rcx, rbx]);
+                var bin = compile(_);
+                expect([0x48, 0x0F, 0xB1, 0xD9]).to.eql(bin);
+            });
+            it('cmpxchg [rcx], rbx', function () { // 48 0f b1 19          	cmpxchg %rbx,(%rcx)
+                var _ = code64();
+                _._('cmpxchg', [rcx.ref(), rbx]);
+                var bin = compile(_);
+                expect([0x48, 0x0F, 0xB1, 0x19]).to.eql(bin);
+            });
+            it('lock cmpxchg [rcx], rbx', function () { // f0 48 0f b1 19       	lock cmpxchg %rbx,(%rcx)
+                var _ = code64();
+                _.lock();
+                _._('cmpxchg', [rcx.ref(), rbx]).lock();
+                _.lock();
+                var bin = compile(_);
+                expect([0xF0, 0xF0, 0x48, 0x0F, 0xB1, 0x19, 0xF0]).to.eql(bin);
+            });
         });
     });
 

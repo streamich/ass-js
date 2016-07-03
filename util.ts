@@ -15,7 +15,6 @@ export class UInt64 {
     static hi(a: number, lo: number = UInt64.lo(a)): number {
         var hi = a - lo;
         hi /= 4294967296;
-        if ((hi < 0) || (hi >= 1048576)) throw Error (`Not an int52: ${a}`);
         return hi;
     }
 
@@ -31,5 +30,21 @@ export class UInt64 {
 
         if (lo < 0) lo += 4294967296;
         return hi * 4294967296 + lo;
+    }
+
+    static toNumber(num64: [number, number]): number {
+        var [lo, hi] = num64;
+        if (lo < 0) lo += 4294967296;
+        return hi * 4294967296 + lo;
+    }
+
+    static toNumber64(num: number): [number, number] {
+        var lo = num | 0;
+        if (lo < 0) lo += 4294967296;
+
+        var hi = num - lo;
+        hi /= 4294967296;
+
+        return [lo, hi];
     }
 }

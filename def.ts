@@ -270,6 +270,12 @@ export class DefTable {
         this.groups[mnemonic] = group;
     }
 
+    createAll() {
+        for(var mnemonic in this.table) {
+            this.getGroup(mnemonic);
+        }
+    }
+
     matchDefinitions(mnemonic: string, ops: o.Operands, opts: TInstructionOptions): DefMatchList {
         var group = this.getGroup(mnemonic);
         if(!group)

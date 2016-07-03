@@ -183,6 +183,8 @@ var Instruction = (function (_super) {
         if (!this.def.lock)
             throw Error("Instruction \"" + this.def.mnemonic + "\" does not support LOCK.");
         this.pfxLock = new p.PrefixLock;
+        this.length++;
+        this.lengthMax++;
         return this;
     };
     Instruction.prototype.bt = function () {

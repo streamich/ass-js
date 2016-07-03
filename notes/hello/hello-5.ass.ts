@@ -10,12 +10,12 @@ const STDOUT = 1;
 var str = 'Hello World!\n';
 var str_lbl = _.lbl('my_string');
 
-_.movq(rax, SYS_write);
-_.movq(rdi, STDOUT);
-_.lea(rsi, rip.disp(str_lbl));
-_.movq(rdx, str.length);
-_.syscall();
-_.ret();
+_._('mov', [rax, SYS_write]);
+_._('mov', [rdi, STDOUT]);
+_._('lea', [rsi, rip.disp(str_lbl)]);
+_._('mov', [rdx, str.length]);
+_._('syscall');
+_._('ret');
 
 _.insert(str_lbl);
 _.db(str);

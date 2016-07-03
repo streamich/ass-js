@@ -262,6 +262,11 @@ var DefTable = (function () {
         group.createDefinitions(definitions, this.defaults);
         this.groups[mnemonic] = group;
     };
+    DefTable.prototype.createAll = function () {
+        for (var mnemonic in this.table) {
+            this.getGroup(mnemonic);
+        }
+    };
     DefTable.prototype.matchDefinitions = function (mnemonic, ops, opts) {
         var group = this.getGroup(mnemonic);
         if (!group)

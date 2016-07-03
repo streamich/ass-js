@@ -195,6 +195,8 @@ export class Instruction extends i.Instruction implements IInstruction {
             throw Error(`Instruction "${this.def.mnemonic}" does not support LOCK.`);
 
         this.pfxLock = new p.PrefixLock;
+        this.length++;
+        this.lengthMax++;
         return this;
     }
 

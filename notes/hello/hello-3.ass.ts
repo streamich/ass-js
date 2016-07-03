@@ -9,12 +9,12 @@ const STDOUT = 1;
 
 var str = 'Hello World!\n';
 var db = _.db(str);
-_.movq(rax, SYS_write);
-_.movq(rdi, STDOUT);
-_.lea(rsi, rip.disp(db));
-_.movq(rdx, str.length);
-_.syscall();
-_.ret();
+_._('mov', [rax, SYS_write]);
+_._('mov', [rdi, STDOUT]);
+_._('lea', [rsi, rip.disp(db)]);
+_._('mov', [rdx, str.length]);
+_._('syscall');
+_._('ret');
 
 
 var bin = _.compile();

@@ -234,8 +234,17 @@ export class Code {
         return this.db(Data.numbersToOctets(doubles as number[], 4, littleEndian));
     }
 
-    dq(quads: Tnumber[], littleEndian = this.littleEndian): Data {
-        return this.db(Data.quadsToOctets(quads, littleEndian));
+    dq(quads: Tnumber|Tnumber[], littleEndian = this.littleEndian): Data {
+        var tnums: Tnumber[];
+        if(typeof quads === 'number') tnums = [quads];
+        else tnums = quads as Tnumber[];
+
+        for(var j = 0; j < tnums.length; j++) {
+            var num = tnums[j];
+            if(typeof num === 'number') tnums[j] = [UInt64.lo(num), UInt64.hi(num)];
+        }
+
+        return this.db(Data.quadsToOctets(tnums, littleEndian));
     }
 
     tpl(Clazz: typeof i.Template, args?: any[]): i.Expression {
@@ -331,13 +340,15 @@ export class Code {
     }
 
     do2ndPass() {
-        var last = this.expr[this.expr.length - 1];
-        var all_offsets_known = last.offset >= 0;
-
+        // We probably cannot skip this 2nd pass, as instructions might change their sizes after inserted,
+        // for example, when `.lock()` prefix is added.
+        // var last = this.expr[this.expr.length - 1];
+        // var all_offsets_known = last.offset >= 0;
+        //
         // Edge case when only the last Expression has variable size.
-        var all_sizes_known = last.bytes() >= 0;
-
-        if(all_offsets_known && all_sizes_known) return; // Skip 2nd pass.
+        // var all_sizes_known = last.bytes() >= 0;
+        //
+        // if(all_offsets_known && all_sizes_known) return; // Skip 2nd pass.
 
         var prev = this.expr[0];
         prev.offset = 0;

@@ -913,7 +913,6 @@ describe('x64', function () {
                 var start = _.label('start');
                 _._('call', start);
                 var bin = compile(_);
-                console.log(_.toString());
                 chai_1.expect([0xE8, 0xFB, 0xFF, 0xFF, 0xFF]).to.eql(bin);
             });
         });
@@ -1232,6 +1231,30 @@ describe('x64', function () {
             _._('lea', [operand_1.r9, _.mem(0x43)]);
             var bin = compile(_);
             chai_1.expect(bin).to.eql([0x4C, 0x8D, 0x0C, 0x25, 0x43, 0, 0, 0]);
+        });
+    });
+    describe('Data Transfer', function () {
+        describe('cmpxchg', function () {
+            it('cmpxchg rcx, rbx', function () {
+                var _ = code64();
+                _._('cmpxchg', [operand_1.rcx, operand_1.rbx]);
+                var bin = compile(_);
+                chai_1.expect([0x48, 0x0F, 0xB1, 0xD9]).to.eql(bin);
+            });
+            it('cmpxchg [rcx], rbx', function () {
+                var _ = code64();
+                _._('cmpxchg', [operand_1.rcx.ref(), operand_1.rbx]);
+                var bin = compile(_);
+                chai_1.expect([0x48, 0x0F, 0xB1, 0x19]).to.eql(bin);
+            });
+            it('lock cmpxchg [rcx], rbx', function () {
+                var _ = code64();
+                _.lock();
+                _._('cmpxchg', [operand_1.rcx.ref(), operand_1.rbx]).lock();
+                _.lock();
+                var bin = compile(_);
+                chai_1.expect([0xF0, 0xF0, 0x48, 0x0F, 0xB1, 0x19, 0xF0]).to.eql(bin);
+            });
         });
     });
     describe('x87', function () {
