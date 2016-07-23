@@ -19,3 +19,4 @@ var sbuf = StaticBuffer.from(bin, 'rwe');
 console.log(_.toString());
 sbuf.call();
 console.log(sbuf);
+// sbuf.buffer.free();

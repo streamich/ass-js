@@ -251,7 +251,7 @@ export class Asyscall {
             _._('add', [r_last_block, this.queueSize - this.queueBlockSize]);   // R15 = Last block address
             _._('mov', [r_block, r_first_block]);                               // R13 = Current block address
 
-            var loop = _.label('loop');                                     // loop start
+            var loop = _.label('loop');                                         // loop start
             (() => {
                 var lbl_process_block = _.lbl('process_block');
                 var lbl_execute_block = _.lbl('execute_block');
@@ -326,7 +326,6 @@ export class Asyscall {
         console.log(_.toString());
         return bin;
     }
-
 }
 
 

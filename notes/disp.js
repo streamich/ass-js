@@ -1,6 +1,7 @@
 "use strict";
 var o = require('../x86/operand');
 var code_1 = require('../x86/x64/code');
+// Variable displacement that evaluates during compilation.
 var code = code_1.Code.create();
 var start = code.getStartLabel();
 var db = code.db([1, 2, 3, 4, 5]);

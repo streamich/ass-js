@@ -14,18 +14,23 @@ var Instruction = (function (_super) {
         _super.apply(this, arguments);
     }
     Instruction.prototype.needs32To64OperandSizeChange = function () {
+        // Default operand size in x64 mode is 32 bits.
         return this.def.operandSize === operand_1.SIZE.Q;
     };
     Instruction.prototype.needsRexPrefix = function () {
         if (this.pfxEx)
-            return false;
+            return false; // VEX or EVEX already set
         if (this.def.rex)
             return true;
         if (!this.ops.list.length)
             return false;
+        // if(!this.ops.hasRegisterOrMemory()) return false;
         if (this.ops.hasExtendedRegister())
             return true;
         var _a = this.ops.list, dst = _a[0], src = _a[1];
+        // sil, dil, spl, bpl
+        // if(((dst instanceof o.Register8) && !(dst instanceof o.Register8High) && (dst.id >= r.R8.SPL) && (dst.id <= r.R8.DIL)) ||
+        //     ((src instanceof o.Register8) && !(src instanceof o.Register8High) && (src.id >= r.R8.SPL) && (src.id <= r.R8.DIL))) return true;
         if ((dst === o.sil) || (dst === o.dil) || (dst === o.spl) || (dst === o.bpl) ||
             (src === o.sil) || (src === o.dil) || (src === o.spl) || (src === o.bpl))
             return true;
@@ -49,7 +54,7 @@ var Instruction = (function (_super) {
             W = 1;
         var pos = this.def.opEncoding.indexOf('m');
         if (pos > -1) {
-            var m = this.ops.getMemoryOperand();
+            var m = this.ops.getMemoryOperand(); // Memory operand is only one.
             if (m) {
                 if (m.base && (m.base.idSize() > 3))
                     B = 1;
@@ -78,11 +83,19 @@ var Instruction = (function (_super) {
         this.length++;
         this.lengthMax++;
     };
+    // Adding RIP-relative addressing in long mode.
+    //
+    // > In the 64-bit mode, any instruction that uses ModRM addressing can use RIP-relative addressing.
+    //
+    // > Without RIP-relative addressing, ModRM instructions address memory relative to zero. With RIP-relative
+    // > addressing, ModRM instructions can address memory relative to the 64-bit RIP using a signed
+    // > 32-bit displacement.
     Instruction.prototype.createModrm = function () {
         var mem = this.ops.getMemoryOperand();
         if (mem && mem.base && (mem.base instanceof o.RegisterRip)) {
             if (mem.index || mem.scale)
                 throw TypeError('RIP-relative addressing does not support index and scale addressing.');
+            // Encode `Modrm.reg` field.
             var reg = 0;
             if (this.def.opreg > -1) {
                 reg = this.def.opreg;
@@ -109,6 +122,7 @@ var Instruction = (function (_super) {
     Instruction.prototype.createDisplacement = function () {
         var mem = this.ops.getMemoryOperand();
         if (mem && (typeof mem == 'object') && (mem.base instanceof o.RegisterRip)) {
+            // RIP-relative addressing has always 4-byte displacement.
             if (!mem.displacement)
                 mem.disp(0);
             var size = o.DisplacementValue.SIZE.DISP32;

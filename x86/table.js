@@ -15,6 +15,7 @@ var operand_1 = require('./operand');
     MODE[MODE["ALL"] = 63] = "ALL";
 })(exports.MODE || (exports.MODE = {}));
 var MODE = exports.MODE;
+// Instructins
 (function (INS) {
     INS[INS["NONE"] = 0] = "NONE";
     INS[INS["MMX"] = 1] = "MMX";
@@ -23,6 +24,7 @@ var MODE = exports.MODE;
     INS[INS["FMA3"] = 8] = "FMA3";
 })(exports.INS || (exports.INS = {}));
 var INS = exports.INS;
+// Extensions
 (function (EXT) {
     EXT[EXT["NONE"] = 0] = "NONE";
     EXT[EXT["x86_64"] = 1] = "x86_64";
@@ -67,6 +69,7 @@ var INS = exports.INS;
 })(exports.EXT || (exports.EXT = {}));
 var EXT = exports.EXT;
 exports.M = MODE;
+// Operands
 exports.r = operand_1.Register;
 exports.r8 = operand_1.Register8;
 exports.r16 = operand_1.Register16;
@@ -102,12 +105,19 @@ exports.ymm_ymm_ymmm = [exports.ymm, exports.ymm, exports.ymmm];
 exports.zmmm = [exports.zmm, exports.m];
 exports.zmm_zmmm = [exports.zmm, exports.zmmm];
 exports.zmm_zmm_zmmm = [exports.zmm, exports.zmm, exports.zmmm];
+// x86 global defaults
 exports.defaults = util_1.extend({}, t.defaults, { ds: table_1.S.D, lock: false, or: -1, i: null, r: false, dbit: false, rex: null, mr: true, rep: false, repne: false,
     pfx: null, vex: null, evex: null, en: 'rm', mod: exports.M.ALL, ext: null });
+// Instruction are divided in groups, each group consists of list
+// of possible instructions. The first object is NOT an instruction
+// but defaults for the group.
 exports.table = {
     cpuid: [{ o: 0x0FA2 }],
+    // INT Software interrupt
     int: [{},
+        // CC INT 3 NP Valid Valid Interrupt 3—trap to debugger.
         { o: 0xCC, ops: [3] },
+        // CD ib INT imm8 I Valid Valid Interrupt vector specified by immediate byte.
         { o: 0xCD, ops: [table_1.immu8] },
-    ],
+    ]
 };
