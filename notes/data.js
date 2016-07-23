@@ -19,6 +19,3 @@ console.log(code.toString() + '\n\n');
 var bin = code.compile();
 console.log(code.toString() + '\n\n');
 console.log(new Buffer(bin));
-// code.compile();
-// console.log('\n\n');
-// console.log(code.toString());

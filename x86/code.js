@@ -25,7 +25,6 @@ var Code = (function (_super) {
             var group = table.groups[groupname];
             var mnemonic = group.mnemonic;
             var bySize = group.groupBySize();
-            // Create methods with size postfix, like: pushq, pushd, pushw, etc..
             var _loop_2 = function(s) {
                 var size = parseInt(s);
                 if (bySize[s] && (size > oo.SIZE.NONE)) {
@@ -41,7 +40,6 @@ var Code = (function (_super) {
             for (var s in bySize) {
                 _loop_2(s);
             }
-            // Create general method where we determine operand size from profided operands.
             ctx[mnemonic] = function () {
                 var ui_ops = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
@@ -92,13 +90,10 @@ var Code = (function (_super) {
         var matches = _super.prototype.matchDefinitions.call(this, mnemonic, ops, opts);
         for (var j = matches.list.length - 1; j >= 0; j--) {
             var def = matches.list[j].def;
-            // Check mode of CPU.
             if (!(this.mode & def.mode)) {
                 matches.list.splice(j, 1);
                 continue;
             }
-            // If EVEX-specific options provided by user,
-            // remove instruction definition matches that don't have EVEX prefix.
             var needs_evex = opts.mask || (typeof opts.z !== 'undefined');
             if (needs_evex) {
                 if (!def.evex)
@@ -108,13 +103,6 @@ var Code = (function (_super) {
         }
         return matches;
     };
-    // Displacement is up to 4 bytes in size, and 8 bytes for some specific MOV instructions, AMD64 Vol.2 p.24:
-    //
-    // > The size of a displacement is 1, 2, or 4 bytes.
-    //
-    // > Also, in 64-bit mode, support is provided for some 64-bit displacement
-    // > and immediate forms of the MOV instruction. See “Immediate Operand Size” in Volume 1 for more
-    // > information on this.
     Code.prototype.mem = function (disp) {
         if (typeof disp === 'number')
             return o.Memory.factory(this.addressSize).disp(disp);

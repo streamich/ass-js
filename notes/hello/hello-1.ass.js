@@ -10,8 +10,6 @@ _._('lea', [operand_1.rsi, operand_1.rip.disp(-34)]);
 _._('mov', [operand_1.rdx, 13]);
 _._('syscall');
 _._('ret');
-// console.log(_.toString());
 var bin = _.compile();
-// console.log(bin);
 console.log(_.toString());
 StaticBuffer.from(bin, 'rwe').call([], 13);
