@@ -36,6 +36,7 @@ var Def = (function (_super) {
         else
             this.evex = def.evex;
     }
+    // 256.66.0F3A.W0 => {L: 1, pp: 1, mmmmm: 1, W: 0}
     Def.parseVexString = function (vstr) {
         var vdef = {
             vvvv: '',
@@ -43,32 +44,38 @@ var Def = (function (_super) {
             pp: 0,
             mmmmm: 1,
             W: 1,
-            WIG: false,
+            WIG: false
         };
+        // vvvv: NDS, NDD, DDS
         if (vstr.indexOf('NDS') > -1)
             vdef.vvvv = 'NDS';
         else if (vstr.indexOf('NDD') > -1)
             vdef.vvvv = 'NDD';
         else if (vstr.indexOf('DDS') > -1)
             vdef.vvvv = 'DDS';
+        // L: 128, 256, LIG, LZ
         if (vstr.indexOf('256') > -1)
             vdef.L = 1;
         else if (vstr.indexOf('512') > -1)
-            vdef.L = 2;
+            vdef.L = 2; // EVEX
+        // pp: 66, F2, F3
         if (vstr.indexOf('.66.') > -1)
             vdef.pp = 1;
         else if (vstr.indexOf('.F2.') > -1)
             vdef.pp = 3;
         else if (vstr.indexOf('.F3.') > -1)
             vdef.pp = 2;
+        // mmmmm: 0F, 0F3A, 0F38
         if (vstr.indexOf('0F38') > -1)
             vdef.mmmmm = 2;
         else if (vstr.indexOf('0F3A') > -1)
             vdef.mmmmm = 3;
         else if (vstr.indexOf('0F') > -1)
-            vdef.mmmmm = 1;
+            vdef.mmmmm = 1; // Could still be 2-byte VEX prefix
+        // W: W0, W1
         if (vstr.indexOf('W0') > -1)
             vdef.W = 0;
+        // WIG
         if (vstr.indexOf('WIG') > -1)
             vdef.WIG = true;
         return vdef;
@@ -77,7 +84,7 @@ var Def = (function (_super) {
         return Def.parseVexString(estr);
     };
     Def.prototype.matchOperandTemplate = function (tpl, operand) {
-        var OperandClass = tpl;
+        var OperandClass = tpl; // as typeof o.Operand;
         if ((typeof OperandClass === 'function') && (OperandClass.name.indexOf('Immediate') === 0)) {
             if (!operand_1.isTnumber(operand))
                 return null;

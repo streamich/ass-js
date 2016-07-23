@@ -9,4 +9,5 @@ code.db(123);
 code._('add', [o.rax, 25]);
 code.db(123);
 code._('add', [o.rbx, 0x1232]);
+// console.log(code.expr);
 console.log(code.toString());

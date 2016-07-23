@@ -57,6 +57,7 @@ function isNumberOfDoubles(doubles, num) {
             return false;
     return true;
 }
+// export type Tnumber = number|number64|number128|number256|number512|number1024|number2048;
 function isTnumber(num) {
     if (typeof num === 'number')
         return true;
@@ -66,10 +67,13 @@ function isTnumber(num) {
         return isNumber128(num);
 }
 exports.isTnumber = isTnumber;
+// General operand used in our assembly "language".
 var Operand = (function () {
     function Operand() {
+        // Size in bits.
         this.size = SIZE.ANY;
     }
+    // Convenience method to get `Register` associated with `Register` or `Memory`.
     Operand.prototype.reg = function () {
         return null;
     };
@@ -88,6 +92,9 @@ var Operand = (function () {
     return Operand;
 }());
 exports.Operand = Operand;
+// ## Constant
+//
+// Constants are everything where we directly type in a `number` value.
 var Constant = (function (_super) {
     __extends(Constant, _super);
     function Constant(value, signed) {
@@ -95,6 +102,7 @@ var Constant = (function (_super) {
         if (signed === void 0) { signed = true; }
         _super.call(this);
         this.value = 0;
+        // Each byte as a `number` in reverse order.
         this.octets = [];
         this.signed = true;
         this.signed = signed;
@@ -124,6 +132,7 @@ var Constant = (function (_super) {
         }
         else if (typeof value === 'number') {
             var clazz = this.signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
+            /* JS integers are 53-bit, so split here `number`s over 32 bits into [number, number]. */
             if (clazz === SIZE.Q)
                 this.setValue64([util_1.UInt64.lo(value), util_1.UInt64.hi(value)]);
             else
@@ -197,6 +206,9 @@ var Constant = (function (_super) {
             return;
         if (this.size > size)
             throw Error("Already larger than " + size + " bits, cannot zero-extend.");
+        // TODO: Make it work with 128-bit numbers too, below.
+        // We know it is not number64, because we don't deal with number larger than 64-bit,
+        // and if it was 64-bit already there would be nothing to extend.
         var value = this.value;
         if (size === SIZE.Q) {
             this.setValue64([util_1.UInt64.lo(value), util_1.UInt64.hi(value)]);
@@ -369,11 +381,14 @@ var ImmediateUnsigned64 = (function (_super) {
     return ImmediateUnsigned64;
 }(Immediate64));
 exports.ImmediateUnsigned64 = ImmediateUnsigned64;
+// ## Registers
+//
+// `Register` represents one of `%rax`, `%rbx`, etc. registers.
 var Register = (function (_super) {
     __extends(Register, _super);
     function Register(id, size) {
         _super.call(this);
-        this.id = 0;
+        this.id = 0; // Number value of register.
         this.name = 'reg';
         this.id = id;
         this.size = size;
@@ -408,6 +423,9 @@ var Register = (function (_super) {
     return Register;
 }(Operand));
 exports.Register = Register;
+// ## Memory
+//
+// `Memory` is RAM addresses which `Register`s can *dereference*.
 var Memory = (function (_super) {
     __extends(Memory, _super);
     function Memory() {
@@ -436,11 +454,12 @@ var Memory = (function (_super) {
     return Memory;
 }(Operand));
 exports.Memory = Memory;
+// Operand which needs `evaluation`, it may be that it cannot evaluate on first two passes.
 var Variable = (function (_super) {
     __extends(Variable, _super);
     function Variable() {
         _super.apply(this, arguments);
-        this.result = null;
+        this.result = null; // Result of evaluation.
     }
     Variable.prototype.canEvaluate = function (owner) {
         return true;
@@ -448,6 +467,7 @@ var Variable = (function (_super) {
     Variable.prototype.evaluate = function (owner) {
         return 0;
     };
+    // Evaluate approximately during 2nd pass.
     Variable.prototype.evaluatePreliminary = function (owner) {
         return 0;
     };
@@ -461,6 +481,7 @@ function isTvariable(val) {
         return isTnumber(val);
 }
 exports.isTvariable = isTvariable;
+// Relative jump targets for jump instructions.
 var Relative = (function (_super) {
     __extends(Relative, _super);
     function Relative(target, offset) {
@@ -482,6 +503,7 @@ var Relative = (function (_super) {
     };
     Relative.prototype.evaluate = function (owner) {
         return this.result = this.rebaseOffset(owner) - owner.bytes();
+        // return this.result = this.rebaseOffset(owner);
     };
     Relative.prototype.evaluatePreliminary = function (owner) {
         return this.offset + this.target.offsetMax - owner.offsetMax;
@@ -495,15 +517,22 @@ var Relative = (function (_super) {
         return new Relative(this.target, this.offset);
     };
     Relative.prototype.cast = function (RelativeClass) {
+        // cast(RelativeClass: typeof Relative) {
         this.size = RelativeClass.size;
+        // return new RelativeClass(this.target, this.offset);
         return this;
     };
     Relative.prototype.rebaseOffset = function (new_target) {
+        // if(expr.code !== this.expr.code)
+        //     throw Error('Rebase from different code blocks not implemented yet.');
         if (new_target.offset === -1)
             throw Error('Expression has no offset, cannot rebase.');
         return this.offset + this.target.offset - new_target.offset;
     };
+    // Recalculate relative offset given a different Expression.
+    // rebase(target: Expression): Relative {
     Relative.prototype.rebase = function (target) {
+        // return new Relative(target, this.rebaseOffset(expr));
         this.offset = this.rebaseOffset(target);
         this.target = target;
     };
@@ -574,12 +603,13 @@ var Symbol = (function (_super) {
     return Symbol;
 }(Relative));
 exports.Symbol = Symbol;
+// Collection of operands an `Expression` might have.
 var Operands = (function () {
     function Operands(list, size) {
         if (list === void 0) { list = []; }
         if (size === void 0) { size = SIZE.ANY; }
         this.list = [];
-        this.size = SIZE.ANY;
+        this.size = SIZE.ANY; // Size of each operand.
         this.size = size;
         this.list = list;
     }
@@ -593,6 +623,7 @@ var Operands = (function () {
     };
     Operands.uiOpsNormalize = function (ops) {
         var i = require('./instruction');
+        // Wrap `Expression` into `Relative`.
         for (var j = 0; j < ops.length; j++) {
             if (ops[j] instanceof instruction_1.Expression) {
                 ops[j] = ops[j].rel();
@@ -609,6 +640,7 @@ var Operands = (function () {
         }
         return new Clazz(list, this.size);
     };
+    // Wrap `Expression` into `Relative`.
     Operands.prototype.normalizeExpressionToRelative = function () {
         var i = require('./instruction');
         var ops = this.list;
@@ -619,8 +651,10 @@ var Operands = (function () {
         }
     };
     Operands.prototype.validateSize = function () {
+        // Verify operand sizes.
         for (var _i = 0, _a = this.list; _i < _a.length; _i++) {
             var op = _a[_i];
+            // We can determine operand size only by Register; Memory and Immediate and others don't tell us the right size.
             if (op instanceof Register) {
                 if (this.size !== SIZE.ANY) {
                 }
@@ -713,6 +747,8 @@ var Operands = (function () {
                 op.evaluate(owner);
         }
     };
+    // EVEX may encode up to 4 operands, 32 registers, so register can be up to 5-bits wide,
+    // we need to check for that because in that case we cannot use VEX.
     Operands.prototype.has5bitRegister = function () {
         for (var j = 0; j < 4; j++) {
             var op = this.list[j];

@@ -32,14 +32,19 @@ var DisplacementValue = (function (_super) {
     };
     DisplacementValue.prototype.setValue32 = function (value) {
         _super.prototype.setValue32.call(this, value);
+        /* Make sure `Displacement` is 1 or 4 bytes, not 2. */
+        // if(this.size > DisplacementValue.SIZE.DISP8) this.zeroExtend(DisplacementValue.SIZE.DISP32);
     };
     DisplacementValue.SIZE = {
         DISP8: operand_1.SIZE.B,
-        DISP32: operand_1.SIZE.D,
+        DISP32: operand_1.SIZE.D
     };
     return DisplacementValue;
 }(operand_1.Immediate));
 exports.DisplacementValue = DisplacementValue;
+// ## Registers
+//
+// `Register` represents one of `%rax`, `%rbx`, etc. registers.
 var Register = (function (_super) {
     __extends(Register, _super);
     function Register(id, size) {
@@ -73,6 +78,7 @@ var Register = (function (_super) {
     Register.prototype.disp = function (value) {
         return (new Memory).ref(this).disp(value);
     };
+    // Whether the register is one of `%r8`, `%r9`, etc. extended registers.
     Register.prototype.isExtended = function () {
         return this.id > 7;
     };
@@ -264,6 +270,9 @@ var RegisterDr = (function (_super) {
     return RegisterDr;
 }(Register));
 exports.RegisterDr = RegisterDr;
+// # Scale
+//
+// `Scale` used in SIB byte in two bit `SCALE` field.
 var Scale = (function (_super) {
     __extends(Scale, _super);
     function Scale(scale) {
@@ -280,6 +289,9 @@ var Scale = (function (_super) {
     return Scale;
 }(operand_1.Operand));
 exports.Scale = Scale;
+// ## Memory
+//
+// `Memory` is RAM addresses which `Register`s can *dereference*.
 var Memory = (function (_super) {
     __extends(Memory, _super);
     function Memory() {
@@ -298,6 +310,7 @@ var Memory = (function (_super) {
             default: return new Memory;
         }
     };
+    // Case memory to some size.
     Memory.prototype.cast = function (size) {
         var mem = Memory.factory(size);
         mem.base = this.base;
@@ -311,6 +324,7 @@ var Memory = (function (_super) {
             return this.base;
         if (this.index)
             return this.index;
+        // throw Error('No backing register.');
         return null;
     };
     Memory.prototype.needsSib = function () {
@@ -321,6 +335,7 @@ var Memory = (function (_super) {
             if (base.size !== this.index.size)
                 throw TypeError('Registers dereferencing memory must be of the same size.');
         }
+        // RBP, EBP etc.. always need displacement for ModRM and SIB bytes.
         var is_ebp = (regfile_1.R64.RBP & 7) === base.get3bitId();
         if (is_ebp && !this.displacement)
             this.displacement = new DisplacementValue(0);
@@ -426,6 +441,7 @@ var Memory512 = (function (_super) {
     return Memory512;
 }(Memory));
 exports.Memory512 = Memory512;
+// Collection of operands an instruction might have.
 var Operands = (function (_super) {
     __extends(Operands, _super);
     function Operands() {
@@ -439,6 +455,20 @@ var Operands = (function (_super) {
         }
         return operand_1.SIZE.NONE;
     };
+    // getRegisterOperand(dst_first = true): Register {
+    //     var [dst, src] = this.list;
+    //     var first, second;
+    //     if(dst_first) {
+    //         first = dst;
+    //         second = src;
+    //     } else {
+    //         first = src;
+    //         second = dst;
+    //     }
+    //     if(first instanceof Register) return first as Register;
+    //     if(second instanceof Register) return second as Register;
+    //     return null;
+    // }
     Operands.prototype.hasImmediate = function () {
         return !!this.getImmediate();
     };
@@ -462,6 +492,7 @@ var Operands = (function (_super) {
     return Operands;
 }(o.Operands));
 exports.Operands = Operands;
+// ## Export Registers
 function validateRegId(id, min, max, Clazz) {
     if (typeof id !== 'number')
         throw TypeError(Clazz.name + ' register ID must be a number.');
