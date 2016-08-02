@@ -1,6 +1,6 @@
 import {rax, rdx, rsi, rdi, rip} from '../../x86/operand';
 import {Code} from '../../x86/x64/code';
-var StaticBuffer = require('../../../static-buffer/buffer').StaticBuffer;
+// var StaticBuffer = require('../../../static-buffer/buffer').StaticBuffer;
 
 var _ = new Code('hello_world_app');
 
@@ -17,4 +17,4 @@ _._('ret');
 var bin = _.compile();
 // console.log(bin);
 console.log(_.toString());
-StaticBuffer.from(bin, 'rwe').call([], 13);
+// StaticBuffer.from(bin, 'rwe').call([], 13);

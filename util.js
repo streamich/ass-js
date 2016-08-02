@@ -31,8 +31,6 @@ var UInt64 = (function () {
         return lo;
     };
     UInt64.joinToNumber = function (hi, lo) {
-        // if ((lo !== lo|0) && (lo !== (lo|0) + 4294967296))  throw new Error ("lo out of range: "+lo);
-        // if ((hi !== hi|0) && hi >= 1048576)                 throw new Error ("hi out of range: "+hi);
         if (lo < 0)
             lo += 4294967296;
         return hi * 4294967296 + lo;

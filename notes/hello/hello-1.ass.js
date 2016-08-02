@@ -1,7 +1,6 @@
 "use strict";
 var operand_1 = require('../../x86/operand');
 var code_1 = require('../../x86/x64/code');
-var StaticBuffer = require('../../../static-buffer/buffer').StaticBuffer;
 var _ = new code_1.Code('hello_world_app');
 _.db('Hello World!\n');
 _._('mov', [operand_1.rax, 1]);
@@ -10,8 +9,5 @@ _._('lea', [operand_1.rsi, operand_1.rip.disp(-34)]);
 _._('mov', [operand_1.rdx, 13]);
 _._('syscall');
 _._('ret');
-// console.log(_.toString());
 var bin = _.compile();
-// console.log(bin);
 console.log(_.toString());
-StaticBuffer.from(bin, 'rwe').call([], 13);

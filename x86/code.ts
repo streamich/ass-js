@@ -1,5 +1,6 @@
 import * as oo from '../operand';
 import * as o from './operand';
+import {SIZE} from '../operand';
 import * as c from '../code';
 import {Code as CodeBase} from '../code';
 import * as t from './table';
@@ -67,13 +68,13 @@ export class Code extends CodeBase {
         ops.normalizeExpressionToRelative();
 
         var matches: d.DefMatchList = new d.DefMatchList;
-        matches.matchAll(bySize[size], ops);
+        matches.matchAll(bySize[size], ops, {size: SIZE.ANY});
 
         if(!matches.list.length) {
             throw Error('Could not match operands to instruction definition.');
         }
 
-        var iset = new i.InstructionSet(ops, matches);
+        var iset = new i.InstructionSet(ops, matches, {size: SIZE.ANY});
         this.insert(iset);
 
         var insn = iset.pickShortestInstruction();

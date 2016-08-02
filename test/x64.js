@@ -88,7 +88,6 @@ describe('x64', function () {
             var _ = code64();
             _._('mov', [operand_1.rax.ref(), operand_1.rax], 64);
             var bin = compile(_);
-            // console.log(new Buffer(bin));
             chai_1.expect(bin).to.eql([0x48, 0x89, 0x00]);
         });
         it('movq [rax], rax', function () {
@@ -205,12 +204,10 @@ describe('x64', function () {
             var bin = compile(_);
             chai_1.expect(bin).to.eql([0x48, 0xC7, 0xC0, 0x01, 0x00, 0x00, 0x00]);
         });
-        // 48 c7 c5 cd cc ff ff 	movq $-0x3333, %rbp
         it('movq rax, 0x1', function () {
             var _ = code64();
             _._('mov', [operand_1.rbp, -0x3333], 64);
             var bin = compile(_);
-            // console.log(new Buffer(bin));
             chai_1.expect(bin).to.eql([0x48, 0xC7, 0xC5, 0xCD, 0xCC, 0xFF, 0xFF]);
         });
     });
@@ -220,7 +217,6 @@ describe('x64', function () {
                 var _ = code64();
                 _._('adcx', [operand_1.rcx, operand_1.rbx]);
                 var bin = compile(_);
-                // console.log(new Buffer(bin));
                 chai_1.expect(bin).to.eql([0x66, 0x48, 0x0F, 0x38, 0xF6, 0xCB]);
             });
             it('adcx rax, rax', function () {
@@ -1216,7 +1212,6 @@ describe('x64', function () {
             var _ = code64();
             _._('lea', [operand_1.r8, operand_1.rip.disp(0x11)]);
             var bin = compile(_);
-            // console.log(_.toString());
             chai_1.expect(bin).to.eql([0x4C, 0x8D, 0x05, 0x11, 0, 0, 0]);
         });
         it('lea r9, [rip + 0x11223344]', function () {

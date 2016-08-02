@@ -264,7 +264,7 @@ export class DefTable {
 
         var definitions = this.table[mnemonic];
         if((definitions.length === 1) && (typeof definitions[0] === 'string'))
-            definitions = this.table[definitions[0]];
+            definitions = this.table[definitions[0] as string];
 
         group.createDefinitions(definitions, this.defaults);
         this.groups[mnemonic] = group;

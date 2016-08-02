@@ -3,6 +3,7 @@
 .global main
 main:
         syscall
+        mov 226(%rip), %r13
 
 cmpxchg:
         cmpxchg %rbx, %rcx

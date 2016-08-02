@@ -12,7 +12,6 @@ var Def = (function () {
         this.opcode = def.o;
         this.mnemonic = def.mn;
         this.operandSize = def.s;
-        // Operand template.
         this.operands = [];
         if (def.ops && def.ops.length) {
             var implied_size = o.SIZE.NONE;
@@ -21,7 +20,6 @@ var Def = (function () {
                 if (!(operand instanceof Array))
                     operand = [operand];
                 var flattened = operand.reduce(function (a, b) {
-                    // Determine operand size from o.Register operands
                     var cur_size = o.SIZE.NONE;
                     if (b instanceof o.Register) {
                         cur_size = b.size;
@@ -63,11 +61,8 @@ var Def = (function () {
                 return null;
         }
         else if (typeof tpl === 'function') {
-            var OperandClass = tpl; // as typeof o.Operand;
+            var OperandClass = tpl;
             if (OperandClass.name.indexOf('Relative') === 0) {
-                // Here we cannot yet check any sizes even cannot check if number
-                // fits the immediate size because we will have to rebase the o.Relative
-                // to the currenct instruction Expression.
                 if (o.isTnumber(operand))
                     return OperandClass;
                 else if (operand instanceof o.Relative)
@@ -83,7 +78,7 @@ var Def = (function () {
             }
         }
         else
-            throw TypeError('Invalid operand definition.'); // Should never happen.
+            throw TypeError('Invalid operand definition.');
     };
     Def.prototype.matchOperandTemplates = function (templates, operand) {
         for (var _i = 0, templates_1 = templates; _i < templates_1.length; _i++) {
@@ -161,7 +156,7 @@ var Def = (function () {
     Def.prototype.toJson = function () {
         var json = {
             opcode: this.opcode,
-            opcodeHex: this.opcode.toString(16)
+            opcodeHex: this.opcode.toString(16),
         };
         if (this.operandSize)
             json.operandSize = this.operandSize;
@@ -204,11 +199,8 @@ var DefGroup = (function () {
     }
     DefGroup.prototype.createDefinitions = function (defs, defaults) {
         var group_defaults = defs[0], definitions = defs.slice(1);
-        // If only one object provided, we treat it as instruction definition rather then
-        // as group defaults.
         if (!definitions.length)
             definitions = [group_defaults];
-        // Mnemonic.
         if (!group_defaults.mn)
             group_defaults.mn = this.mnemonic;
         for (var _i = 0, definitions_1 = definitions; _i < definitions_1.length; _i++) {
@@ -235,7 +227,7 @@ var DefGroup = (function () {
         }
         return {
             mnemonic: this.mnemonic,
-            definitions: instructions
+            definitions: instructions,
         };
     };
     DefGroup.prototype.toString = function () {
@@ -283,14 +275,6 @@ var DefTable = (function () {
         matches.matchAll(group.defs, ops, opts);
         return matches;
     };
-    // create(table: t.TableDefinition, defaults: t.Definition): this {
-    //     for(var mnemonic in table) {
-    //         var group = new this.DefGroupClass(this, mnemonic);
-    //         group.createDefinitions(table[mnemonic], defaults);
-    //         this.groups[mnemonic] = group;
-    //     }
-    //     return this;
-    // }
     DefTable.prototype.toJson = function () {
         var json = {};
         for (var group_name in this.groups) {
@@ -327,7 +311,6 @@ var DefMatchList = (function () {
         }
         var tpl = def.matchOperands(ops);
         if (tpl) {
-            // If registers are 5-bit wide, we can encode them only with EVEX, not VEX.
             if (def.vex && ops.has5bitRegister())
                 return;
             var match = new DefMatch;

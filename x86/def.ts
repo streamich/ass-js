@@ -132,7 +132,7 @@ export class Def extends d.Def {
             if(operand === o.Register32)            return 'r32';
             if(operand === o.Register64)            return 'r64';
             if(operand === o.RegisterSegment)       return 'sreg';
-            if(operand === o.RegisterMmx)           return 'mmx';
+            if(operand === o.RegisterMm)            return 'mmx';
             if(operand === o.RegisterXmm)           return 'xmm';
             if(operand === o.RegisterYmm)           return 'ymm';
             if(operand === o.RegisterZmm)           return 'zmm';

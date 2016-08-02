@@ -152,7 +152,7 @@ export interface Definition extends t.Definition {
     pfx?: number[];                                 // List of mandatory prefixes.
     en?: string;                                    // Operand encoding, e.g. "rvmr" -> (1) modmr.reg; (2) VEX.vvv; (3) modrm.rm; (4) imm8
     mod?: MODE;                                     // CPU mode
-    rex?: TRexDefinition|boolean;                   // Whether REX prefix is mandatory for this instruction. Holds array of [W, R, X, B].
+    rex?: TRexDefinition;                           // Whether REX prefix is mandatory for this instruction. Holds array of [W, R, X, B].
     vex?: string|IVexDefinition;                    // VEX prefix definitions string as it appears in manual, e.g. "256.66.0F3A.W0"
     evex?: string|IEvexDefinition;                  // VEX prefix definitions string as it appears in manual, e.g. "256.66.0F3A.W0"
     ext?: EXT[];                                    // CPUID extensions required to run this instruction.
