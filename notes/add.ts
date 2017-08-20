@@ -8,8 +8,8 @@ import {Code} from '../x86/x64/code';
 var code = Code.create();
 
 code.table.createAll();
-console.log(code.table.toString());
-console.log(code.table.toJson());
+// console.log(code.table.toString());
+// console.log(code.table.toJson());
 
 code.db(123);
 code._('add', [o.rax, 25]);

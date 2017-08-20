@@ -19,5 +19,52 @@
     "type": "git",
     "url": "http://github.com/streamich/ass-js"
   },
-  "main": "index.js"
+  "main": "index.js",
+  "devDependencies": {
+    "mocha": "3.4.2",
+    "chai": "4.1.0",
+    "typescript": "2.4.2",
+    "ts-node": "3.3.0",
+    "gulp": "3.9.1",
+    "gulp-typescript": "3.2.1",
+    "source-map-support": "0.4.15",
+    "nyc": "11.1.0",
+    "watch": "^1.0.0",
+    "@types/node": "^8.0.24",
+    "@types/mocha": "^2.2.41",
+    "@types/chai": "^4.0.3"
+  },
+  "nyc": {
+    "per-file": true,
+    "include": [
+      "**/*.ts"
+    ],
+    "exclude": [
+      "**/*.test.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "text",
+      "json",
+      "lcov",
+      "text-summary"
+    ],
+    "sourceMap": true,
+    "instrument": true,
+    "cache": true
+  },
+  "scripts": {
+    "build": "npm run build-ts",
+    "build-ts": "gulp build-ts",
+    "test": "npm run test-basic-ts",
+    "test-basic-ts": "mocha --require ts-node/register **/**/**/**/**/*.test.ts",
+    "test-watch-ts": "mocha --require ts-node/register **/**/**/**/**/*.test.ts --watch",
+    "test-coverage-ts": "nyc --per-file mocha --require ts-node/register --require source-map-support/register --full-trace --bail **/**/**/**/**/*.test.ts",
+    "watch": "watch 'npm run build' ./src"
+  }
 }

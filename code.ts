@@ -215,7 +215,7 @@ export class Code {
             octets = Array.prototype.slice.call(a, 0);
         } else if(a instanceof i.Expression)    return this.dbv(a, b, c);
         else if(a instanceof o.Relative)        return this.dbv(a, b, c);
-        else if(a instanceof o.Operands)        return this.dbv(a, b, c);
+        else if(a instanceof o.Operands)        return this.dbv(a, b);
         else
             throw TypeError('Data type not supported for DB.');
 
@@ -291,9 +291,9 @@ export class Code {
             var buf = new Buffer(CHUNK);
             var bytes = fs.readSync(fd, buf, 0, CHUNK, offset);
             data.push(buf.slice(0, bytes));
-            total_len += len;
+            total_len += bytes;
 
-            while((bytes > 0) && (total_len < len)) {
+            while((bytes > 0) && (total_len < bytes)) {
                 buf = new Buffer(4096);
                 bytes = fs.readSync(fd, buf, 0, CHUNK);
                 if(bytes > 0) {
@@ -303,7 +303,7 @@ export class Code {
             }
 
             buf = Buffer.concat(data);
-            if(total_len > len) buf = buf.slice(0, len);
+            // if(total_len > len) buf = buf.slice(0, len);
 
             fs.closeSync(fd);
             return this.db(buf);

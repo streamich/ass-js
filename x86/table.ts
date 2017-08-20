@@ -158,7 +158,7 @@ export interface Definition extends t.Definition {
     ext?: EXT[];                                    // CPUID extensions required to run this instruction.
 }
 export type GroupDefinition = Definition[];
-export type TableDefinition = {[s: string]: GroupDefinition};
+export type TableDefinition = {[s: string]: GroupDefinition|string[]};
 
 
 // x86 global defaults

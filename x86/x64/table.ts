@@ -10,6 +10,11 @@ import {M, r, r8, r16, r32, r64, mm, st,
     m, m8, m16, m32, m64, m128, m256, m512, rm8, rm16, rm32, rm64,
     INS, EXT} from '../table';
 
+declare const require;
+function lazy(part: string, mnemonic: string) {
+    return require('./table/common').default[mnemonic];
+}
+
 
 export var cr0_7 = [o.cr(0), o.cr(1), o.cr(2), o.cr(3), o.cr(4), o.cr(5), o.cr(6), o.cr(7)];
 export var dr0_7 = [o.dr(0), o.dr(1), o.dr(2), o.dr(3), o.dr(4), o.dr(5), o.dr(6), o.dr(7)];
@@ -1647,13 +1652,21 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
         {ops: [r64, rm64], mod: M.X64},
     ],
     // ADD Integer add
-    add: tpl_and(0x04, 0x80, 0, 0x00),
+    get add() {
+        return lazy('common', 'add');
+    },
     // ADC Add with carry
-    adc: tpl_and(0x14, 0x80, 2, 0x10),
+    get adc() {
+        return lazy('common', 'adc');
+    },
     // SUB Subtract
-    sub: tpl_and(0x2C, 0x80, 5, 0x28),
+    get sub() {
+        return lazy('common', 'adc');
+    },
     // SBB Subtract with borrow
-    sbb: tpl_and(0x1C, 0x80, 3, 0x18),
+    get sbb() {
+        return lazy('common', 'adc');
+    },
     // IMUL Signed multiply
     imul: [{},
         // F6 /5 IMUL r/m8* M Valid Valid AX← AL ∗ r/m byte.

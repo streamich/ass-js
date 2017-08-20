@@ -8,7 +8,7 @@ import {extend} from '../../util';
 
 export class Code extends code.Code {
 
-    static table = new d.DefTable(t.table, t.defaults);
+    static table = (new d.DefTable(t.table as any, t.defaults as any)) as any;
 
     private static _methodsAdded = false;
 
