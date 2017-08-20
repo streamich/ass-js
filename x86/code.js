@@ -1,38 +1,45 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var oo = require('../operand');
-var o = require('./operand');
-var operand_1 = require('../operand');
-var code_1 = require('../code');
-var t = require('./table');
-var d = require('./def');
-var i = require('./instruction');
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var oo = require("../operand");
+var o = require("./operand");
+var operand_1 = require("../operand");
+var code_1 = require("../code");
+var t = require("./table");
+var d = require("./def");
+var i = require("./instruction");
 var Code = (function (_super) {
     __extends(Code, _super);
     function Code() {
-        _super.apply(this, arguments);
-        this.mode = t.MODE.X64;
-        this.ClassInstruction = i.Instruction;
-        this.ClassInstructionSet = i.InstructionSet;
-        this.AlignExpression = i.Align;
-        this.ClassOperands = o.Operands;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.mode = t.MODE.X64;
+        _this.ClassInstruction = i.Instruction;
+        _this.ClassInstructionSet = i.InstructionSet;
+        _this.AlignExpression = i.Align;
+        _this.ClassOperands = o.Operands;
+        return _this;
     }
     Code.attachMethods = function (ctx, table) {
-        var _loop_1 = function(groupname) {
+        var _loop_1 = function (groupname) {
             var group = table.groups[groupname];
             var mnemonic = group.mnemonic;
             var bySize = group.groupBySize();
-            var _loop_2 = function(s) {
+            var _loop_2 = function (s) {
                 var size = parseInt(s);
                 if (bySize[s] && (size > oo.SIZE.NONE)) {
                     ctx[mnemonic + oo.SIZE[size].toLowerCase()] = function () {
                         var ui_ops = [];
                         for (var _i = 0; _i < arguments.length; _i++) {
-                            ui_ops[_i - 0] = arguments[_i];
+                            ui_ops[_i] = arguments[_i];
                         }
                         return this.createInstructionFromGroupSize(bySize, size, ui_ops);
                     };
@@ -44,7 +51,7 @@ var Code = (function (_super) {
             ctx[mnemonic] = function () {
                 var ui_ops = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    ui_ops[_i - 0] = arguments[_i];
+                    ui_ops[_i] = arguments[_i];
                 }
                 if (ui_ops.length) {
                     var size = o.Operands.findSize(ui_ops);

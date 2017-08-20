@@ -1,40 +1,47 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var d = require('../def');
-var t = require('./table');
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var d = require("../def");
+var t = require("./table");
 var operand_1 = require("../operand");
-var oo = require('../operand');
-var o = require('./operand');
-var util_1 = require('../util');
+var oo = require("../operand");
+var o = require("./operand");
+var util_1 = require("../util");
 var Def = (function (_super) {
     __extends(Def, _super);
     function Def(group, def) {
-        _super.call(this, group, def);
-        this.opreg = def.or;
-        this.operandSizeDefault = def.ds;
-        this.lock = def.lock;
-        this.regInOp = def.r;
-        this.opcodeDirectionBit = def.dbit;
-        this.rex = def.rex;
-        this.useModrm = def.mr;
-        this.rep = def.rep;
-        this.repne = def.repne;
-        this.prefixes = def.pfx;
-        this.opEncoding = def.en;
-        this.mode = def.mod;
-        this.extensions = def.ext;
+        var _this = _super.call(this, group, def) || this;
+        _this.opreg = def.or;
+        _this.operandSizeDefault = def.ds;
+        _this.lock = def.lock;
+        _this.regInOp = def.r;
+        _this.opcodeDirectionBit = def.dbit;
+        _this.rex = def.rex;
+        _this.useModrm = def.mr;
+        _this.rep = def.rep;
+        _this.repne = def.repne;
+        _this.prefixes = def.pfx;
+        _this.opEncoding = def.en;
+        _this.mode = def.mod;
+        _this.extensions = def.ext;
         if (typeof def.vex === 'string')
-            this.vex = Def.parseVexString(def.vex);
+            _this.vex = Def.parseVexString(def.vex);
         else
-            this.vex = def.vex;
+            _this.vex = def.vex;
         if (typeof def.evex === 'string')
-            this.evex = Def.parseEvexString(def.evex);
+            _this.evex = Def.parseEvexString(def.evex);
         else
-            this.evex = def.evex;
+            _this.evex = def.evex;
+        return _this;
     }
     Def.parseVexString = function (vstr) {
         var vdef = {
@@ -219,8 +226,9 @@ exports.Def = Def;
 var DefGroup = (function (_super) {
     __extends(DefGroup, _super);
     function DefGroup() {
-        _super.apply(this, arguments);
-        this.DefClass = Def;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.DefClass = Def;
+        return _this;
     }
     DefGroup.prototype.createDefinitions = function (defs, defaults) {
         _super.prototype.createDefinitions.call(this, defs, defaults);
@@ -239,8 +247,9 @@ exports.DefGroup = DefGroup;
 var DefTable = (function (_super) {
     __extends(DefTable, _super);
     function DefTable() {
-        _super.apply(this, arguments);
-        this.DefGroupClass = DefGroup;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.DefGroupClass = DefGroup;
+        return _this;
     }
     return DefTable;
 }(d.DefTable));
@@ -248,7 +257,7 @@ exports.DefTable = DefTable;
 var DefMatch = (function (_super) {
     __extends(DefMatch, _super);
     function DefMatch() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     return DefMatch;
 }(d.DefMatch));
@@ -256,7 +265,7 @@ exports.DefMatch = DefMatch;
 var DefMatchList = (function (_super) {
     __extends(DefMatchList, _super);
     function DefMatchList() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     return DefMatchList;
 }(d.DefMatchList));

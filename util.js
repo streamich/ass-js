@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 function noop() { }
 exports.noop = noop;
 function extend(obj1, obj2) {

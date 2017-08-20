@@ -1,8 +1,9 @@
 "use strict";
-var chai_1 = require('chai');
-var operand_1 = require('../x86/operand');
-var o = require('../x86/operand');
-var code_1 = require('../x86/x64/code');
+Object.defineProperty(exports, "__esModule", { value: true });
+var chai_1 = require("chai");
+var operand_1 = require("../x86/operand");
+var o = require("../x86/operand");
+var code_1 = require("../x86/x64/code");
 describe('x64', function () {
     function code64() {
         return new code_1.Code;
@@ -209,6 +210,12 @@ describe('x64', function () {
             _._('mov', [operand_1.rbp, -0x3333], 64);
             var bin = compile(_);
             chai_1.expect(bin).to.eql([0x48, 0xC7, 0xC5, 0xCD, 0xCC, 0xFF, 0xFF]);
+        });
+        it('movq rbx, r13', function () {
+            var _ = code64();
+            _._('mov', [operand_1.rbx, operand_1.r13], 64);
+            var bin = compile(_);
+            chai_1.expect([0x4c, 0x89, 0xeb]).to.eql(bin);
         });
     });
     describe('Binary Arithmetic', function () {

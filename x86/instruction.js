@@ -1,19 +1,25 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var operand_1 = require('../operand');
-var oo = require('../operand');
-var o = require('./operand');
-var i = require('../instruction');
-var p = require('./parts');
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var operand_1 = require("../operand");
+var oo = require("../operand");
+var o = require("./operand");
+var i = require("../instruction");
+var p = require("./parts");
 exports.SIZE_UNKNOWN = -1;
 var Expression = (function (_super) {
     __extends(Expression, _super);
     function Expression() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     return Expression;
 }(i.Expression));
@@ -21,9 +27,10 @@ exports.Expression = Expression;
 var TemplateLock = (function (_super) {
     __extends(TemplateLock, _super);
     function TemplateLock() {
-        _super.apply(this, arguments);
-        this.name = 'lock';
-        this.octets = [p.PREFIX.LOCK];
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.name = 'lock';
+        _this.octets = [p.PREFIX.LOCK];
+        return _this;
     }
     return TemplateLock;
 }(i.Template));
@@ -31,12 +38,13 @@ exports.TemplateLock = TemplateLock;
 var TemplateRex = (function (_super) {
     __extends(TemplateRex, _super);
     function TemplateRex(args) {
-        _super.call(this, args);
-        this.name = 'rex';
-        this.args = [0, 0, 0, 0];
-        var _a = this.args, W = _a[0], R = _a[1], X = _a[2], B = _a[3];
+        var _this = _super.call(this, args) || this;
+        _this.name = 'rex';
+        _this.args = [0, 0, 0, 0];
+        var _a = _this.args, W = _a[0], R = _a[1], X = _a[2], B = _a[3];
         var rex = new p.PrefixRex(W, R, X, B);
-        rex.write(this.octets);
+        rex.write(_this.octets);
+        return _this;
     }
     return TemplateRex;
 }(i.Template));
@@ -44,41 +52,43 @@ exports.TemplateRex = TemplateRex;
 var Align = (function (_super) {
     __extends(Align, _super);
     function Align() {
-        _super.apply(this, arguments);
-        this.templates = Align.nop;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.templates = Align.nop;
+        return _this;
     }
-    Align.nop = [
-        [0x90],
-        [0x66, 0x90],
-        [0x0F, 0x1F, 0x00],
-        [0x0F, 0x1F, 0x40, 0x00],
-        [0x0F, 0x1F, 0x44, 0x00, 0x00],
-        [0x66, 0x0F, 0x1F, 0x44, 0x00, 0x00],
-        [0x0F, 0x1F, 0x80, 0x00, 0x00, 0x00, 0x00],
-        [0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00],
-        [0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00],
-    ];
     return Align;
 }(i.Align));
+Align.nop = [
+    [0x90],
+    [0x66, 0x90],
+    [0x0F, 0x1F, 0x00],
+    [0x0F, 0x1F, 0x40, 0x00],
+    [0x0F, 0x1F, 0x44, 0x00, 0x00],
+    [0x66, 0x0F, 0x1F, 0x44, 0x00, 0x00],
+    [0x0F, 0x1F, 0x80, 0x00, 0x00, 0x00, 0x00],
+    [0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00],
+    [0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00],
+];
 exports.Align = Align;
 var Instruction = (function (_super) {
     __extends(Instruction, _super);
     function Instruction() {
-        _super.apply(this, arguments);
-        this.pfxOpSize = null;
-        this.pfxAddrSize = null;
-        this.pfxLock = null;
-        this.pfxRep = null;
-        this.pfxRepne = null;
-        this.pfxSegment = null;
-        this.prefixes = [];
-        this.pfxEx = null;
-        this.opcode = new p.Opcode;
-        this.modrm = null;
-        this.sib = null;
-        this.displacement = null;
-        this.immediates = [];
-        this.regToRegDirectionRegIsDst = false;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.pfxOpSize = null;
+        _this.pfxAddrSize = null;
+        _this.pfxLock = null;
+        _this.pfxRep = null;
+        _this.pfxRepne = null;
+        _this.pfxSegment = null;
+        _this.prefixes = [];
+        _this.pfxEx = null;
+        _this.opcode = new p.Opcode;
+        _this.modrm = null;
+        _this.sib = null;
+        _this.displacement = null;
+        _this.immediates = [];
+        _this.regToRegDirectionRegIsDst = false;
+        return _this;
     }
     Instruction.prototype.build = function () {
         _super.prototype.build.call(this);
@@ -642,7 +652,7 @@ exports.Instruction = Instruction;
 var InstructionSet = (function (_super) {
     __extends(InstructionSet, _super);
     function InstructionSet() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     InstructionSet.prototype.cloneOperands = function () {
         return this.ops.clone(o.Operands);

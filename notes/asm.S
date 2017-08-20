@@ -100,6 +100,7 @@ cmp:
         cmp %rax, %rbx
 
 mov:
+        mov %r13, %rbx
         movq %rax, %rax
         movq %rax, %rbx
         movq %rax, (%rax)

@@ -1,11 +1,18 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var util_1 = require('./util');
-var instruction_1 = require('./instruction');
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var util_1 = require("./util");
+var instruction_1 = require("./instruction");
+var SIZE;
 (function (SIZE) {
     SIZE[SIZE["ANY"] = -1] = "ANY";
     SIZE[SIZE["NONE"] = 0] = "NONE";
@@ -21,8 +28,8 @@ var instruction_1 = require('./instruction');
     SIZE[SIZE["Y"] = 256] = "Y";
     SIZE[SIZE["Z"] = 256] = "Z";
     SIZE[SIZE["A"] = 1024] = "A";
-})(exports.SIZE || (exports.SIZE = {}));
-var SIZE = exports.SIZE;
+})(SIZE = exports.SIZE || (exports.SIZE = {}));
+var SIZEB;
 (function (SIZEB) {
     SIZEB[SIZEB["B1"] = 8] = "B1";
     SIZEB[SIZEB["B2"] = 16] = "B2";
@@ -31,8 +38,7 @@ var SIZE = exports.SIZE;
     SIZEB[SIZEB["B16"] = 128] = "B16";
     SIZEB[SIZEB["B32"] = 256] = "B32";
     SIZEB[SIZEB["B64"] = 512] = "B64";
-})(exports.SIZEB || (exports.SIZEB = {}));
-var SIZEB = exports.SIZEB;
+})(SIZEB = exports.SIZEB || (exports.SIZEB = {}));
 function isNumber64(num) {
     if ((num instanceof Array) && (num.length === 2) && (typeof num[0] === 'number') && (typeof num[1] === 'number'))
         return true;
@@ -93,12 +99,13 @@ var Constant = (function (_super) {
     function Constant(value, signed) {
         if (value === void 0) { value = 0; }
         if (signed === void 0) { signed = true; }
-        _super.call(this);
-        this.value = 0;
-        this.octets = [];
-        this.signed = true;
-        this.signed = signed;
-        this.setValue(value);
+        var _this = _super.call(this) || this;
+        _this.value = 0;
+        _this.octets = [];
+        _this.signed = true;
+        _this.signed = signed;
+        _this.setValue(value);
+        return _this;
     }
     Constant.sizeClass = function (value) {
         if ((value <= 0x7f) && (value >= -0x80))
@@ -235,8 +242,9 @@ exports.Constant = Constant;
 var Immediate = (function (_super) {
     __extends(Immediate, _super);
     function Immediate() {
-        _super.apply(this, arguments);
-        this.variable = null;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.variable = null;
+        return _this;
     }
     Immediate.factory = function (size, value, signed) {
         if (value === void 0) { value = 0; }
@@ -276,7 +284,7 @@ var ImmediateUnsigned = (function (_super) {
     __extends(ImmediateUnsigned, _super);
     function ImmediateUnsigned(value) {
         if (value === void 0) { value = 0; }
-        _super.call(this, value, false);
+        return _super.call(this, value, false) || this;
     }
     return ImmediateUnsigned;
 }(Immediate));
@@ -284,7 +292,7 @@ exports.ImmediateUnsigned = ImmediateUnsigned;
 var Immediate8 = (function (_super) {
     __extends(Immediate8, _super);
     function Immediate8() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     Immediate8.prototype.setValue = function (value) {
         Immediate.throwIfLarger(value, SIZE.B, this.signed);
@@ -298,7 +306,7 @@ var ImmediateUnsigned8 = (function (_super) {
     __extends(ImmediateUnsigned8, _super);
     function ImmediateUnsigned8(value) {
         if (value === void 0) { value = 0; }
-        _super.call(this, value, false);
+        return _super.call(this, value, false) || this;
     }
     return ImmediateUnsigned8;
 }(Immediate8));
@@ -306,7 +314,7 @@ exports.ImmediateUnsigned8 = ImmediateUnsigned8;
 var Immediate16 = (function (_super) {
     __extends(Immediate16, _super);
     function Immediate16() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     Immediate16.prototype.setValue = function (value) {
         Immediate.throwIfLarger(value, SIZE.W, this.signed);
@@ -320,7 +328,7 @@ var ImmediateUnsigned16 = (function (_super) {
     __extends(ImmediateUnsigned16, _super);
     function ImmediateUnsigned16(value) {
         if (value === void 0) { value = 0; }
-        _super.call(this, value, false);
+        return _super.call(this, value, false) || this;
     }
     return ImmediateUnsigned16;
 }(Immediate16));
@@ -328,7 +336,7 @@ exports.ImmediateUnsigned16 = ImmediateUnsigned16;
 var Immediate32 = (function (_super) {
     __extends(Immediate32, _super);
     function Immediate32() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     Immediate32.prototype.setValue = function (value) {
         Immediate.throwIfLarger(value, SIZE.D, this.signed);
@@ -342,7 +350,7 @@ var ImmediateUnsigned32 = (function (_super) {
     __extends(ImmediateUnsigned32, _super);
     function ImmediateUnsigned32(value) {
         if (value === void 0) { value = 0; }
-        _super.call(this, value, false);
+        return _super.call(this, value, false) || this;
     }
     return ImmediateUnsigned32;
 }(Immediate32));
@@ -350,7 +358,7 @@ exports.ImmediateUnsigned32 = ImmediateUnsigned32;
 var Immediate64 = (function (_super) {
     __extends(Immediate64, _super);
     function Immediate64() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     Immediate64.prototype.setValue = function (value) {
         Immediate.throwIfLarger(value, SIZE.Q, this.signed);
@@ -364,7 +372,7 @@ var ImmediateUnsigned64 = (function (_super) {
     __extends(ImmediateUnsigned64, _super);
     function ImmediateUnsigned64(value) {
         if (value === void 0) { value = 0; }
-        _super.call(this, value, false);
+        return _super.call(this, value, false) || this;
     }
     return ImmediateUnsigned64;
 }(Immediate64));
@@ -372,11 +380,12 @@ exports.ImmediateUnsigned64 = ImmediateUnsigned64;
 var Register = (function (_super) {
     __extends(Register, _super);
     function Register(id, size) {
-        _super.call(this);
-        this.id = 0;
-        this.name = 'reg';
-        this.id = id;
-        this.size = size;
+        var _this = _super.call(this) || this;
+        _this.id = 0;
+        _this.name = 'reg';
+        _this.id = id;
+        _this.size = size;
+        return _this;
     }
     Register.prototype.reg = function () {
         return this;
@@ -411,8 +420,9 @@ exports.Register = Register;
 var Memory = (function (_super) {
     __extends(Memory, _super);
     function Memory() {
-        _super.apply(this, arguments);
-        this.base = null;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.base = null;
+        return _this;
     }
     Memory.prototype.reg = function () {
         return this.base;
@@ -439,8 +449,9 @@ exports.Memory = Memory;
 var Variable = (function (_super) {
     __extends(Variable, _super);
     function Variable() {
-        _super.apply(this, arguments);
-        this.result = null;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.result = null;
+        return _this;
     }
     Variable.prototype.canEvaluate = function (owner) {
         return true;
@@ -465,10 +476,11 @@ var Relative = (function (_super) {
     __extends(Relative, _super);
     function Relative(target, offset) {
         if (offset === void 0) { offset = 0; }
-        _super.call(this);
-        this.signed = true;
-        this.target = target;
-        this.offset = offset;
+        var _this = _super.call(this) || this;
+        _this.signed = true;
+        _this.target = target;
+        _this.offset = offset;
+        return _this;
     }
     Relative.fromExpression = function (expr) {
         return new Relative(expr);
@@ -532,47 +544,48 @@ var Relative = (function (_super) {
             return "<" + expr + off + result + ">";
         }
     };
-    Relative.size = SIZE.ANY;
     return Relative;
 }(Variable));
+Relative.size = SIZE.ANY;
 exports.Relative = Relative;
 var Relative8 = (function (_super) {
     __extends(Relative8, _super);
     function Relative8() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
-    Relative8.size = SIZE.B;
     return Relative8;
 }(Relative));
+Relative8.size = SIZE.B;
 exports.Relative8 = Relative8;
 var Relative16 = (function (_super) {
     __extends(Relative16, _super);
     function Relative16() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
-    Relative16.size = SIZE.W;
     return Relative16;
 }(Relative));
+Relative16.size = SIZE.W;
 exports.Relative16 = Relative16;
 var Relative32 = (function (_super) {
     __extends(Relative32, _super);
     function Relative32() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
-    Relative32.size = SIZE.D;
     return Relative32;
 }(Relative));
+Relative32.size = SIZE.D;
 exports.Relative32 = Relative32;
 var Symbol = (function (_super) {
     __extends(Symbol, _super);
     function Symbol(target, offset, name) {
         if (offset === void 0) { offset = 0; }
-        _super.call(this, target, offset);
-        this.name = name ? name : 'symbol_' + (Symbol.cnt++);
+        var _this = _super.call(this, target, offset) || this;
+        _this.name = name ? name : 'symbol_' + (Symbol.cnt++);
+        return _this;
     }
-    Symbol.cnt = 0;
     return Symbol;
 }(Relative));
+Symbol.cnt = 0;
 exports.Symbol = Symbol;
 var Operands = (function () {
     function Operands(list, size) {

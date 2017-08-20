@@ -1,11 +1,17 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var regfile_1 = require('./regfile');
-var o = require('./operand');
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var regfile_1 = require("./regfile");
+var o = require("./operand");
 var InstructionPart = (function () {
     function InstructionPart() {
     }
@@ -15,11 +21,12 @@ exports.InstructionPart = InstructionPart;
 var Prefix = (function (_super) {
     __extends(Prefix, _super);
     function Prefix() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     return Prefix;
 }(InstructionPart));
 exports.Prefix = Prefix;
+var PREFIX;
 (function (PREFIX) {
     PREFIX[PREFIX["LOCK"] = 240] = "LOCK";
     PREFIX[PREFIX["REP"] = 243] = "REP";
@@ -36,13 +43,13 @@ exports.Prefix = Prefix;
     PREFIX[PREFIX["BT"] = 62] = "BT";
     PREFIX[PREFIX["OS"] = 102] = "OS";
     PREFIX[PREFIX["AS"] = 103] = "AS";
-})(exports.PREFIX || (exports.PREFIX = {}));
-var PREFIX = exports.PREFIX;
+})(PREFIX = exports.PREFIX || (exports.PREFIX = {}));
 var PrefixStatic = (function (_super) {
     __extends(PrefixStatic, _super);
     function PrefixStatic(value) {
-        _super.call(this);
-        this.value = value;
+        var _this = _super.call(this) || this;
+        _this.value = value;
+        return _this;
     }
     PrefixStatic.prototype.write = function (arr) {
         arr.push(this.value);
@@ -57,7 +64,7 @@ exports.PrefixStatic = PrefixStatic;
 var PrefixOperandSizeOverride = (function (_super) {
     __extends(PrefixOperandSizeOverride, _super);
     function PrefixOperandSizeOverride() {
-        _super.call(this, PREFIX.OS);
+        return _super.call(this, PREFIX.OS) || this;
     }
     return PrefixOperandSizeOverride;
 }(PrefixStatic));
@@ -65,7 +72,7 @@ exports.PrefixOperandSizeOverride = PrefixOperandSizeOverride;
 var PrefixAddressSizeOverride = (function (_super) {
     __extends(PrefixAddressSizeOverride, _super);
     function PrefixAddressSizeOverride() {
-        _super.call(this, PREFIX.AS);
+        return _super.call(this, PREFIX.AS) || this;
     }
     return PrefixAddressSizeOverride;
 }(PrefixStatic));
@@ -73,48 +80,49 @@ exports.PrefixAddressSizeOverride = PrefixAddressSizeOverride;
 var PrefixRep = (function (_super) {
     __extends(PrefixRep, _super);
     function PrefixRep() {
-        _super.call(this, PREFIX.REP);
+        return _super.call(this, PREFIX.REP) || this;
     }
-    PrefixRep.supported = ['ins', 'lods', 'movs', 'outs', 'stos'];
     return PrefixRep;
 }(PrefixStatic));
+PrefixRep.supported = ['ins', 'lods', 'movs', 'outs', 'stos'];
 exports.PrefixRep = PrefixRep;
 var PrefixRepe = (function (_super) {
     __extends(PrefixRepe, _super);
     function PrefixRepe() {
-        _super.call(this, PREFIX.REPE);
+        return _super.call(this, PREFIX.REPE) || this;
     }
-    PrefixRepe.supported = ['cmps', 'scas'];
     return PrefixRepe;
 }(PrefixStatic));
+PrefixRepe.supported = ['cmps', 'scas'];
 exports.PrefixRepe = PrefixRepe;
 var PrefixRepne = (function (_super) {
     __extends(PrefixRepne, _super);
     function PrefixRepne() {
-        _super.call(this, PREFIX.REPNE);
+        return _super.call(this, PREFIX.REPNE) || this;
     }
-    PrefixRepne.supported = ['cmps', 'scas'];
     return PrefixRepne;
 }(PrefixStatic));
+PrefixRepne.supported = ['cmps', 'scas'];
 exports.PrefixRepne = PrefixRepne;
 var PrefixLock = (function (_super) {
     __extends(PrefixLock, _super);
     function PrefixLock() {
-        _super.call(this, PREFIX.LOCK);
+        return _super.call(this, PREFIX.LOCK) || this;
     }
-    PrefixLock.supported = ['adc', 'add', 'and', 'btc', 'btr', 'bts', 'cmpxchg', 'cmpxchg8b', 'cmpxchg16b',
-        'dec', 'inc', 'neg', 'not', 'or', 'sbb', 'sub', 'xadd', 'xchg', 'xor'];
     return PrefixLock;
 }(PrefixStatic));
+PrefixLock.supported = ['adc', 'add', 'and', 'btc', 'btr', 'bts', 'cmpxchg', 'cmpxchg8b', 'cmpxchg16b',
+    'dec', 'inc', 'neg', 'not', 'or', 'sbb', 'sub', 'xadd', 'xchg', 'xor'];
 exports.PrefixLock = PrefixLock;
 var PrefixRex = (function (_super) {
     __extends(PrefixRex, _super);
     function PrefixRex(W, R, X, B) {
-        _super.call(this);
-        this.W = W;
-        this.R = R;
-        this.X = X;
-        this.B = B;
+        var _this = _super.call(this) || this;
+        _this.W = W;
+        _this.R = R;
+        _this.X = X;
+        _this.B = B;
+        return _this;
     }
     PrefixRex.prototype.write = function (arr) {
         arr.push(PREFIX.REX | (this.W << 3) | (this.R << 2) | (this.X << 1) | this.B);
@@ -130,30 +138,31 @@ var PrefixVex = (function (_super) {
         if (X === void 0) { X = 1; }
         if (B === void 0) { B = 1; }
         if (vvvv === void 0) { vvvv = 15; }
-        _super.call(this);
-        this.bytes = 2;
-        this.R = 1;
-        this.X = 1;
-        this.B = 1;
-        this.W = 1;
-        this.vvvv = 15;
-        this.mmmmm = 0;
-        this.L = 0;
-        this.pp = 0;
-        this.L = vexdef.L;
-        this.mmmmm = vexdef.mmmmm;
-        this.pp = vexdef.pp;
-        this.W = vexdef.W;
+        var _this = _super.call(this) || this;
+        _this.bytes = 2;
+        _this.R = 1;
+        _this.X = 1;
+        _this.B = 1;
+        _this.W = 1;
+        _this.vvvv = 15;
+        _this.mmmmm = 0;
+        _this.L = 0;
+        _this.pp = 0;
+        _this.L = vexdef.L;
+        _this.mmmmm = vexdef.mmmmm;
+        _this.pp = vexdef.pp;
+        _this.W = vexdef.W;
         if (vexdef.WIG)
-            this.W = 0;
-        this.R = R;
-        this.X = X;
-        this.B = B;
-        this.vvvv = vvvv;
-        if ((this.X === 0) || (this.B === 0) ||
-            ((this.W === 0) && !vexdef.WIG) ||
-            (this.mmmmm === PrefixVex.MMMMM.x0F3A) || (this.mmmmm === PrefixVex.MMMMM.x0F38))
-            this.promoteTo3bytes();
+            _this.W = 0;
+        _this.R = R;
+        _this.X = X;
+        _this.B = B;
+        _this.vvvv = vvvv;
+        if ((_this.X === 0) || (_this.B === 0) ||
+            ((_this.W === 0) && !vexdef.WIG) ||
+            (_this.mmmmm === PrefixVex.MMMMM.x0F3A) || (_this.mmmmm === PrefixVex.MMMMM.x0F38))
+            _this.promoteTo3bytes();
+        return _this;
     }
     PrefixVex.prototype.promoteTo3bytes = function () {
         this.bytes = 3;
@@ -170,40 +179,41 @@ var PrefixVex = (function (_super) {
         }
         return arr;
     };
-    PrefixVex.PP = {
-        x66: 1,
-        xF2: 3,
-        xF3: 2,
-    };
-    PrefixVex.MMMMM = {
-        x0F38: 2,
-        x0F3A: 3,
-        x0F: 1,
-    };
     return PrefixVex;
 }(Prefix));
+PrefixVex.PP = {
+    x66: 1,
+    xF2: 3,
+    xF3: 2,
+};
+PrefixVex.MMMMM = {
+    x0F38: 2,
+    x0F3A: 3,
+    x0F: 1,
+};
 exports.PrefixVex = PrefixVex;
 var PrefixEvex = (function (_super) {
     __extends(PrefixEvex, _super);
     function PrefixEvex(evexdef) {
-        _super.call(this);
-        this.R = 1;
-        this.X = 1;
-        this.B = 1;
-        this.W = 1;
-        this.vvvv = 15;
-        this.pp = 0;
-        this.mm = 0;
-        this.Rp = 1;
-        this.z = 0;
-        this.LL = 0;
-        this.b = 0;
-        this.Vp = 1;
-        this.aaa = 0;
-        this.LL = evexdef.L;
-        this.mm = evexdef.mmmmm & 3;
-        this.pp = evexdef.pp;
-        this.W = evexdef.W;
+        var _this = _super.call(this) || this;
+        _this.R = 1;
+        _this.X = 1;
+        _this.B = 1;
+        _this.W = 1;
+        _this.vvvv = 15;
+        _this.pp = 0;
+        _this.mm = 0;
+        _this.Rp = 1;
+        _this.z = 0;
+        _this.LL = 0;
+        _this.b = 0;
+        _this.Vp = 1;
+        _this.aaa = 0;
+        _this.LL = evexdef.L;
+        _this.mm = evexdef.mmmmm & 3;
+        _this.pp = evexdef.pp;
+        _this.W = evexdef.W;
+        return _this;
     }
     PrefixEvex.prototype.write = function (arr) {
         arr.push(0x62);
@@ -218,8 +228,9 @@ exports.PrefixEvex = PrefixEvex;
 var Opcode = (function (_super) {
     __extends(Opcode, _super);
     function Opcode() {
-        _super.apply(this, arguments);
-        this.op = 0;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.op = 0;
+        return _this;
     }
     Opcode.prototype.bytes = function () {
         if (this.op > 0xFFFF)
@@ -237,30 +248,31 @@ var Opcode = (function (_super) {
         arr.push(op & 0xFF);
         return arr;
     };
-    Opcode.MASK_SIZE = 16777214;
-    Opcode.MASK_DIRECTION = 16777213;
-    Opcode.MASK_OP = 16777208;
-    Opcode.SIZE = {
-        BYTE: 0,
-        WORD_OR_DOUBLE: 1,
-    };
-    Opcode.DIRECTION = {
-        REG_IS_SRC: 0,
-        REG_IS_DST: 2,
-    };
     return Opcode;
 }(InstructionPart));
+Opcode.MASK_SIZE = 16777214;
+Opcode.MASK_DIRECTION = 16777213;
+Opcode.MASK_OP = 16777208;
+Opcode.SIZE = {
+    BYTE: 0,
+    WORD_OR_DOUBLE: 1,
+};
+Opcode.DIRECTION = {
+    REG_IS_SRC: 0,
+    REG_IS_DST: 2,
+};
 exports.Opcode = Opcode;
 var Modrm = (function (_super) {
     __extends(Modrm, _super);
     function Modrm(mod, reg, rm) {
-        _super.call(this);
-        this.mod = 0;
-        this.reg = 0;
-        this.rm = 0;
-        this.mod = mod;
-        this.reg = reg;
-        this.rm = rm;
+        var _this = _super.call(this) || this;
+        _this.mod = 0;
+        _this.reg = 0;
+        _this.rm = 0;
+        _this.mod = mod;
+        _this.reg = reg;
+        _this.rm = rm;
+        return _this;
     }
     Modrm.getModDispSize = function (mem) {
         if (!mem.displacement || !mem.base)
@@ -277,29 +289,30 @@ var Modrm = (function (_super) {
         arr.push((this.mod << 6) | (this.reg << 3) | this.rm);
         return arr;
     };
-    Modrm.MOD = {
-        INDIRECT: 0,
-        DISP8: 1,
-        DISP32: 2,
-        REG_TO_REG: 3,
-    };
-    Modrm.RM = {
-        NEEDS_SIB: regfile_1.R64.RSP & 7,
-        INDIRECT_DISP: regfile_1.R64.RBP & 7,
-    };
     return Modrm;
 }(InstructionPart));
+Modrm.MOD = {
+    INDIRECT: 0,
+    DISP8: 1,
+    DISP32: 2,
+    REG_TO_REG: 3,
+};
+Modrm.RM = {
+    NEEDS_SIB: regfile_1.R64.RSP & 7,
+    INDIRECT_DISP: regfile_1.R64.RBP & 7,
+};
 exports.Modrm = Modrm;
 var Sib = (function (_super) {
     __extends(Sib, _super);
     function Sib(scalefactor, I, B) {
-        _super.call(this);
-        this.S = 0;
-        this.I = 0;
-        this.B = 0;
-        this.setScale(scalefactor);
-        this.I = I;
-        this.B = B;
+        var _this = _super.call(this) || this;
+        _this.S = 0;
+        _this.I = 0;
+        _this.B = 0;
+        _this.setScale(scalefactor);
+        _this.I = I;
+        _this.B = B;
+        return _this;
     }
     Sib.prototype.setScale = function (scalefactor) {
         switch (scalefactor) {
@@ -323,16 +336,17 @@ var Sib = (function (_super) {
         arr.push((this.S << 6) | (this.I << 3) | this.B);
         return arr;
     };
-    Sib.INDEX_NONE = regfile_1.R64.RSP & 7;
-    Sib.BASE_NONE = regfile_1.R64.RBP & 7;
     return Sib;
 }(InstructionPart));
+Sib.INDEX_NONE = regfile_1.R64.RSP & 7;
+Sib.BASE_NONE = regfile_1.R64.RBP & 7;
 exports.Sib = Sib;
 var Displacement = (function (_super) {
     __extends(Displacement, _super);
     function Displacement(value) {
-        _super.call(this);
-        this.value = value;
+        var _this = _super.call(this) || this;
+        _this.value = value;
+        return _this;
     }
     Displacement.prototype.write = function (arr) {
         if (arr === void 0) { arr = []; }
@@ -345,8 +359,9 @@ exports.Displacement = Displacement;
 var Immediate = (function (_super) {
     __extends(Immediate, _super);
     function Immediate(value) {
-        _super.call(this);
-        this.value = value;
+        var _this = _super.call(this) || this;
+        _this.value = value;
+        return _this;
     }
     Immediate.prototype.write = function (arr) {
         if (arr === void 0) { arr = []; }

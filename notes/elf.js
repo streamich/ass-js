@@ -1,8 +1,9 @@
 "use strict";
-var o = require('../x86/operand');
-var code_1 = require('../x86/x64/code');
-var elf = require('../../elf/elf');
-var econsts = require('../../elf/const');
+Object.defineProperty(exports, "__esModule", { value: true });
+var o = require("../x86/operand");
+var code_1 = require("../x86/x64/code");
+var elf = require("../../elf/elf");
+var econsts = require("../../elf/const");
 var StaticBuffer = require('../../static-buffer/buffer').StaticBuffer;
 var _ = new code_1.Code;
 var msg = 'Hello World!\n';

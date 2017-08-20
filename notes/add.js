@@ -1,6 +1,7 @@
 "use strict";
-var o = require('../x86/operand');
-var code_1 = require('../x86/x64/code');
+Object.defineProperty(exports, "__esModule", { value: true });
+var o = require("../x86/operand");
+var code_1 = require("../x86/x64/code");
 var code = code_1.Code.create();
 code.table.createAll();
 console.log(code.table.toString());

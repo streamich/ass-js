@@ -1,6 +1,7 @@
 "use strict";
-var operand_1 = require('../../x86/operand');
-var code_1 = require('../../x86/x64/code');
+Object.defineProperty(exports, "__esModule", { value: true });
+var operand_1 = require("../../x86/operand");
+var code_1 = require("../../x86/x64/code");
 var _ = new code_1.Code('hello_world_app');
 _.db('Hello World!\n');
 _._('mov', [operand_1.rax, 1]);

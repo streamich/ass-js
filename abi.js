@@ -1,6 +1,7 @@
 "use strict";
-var o = require('./x86/operand');
-var ii = require('./instruction');
+Object.defineProperty(exports, "__esModule", { value: true });
+var o = require("./x86/operand");
+var ii = require("./instruction");
 var Function = (function () {
     function Function() {
         this.abi = null;

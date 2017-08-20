@@ -222,6 +222,14 @@ describe('x64', function() {
             // console.log(new Buffer(bin));
             expect(bin).to.eql([0x48, 0xC7, 0xC5, 0xCD, 0xCC, 0xFF, 0xFF]);
         });
+        // 4c 89 eb             	mov    %r13,%rbx
+        it('movq rbx, r13', function() {
+            var _ = code64();
+            _._('mov', [rbx, r13], 64);
+            var bin = compile(_);
+            // console.log(new Buffer(bin));
+            expect([0x4c, 0x89, 0xeb]).to.eql(bin);
+        });
     });
     
     describe('Binary Arithmetic', function() {

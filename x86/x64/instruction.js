@@ -1,17 +1,23 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var operand_1 = require('../../operand');
-var o = require('../operand');
-var i = require('../instruction');
-var p = require('../parts');
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var operand_1 = require("../../operand");
+var o = require("../operand");
+var i = require("../instruction");
+var p = require("../parts");
 var Instruction = (function (_super) {
     __extends(Instruction, _super);
     function Instruction() {
-        _super.apply(this, arguments);
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     Instruction.prototype.needs32To64OperandSizeChange = function () {
         return this.def.operandSize === operand_1.SIZE.Q;
@@ -44,6 +50,8 @@ var Instruction = (function (_super) {
         var _a = this.ops.list, dst = _a[0], src = _a[1];
         if ((dst instanceof o.Register8High) || (src instanceof o.Register8High))
             throw Error('Cannot encode REX prefix with high 8-bit register.');
+        if (this.def.opEncoding === 'mr')
+            _b = [src, dst], dst = _b[0], src = _b[1];
         var W = 0, R = 0, X = 0, B = 0;
         if (this.needs32To64OperandSizeChange() && (this.def.operandSizeDefault !== operand_1.SIZE.Q))
             W = 1;
@@ -77,6 +85,7 @@ var Instruction = (function (_super) {
         this.pfxEx = new p.PrefixRex(W, R, X, B);
         this.length++;
         this.lengthMax++;
+        var _b;
     };
     Instruction.prototype.createModrm = function () {
         var mem = this.ops.getMemoryOperand();

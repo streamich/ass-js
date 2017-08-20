@@ -41,6 +41,9 @@ export class Instruction extends i.Instruction {
         if((dst instanceof o.Register8High) || (src instanceof o.Register8High))
             throw Error('Cannot encode REX prefix with high 8-bit register.');
 
+        if(this.def.opEncoding === 'mr')
+            [dst, src] = [src, dst];
+
         var W = 0, R = 0, X = 0, B = 0;
 
         if(this.needs32To64OperandSizeChange() && (this.def.operandSizeDefault !== SIZE.Q)) W = 1;

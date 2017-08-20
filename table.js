@@ -1,5 +1,6 @@
 "use strict";
-var operand_1 = require('./operand');
+Object.defineProperty(exports, "__esModule", { value: true });
+var operand_1 = require("./operand");
 exports.S = operand_1.SIZE;
 exports.r = operand_1.Register;
 exports.m = operand_1.Memory;

@@ -1,9 +1,10 @@
 "use strict";
-var util_1 = require('../../util');
-var o = require('../operand');
-var t = require('../table');
-var table_1 = require('../../table');
-var table_2 = require('../table');
+Object.defineProperty(exports, "__esModule", { value: true });
+var util_1 = require("../../util");
+var o = require("../operand");
+var t = require("../table");
+var table_1 = require("../../table");
+var table_2 = require("../table");
 exports.cr0_7 = [o.cr(0), o.cr(1), o.cr(2), o.cr(3), o.cr(4), o.cr(5), o.cr(6), o.cr(7)];
 exports.dr0_7 = [o.dr(0), o.dr(1), o.dr(2), o.dr(3), o.dr(4), o.dr(5), o.dr(6), o.dr(7)];
 exports.ext_mmx = [table_2.EXT.MMX];

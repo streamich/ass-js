@@ -1,6 +1,7 @@
 "use strict";
-var chai_1 = require('chai');
-var util = require('../util');
+Object.defineProperty(exports, "__esModule", { value: true });
+var chai_1 = require("chai");
+var util = require("../util");
 describe('util', function () {
     describe('UInt64', function () {
         it('toNumber()', function () {

@@ -1,4 +1,6 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var R64;
 (function (R64) {
     R64[R64["RAX"] = 0] = "RAX";
     R64[R64["RCX"] = 1] = "RCX";
@@ -16,8 +18,8 @@
     R64[R64["R13"] = 13] = "R13";
     R64[R64["R14"] = 14] = "R14";
     R64[R64["R15"] = 15] = "R15";
-})(exports.R64 || (exports.R64 = {}));
-var R64 = exports.R64;
+})(R64 = exports.R64 || (exports.R64 = {}));
+var R32;
 (function (R32) {
     R32[R32["EAX"] = 0] = "EAX";
     R32[R32["ECX"] = 1] = "ECX";
@@ -35,8 +37,8 @@ var R64 = exports.R64;
     R32[R32["R13D"] = 13] = "R13D";
     R32[R32["R14D"] = 14] = "R14D";
     R32[R32["R15D"] = 15] = "R15D";
-})(exports.R32 || (exports.R32 = {}));
-var R32 = exports.R32;
+})(R32 = exports.R32 || (exports.R32 = {}));
+var R16;
 (function (R16) {
     R16[R16["AX"] = 0] = "AX";
     R16[R16["CX"] = 1] = "CX";
@@ -54,8 +56,8 @@ var R32 = exports.R32;
     R16[R16["R13W"] = 13] = "R13W";
     R16[R16["R14W"] = 14] = "R14W";
     R16[R16["R15W"] = 15] = "R15W";
-})(exports.R16 || (exports.R16 = {}));
-var R16 = exports.R16;
+})(R16 = exports.R16 || (exports.R16 = {}));
+var R8;
 (function (R8) {
     R8[R8["AL"] = 0] = "AL";
     R8[R8["CL"] = 1] = "CL";
@@ -73,15 +75,15 @@ var R16 = exports.R16;
     R8[R8["R13B"] = 13] = "R13B";
     R8[R8["R14B"] = 14] = "R14B";
     R8[R8["R15B"] = 15] = "R15B";
-})(exports.R8 || (exports.R8 = {}));
-var R8 = exports.R8;
+})(R8 = exports.R8 || (exports.R8 = {}));
+var R8H;
 (function (R8H) {
     R8H[R8H["AH"] = 4] = "AH";
     R8H[R8H["CH"] = 5] = "CH";
     R8H[R8H["DH"] = 6] = "DH";
     R8H[R8H["BH"] = 7] = "BH";
-})(exports.R8H || (exports.R8H = {}));
-var R8H = exports.R8H;
+})(R8H = exports.R8H || (exports.R8H = {}));
+var SEG;
 (function (SEG) {
     SEG[SEG["ES"] = 0] = "ES";
     SEG[SEG["CS"] = 1] = "CS";
@@ -89,8 +91,8 @@ var R8H = exports.R8H;
     SEG[SEG["DS"] = 3] = "DS";
     SEG[SEG["FS"] = 4] = "FS";
     SEG[SEG["GS"] = 5] = "GS";
-})(exports.SEG || (exports.SEG = {}));
-var SEG = exports.SEG;
+})(SEG = exports.SEG || (exports.SEG = {}));
+var CR;
 (function (CR) {
     CR[CR["CR0"] = 0] = "CR0";
     CR[CR["CR1"] = 1] = "CR1";
@@ -108,8 +110,8 @@ var SEG = exports.SEG;
     CR[CR["CR13"] = 13] = "CR13";
     CR[CR["CR14"] = 14] = "CR14";
     CR[CR["CR15"] = 15] = "CR15";
-})(exports.CR || (exports.CR = {}));
-var CR = exports.CR;
+})(CR = exports.CR || (exports.CR = {}));
+var DR;
 (function (DR) {
     DR[DR["DR0"] = 0] = "DR0";
     DR[DR["DR1"] = 1] = "DR1";
@@ -127,8 +129,8 @@ var CR = exports.CR;
     DR[DR["DR13"] = 13] = "DR13";
     DR[DR["DR14"] = 14] = "DR14";
     DR[DR["DR15"] = 15] = "DR15";
-})(exports.DR || (exports.DR = {}));
-var DR = exports.DR;
+})(DR = exports.DR || (exports.DR = {}));
+var X87;
 (function (X87) {
     X87[X87["ST0"] = 0] = "ST0";
     X87[X87["ST1"] = 1] = "ST1";
@@ -138,8 +140,8 @@ var DR = exports.DR;
     X87[X87["ST5"] = 5] = "ST5";
     X87[X87["ST6"] = 6] = "ST6";
     X87[X87["ST7"] = 7] = "ST7";
-})(exports.X87 || (exports.X87 = {}));
-var X87 = exports.X87;
+})(X87 = exports.X87 || (exports.X87 = {}));
+var MMX;
 (function (MMX) {
     MMX[MMX["MMX0"] = 0] = "MMX0";
     MMX[MMX["MMX1"] = 1] = "MMX1";
@@ -149,8 +151,8 @@ var X87 = exports.X87;
     MMX[MMX["MMX5"] = 5] = "MMX5";
     MMX[MMX["MMX6"] = 6] = "MMX6";
     MMX[MMX["MMX7"] = 7] = "MMX7";
-})(exports.MMX || (exports.MMX = {}));
-var MMX = exports.MMX;
+})(MMX = exports.MMX || (exports.MMX = {}));
+var XMM;
 (function (XMM) {
     XMM[XMM["XMM0"] = 0] = "XMM0";
     XMM[XMM["XMM1"] = 1] = "XMM1";
@@ -184,8 +186,8 @@ var MMX = exports.MMX;
     XMM[XMM["XMM29"] = 29] = "XMM29";
     XMM[XMM["XMM30"] = 30] = "XMM30";
     XMM[XMM["XMM31"] = 31] = "XMM31";
-})(exports.XMM || (exports.XMM = {}));
-var XMM = exports.XMM;
+})(XMM = exports.XMM || (exports.XMM = {}));
+var YMM;
 (function (YMM) {
     YMM[YMM["YMM0"] = 0] = "YMM0";
     YMM[YMM["YMM1"] = 1] = "YMM1";
@@ -219,8 +221,8 @@ var XMM = exports.XMM;
     YMM[YMM["YMM29"] = 29] = "YMM29";
     YMM[YMM["YMM30"] = 30] = "YMM30";
     YMM[YMM["YMM31"] = 31] = "YMM31";
-})(exports.YMM || (exports.YMM = {}));
-var YMM = exports.YMM;
+})(YMM = exports.YMM || (exports.YMM = {}));
+var ZMM;
 (function (ZMM) {
     ZMM[ZMM["ZMM0"] = 0] = "ZMM0";
     ZMM[ZMM["ZMM1"] = 1] = "ZMM1";
@@ -254,5 +256,4 @@ var YMM = exports.YMM;
     ZMM[ZMM["ZMM29"] = 29] = "ZMM29";
     ZMM[ZMM["ZMM30"] = 30] = "ZMM30";
     ZMM[ZMM["ZMM31"] = 31] = "ZMM31";
-})(exports.ZMM || (exports.ZMM = {}));
-var ZMM = exports.ZMM;
+})(ZMM = exports.ZMM || (exports.ZMM = {}));

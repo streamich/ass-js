@@ -1,9 +1,10 @@
 "use strict";
-var operand_1 = require('./operand');
-var instruction_1 = require('./instruction');
-var i = require('./instruction');
-var o = require('./operand');
-var util_1 = require('./util');
+Object.defineProperty(exports, "__esModule", { value: true });
+var operand_1 = require("./operand");
+var instruction_1 = require("./instruction");
+var i = require("./instruction");
+var o = require("./operand");
+var util_1 = require("./util");
 var Code = (function () {
     function Code(start) {
         if (start === void 0) { start = 'start'; }
@@ -108,20 +109,20 @@ var Code = (function () {
         if (useNumbers === void 0) { useNumbers = false; }
         if (sizes === void 0) { sizes = [o.SIZE.B, o.SIZE.W, o.SIZE.D, o.SIZE.Q]; }
         if (obj === void 0) { obj = {}; }
-        var _loop_1 = function(mnemonic) {
+        var _loop_1 = function (mnemonic) {
             obj[mnemonic] = function () {
                 var operands = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
-                    operands[_i - 0] = arguments[_i];
+                    operands[_i] = arguments[_i];
                 }
                 return _this._(mnemonic, operands);
             };
-            var _loop_2 = function(size) {
+            var _loop_2 = function (size) {
                 var method = useNumbers ? mnemonic + size : mnemonic + o.SIZE[size].toLowerCase();
                 obj[method] = function () {
                     var operands = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
-                        operands[_i - 0] = arguments[_i];
+                        operands[_i] = arguments[_i];
                     }
                     return _this._(mnemonic, operands, size);
                 };

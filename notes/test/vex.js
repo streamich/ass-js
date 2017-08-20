@@ -1,6 +1,7 @@
 "use strict";
-var o = require('../../x86/operand');
-var code_1 = require('../../x86/x64/code');
+Object.defineProperty(exports, "__esModule", { value: true });
+var o = require("../../x86/operand");
+var code_1 = require("../../x86/x64/code");
 var _ = new code_1.Code;
 _._('inc', [o.rax]).lock();
 _._('divsd', [o.xmm(1), o.xmm(2)]);

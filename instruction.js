@@ -1,12 +1,18 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var o = require('./operand');
-var operand_1 = require('./operand');
-var util_1 = require('./util');
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var o = require("./operand");
+var operand_1 = require("./operand");
+var util_1 = require("./util");
 exports.SIZE_UNKNOWN = -Infinity;
 exports.OFFSET_UNKNOWN = -Infinity;
 var Expression = (function () {
@@ -116,17 +122,18 @@ var Expression = (function () {
         if (comment === void 0) { comment = true; }
         return this.formatToString(margin, '[expression]');
     };
-    Expression.commentColls = 44;
     return Expression;
 }());
+Expression.commentColls = 44;
 exports.Expression = Expression;
 var Label = (function (_super) {
     __extends(Label, _super);
     function Label(name) {
-        _super.call(this);
-        this.symbol = null;
-        this.length = 0;
-        this.symbol = new o.Symbol(this, 0, name);
+        var _this = _super.call(this) || this;
+        _this.symbol = null;
+        _this.length = 0;
+        _this.symbol = new o.Symbol(_this, 0, name);
+        return _this;
     }
     Label.prototype.getName = function () {
         return this.symbol.name;
@@ -140,8 +147,9 @@ exports.Label = Label;
 var DataUninitialized = (function (_super) {
     __extends(DataUninitialized, _super);
     function DataUninitialized(length) {
-        _super.call(this);
-        this.length = length;
+        var _this = _super.call(this) || this;
+        _this.length = length;
+        return _this;
     }
     DataUninitialized.prototype.write = function (arr) {
         arr = arr.concat(new Array(this.length));
@@ -169,9 +177,10 @@ var Data = (function (_super) {
     __extends(Data, _super);
     function Data(octets) {
         if (octets === void 0) { octets = []; }
-        _super.call(this);
-        this.octets = octets;
-        this.length = octets.length;
+        var _this = _super.call(this) || this;
+        _this.octets = octets;
+        _this.length = octets.length;
+        return _this;
     }
     Data.formatOctet = function (octet) {
         var neg = octet < 0 ? '-' : '';
@@ -277,9 +286,10 @@ var Template = (function (_super) {
     __extends(Template, _super);
     function Template(args) {
         if (args === void 0) { args = []; }
-        _super.call(this);
-        this.name = 'template';
-        this.args = args;
+        var _this = _super.call(this) || this;
+        _this.name = 'template';
+        _this.args = args;
+        return _this;
     }
     Template.prototype.toString = function (margin, comment) {
         if (margin === void 0) { margin = '    '; }
@@ -298,10 +308,11 @@ var ExpressionVariable = (function (_super) {
     __extends(ExpressionVariable, _super);
     function ExpressionVariable(ops) {
         if (ops === void 0) { ops = null; }
-        _super.call(this);
-        this.ops = null;
-        this.isEvaluated = false;
-        this.ops = ops;
+        var _this = _super.call(this) || this;
+        _this.ops = null;
+        _this.isEvaluated = false;
+        _this.ops = ops;
+        return _this;
     }
     ExpressionVariable.prototype.evaluate = function () {
         this.isEvaluated = true;
@@ -314,9 +325,10 @@ var DataVariable = (function (_super) {
     __extends(DataVariable, _super);
     function DataVariable(ops, littleEndian) {
         if (littleEndian === void 0) { littleEndian = true; }
-        _super.call(this, ops);
-        this.littleEndian = littleEndian;
-        this.octets = new Array(this.bytes());
+        var _this = _super.call(this, ops) || this;
+        _this.littleEndian = littleEndian;
+        _this.octets = new Array(_this.bytes());
+        return _this;
     }
     DataVariable.prototype.build = function () {
     };
@@ -383,8 +395,9 @@ exports.DataVariable = DataVariable;
 var ExpressionVolatile = (function (_super) {
     __extends(ExpressionVolatile, _super);
     function ExpressionVolatile() {
-        _super.apply(this, arguments);
-        this.lengthMax = 0;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.lengthMax = 0;
+        return _this;
     }
     ExpressionVolatile.prototype.bytesMax = function () {
         return this.lengthMax;
@@ -398,13 +411,14 @@ exports.ExpressionVolatile = ExpressionVolatile;
 var Align = (function (_super) {
     __extends(Align, _super);
     function Align(by) {
-        _super.call(this);
-        this.length = exports.SIZE_UNKNOWN;
-        this.templates = [
+        var _this = _super.call(this) || this;
+        _this.length = exports.SIZE_UNKNOWN;
+        _this.templates = [
             [0x00],
         ];
-        this.octets = [];
-        this.by = by;
+        _this.octets = [];
+        _this.by = by;
+        return _this;
     }
     Align.prototype.bytesMax = function () {
         return this.by - 1;
@@ -461,9 +475,10 @@ exports.Align = Align;
 var Instruction = (function (_super) {
     __extends(Instruction, _super);
     function Instruction() {
-        _super.apply(this, arguments);
-        this.def = null;
-        this.opts = null;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.def = null;
+        _this.opts = null;
+        return _this;
     }
     Instruction.prototype.build = function () {
         _super.prototype.build.call(this);
@@ -500,13 +515,14 @@ exports.Instruction = Instruction;
 var InstructionSet = (function (_super) {
     __extends(InstructionSet, _super);
     function InstructionSet(ops, matches, opts) {
-        _super.call(this, ops);
-        this.matches = null;
-        this.insn = [];
-        this.picked = -1;
-        this.opts = null;
-        this.matches = matches;
-        this.opts = opts;
+        var _this = _super.call(this, ops) || this;
+        _this.matches = null;
+        _this.insn = [];
+        _this.picked = -1;
+        _this.opts = null;
+        _this.matches = matches;
+        _this.opts = opts;
+        return _this;
     }
     InstructionSet.prototype.write = function (arr) {
         if (this.picked === -1)

@@ -1,6 +1,7 @@
 "use strict";
-var o = require('./operand');
-var util_1 = require('./util');
+Object.defineProperty(exports, "__esModule", { value: true });
+var o = require("./operand");
+var util_1 = require("./util");
 var Def = (function () {
     function Def(group, def) {
         var _this = this;

@@ -131,7 +131,7 @@ export class Code {
         return expr;
     }
 
-    lbl(name: string): Label {
+    lbl(name?: string): Label {
         return new Label(name);
     }
 

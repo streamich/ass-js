@@ -88,6 +88,18 @@ export class Register extends RegisterBase {
     isExtended() {
         return this.id > 0b111;
     }
+
+    getRegisterSized(size): Register {
+        if(size === this.size) return this;
+        switch(size) {
+            case SIZE.B: return rb(this.id);
+            case SIZE.W: return rw(this.id);
+            case SIZE.D: return rd(this.id);
+            case SIZE.Q: return rq(this.id);
+            default:
+                throw Error(`Do not have register of size ${size}.`);
+        }
+    }
 }
 
 export class RegisterGP extends Register {}

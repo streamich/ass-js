@@ -1,9 +1,16 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var COND;
 (function (COND) {
     COND[COND["EQ"] = 0] = "EQ";
     COND[COND["NE"] = 1] = "NE";
@@ -21,8 +28,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     COND[COND["LE"] = 13] = "LE";
     COND[COND["AL"] = 14] = "AL";
     COND[COND["NV"] = 15] = "NV";
-})(exports.COND || (exports.COND = {}));
-var COND = exports.COND;
+})(COND = exports.COND || (exports.COND = {}));
 var Instruction = (function () {
     function Instruction() {
         this.tpl = 0;
@@ -43,8 +49,9 @@ exports.Instruction = Instruction;
 var InstructionDataProcessing = (function (_super) {
     __extends(InstructionDataProcessing, _super);
     function InstructionDataProcessing() {
-        _super.apply(this, arguments);
-        this.tpl = 0;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.tpl = 0;
+        return _this;
     }
     return InstructionDataProcessing;
 }(Instruction));
@@ -52,8 +59,9 @@ exports.InstructionDataProcessing = InstructionDataProcessing;
 var InstructionDataMultiply = (function (_super) {
     __extends(InstructionDataMultiply, _super);
     function InstructionDataMultiply() {
-        _super.apply(this, arguments);
-        this.tpl = 0;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.tpl = 0;
+        return _this;
     }
     return InstructionDataMultiply;
 }(Instruction));
@@ -61,8 +69,9 @@ exports.InstructionDataMultiply = InstructionDataMultiply;
 var InstructionLongMultiply = (function (_super) {
     __extends(InstructionLongMultiply, _super);
     function InstructionLongMultiply() {
-        _super.apply(this, arguments);
-        this.tpl = 8388608;
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.tpl = 8388608;
+        return _this;
     }
     return InstructionLongMultiply;
 }(Instruction));

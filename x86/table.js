@@ -1,8 +1,10 @@
 "use strict";
-var util_1 = require('../util');
-var table_1 = require('../table');
-var t = require('../table');
-var operand_1 = require('./operand');
+Object.defineProperty(exports, "__esModule", { value: true });
+var util_1 = require("../util");
+var table_1 = require("../table");
+var t = require("../table");
+var operand_1 = require("./operand");
+var MODE;
 (function (MODE) {
     MODE[MODE["REAL"] = 1] = "REAL";
     MODE[MODE["PROT"] = 2] = "PROT";
@@ -13,16 +15,16 @@ var operand_1 = require('./operand');
     MODE[MODE["X64"] = 32] = "X64";
     MODE[MODE["X32_64"] = 48] = "X32_64";
     MODE[MODE["ALL"] = 63] = "ALL";
-})(exports.MODE || (exports.MODE = {}));
-var MODE = exports.MODE;
+})(MODE = exports.MODE || (exports.MODE = {}));
+var INS;
 (function (INS) {
     INS[INS["NONE"] = 0] = "NONE";
     INS[INS["MMX"] = 1] = "MMX";
     INS[INS["AES_NI"] = 2] = "AES_NI";
     INS[INS["CLMUL"] = 4] = "CLMUL";
     INS[INS["FMA3"] = 8] = "FMA3";
-})(exports.INS || (exports.INS = {}));
-var INS = exports.INS;
+})(INS = exports.INS || (exports.INS = {}));
+var EXT;
 (function (EXT) {
     EXT[EXT["NONE"] = 0] = "NONE";
     EXT[EXT["x86_64"] = 1] = "x86_64";
@@ -64,8 +66,7 @@ var INS = exports.INS;
     EXT[EXT["FMA3"] = 36] = "FMA3";
     EXT[EXT["FMA4"] = 37] = "FMA4";
     EXT[EXT["CDI"] = 38] = "CDI";
-})(exports.EXT || (exports.EXT = {}));
-var EXT = exports.EXT;
+})(EXT = exports.EXT || (exports.EXT = {}));
 exports.M = MODE;
 exports.r = operand_1.Register;
 exports.r8 = operand_1.Register8;
