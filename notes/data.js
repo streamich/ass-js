@@ -1,5 +1,6 @@
 "use strict";
-var code_1 = require('../x86/x64/code');
+Object.defineProperty(exports, "__esModule", { value: true });
+var code_1 = require("../x86/x64/code");
 var code = code_1.Code.create();
 var lbl = code.lbl('some_label');
 code.dw(1);

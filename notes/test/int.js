@@ -1,3 +1,4 @@
 "use strict";
-var util = require('../../util');
+Object.defineProperty(exports, "__esModule", { value: true });
+var util = require("../../util");
 console.log(util.UInt64.toNumber64(-1));

@@ -1,8 +1,9 @@
 "use strict";
-var o = require('../../x86/operand');
-var code_1 = require('../../x86/x64/code');
-var abi_1 = require('../../abi');
-var util_1 = require('../../util');
+Object.defineProperty(exports, "__esModule", { value: true });
+var o = require("../../x86/operand");
+var code_1 = require("../../x86/x64/code");
+var abi_1 = require("../../abi");
+var util_1 = require("../../util");
 var StaticBuffer = require('../../../static-buffer/buffer').StaticBuffer;
 var libsys = require('../../../libsys/libsys');
 var __DEBUG__ = true;
