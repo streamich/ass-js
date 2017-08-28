@@ -12,72 +12,25 @@ import {M, r, r8, r16, r32, r64, mm, st,
 
 declare const require;
 function lazy(part: string, mnemonic: string) {
-    return require('./table/common').default[mnemonic];
+    return require('./table/' + part).default[mnemonic];
 }
 
 
-export var cr0_7 = [o.cr(0), o.cr(1), o.cr(2), o.cr(3), o.cr(4), o.cr(5), o.cr(6), o.cr(7)];
-export var dr0_7 = [o.dr(0), o.dr(1), o.dr(2), o.dr(3), o.dr(4), o.dr(5), o.dr(6), o.dr(7)];
+export const cr0_7 = [o.cr(0), o.cr(1), o.cr(2), o.cr(3), o.cr(4), o.cr(5), o.cr(6), o.cr(7)];
+export const dr0_7 = [o.dr(0), o.dr(1), o.dr(2), o.dr(3), o.dr(4), o.dr(5), o.dr(6), o.dr(7)];
 
-export var ext_mmx      = [EXT.MMX];
-export var ext_sse      = [EXT.SSE];
-export var ext_sse2     = [EXT.SSE2];
-export var ext_avx      = [EXT.AVX];
-export var ext_avx2     = [EXT.AVX2];
+export const ext_mmx      = [EXT.MMX];
+export const ext_sse      = [EXT.SSE];
+export const ext_sse2     = [EXT.SSE2];
+export const ext_avx      = [EXT.AVX];
+export const ext_avx2     = [EXT.AVX2];
 
-export var rvm = 'rvm';
-export var mr = 'mr';
+export const rvm = 'rvm';
+export const mr = 'mr';
 
 
-export var defaults = extend<any>({}, t.defaults,
+export const defaults = extend<any>({}, t.defaults,
     {rex: false, ds: S.D});
-
-
-function tpl_and(o_al = 0x24, o_imm = 0x80, or_imm = 4, o_reg = 0x20, lock = true) {
-    return [{lock: lock},
-        // 24 ib AND AL, imm8 I Valid Valid AL AND imm8.
-        {o: o_al, ops: [o.al, imm8], mr: false},
-        // 25 iw AND AX, imm16 I Valid Valid AX AND imm16.
-        {o: o_al + 1, ops: [o.ax, imm16], mr: false},
-        // 25 id AND EAX, imm32 I Valid Valid EAX AND imm32.
-        {o: o_al + 1, ops: [o.eax, imm32], mr: false},
-        // REX.W + 25 id AND RAX, imm32 I Valid N.E. RAX AND imm32 sign-extended to 64-bits.
-        {o: o_al + 1, ops: [o.rax, imm32], mr: false},
-        // 80 /4 ib AND r/m8, imm8 MI Valid Valid r/m8 AND imm8.
-        // REX + 80 /4 ib AND r/m8*, imm8 MI Valid N.E. r/m8 AND imm8.
-        {o: o_imm, or: or_imm, ops: [rm8, imm8]},
-        // 81 /4 iw AND r/m16, imm16 MI Valid Valid r/m16 AND imm16.
-        {o: o_imm + 1, or: or_imm, ops: [rm16, imm16]},
-        // 81 /4 id AND r/m32, imm32 MI Valid Valid r/m32 AND imm32.
-        {o: o_imm + 1, or: or_imm, ops: [rm32, imm32]},
-        // REX.W + 81 /4 id AND r/m64, imm32 MI Valid N.E. r/m64 AND imm32 sign extended to 64-bits.
-        {o: o_imm + 1, or: or_imm, ops: [rm64, imm32]},
-        // 83 /4 ib AND r/m16, imm8 MI Valid Valid r/m16 AND imm8 (sign-extended).
-        {o: o_imm + 3, or: or_imm, ops: [rm16, imm8]},
-        // 83 /4 ib AND r/m32, imm8 MI Valid Valid r/m32 AND imm8 (sign-extended).
-        {o: o_imm + 3, or: or_imm, ops: [rm32, imm8]},
-        // REX.W + 83 /4 ib AND r/m64, imm8 MI Valid N.E. r/m64 AND imm8 (sign-extended).
-        {o: o_imm + 3, or: or_imm, ops: [rm64, imm8]},
-        // 20 /r AND r/m8, r8 MR Valid Valid r/m8 AND r8.
-        // REX + 20 /r AND r/m8*, r8* MR Valid N.E. r/m64 AND r8 (sign-extended).
-        {o: o_reg, ops: [rm8, r8], en: 'mr', dbit: true},
-        // 22 /r AND r8, r/m8 RM Valid Valid r8 AND r/m8.
-        // REX + 22 /r AND r8*, r/m8* RM Valid N.E. r/m64 AND r8 (sign-extended).
-        {o: o_reg + 2, ops: [r8, rm8], dbit: true},
-        // 21 /r AND r/m16, r16 MR Valid Valid r/m16 AND r16.
-        {o: o_reg + 1, ops: [rm16, r16], en: 'mr', dbit: true},
-        // 23 /r AND r16, r/m16 RM Valid Valid r16 AND r/m16.
-        {o: o_reg + 3, ops: [r16, rm16], dbit: true},
-        // 21 /r AND r/m32, r32 MR Valid Valid r/m32 AND r32.
-        {o: o_reg + 1, ops: [rm32, r32], en: 'mr', dbit: true},
-        // 23 /r AND r32, r/m32 RM Valid Valid r32 AND r/m32.
-        {o: o_reg + 3, ops: [r32, rm32], dbit: true},
-        // REX.W + 21 /r AND r/m64, r64 MR Valid N.E. r/m64 AND r32.
-        {o: o_reg + 1, ops: [rm64, r64], en: 'mr', dbit: true},
-        // REX.W + 23 /r AND r64, r/m64 RM Valid N.E. r64 AND r/m64.
-        {o: o_reg + 3, ops: [r64, rm64], dbit: true},
-    ];
-}
 
 function tpl_not(o = 0xF6, or = 2, lock = true): t.Definition[] {
     return [{o: o + 1, or: or, lock: lock},
@@ -90,55 +43,6 @@ function tpl_not(o = 0xF6, or = 2, lock = true): t.Definition[] {
         {ops: [rm32]},
         // REX.W + F7 /2 NOT r/m64 M Valid N.E. Reverse each bit of r/m64.
         {ops: [rm64]},
-    ];
-}
-
-function tpl_sar(or = 7, o_r = 0xD0, o_imm = 0xC0) {
-    return [{or: or},
-        // D0 /7 SAR r/m8, 1 M1 Valid Valid Signed divide* r/m8 by 2, once.
-        // REX + D0 /7 SAR r/m8**, 1 M1 Valid N.E. Signed divide* r/m8 by 2, once.
-        {o: o_r, ops: [rm8, 1]},
-        // D2 /7 SAR r/m8, CL MC Valid Valid Signed divide* r/m8 by 2, CL times.
-        // REX + D2 /7 SAR r/m8**, CL MC Valid N.E. Signed divide* r/m8 by 2, CL times.
-        {o: o_r + 2, ops: [rm8, o.cl], s: S.B},
-        // C0 /7 ib SAR r/m8, imm8 MI Valid Valid Signed divide* r/m8 by 2, imm8 time.
-        // REX + C0 /7 ib SAR r/m8**, imm8 MI Valid N.E. Signed divide* r/m8 by 2, imm8 times.
-        {o: o_imm, ops: [rm8, imm8]},
-        // D1 /7 SAR r/m16,1 M1 Valid Valid Signed divide* r/m16 by 2, once.
-        {o: o_r + 1, ops: [rm16, 1]},
-        // D3 /7 SAR r/m16, CL MC Valid Valid Signed divide* r/m16 by 2, CL times.
-        {o: o_r + 3, ops: [rm16, o.cl], s: S.W},
-        // C1 /7 ib SAR r/m16, imm8 MI Valid Valid Signed divide* r/m16 by 2, imm8 times.
-        {o: o_imm + 1, ops: [rm16, imm8]},
-        // D1 /7 SAR r/m32, 1 M1 Valid Valid Signed divide* r/m32 by 2, once.
-        {o: o_r + 1, ops: [rm32, 1]},
-        // REX.W + D1 /7 SAR r/m64, 1 M1 Valid N.E. Signed divide* r/m64 by 2, once.
-        {o: o_r + 1, ops: [rm64, 1]},
-        // D3 /7 SAR r/m32, CL MC Valid Valid Signed divide* r/m32 by 2, CL times.
-        {o: o_r + 3, ops: [rm32, o.cl], s: S.D},
-        // REX.W + D3 /7 SAR r/m64, CL MC Valid N.E. Signed divide* r/m64 by 2, CL times.
-        {o: o_r + 3, ops: [rm64, o.cl], s: S.Q},
-        // C1 /7 ib SAR r/m32, imm8 MI Valid Valid Signed divide* r/m32 by 2, imm8 times.
-        {o: o_imm + 1, ops: [rm32, imm8]},
-        // REX.W + C1 /7 ib SAR r/m64, imm8 MI Valid N.E. Signed divide* r/m64 by 2, imm8 times
-        {o: o_imm + 1, ops: [rm64, imm8]},
-    ];
-}
-
-function tpl_shrd(op = 0x0FAC) {
-    return [{},
-        // 0F AC /r ib SHRD r/m16, r16, imm8 MRI Valid Valid Shift r/m16 to right imm8 places while shifting bits from r16 in from the left.
-        {o: op, ops: [rm16, r16, imm8]},
-        // 0F AD /r SHRD r/m16, r16, CL MRC Valid Valid Shift r/m16 to right CL places while shifting bits from r16 in from the left.
-        {o: op + 1, ops: [rm16, r16, o.cl], s: S.W},
-        // 0F AC /r ib SHRD r/m32, r32, imm8 MRI Valid Valid Shift r/m32 to right imm8 places while shifting bits from r32 in from the left.
-        {o: op, ops: [rm32, r32, imm8]},
-        // REX.W + 0F AC /r ib SHRD r/m64, r64, imm8 MRI Valid N.E. Shift r/m64 to right imm8 places while shifting bits from r64 in from the left.
-        {o: op, ops: [rm64, r64, imm8]},
-        // 0F AD /r SHRD r/m32, r32, CL MRC Valid Valid Shift r/m32 to right CL places while shifting bits from r32 in from the left.
-        {o: op + 1, ops: [rm32, r32, o.cl], s: S.D},
-        // REX.W + 0F AD /r SHRD r/m64, r64, CL MRC Valid N.E. Shift r/m64 to right CL places while
-        {o: op + 1, ops: [rm64, r64, o.cl], s: S.Q},
     ];
 }
 
@@ -258,7 +162,7 @@ _inc.push({o: 0x40, r: true, ops: [r16], mod: M.COMP | M.LEG});
 _inc.push({o: 0x40, r: true, ops: [r32], mod: M.COMP | M.LEG});
 
 
-export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
+export const table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
 
 
     // # A-letter
@@ -282,18 +186,7 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
 
     // 0F 58 /r ADDPS xmm1, xmm2/m128 V/V SSE
     addps: [{o: 0x0F58, ops: xmm_xmmm, ext: ext_sse}],
-    vaddps: [{o: 0x58, en: rvm},
-        // VEX.NDS.128.0F 58 /r VADDPS xmm1,xmm2, xmm3/m128 V/V AVX
-        {vex: 'NDS.128.0F.WIG', ops: xmm_xmm_xmmm, ext: ext_avx},
-        // VEX.NDS.256.0F 58 /r VADDPS ymm1, ymm2, ymm3/m256 V/V AVX
-        {vex: 'NDS.256.0F.WIG', ops: ymm_ymm_ymmm, ext: ext_avx},
-        // EVEX.NDS.128.0F.W0 58 /r VADDPS xmm1 {k1}{z}, xmm2, xmm3/m128/m32bcst V/V  AVX512VL AVX512F
-        {evex: 'NDS.128.0F.W0', ops: xmm_xmm_xmmm, ext: [EXT.AVX512VL,  EXT.AVX512F]},
-        // EVEX.NDS.256.0F.W0 58 /r VADDPS ymm1 {k1}{z}, ymm2, ymm3/m256/m32bcst V/V  AVX512VL AVX512F
-        {evex: 'NDS.256.0F.W0', ops: ymm_ymm_ymmm, ext: [EXT.AVX512VL,  EXT.AVX512F]},
-        // EVEX.NDS.512.0F.W0 58 /r VADDPS zmm1 {k1}{z}, zmm2, zmm3/m512/m32bcst {er} V/V AVX512F
-        {evex: 'NDS.512.0F.W0', ops: zmm_zmm_zmmm, ext: [EXT.AVX512F]},
-    ],
+    get vaddps() {return lazy('avx', 'vaddps')},
     kandw: [{},
         // VEX.L1.0F.W0 41 /r KANDW k1, k2, k3 V/V AVX512F
         {o: 0x41, vex: 'L1.0F.W0', ops: [], ext: [EXT.AVX512F]},
@@ -1652,21 +1545,13 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
         {ops: [r64, rm64], mod: M.X64},
     ],
     // ADD Integer add
-    get add() {
-        return lazy('common', 'add');
-    },
+    get add() {return lazy('common', 'add')},
     // ADC Add with carry
-    get adc() {
-        return lazy('common', 'adc');
-    },
+    get adc() {return lazy('common', 'adc')},
     // SUB Subtract
-    get sub() {
-        return lazy('common', 'adc');
-    },
+    get sub() {return lazy('common', 'adc')},
     // SBB Subtract with borrow
-    get sbb() {
-        return lazy('common', 'adc');
-    },
+    get sbb() {return lazy('common', 'adc')},
     // IMUL Signed multiply
     imul: [{},
         // F6 /5 IMUL r/m8* M Valid Valid AX← AL ∗ r/m byte.
@@ -1708,41 +1593,41 @@ export var table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     dec: _dec,
     // NEG Negate
     neg: tpl_not(0xF6, 3),
-    // CMP Compare
-    cmp: tpl_and(0x3C, 0x80, 7, 0x38, false),
 
+    // CMP Compare
+    get cmp() {return lazy('common', 'cmp')},
 
     // ## Logical
     // AND Perform bitwise logical AND
-    and: tpl_and(),
+    get and() {return lazy('common', 'and')},
     // OR Perform bitwise logical OR
-    or:  tpl_and(0x0C, 0x80, 1, 0x08),
+    get or() {return lazy('common', 'or')},
     // XOR Perform bitwise logical exclusive OR
-    xor: tpl_and(0x34, 0x80, 6, 0x30),
+    get xor() {return lazy('common', 'xor')},
     // NOT Perform bitwise logical NOT
     not: tpl_not(),
 
 
     // ## Shift and Rotate
     // SAR Shift arithmetic right
-    sar: tpl_sar(),
+    get sar() {return lazy('sar', 'sar')},
     // SHR Shift logical right
-    shr: tpl_sar(5),
+    get shr() {return lazy('sar', 'shr')},
     // SAL/SHL Shift arithmetic left/Shift logical left
-    shl: tpl_sar(4, 0xD0, 0xC0),
+    get shl() {return lazy('sar', 'shl')},
     sal: ['shl'],
     // SHRD Shift right double
-    shrd: tpl_shrd(),
+    get shrd() {return lazy('shrd', 'shrd')},
     // SHLD Shift left double
-    shld: tpl_shrd(0x0FA4),
+    get shld() {return lazy('shrd', 'shld')},
     // ROR Rotate right
-    ror: tpl_sar(1),
+    get ror() {return lazy('sar', 'ror')},
     // ROL Rotate left
-    rol: tpl_sar(0),
+    get rol() {return lazy('sar', 'rol')},
     // RCR Rotate through carry right
-    rcr: tpl_sar(3),
+    get rcr() {return lazy('sar', 'rcr')},
     // RCL Rotate through carry left
-    rcl: tpl_sar(2),
+    get rcl() {return lazy('sar', 'rcl')},
 
 
     // ## Bit and Byte

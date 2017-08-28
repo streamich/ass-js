@@ -13,7 +13,6 @@ export class Function {
     _(bodyCallback): this {
         return this.implement(bodyCallback);
     }
-
     implement(bodyCallback): this {
         this.abi.code.insert(this.lbl);
 

@@ -1,19 +1,12 @@
 {
   "name": "ass-js",
   "description": "Assembler.js",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "keywords": [
-    "x86",
-    "x64",
-    "x86_64",
-    "arm",
-    "arm64",
-    "native",
-    "native-code",
-    "machine-code",
-    "asm",
-    "compiler",
-    "assembler"
+    "x86", "x64", "x86_64", "arm", "arm64",
+    "native", "native-code", "machine-code", "asm", "compiler",
+    "assembler", "compiler", "intel", "amd", "nasm",
+    "gasm"
   ],
   "repository": {
     "type": "git",
@@ -62,8 +55,8 @@
     "build": "npm run build-ts",
     "build-ts": "gulp build-ts",
     "test": "npm run test-basic-ts",
-    "test-basic-ts": "mocha --require ts-node/register **/**/**/**/**/*.test.ts",
-    "test-watch-ts": "mocha --require ts-node/register **/**/**/**/**/*.test.ts --watch",
+    "test-basic-ts": "mocha --require ts-node/register test/**/**/**/**/**/*.test.ts",
+    "test-watch-ts": "mocha --require ts-node/register test/**/**/**/**/**/*.test.ts --watch",
     "test-coverage-ts": "nyc --per-file mocha --require ts-node/register --require source-map-support/register --full-trace --bail **/**/**/**/**/*.test.ts",
     "watch": "watch 'npm run build' ./src"
   }

@@ -2,32 +2,38 @@
 
 `x86` assembler in JavaScript.
 
-> THIS PACKAGE IS IN DEVELOPMENT, THERE ARE BUGS, SOME INSTRUCTIONS ARE MISSING.
+Store 25 in `RAX` register:
 
 ```js
-import {rax, rbx} from 'ass-js/x86/operand'; // x86 registers that we will use.
-import {Code} from 'ass-js/x86/x64/code'; // Code object that will `.compile()` our code.
+import {rax} from 'ass-js/lib/x86/operand';
+import {Code} from 'ass-js/lib/x86/x64/code';
 
-var _ = Code.create();
-_.mov(rax, rbx);
-console.log(_.compile());
-console.log(_.toString());
+const code = Code.create();
+code._('mov', [rax, 25]);
+```
+
+Compile to machine code:
+
+```js
+const bin = code.compile();
+console.log(bin); // [ 72, 199, 192, 25, 0, 0, 0 ]
+```
+
+Show text representation:
+
+```js
+console.log(String(code));
 ```
 
 See supported instructions:
 
 ```js
-_.table.createAll();
-console.log(_.table.toString());
-console.log(_.table.toJson());
+code.table.createAll();
+console.log(code.table.toString());
+console.log(code.table.toJson());
 ```
 
-Goals:
- 1. Create a generic assembler, first with `x86` support and then add `ARM` support.
- 2. Full support for all `x86` instructions, including: *AVX*, *AVX-2* and *AVX-3* instructions.
-
-
-## Examples
+# Examples
 
 ### Hello World
 
@@ -217,10 +223,3 @@ string moved to the end.
     006     ret                                     ; 00001E|00001E 0xC3
     007 my_string:
     008     db 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x0A; 00001F|00001F 13 bytes
-
-
-## Test
-
-    mocha
-    
-    

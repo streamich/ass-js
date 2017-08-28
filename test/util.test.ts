@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import * as util from '../util';
+import * as util from '../src/util';
 
 
 describe('util', function() {

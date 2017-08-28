@@ -3,7 +3,7 @@ var ts = require('gulp-typescript');
 
 
 gulp.task('build-ts', function () {
-    return gulp.src('**/*.ts')
+    return gulp.src('src/**/*.ts')
         .pipe(ts({
             "target": "es5",
             "module": "commonjs",

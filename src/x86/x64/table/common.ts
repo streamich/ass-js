@@ -58,4 +58,14 @@ export default {
     sub: tpl_and(0x2C, 0x80, 5, 0x28),
     // SBB Subtract with borrow
     sbb: tpl_and(0x1C, 0x80, 3, 0x18),
+    // CMP Compare
+    cmp: tpl_and(0x3C, 0x80, 7, 0x38, false),
+
+    // ## Logical
+    // AND Perform bitwise logical AND
+    and: tpl_and(),
+    // OR Perform bitwise logical OR
+    or:  tpl_and(0x0C, 0x80, 1, 0x08),
+    // XOR Perform bitwise logical exclusive OR
+    xor: tpl_and(0x34, 0x80, 6, 0x30),
 };

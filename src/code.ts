@@ -40,7 +40,7 @@ export class Code {
     _(mnemonic: string, operands: o.TUiOperand|o.TUiOperand[] = [], options: o.SIZE|IInstructionOptions|any = {size: o.SIZE.ANY}): i.Instruction|i.InstructionSet {
         if(typeof mnemonic !== 'string') throw TypeError('`mnemonic` argument must be a string.');
 
-        var opts: IInstructionOptions;
+        let opts: IInstructionOptions;
         if(typeof options === 'number') {
             opts = {size: options as number};
         } else if(typeof options === 'object') {
@@ -50,15 +50,15 @@ export class Code {
         if(typeof opts.size === 'undefined') opts.size = o.SIZE.ANY;
 
         if(!(operands instanceof Array)) operands = [operands] as o.TUiOperand[];
-        var ops = new this.ClassOperands(operands as o.TUiOperand[], opts.size);
+        const ops = new this.ClassOperands(operands as o.TUiOperand[], opts.size);
         ops.normalizeExpressionToRelative();
 
-        var matches = this.matchDefinitions(mnemonic, ops, opts);
+        const matches = this.matchDefinitions(mnemonic, ops, opts);
 
-        var iset = new this.ClassInstructionSet(ops, matches, opts);
+        const iset = new this.ClassInstructionSet(ops, matches, opts);
         this.insert(iset);
 
-        var insn = iset.pickShortestInstruction();
+        const insn = iset.pickShortestInstruction();
         if(insn) {
             this.replace(insn, iset.index);
             return insn;

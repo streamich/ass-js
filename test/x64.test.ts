@@ -2,9 +2,9 @@ import {expect} from 'chai';
 import {rax, rbx, rcx, rdx, rbp, rsp, rsi, rdi, r8, r9, r10, r11, r12, r13, r15,
         ebx, eax, esp, ebp, ecx,
         r10d, ax, bx, cx, dx, al, bl, cl, dl, ah, ch, dil, bpl, spl, r8b, r10b,
-        rip} from '../x86/operand';
-import * as o from '../x86/operand';
-import {Code} from '../x86/x64/code';
+        rip} from '../src/x86/operand';
+import * as o from '../src/x86/operand';
+import {Code} from '../src/x86/x64/code';
 
 
 describe('x64', function() {
@@ -1282,7 +1282,7 @@ describe('x64', function() {
             it('lock cmpxchg [rcx], rbx', function () { // f0 48 0f b1 19       	lock cmpxchg %rbx,(%rcx)
                 var _ = code64();
                 _.lock();
-                _._('cmpxchg', [rcx.ref(), rbx]).lock();
+                (_._('cmpxchg', [rcx.ref(), rbx]) as any).lock();
                 _.lock();
                 var bin = compile(_);
                 expect([0xF0, 0xF0, 0x48, 0x0F, 0xB1, 0x19, 0xF0]).to.eql(bin);
@@ -1320,7 +1320,7 @@ describe('x64', function() {
                 expect([0x0F, 0x58, 0xD1]).to.eql(bin);
             });
             it('vaddps xmm3, xmm2, xmm1', function() { // c5 e8 58 d9          	vaddps %xmm1,%xmm2,%xmm3
-                var _ = code64();
+                const _ = code64();
                 _._('vaddps', [o.xmm(3), o.xmm(2), o.xmm(1)]);
                 var bin = compile(_);
                 expect([0xc5, 0xe8, 0x58, 0xD9]).to.eql(bin);
