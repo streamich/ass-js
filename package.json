@@ -3,9 +3,21 @@
   "description": "Assembler.js",
   "version": "1.0.6",
   "keywords": [
-    "x86", "x64", "x86_64", "arm", "arm64",
-    "native", "native-code", "machine-code", "asm", "compiler",
-    "assembler", "compiler", "intel", "amd", "nasm",
+    "x86",
+    "x64",
+    "x86_64",
+    "arm",
+    "arm64",
+    "native",
+    "native-code",
+    "machine-code",
+    "asm",
+    "compiler",
+    "assembler",
+    "compiler",
+    "intel",
+    "amd",
+    "nasm",
     "gasm"
   ],
   "repository": {
@@ -14,6 +26,8 @@
   },
   "main": "index.js",
   "devDependencies": {
+    "jest": "^21.1.0",
+    "ts-jest": "^21.0.1",
     "mocha": "3.4.2",
     "chai": "4.1.0",
     "typescript": "2.4.2",
@@ -25,7 +39,8 @@
     "watch": "^1.0.0",
     "@types/node": "^8.0.24",
     "@types/mocha": "^2.2.41",
-    "@types/chai": "^4.0.3"
+    "@types/chai": "^4.0.3",
+    "@types/jest": "^20.0.8"
   },
   "nyc": {
     "per-file": true,
@@ -59,5 +74,17 @@
     "test-watch-ts": "mocha --require ts-node/register test/**/**/**/**/**/*.test.ts --watch",
     "test-coverage-ts": "nyc --per-file mocha --require ts-node/register --require source-map-support/register --full-trace --bail **/**/**/**/**/*.test.ts",
     "watch": "watch 'npm run build' ./src"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": ".*/__tests__/.*\\.(test|spec)\\.(jsx?|tsx?)$"
   }
 }
