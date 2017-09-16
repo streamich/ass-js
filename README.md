@@ -15,8 +15,7 @@ code._('mov', [rax, 25]);
 Compile to machine code:
 
 ```js
-const bin = code.compile();
-console.log(bin); // [ 72, 199, 192, 25, 0, 0, 0 ]
+console.log(code.compile()); // [ 72, 199, 192, 25, 0, 0, 0 ]
 ```
 
 Show text representation:
