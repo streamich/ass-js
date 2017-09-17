@@ -140,6 +140,14 @@ export class Code extends CodeBase {
     rex(args: number[]) {
         return this.tpl(i.TemplateRex, args);
     }
+
+    build(injectable) {
+        const _ = (...args) => {
+            console.log('args', args);
+            this._.apply(this, args);
+        };
+        injectable(_);
+    }
 }
 
 
