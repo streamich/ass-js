@@ -1,8 +1,8 @@
-import {SIZE} from '../operand';
-import * as oo from '../operand';
+import {SIZE} from '../../operand';
+import * as oo from '../../operand';
 import * as o from './operand';
 import * as t from './table';
-import * as i from '../instruction';
+import * as i from '../../instruction';
 import * as p from './parts';
 import * as d from './def';
 import * as c from './code';

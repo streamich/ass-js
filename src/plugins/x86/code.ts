@@ -1,13 +1,13 @@
-import * as oo from '../operand';
+import * as oo from '../../operand';
 import * as o from './operand';
-import {SIZE} from '../operand';
-import * as c from '../code';
-import {Code as CodeBase} from '../code';
+import {SIZE} from '../../operand';
+import * as c from '../../code';
+import {Code as CodeBase} from '../../code';
 import * as t from './table';
 import * as d from './def';
 import * as i from './instruction';
-import {number64, Tnumber} from '../operand';
-import {UInt64, extend} from '../util';
+import {number64, Tnumber} from '../../operand';
+import {UInt64, extend} from '../../util';
 
 
 export interface IInstructionOptions extends c.IInstructionOptions {

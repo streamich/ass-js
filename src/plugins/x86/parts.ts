@@ -1,5 +1,5 @@
 import {R64, R32, R16, R8} from './regfile';
-import * as oo from '../operand';
+import * as oo from '../../operand';
 import * as o from './operand';
 import * as d from './def';
 

@@ -1,6 +1,6 @@
-import {extend} from '../util';
-import {S, rel, rel8, rel16, rel32, imm, imm8, imm16, imm32, imm64, immu, immu8, immu16, immu32, immu64} from '../table';
-import * as t from '../table';
+import {extend} from '../../util';
+import {S, rel, rel8, rel16, rel32, imm, imm8, imm16, imm32, imm64, immu, immu8, immu16, immu32, immu64} from '../../table';
+import * as t from '../../table';
 import {
     Register, Register8, Register16, Register32, Register64,
     RegisterMm, RegisterSt, RegisterXmm, RegisterYmm, RegisterZmm,

@@ -1,9 +1,9 @@
 import {R64, R32, R16, R8, R8H, SEG, X87, XMM, YMM, ZMM} from './regfile';
 import {number64, Tnumber, isTnumber, SIZE, TUiOperand, TUiOperandNormalized,
-    Operand, Constant, Immediate, Relative, Register as RegisterBase, Memory as MemoryBase} from '../operand';
-import * as o from '../operand';
+    Operand, Constant, Immediate, Relative, Register as RegisterBase, Memory as MemoryBase} from '../../operand';
+import * as o from '../../operand';
 import * as t from './table';
-import * as ii from '../instruction';
+import * as ii from '../../instruction';
 import * as i from './instruction';
 
 

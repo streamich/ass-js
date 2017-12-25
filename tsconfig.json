@@ -3,11 +3,22 @@
     "target": "es5",
     "module": "commonjs",
     "removeComments": false,
+    "sourceMap": true,
+    "listFiles": false,
+    "skipDefaultLibCheck": true,
     "noImplicitAny": false,
-    "sourceMap": false
+    "experimentalDecorators": true,
+    "allowJs": true
   },
+  "include": [
+    "src/**/*"
+  ],
+  "files": [
+    "typing.d.ts"
+  ],
   "exclude": [
     "node_modules",
+    "dist",
     "lib"
   ]
 }

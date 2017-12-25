@@ -1,10 +1,10 @@
-import * as d from '../def';
+import * as d from '../../def';
 import * as t from './table';
 import {isTnumber, Tnumber, SIZE, TUiOperand, TUiOperandNormalized,
-    Operand, Constant, Relative, Relative8, Relative16, Relative32} from "../operand";
-import * as oo from '../operand';
+    Operand, Constant, Relative, Relative8, Relative16, Relative32} from "../../operand";
+import * as oo from '../../operand';
 import * as o from './operand';
-import {extend} from '../util';
+import {extend} from '../../util';
 import {IVexDefinition} from "./table";
 
 

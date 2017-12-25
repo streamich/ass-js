@@ -1,6 +1,6 @@
 import {extend} from '../../util';
-import * as o from '../operand';
-import * as t from '../table';
+import * as o from '../x86/operand';
+import * as t from '../x86/table';
 import {S, rel, rel8, rel16, rel32, imm, imm8, imm16, imm32, imm64, immu, immu8, immu16, immu32, immu64} from '../../table';
 import {M, r, r8, r16, r32, r64, mm, st,
     xmm, xmmm, xmm_xmmm, xmm_xmm_xmmm,
@@ -8,7 +8,7 @@ import {M, r, r8, r16, r32, r64, mm, st,
     zmm, zmmm, zmm_zmmm, zmm_zmm_zmmm,
     bnd, cr, dr, sreg,
     m, m8, m16, m32, m64, m128, m256, m512, rm8, rm16, rm32, rm64,
-    INS, EXT} from '../table';
+    INS, EXT} from '../x86/table';
 
 declare const require;
 function lazy(part: string, mnemonic: string) {

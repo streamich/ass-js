@@ -1,6 +1,6 @@
 import {SIZE, TUiOperand} from '../../operand';
-import * as code from '../code';
-import * as d from '../def';
+import * as code from '../x86/code';
+import * as d from '../x86/def';
 import {Instruction} from './instruction';
 import * as t from './table';
 import {extend} from '../../util';

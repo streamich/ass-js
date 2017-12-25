@@ -1,6 +1,6 @@
-import * as o from '../../operand';
+import * as o from '../../x86/operand';
 import {imm8, imm16, imm32} from '../../../table';
-import {r8, r16, r32, r64, rm8, rm16, rm32, rm64} from '../../table';
+import {r8, r16, r32, r64, rm8, rm16, rm32, rm64} from '../../x86/table';
 
 
 function tpl_and(o_al = 0x24, o_imm = 0x80, or_imm = 4, o_reg = 0x20, lock = true) {
