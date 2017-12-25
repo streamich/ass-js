@@ -1,6 +1,6 @@
 import {UInt64} from './util';
-import {Expression, Label} from './instruction';
-import * as i from './instruction';
+import {Expression} from './expression';
+import Label from './Label';
 
 
 export enum SIZE {
@@ -448,16 +448,16 @@ export class Memory extends Operand {
 export class Variable extends Operand {
     result: Tnumber = null; // Result of evaluation.
 
-    canEvaluate(owner: i.Expression): boolean {
+    canEvaluate(owner: Expression): boolean {
         return true;
     }
 
-    evaluate(owner: i.Expression): Tnumber {
+    evaluate(owner: Expression): Tnumber {
         return 0;
     }
 
     // Evaluate approximately during 2nd pass.
-    evaluatePreliminary(owner: i.Expression): Tnumber {
+    evaluatePreliminary(owner: Expression): Tnumber {
         return 0;
     }
 }
@@ -500,11 +500,11 @@ export class Relative extends Variable {
         // return this.result = this.rebaseOffset(owner);
     }
 
-    evaluatePreliminary(owner: i.Expression) {
+    evaluatePreliminary(owner: Expression) {
         return this.offset + this.target.offsetMax - owner.offsetMax;
     }
 
-    canHoldMaxOffset(owner: i.Expression) {
+    canHoldMaxOffset(owner: Expression) {
         var value = this.evaluatePreliminary(owner);
         var size = this.signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
         return size <= this.size;
@@ -547,12 +547,13 @@ export class Relative extends Variable {
             result = ' = ' + this.result;
         }
 
-        if(this.target instanceof Label) {
+        if(this.target instanceof require('./Label').default) {
             var lbl = this.target as Label;
             var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
             return `<${lbl.getName()}${off}${result}>`;
-        } else if(this.target.code) {
-            var lbl = this.target.code.getStartLabel();
+        } else if(this.target.asm) {
+            // var lbl = this.target.asm.getStartLabel();
+            const lbl = this.target.asm.expressions[0] as any as Label;
             var expr = `+[${this.target.index}]`;
             var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
             return `<${lbl.getName()}${expr}${off}${result}>`;
@@ -582,7 +583,7 @@ export class Symbol extends Relative {
 
     name: string;
 
-    constructor(target: i.Expression, offset: number = 0, name?: string) {
+    constructor(target: Expression, offset: number = 0, name?: string) {
         super(target, offset);
         this.name = name ? name : 'symbol_' + (Symbol.cnt++);
     }
@@ -719,7 +720,7 @@ export class Operands {
         return this.hasRegister() || this.hasMemory();
     }
 
-    canEvaluate(owner: i.Expression): boolean {
+    canEvaluate(owner: Expression): boolean {
         for(var op of this.list) {
             if(op instanceof Variable)
                 if(!(op as Variable).canEvaluate(owner)) return false;
@@ -727,7 +728,7 @@ export class Operands {
         return true;
     }
 
-    evaluate(owner: i.Expression) {
+    evaluate(owner: Expression) {
         for(var op of this.list)
             if(op instanceof Variable) (op as Variable).evaluate(owner);
     }

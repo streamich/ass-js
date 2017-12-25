@@ -1,4 +1,4 @@
-import * as _x64 from './x64/export';
+import * as _x64 from '../x64/export';
 
 export * from './operand';
 

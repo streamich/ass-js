@@ -1,6 +1,6 @@
-import * as o from '../../operand';
+import * as o from '../../x86/operand';
 import {S, imm8} from '../../../table';
-import {rm8, rm16, rm32, rm64} from '../../table';
+import {rm8, rm16, rm32, rm64} from '../../x86/table';
 
 
 function tpl_sar(or = 7, o_r = 0xD0, o_imm = 0xC0) {

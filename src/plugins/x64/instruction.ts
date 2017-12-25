@@ -1,7 +1,7 @@
 import {SIZE} from '../../operand';
-import * as o from '../operand';
-import * as i from '../instruction';
-import * as p from '../parts';
+import * as o from '../x86/operand';
+import * as i from '../x86/instruction';
+import * as p from '../x86/parts';
 
 
 export class Instruction extends i.Instruction {
