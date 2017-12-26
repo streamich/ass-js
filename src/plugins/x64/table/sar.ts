@@ -1,7 +1,6 @@
-import * as o from '../../x86/operand';
+import {cl} from '../../x86/operand';
 import {S, imm8} from '../../../table';
 import {rm8, rm16, rm32, rm64} from '../../x86/table';
-
 
 function tpl_sar(or = 7, o_r = 0xD0, o_imm = 0xC0) {
     return [{or: or},
@@ -10,14 +9,14 @@ function tpl_sar(or = 7, o_r = 0xD0, o_imm = 0xC0) {
         {o: o_r, ops: [rm8, 1]},
         // D2 /7 SAR r/m8, CL MC Valid Valid Signed divide* r/m8 by 2, CL times.
         // REX + D2 /7 SAR r/m8**, CL MC Valid N.E. Signed divide* r/m8 by 2, CL times.
-        {o: o_r + 2, ops: [rm8, o.cl], s: S.B},
+        {o: o_r + 2, ops: [rm8, cl], s: S.B},
         // C0 /7 ib SAR r/m8, imm8 MI Valid Valid Signed divide* r/m8 by 2, imm8 time.
         // REX + C0 /7 ib SAR r/m8**, imm8 MI Valid N.E. Signed divide* r/m8 by 2, imm8 times.
         {o: o_imm, ops: [rm8, imm8]},
         // D1 /7 SAR r/m16,1 M1 Valid Valid Signed divide* r/m16 by 2, once.
         {o: o_r + 1, ops: [rm16, 1]},
         // D3 /7 SAR r/m16, CL MC Valid Valid Signed divide* r/m16 by 2, CL times.
-        {o: o_r + 3, ops: [rm16, o.cl], s: S.W},
+        {o: o_r + 3, ops: [rm16, cl], s: S.W},
         // C1 /7 ib SAR r/m16, imm8 MI Valid Valid Signed divide* r/m16 by 2, imm8 times.
         {o: o_imm + 1, ops: [rm16, imm8]},
         // D1 /7 SAR r/m32, 1 M1 Valid Valid Signed divide* r/m32 by 2, once.
@@ -25,16 +24,15 @@ function tpl_sar(or = 7, o_r = 0xD0, o_imm = 0xC0) {
         // REX.W + D1 /7 SAR r/m64, 1 M1 Valid N.E. Signed divide* r/m64 by 2, once.
         {o: o_r + 1, ops: [rm64, 1]},
         // D3 /7 SAR r/m32, CL MC Valid Valid Signed divide* r/m32 by 2, CL times.
-        {o: o_r + 3, ops: [rm32, o.cl], s: S.D},
+        {o: o_r + 3, ops: [rm32, cl], s: S.D},
         // REX.W + D3 /7 SAR r/m64, CL MC Valid N.E. Signed divide* r/m64 by 2, CL times.
-        {o: o_r + 3, ops: [rm64, o.cl], s: S.Q},
+        {o: o_r + 3, ops: [rm64, cl], s: S.Q},
         // C1 /7 ib SAR r/m32, imm8 MI Valid Valid Signed divide* r/m32 by 2, imm8 times.
         {o: o_imm + 1, ops: [rm32, imm8]},
         // REX.W + C1 /7 ib SAR r/m64, imm8 MI Valid N.E. Signed divide* r/m64 by 2, imm8 times
         {o: o_imm + 1, ops: [rm64, imm8]},
     ];
 }
-
 
 export default {
     // ## Shift and Rotate

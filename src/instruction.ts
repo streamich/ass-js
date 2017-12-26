@@ -3,11 +3,10 @@ import {Def, DefMatchList} from './def';
 import * as o from './operand';
 import * as t from './table';
 import {Relative} from './operand';
-import * as c from './code';
 
 export class Instruction extends ExpressionVolatile {
     def: Def = null; // Definition on how to construct this instruction.
-    opts: c.IInstructionOptions = null; // Instruction options provided by user.
+    opts: object = null; // Instruction options provided by user.
 
     build(): this {
         super.build();
@@ -46,9 +45,9 @@ export class InstructionSet extends ExpressionVolatile {
     matches: DefMatchList = null;
     insn: Instruction[] = [];
     picked: number = -1; // Index of instruction that was eventually chosen.
-    opts: c.IInstructionOptions = null; // Instruction options provided by user.
+    opts: object = null; // Instruction options provided by user.
 
-    constructor(ops: o.Operands, matches: DefMatchList, opts: c.IInstructionOptions) {
+    constructor(ops: o.Operands, matches: DefMatchList, opts: object) {
         super(ops);
         this.matches = matches;
         this.opts = opts;
@@ -202,7 +201,7 @@ export class InstructionSet extends ExpressionVolatile {
         for(var j = 0; j < len; j++) {
             var match = matches[j];
 
-            var insn = new this.asm.ClassInstruction;
+            var insn = this.asm.instruction();
             insn.index = this.index;
             insn.def = match.def;
             insn.opts = this.opts;
@@ -211,7 +210,7 @@ export class InstructionSet extends ExpressionVolatile {
             ops.validateSize();
             insn.ops = ops;
 
-            insn.bind(this.code);
+            insn.asm = this.asm;
             insn.build();
             this.insn[j] = insn;
         }

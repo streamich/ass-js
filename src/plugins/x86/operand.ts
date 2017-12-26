@@ -1,20 +1,17 @@
-import {R64, R32, R16, R8, R8H, SEG, X87, XMM, YMM, ZMM} from './regfile';
+import {R64, R32, R16, R8, R8H, SEG} from './regfile';
 import {number64, Tnumber, isTnumber, SIZE, TUiOperand, TUiOperandNormalized,
-    Operand, Constant, Immediate, Relative, Register as RegisterBase, Memory as MemoryBase} from '../../operand';
+    Operand, Immediate, Relative, Register as RegisterBase, Memory as MemoryBase} from '../../operand';
 import * as o from '../../operand';
-import * as t from './table';
-import * as ii from '../../instruction';
-import * as i from './instruction';
+import {Expression} from "../../expression";
 
 
 export class DisplacementValue extends Immediate {
-
     static SIZE = {
         DISP8:  SIZE.B,
         DISP32: SIZE.D,
     };
 
-    static fromExpression(expr: ii.Expression) {
+    static fromExpression(expr: Expression) {
         var rel = o.Relative.fromExpression(expr);
         return DisplacementValue.fromVariable(rel);
     }
@@ -80,7 +77,7 @@ export class Register extends RegisterBase {
         return (new Memory).ind(this, scale_factor);
     }
 
-    disp(value: o.Tvariable|ii.Expression): Memory {
+    disp(value: o.Tvariable|Expression): Memory {
         return (new Memory).ref(this).disp(value);
     }
 
@@ -330,9 +327,9 @@ export class Memory extends MemoryBase {
         return this;
     }
 
-    disp(value: o.Tvariable|ii.Expression): this {
-        if(value instanceof ii.Expression)
-            this.displacement = DisplacementValue.fromExpression(value as ii.Expression);
+    disp(value: o.Tvariable|Expression): this {
+        if(value instanceof Expression)
+            this.displacement = DisplacementValue.fromExpression(value as Expression);
         else
             this.displacement = DisplacementValue.fromVariable(value as o.Tvariable);
         return this;

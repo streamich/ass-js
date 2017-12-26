@@ -1,10 +1,10 @@
 import {SIZE} from '../../operand';
 import * as o from '../x86/operand';
-import * as i from '../x86/instruction';
-import * as p from '../x86/parts';
+import {InstructionX86} from '../x86/instruction';
+import * as p from '../x86/parts/parts';
 
 
-export class Instruction extends i.Instruction {
+export class InstructionX64 extends InstructionX86 {
 
     protected needs32To64OperandSizeChange() {
         // Default operand size in x64 mode is 32 bits.

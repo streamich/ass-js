@@ -5,17 +5,14 @@ import {isTnumber, Tnumber, SIZE, TUiOperand, TUiOperandNormalized,
 import * as oo from '../../operand';
 import * as o from './operand';
 import {extend} from '../../util';
-import {IVexDefinition} from "./table";
-
-
-export type IVexDefinition = t.IVexDefinition;
-export type IEvexDefinition = t.IEvexDefinition;
+import {IVexDefinition} from "./parts/PrefixVex";
+import {IEvexDefinition} from "./parts/PrefixEvex";
 
 export class Def extends d.Def {
 
     // 256.66.0F3A.W0 => {L: 1, pp: 1, mmmmm: 1, W: 0}
     static parseVexString(vstr: string): IVexDefinition {
-        var vdef: t.IVexDefinition = {
+        const vdef: IVexDefinition = {
             vvvv:   '',
             L:      0b0,
             pp:     0b00,
@@ -52,8 +49,8 @@ export class Def extends d.Def {
         return vdef;
     }
 
-    static parseEvexString(estr: string): t.IEvexDefinition {
-        return Def.parseVexString(estr) as t.IEvexDefinition;
+    static parseEvexString(estr: string): IEvexDefinition {
+        return Def.parseVexString(estr) as IEvexDefinition;
     }
 
     opreg: number;
@@ -68,8 +65,8 @@ export class Def extends d.Def {
     prefixes: number[];
     opEncoding: string;
     rex: t.TRexDefinition;
-    vex: t.IVexDefinition;
-    evex: t.IEvexDefinition;
+    vex: IVexDefinition;
+    evex: IEvexDefinition;
     mode: t.MODE;
     extensions: t.EXT[];
 
@@ -92,10 +89,10 @@ export class Def extends d.Def {
         this.extensions         = def.ext;
 
         if(typeof def.vex === 'string') this.vex = Def.parseVexString(def.vex as string);
-        else this.vex = def.vex as t.IVexDefinition;
+        else this.vex = def.vex as IVexDefinition;
 
         if(typeof def.evex === 'string') this.evex = Def.parseEvexString(def.evex as string);
-        else this.evex = def.evex as t.IEvexDefinition;
+        else this.evex = def.evex as IEvexDefinition;
     }
 
     protected matchOperandTemplate(tpl: t.TOperandTemplate, operand: TUiOperandNormalized): t.TOperandTemplate|any {

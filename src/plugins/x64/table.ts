@@ -29,8 +29,11 @@ export const rvm = 'rvm';
 export const mr = 'mr';
 
 
-export const defaults = extend<any>({}, t.defaults,
-    {rex: false, ds: S.D});
+export const defaults = {
+    ...t.defaults,
+    rex: false,
+    ds: S.D,
+};
 
 function tpl_not(o = 0xF6, or = 2, lock = true): t.Definition[] {
     return [{o: o + 1, or: or, lock: lock},
@@ -162,9 +165,7 @@ _inc.push({o: 0x40, r: true, ops: [r16], mod: M.COMP | M.LEG});
 _inc.push({o: 0x40, r: true, ops: [r32], mod: M.COMP | M.LEG});
 
 
-export const table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
-
-
+export const table: t.TableDefinition = {...t.table,
     // # A-letter
     aaa: [{o: 0x37, mod: M.OLD}],
     
@@ -2071,4 +2072,4 @@ export const table: t.TableDefinition = extend<t.TableDefinition>({}, t.table, {
     vcvtph2ps: [{o: 0x13, vex: '256.66.0F38.W0', ops: [ymm, [xmm, m]], s: 256}],
 
     vfmadd132pd: [{o: 0x98, vex: 'DDS.128.66.0F38.W1', en: 'rvm', ops: [xmm, xmm, [xmm, m]]}],
-});
+};

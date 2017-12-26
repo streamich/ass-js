@@ -7,6 +7,8 @@ import {
     RegisterSegment, RegisterCr, RegisterDr, RegisterBounds,
     Memory, Memory8, Memory16, Memory32, Memory64, Memory128, Memory256, Memory512
 } from './operand';
+import {IVexDefinition} from './parts/PrefixVex';
+import {IEvexDefinition} from "./parts/PrefixEvex";
 
 
 export enum MODE {
@@ -21,7 +23,7 @@ export enum MODE {
     ALL         = MODE.REAL | MODE.PROT | MODE.COMP | MODE.LEG | MODE.X32 | MODE.X64,
 }
 
-// Instructins
+// Instructions
 export enum INS {
     NONE        = 0b0,
     MMX         = 0b1,
@@ -125,18 +127,6 @@ export type TOperandTemplate = t.TOperandTemplate |
 
 export type TRexDefinition = [number, number, number, number];
 
-// "VEX.DDS.LIG.66.0F38.W1" => {vvvv: 'DDS', L: 0, pp: 1, mmmmm: 2, W: 1}
-export interface IVexDefinition {
-    L: number;
-    vvvv: string;
-    pp: number;
-    mmmmm: number;
-    W: number;
-    WIG: boolean;
-}
-
-export interface IEvexDefinition extends IVexDefinition {}
-
 
 export interface Definition extends t.Definition {
     ds?: number;                                    // Default size, usually 32 bits on x64, some instructions default to 64 bits.
@@ -162,15 +152,31 @@ export type TableDefinition = {[s: string]: GroupDefinition|string[]};
 
 
 // x86 global defaults
-export var defaults: Definition = extend<Definition>({}, t.defaults,
-    {ds: S.D, lock: false, or: -1, i: null, r: false, dbit: false, rex: null, mr: true, rep: false, repne: false,
-        pfx: null, vex: null, evex: null, en: 'rm', mod: M.ALL, ext: null});
+export const defaults: Definition = {
+    ...t.defaults,
+    ds: S.D,
+    lock: false,
+    or: -1,
+    i: null,
+    r: false,
+    dbit: false,
+    rex: null,
+    mr: true,
+    rep: false,
+    repne: false,
+    pfx: null,
+    vex: null,
+    evex: null,
+    en: 'rm',
+    mod: M.ALL,
+    ext: null
+};
 
 
 // Instruction are divided in groups, each group consists of list
 // of possible instructions. The first object is NOT an instruction
 // but defaults for the group.
-export var table: TableDefinition = {
+export const table: TableDefinition = {
 
     cpuid: [{o: 0x0FA2}],
     // INT Software interrupt
