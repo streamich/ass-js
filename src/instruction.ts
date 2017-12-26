@@ -151,7 +151,7 @@ export class InstructionSet extends ExpressionVolatile {
         return this.ops.clone(o.Operands);
     }
 
-    protected createInstructionOperands(insn: Instruction, tpls: t.TOperandTemplate[]): o.Operands {
+    protected createInstructionOperands(insn: Instruction, tpls: t.TTableOperand[]): o.Operands {
         var ops = this.cloneOperands();
         for(var j = 0; j < ops.list.length; j++) {
             var op = ops.list[j];

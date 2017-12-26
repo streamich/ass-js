@@ -12,9 +12,9 @@ export class Def {
     mnemonic: string = '';
     operandSize: o.SIZE = o.SIZE.NONE;
     opcode: number = 0x00;
-    operands: (any|t.TOperandTemplate[])[];
+    operands: (any|t.TTableOperand[])[];
 
-    constructor(group: DefGroup, def: t.Definition) {
+    constructor(group: DefGroup, def: t.ITableDefinition) {
         this.group = group;
 
         this.opcode             = def.o;
@@ -26,7 +26,7 @@ export class Def {
         if(def.ops && def.ops.length) {
             var implied_size = o.SIZE.NONE;
             for(var operand of def.ops) {
-                if(!(operand instanceof Array)) operand = [operand] as t.TOperandTemplate[];
+                if(!(operand instanceof Array)) operand = [operand] as t.TTableOperand[];
 
                 var flattened = (operand as any).reduce((a, b) => {
 
@@ -50,7 +50,7 @@ export class Def {
                 }, []);
                 operand = flattened;
 
-                this.operands.push(operand as t.TOperandTemplate[]);
+                this.operands.push(operand as t.TTableOperand[]);
             }
 
             if(this.operandSize <= o.SIZE.NONE) {
@@ -59,7 +59,7 @@ export class Def {
         }
     }
 
-    protected matchOperandTemplate(tpl: t.TOperandTemplate, operand: o.TOperand): t.TOperandTemplate|any {
+    protected matchOperandTemplate(tpl: t.TTableOperand, operand: o.TOperand): t.TTableOperand|any {
         if(typeof tpl === 'number') {
             if((tpl as any) === operand) return tpl;
             else return null;
@@ -83,7 +83,7 @@ export class Def {
             throw TypeError('Invalid operand definition.'); // Should never happen.
     }
 
-    protected matchOperandTemplates(templates: t.TOperandTemplate[], operand: o.TOperand): t.TOperandTemplate|any {
+    protected matchOperandTemplates(templates: t.TTableOperand[], operand: o.TOperand): t.TTableOperand|any {
         for(let tpl of templates) {
             var match = this.matchOperandTemplate(tpl, operand);
             if(match) return match;
@@ -91,11 +91,11 @@ export class Def {
         return null;
     }
 
-    matchOperands(ops: o.Operands): (any|t.TOperandTemplate)[] {
+    matchOperands(ops: o.Operands): (any|t.TTableOperand)[] {
         if(!this.operands) return null;
         if(this.operands.length !== ops.list.length) return null;
         if(!ops.list.length) return [];
-        var matches: t.TOperandTemplate[] = [];
+        var matches: t.TTableOperand[] = [];
         for(let i = 0; i < ops.list.length; i++) {
             let templates = this.operands[i];
             let operand = ops.list[i];
@@ -192,7 +192,7 @@ export class DefGroup {
         this.mnemonic = mnemonic;
     }
 
-    createDefinitions(defs: t.Definition[], defaults: t.Definition) {
+    createDefinitions(defs: t.ITableDefinition[], defaults: t.ITableDefinition) {
         var [group_defaults, ...definitions] = defs;
 
         // If only one object provided, we treat it as instruction definition rather then
@@ -203,7 +203,7 @@ export class DefGroup {
         if(!group_defaults.mn) group_defaults.mn = this.mnemonic;
 
         for(var definition of definitions)
-            this.defs.push(new this.DefClass(this, extend<t.Definition>({}, defaults, group_defaults, definition)));
+            this.defs.push(new this.DefClass(this, extend<t.ITableDefinition>({}, defaults, group_defaults, definition)));
     }
 
     groupBySize(): {[s: number]: Def[]} {
@@ -243,11 +243,11 @@ export class DefTable {
 
     groups: {[s: string]: DefGroup;}|any = {};
 
-    table: t.TableDefinition;
+    table: t.ITableDefinition;
 
-    defaults: t.Definition;
+    defaults: t.ITableDefinition;
 
-    constructor(table: t.TableDefinition, defaults: t.Definition) {
+    constructor(table: t.ITableDefinition, defaults: t.ITableDefinition) {
         this.table = table;
         this.defaults = defaults;
     }
@@ -315,7 +315,7 @@ export class DefTable {
 
 export class DefMatch {
     def: Def = null;
-    opTpl: t.TOperandTemplate[] = [];
+    opTpl: t.TTableOperand[] = [];
 }
 
 

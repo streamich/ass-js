@@ -1,5 +1,5 @@
 import Template from '../template/Template';
-import {PREFIX, PrefixRex} from './parts/parts';
+import {PREFIX, PrefixRex} from './parts';
 
 export class TemplateX86Lock extends Template {
     name = 'lock';

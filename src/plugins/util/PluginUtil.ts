@@ -2,6 +2,7 @@ import Plugin from '../Plugin';
 import Asm from '../../Asm';
 import Align from './Align';
 import Label from '../../Label';
+import {Operands} from "../../operand";
 
 class PluginUtil extends Plugin {
     onAsm (asm: Asm) {
@@ -11,6 +12,7 @@ class PluginUtil extends Plugin {
                 case 'label': return this.label.apply(this, args);
             }
         });
+        asm.hooks.ops.tap('PluginData', (operands, size) => new Operands(operands, size));
     }
 
     align(bytes = 4, fill: number|number[][] = null) {

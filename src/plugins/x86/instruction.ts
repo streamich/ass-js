@@ -1,13 +1,18 @@
-import {SIZE, Constant, Operand, Immediate} from '../../operand';
+import {Constant, Immediate, Operand, SIZE} from '../../operand';
 import * as o from './operand';
 import {Instruction, InstructionSet} from '../../instruction';
 import * as p from './parts';
 import * as d from './def';
 import * as c from './code';
+import {DisplacementValue} from "./operand/displacement";
+import {RegisterK, RegisterX86} from "./operand/register";
+import {MemoryX86} from "./operand/memory";
 
 
 export interface IInstructionOptionsX86 {
     size: SIZE;
+    mask?: RegisterK;
+    z: number | boolean;
 }
 
 export interface IInstructionX86 {
@@ -34,8 +39,8 @@ export interface IInstructionX86 {
 // code using `.write()` method.
 export class InstructionX86 extends Instruction implements IInstructionX86 {
     def: d.Def;
-    ops: o.Operands;
-    opts: c.IInstructionOptions;
+    ops: o.OperandsX86;
+    opts: IInstructionOptionsX86;
 
     // Instruction parts.
     pfxOpSize: p.PrefixOperandSizeOverride = null;
@@ -111,8 +116,8 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
             var variable = this.displacement.value.variable;
             var val = variable.evaluatePreliminary(this);
             var size = Constant.sizeClass(val);
-            if(size > o.DisplacementValue.SIZE.DISP8)   this.length += o.DisplacementValue.SIZE.DISP32 / 8;
-            else                                        this.length += o.DisplacementValue.SIZE.DISP8 / 8;
+            if(size > DisplacementValue.SIZE.DISP8)   this.length += DisplacementValue.SIZE.DISP32 / 8;
+            else                                        this.length += DisplacementValue.SIZE.DISP8 / 8;
         }
     }
 
@@ -282,25 +287,25 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
 
         var pos = this.def.opEncoding.indexOf('v');
         if(pos > -1) {
-            var reg = this.ops.getAtIndexOfClass(pos, o.Register) as o.Register;
+            var reg = this.ops.getAtIndexOfClass(pos, RegisterX86) as RegisterX86;
             if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode VEX.vvvv`);
             vvvv = (~reg.get4bitId()) & 0b1111; // Inverted
         }
 
         pos = this.def.opEncoding.indexOf('r');
         if(pos > -1) {
-            var reg = this.ops.getAtIndexOfClass(pos, o.Register) as o.Register;
+            var reg = this.ops.getAtIndexOfClass(pos, RegisterX86) as RegisterX86;
             if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode VEX.R`);
             if(reg.idSize() > 3) R = 0; // Inverted
         }
 
         pos = this.def.opEncoding.indexOf('m');
         if(pos > -1) {
-            var reg = this.ops.getAtIndexOfClass(pos, o.Register) as o.Register;
+            var reg = this.ops.getAtIndexOfClass(pos, RegisterX86) as RegisterX86;
             if(reg && (reg.idSize() > 3)) B = 0; // Inverted
         }
 
-        var mem = this.ops.getMemoryOperand() as o.Memory;
+        var mem = this.ops.getMemoryOperand() as MemoryX86;
         if(mem) {
             if (mem.base && (mem.base.idSize() > 3)) B = 0;
             if (mem.index && (mem.index.idSize() > 3)) X = 0;
@@ -318,7 +323,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
 
         var pos = this.def.opEncoding.indexOf('v');
         if(pos > -1) {
-            var reg = this.ops.getAtIndexOfClass(pos, o.Register) as o.Register;
+            var reg = this.ops.getAtIndexOfClass(pos, RegisterX86) as RegisterX86;
             if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode EVEX.vvvv`);
             evex.vvvv = (~reg.get4bitId()) & 0b1111; // Inverted
             evex.Vp = reg.id & 0b10000 ? 0 : 1; // Inverted
@@ -326,7 +331,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
 
         pos = this.def.opEncoding.indexOf('r');
         if(pos > -1) {
-            var reg = this.ops.getAtIndexOfClass(pos, o.Register) as o.Register;
+            var reg = this.ops.getAtIndexOfClass(pos, RegisterX86) as RegisterX86;
             if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode VEX.R`);
             var id_size = reg.idSize();
             if(id_size > 3) evex.R = 0; // Inverted
@@ -339,7 +344,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
 
         pos = this.def.opEncoding.indexOf('m');
         if(pos > -1) {
-            var reg = this.ops.getAtIndexOfClass(pos, o.Register) as o.Register;
+            var reg = this.ops.getAtIndexOfClass(pos, RegisterX86) as RegisterX86;
             if(reg) {
                 if (reg.idSize() > 3) evex.B = 0; // Inverted
                 if (reg.idSize() > 4) {
@@ -350,7 +355,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
             }
         }
 
-        var mem = this.ops.getMemoryOperand() as o.Memory;
+        var mem = this.ops.getMemoryOperand() as MemoryX86;
         if(mem) {
             if (mem.base && (mem.base.idSize() > 3)) evex.B = 0; // Inverted
             if (mem.index && (mem.index.idSize() > 3)) evex.X = 0; // Inverted
@@ -361,7 +366,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
     }
 
     // Set mask register for `EVEX` instructions.
-    mask(k: o.RegisterK): this {
+    mask(k: RegisterK): this {
         if(!(this.pfxEx instanceof p.PrefixEvex))
             throw Error('Cannot set mask on non-EVEX instruction.');
         if(k.id === 0)
@@ -389,18 +394,18 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
             // We have register encoded in op-code here.
             if(!dst || (!(dst as Operand).isRegister()))
                 throw TypeError(`Operation needs destination Register.`);
-            opcode.op = (opcode.op & p.Opcode.MASK_OP) | (dst as o.Register).get3bitId();
+            opcode.op = (opcode.op & p.Opcode.MASK_OP) | (dst as RegisterX86).get3bitId();
         } else {
             // Direction bit `d`
             if(this.def.opcodeDirectionBit) {
                 var direction = p.Opcode.DIRECTION.REG_IS_DST;
 
-                if(src instanceof o.Register) {
+                if(src instanceof RegisterX86) {
                     direction = p.Opcode.DIRECTION.REG_IS_SRC;
                 }
 
                 // *reg-to-reg* operation
-                if((dst instanceof o.Register) && (src instanceof o.Register)) {
+                if((dst instanceof RegisterX86) && (src instanceof RegisterX86)) {
                     if(this.regToRegDirectionRegIsDst)  direction = p.Opcode.DIRECTION.REG_IS_DST;
                     else                                direction = p.Opcode.DIRECTION.REG_IS_SRC;
                 }
@@ -438,7 +443,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
             if(has_opreg) {
                 // If we have `opreg`, then instruction has up to one operand.
                 reg = this.def.opreg;
-                var r: o.Register = this.ops.getRegisterOperand() as o.Register;
+                var r: RegisterX86 = this.ops.getRegisterOperand() as RegisterX86;
                 if (r) {
                     mod = p.Modrm.MOD.REG_TO_REG;
                     rm = r.get3bitId();
@@ -450,10 +455,10 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
             } else {
 
                 // Reg-to-reg instruction;
-                if((encoding.length === 2) && (dst instanceof o.Register) && (src instanceof o.Register)) {
+                if((encoding.length === 2) && (dst instanceof RegisterX86) && (src instanceof RegisterX86)) {
                     mod = p.Modrm.MOD.REG_TO_REG;
-                    var regreg: o.Register = (reg_is_dst ? dst : src) as o.Register;
-                    var rmreg: o.Register = (reg_is_dst ? src : dst) as o.Register;
+                    var regreg: RegisterX86 = (reg_is_dst ? dst : src) as RegisterX86;
+                    var rmreg: RegisterX86 = (reg_is_dst ? src : dst) as RegisterX86;
                     reg = regreg.get3bitId();
                     rm = rmreg.get3bitId();
                     this.modrm = new p.Modrm(mod, reg, rm);
@@ -464,12 +469,12 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
 
                 var rpos = encoding.indexOf('r');
                 var rreg;
-                if((rpos > -1) && (rreg = this.ops.getAtIndexOfClass(rpos, o.Register) as o.Register)) {
+                if((rpos > -1) && (rreg = this.ops.getAtIndexOfClass(rpos, RegisterX86) as RegisterX86)) {
                     reg = rreg.get3bitId();
                 } else {
                     // var r: o.Register = this.op.getRegisterOperand(this.regToRegDirectionRegIsDst);
-                    var r: o.Register = this.ops.getRegisterOperand(this.regToRegDirectionRegIsDst ? 0 : 1) as o.Register;
-                    if(!r) r = this.ops.getRegisterOperand() as o.Register;
+                    var r: RegisterX86 = this.ops.getRegisterOperand(this.regToRegDirectionRegIsDst ? 0 : 1) as RegisterX86;
+                    if(!r) r = this.ops.getRegisterOperand() as RegisterX86;
                     if(r) {
                         mod = p.Modrm.MOD.REG_TO_REG;
                         reg = r.get3bitId();
@@ -479,10 +484,10 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
 
             var mpos = encoding.indexOf('m');
             if(mpos > -1) {
-                var mreg = this.ops.getAtIndexOfClass(mpos, o.Register) as o.Register;
+                var mreg = this.ops.getAtIndexOfClass(mpos, RegisterX86) as RegisterX86;
                 if(mreg) {
                     mod = p.Modrm.MOD.REG_TO_REG;
-                    rm = (mreg as o.Register).get3bitId();
+                    rm = (mreg as RegisterX86).get3bitId();
                     this.modrm = new p.Modrm(mod, reg, rm);
                     this.length++;
                     this.lengthMax++;
@@ -506,7 +511,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
             // that EBP always has displacement value even if 0x00.
             // Memory operand can be encoded in only one way (Modrm.rm + SIB) so we
             // ignore here `def.opEncoding` field.
-            var m: o.Memory = this.ops.getMemoryOperand() as o.Memory;
+            var m: MemoryX86 = this.ops.getMemoryOperand() as MemoryX86;
 
             if(!m) {
                 this.modrm = new p.Modrm(mod, reg, rm);
@@ -524,7 +529,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
             // We use `disp32` with SIB byte version because the version without SIB byte
             // will be used for RIP-relative addressing.
             if(!m.base && !m.index && m.displacement) {
-                m.displacement.signExtend(o.DisplacementValue.SIZE.DISP32);
+                m.displacement.signExtend(DisplacementValue.SIZE.DISP32);
                 mod = p.Modrm.MOD.INDIRECT;
                 rm = p.Modrm.RM.NEEDS_SIB; // SIB byte follows
                 this.modrm = new p.Modrm(mod, reg, rm);
@@ -540,7 +545,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
             if(m.base && !m.index) {
                 mod = p.Modrm.getModDispSize(m);
                 if(mod === p.Modrm.MOD.DISP32)
-                    m.displacement.signExtend(o.DisplacementValue.SIZE.DISP32);
+                    m.displacement.signExtend(DisplacementValue.SIZE.DISP32);
                 // SIB byte follows in `[RSP]` case, and `[RBP]` is impossible as RBP
                 // always has a displacement, [RBP] case is used for RIP-relative addressing.
                 rm = m.base.get3bitId();
@@ -555,7 +560,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
                 mod = p.Modrm.getModDispSize(m);
                 if(m.displacement)
                     if((mod === p.Modrm.MOD.DISP32) || (mod === p.Modrm.MOD.INDIRECT))
-                        m.displacement.signExtend(o.DisplacementValue.SIZE.DISP32);
+                        m.displacement.signExtend(DisplacementValue.SIZE.DISP32);
                 rm = p.Modrm.RM.NEEDS_SIB; // SIB byte follows
                 this.modrm = new p.Modrm(mod, reg, rm);
                 this.length++;
@@ -572,7 +577,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
         if(this.modrm.mod === p.Modrm.MOD.REG_TO_REG) return;
         if((this.modrm.rm !== p.Modrm.RM.NEEDS_SIB)) return;
 
-        var m: o.Memory = this.ops.getMemoryOperand() as o.Memory;
+        var m: MemoryX86 = this.ops.getMemoryOperand() as MemoryX86;
         if(!m) throw Error('No Memory operand to encode SIB.');
 
         var scalefactor = 0, I = 0, B = 0;
@@ -602,14 +607,14 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
     }
 
     protected createDisplacement() {
-        var m: o.Memory = this.ops.getMemoryOperand() as o.Memory;
+        var m: MemoryX86 = this.ops.getMemoryOperand() as MemoryX86;
         if(m && m.displacement) {
             this.displacement = new p.Displacement(m.displacement);
 
             if(m.displacement.variable) {                               // We don't know the size of displacement yet.
                 // Displacement will be at least 1 byte,
                 // but we skip `this.length` for now.
-                this.lengthMax += o.DisplacementValue.SIZE.DISP32 / 8;  // max 4 bytes
+                this.lengthMax += DisplacementValue.SIZE.DISP32 / 8;  // max 4 bytes
             } else {
                 var size = this.displacement.value.size / 8;
                 this.length += size;
@@ -619,19 +624,19 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
         } else if(this.modrm && this.sib && (this.sib.B === p.Sib.BASE_NONE)) {
             // Some SIB byte encodings require displacement, if we don't have displacement yet
             // add zero displacement.
-            var disp: o.DisplacementValue = null;
+            var disp: DisplacementValue = null;
             switch(this.modrm.mod) {
                 case p.Modrm.MOD.INDIRECT:
-                    disp = new o.DisplacementValue(0);
-                    disp.signExtend(o.DisplacementValue.SIZE.DISP32);
+                    disp = new DisplacementValue(0);
+                    disp.signExtend(DisplacementValue.SIZE.DISP32);
                     break;
                 case p.Modrm.MOD.DISP8:
-                    disp = new o.DisplacementValue(0);
-                    disp.signExtend(o.DisplacementValue.SIZE.DISP8);
+                    disp = new DisplacementValue(0);
+                    disp.signExtend(DisplacementValue.SIZE.DISP8);
                     break;
                 case p.Modrm.MOD.DISP32:
-                    disp = new o.DisplacementValue(0);
-                    disp.signExtend(o.DisplacementValue.SIZE.DISP32);
+                    disp = new DisplacementValue(0);
+                    disp.signExtend(DisplacementValue.SIZE.DISP32);
                     break;
             }
             if(disp) this.displacement = new p.Displacement(disp);
@@ -690,7 +695,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
 export class InstructionSetX86 extends InstructionSet implements IInstructionX86 {
 
     protected cloneOperands() {
-        return this.ops.clone(o.Operands);
+        return this.ops.clone(o.OperandsX86);
     }
 
     lock() {

@@ -1,18 +1,17 @@
-import * as o from '../../x86/operand';
-import {imm8, imm16, imm32} from '../../../table';
-import {r8, r16, r32, r64, rm8, rm16, rm32, rm64} from '../../x86/table';
+import {al, ax, eax, rax} from '../../x86/operand';
+import {imm8, imm16, imm32, r8, r16, r32, r64, rm8, rm16, rm32, rm64} from '../atoms';
 
 
 function tpl_and(o_al = 0x24, o_imm = 0x80, or_imm = 4, o_reg = 0x20, lock = true) {
     return [{lock: lock},
         // 24 ib AND AL, imm8 I Valid Valid AL AND imm8.
-        {o: o_al, ops: [o.al, imm8], mr: false},
+        {o: o_al, ops: [al, imm8], mr: false},
         // 25 iw AND AX, imm16 I Valid Valid AX AND imm16.
-        {o: o_al + 1, ops: [o.ax, imm16], mr: false},
+        {o: o_al + 1, ops: [ax, imm16], mr: false},
         // 25 id AND EAX, imm32 I Valid Valid EAX AND imm32.
-        {o: o_al + 1, ops: [o.eax, imm32], mr: false},
+        {o: o_al + 1, ops: [eax, imm32], mr: false},
         // REX.W + 25 id AND RAX, imm32 I Valid N.E. RAX AND imm32 sign-extended to 64-bits.
-        {o: o_al + 1, ops: [o.rax, imm32], mr: false},
+        {o: o_al + 1, ops: [rax, imm32], mr: false},
         // 80 /4 ib AND r/m8, imm8 MI Valid Valid r/m8 AND imm8.
         // REX + 80 /4 ib AND r/m8*, imm8 MI Valid N.E. r/m8 AND imm8.
         {o: o_imm, or: or_imm, ops: [rm8, imm8]},

@@ -1,6 +1,7 @@
 import InstructionPart from './InstructionPart';
 import {R64} from '../regfile';
-import {DisplacementValue, Memory} from '../operand';
+import {MemoryX86} from '../operand/memory';
+import {DisplacementValue} from "../operand/displacement";
 
 // ## Mod-R/M
 //
@@ -31,7 +32,7 @@ class Modrm extends InstructionPart {
         INDIRECT_DISP: R64.RBP & 0b111,
     };
 
-    static getModDispSize(mem: Memory) {
+    static getModDispSize(mem: MemoryX86) {
         if(!mem.displacement || !mem.base)                                  return Modrm.MOD.INDIRECT;
         else if(mem.displacement.size === DisplacementValue.SIZE.DISP8)   return Modrm.MOD.DISP8;
         else if(mem.displacement.size <= DisplacementValue.SIZE.DISP32)   return Modrm.MOD.DISP32;

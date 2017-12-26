@@ -1,32 +1,19 @@
 import {extend} from '../../util';
 import * as o from '../x86/operand';
 import * as t from '../x86/table';
-import {S, rel, rel8, rel16, rel32, imm, imm8, imm16, imm32, imm64, immu, immu8, immu16, immu32, immu64} from '../../table';
-import {M, r, r8, r16, r32, r64, mm, st,
+import {S, rel, rel8, rel16, rel32, imm, imm8, imm16, imm32, imm64, immu, immu8, immu16, immu32, immu64,
+    M, r, r8, r16, r32, r64, mm, st,
     xmm, xmmm, xmm_xmmm, xmm_xmm_xmmm,
     ymm, ymmm, ymm_ymmm, ymm_ymm_ymmm,
     zmm, zmmm, zmm_zmmm, zmm_zmm_zmmm,
     bnd, cr, dr, sreg,
-    m, m8, m16, m32, m64, m128, m256, m512, rm8, rm16, rm32, rm64,
-    INS, EXT} from '../x86/table';
+    m, m8, m16, m32, m64, m128, m256, m512, rm8, rm16, rm32, rm64} from '../x86/atoms';
+import {EXT, INS} from "../x86/consts";
 
 declare const require;
 function lazy(part: string, mnemonic: string) {
     return require('./table/' + part).default[mnemonic];
 }
-
-
-export const cr0_7 = [o.cr(0), o.cr(1), o.cr(2), o.cr(3), o.cr(4), o.cr(5), o.cr(6), o.cr(7)];
-export const dr0_7 = [o.dr(0), o.dr(1), o.dr(2), o.dr(3), o.dr(4), o.dr(5), o.dr(6), o.dr(7)];
-
-export const ext_mmx      = [EXT.MMX];
-export const ext_sse      = [EXT.SSE];
-export const ext_sse2     = [EXT.SSE2];
-export const ext_avx      = [EXT.AVX];
-export const ext_avx2     = [EXT.AVX2];
-
-export const rvm = 'rvm';
-export const mr = 'mr';
 
 
 export const defaults = {
@@ -35,7 +22,7 @@ export const defaults = {
     ds: S.D,
 };
 
-function tpl_not(o = 0xF6, or = 2, lock = true): t.Definition[] {
+function tpl_not(o = 0xF6, or = 2, lock = true): t.ITableDefinitionX86[] {
     return [{o: o + 1, or: or, lock: lock},
         // F6 /2 NOT r/m8 M Valid Valid Reverse each bit of r/m8.
         // REX + F6 /2 NOT r/m8* M Valid N.E. Reverse each bit of r/m8.
@@ -165,7 +152,7 @@ _inc.push({o: 0x40, r: true, ops: [r16], mod: M.COMP | M.LEG});
 _inc.push({o: 0x40, r: true, ops: [r32], mod: M.COMP | M.LEG});
 
 
-export const table: t.TableDefinition = {...t.table,
+export const table: t.ITableX86 = {...t.table,
     // # A-letter
     aaa: [{o: 0x37, mod: M.OLD}],
     
@@ -1250,29 +1237,7 @@ export const table: t.TableDefinition = {...t.table,
         {vex: 'NDS.256.66.0F38.WIG', ops: ymm_ymm_ymmm, ext: ext_avx2},
     ],
 
-
-
-
-
     pause: [{o: 0xF390}],
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     // ## Data Transfer

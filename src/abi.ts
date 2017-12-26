@@ -1,12 +1,13 @@
-import * as o from './plugins/x86/operand';
+import * as o from './plugins/x86/operand/operand';
 import * as ii from './instruction';
 import {Code} from './code';
+import {RegisterX86} from "./plugins/x86/operand/register";
 
 
 export class Function {
     abi: Abi = null;
     lbl: ii.Label = null;           // Label is created for every function.
-    clobbered: o.Register[] = [];   // Clobbered registers.
+    clobbered: RegisterX86[] = [];   // Clobbered registers.
     stackFrame = false;             // Whether to create a new stack frame.
     locals = 0;                     // Stack size reserved for function local variables.
 
@@ -69,7 +70,7 @@ export class Abi {
         this.code._('syscall');
     }
 
-    func(lbl_name: string|ii.Label, stackFrame = false, clobbered: o.Register[] = [], locals: number = 0): Function {
+    func(lbl_name: string|ii.Label, stackFrame = false, clobbered: RegisterX86[] = [], locals: number = 0): Function {
         var lbl: ii.Label;
         if(lbl_name instanceof ii.Label) lbl = lbl_name as ii.Label;
         else if(typeof lbl_name === 'string') lbl = this.code.lbl(lbl_name as string);
@@ -84,7 +85,7 @@ export class Abi {
         return func;
     }
 
-    prologue(stackFrame = false, clobbered: o.Register[] = [], locals: number = 0) {
+    prologue(stackFrame = false, clobbered: RegisterX86[] = [], locals: number = 0) {
         if(stackFrame || locals) {
             // this.code._('enter', [locals, 0]);
             this.code._('push', o.rbp);
@@ -100,7 +101,7 @@ export class Abi {
         }
     }
 
-    epilogue(stackFrame = false, clobbered: o.Register[] = [], locals: number = 0) {
+    epilogue(stackFrame = false, clobbered: RegisterX86[] = [], locals: number = 0) {
         for(var j = clobbered.length - 1; j > -1; j--) {
             var reg = clobbered[j];
             if (this.preservedRegisters.indexOf(reg) > -1) {
@@ -115,7 +116,7 @@ export class Abi {
         this.code._('ret');
     }
 
-    call(target: ii.Expression|Function, args: any[] = [], preserve: o.Register[] = this.scratchRegisters) {
+    call(target: ii.Expression|Function, args: any[] = [], preserve: RegisterX86[] = this.scratchRegisters) {
         // Save registers.
         for(var j = 0; j < preserve.length; j++) {
             var reg = preserve[j];

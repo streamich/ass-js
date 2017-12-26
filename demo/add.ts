@@ -1,4 +1,4 @@
-import {rax} from '../src/plugins/x86/operand';
+import {rax} from '../src/plugins/x86/operand/operand';
 import {Code} from '../src/plugins/x64/code';
 
 

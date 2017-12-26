@@ -1,8 +1,8 @@
 import {rax, rbx, rcx, rdx, rbp, rsp, rsi, rdi, r8, r9, r10, r11, r12, r13, r15,
     ebx, eax, esp, ebp, ecx,
     r10d, ax, bx, cx, dx, al, bl, cl, dl, ah, ch, dil, bpl, spl, r8b, r10b,
-    rip} from '../../plugins/x86/operand';
-import * as o from '../../plugins/x86/operand';
+    rip} from '../../plugins/x86/operand/operand';
+import * as o from '../../plugins/x86/operand/operand';
 import {Code} from '../../plugins/x64/code';
 
 

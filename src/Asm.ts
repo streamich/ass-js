@@ -1,5 +1,5 @@
 import {Expression} from './expression';
-import {SIZE, Operands} from './operand';
+import {SIZE} from './operand';
 import Hook from './hooks/Hook';
 import Label from './Label';
 import Plugin from './plugins/Plugin';
@@ -21,6 +21,8 @@ class Asm {
         mnemonic: new Hook(['mnemonic', 'operands', 'opts']),
         command: new Hook(['name', 'args']),
         compilation: new Hook(['compilation']),
+        op: new Hook(['operand']),
+        ops: new Hook(['operands', 'size']),
         instruction: new Hook([]),
     };
 
@@ -88,8 +90,12 @@ class Asm {
         return this.expressions[0] as Label;
     }
 
-    ops(operands: any[], size: SIZE = this.opts.operandSize) {
-        return new Operands(operands, size);
+    op (str: string) {
+        return this.hooks.op.call(str);
+    }
+
+    ops (operands: any[], size: SIZE = this.opts.operandSize) {
+        return this.hooks.ops.call(operands, size);
     }
 
     lbl (name?: string): Label {

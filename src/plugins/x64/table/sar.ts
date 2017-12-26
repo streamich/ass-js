@@ -1,6 +1,5 @@
 import {cl} from '../../x86/operand';
-import {S, imm8} from '../../../table';
-import {rm8, rm16, rm32, rm64} from '../../x86/table';
+import {S, imm8, rm8, rm16, rm32, rm64} from '../atoms';
 
 function tpl_sar(or = 7, o_r = 0xD0, o_imm = 0xC0) {
     return [{or: or},

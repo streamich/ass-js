@@ -1,8 +1,10 @@
 import Plugin from "../Plugin";
 import {number64, Tnumber, Immediate, ImmediateUnsigned} from '../../operand';
 import {TemplateX86Lock, TemplateX86Rex} from './template';
-import {Memory} from './operand';
+import {MemoryX86} from './operand/memory';
 import {InstructionX86} from './instruction';
+import {OperandsX86} from "./operand/index";
+import operandParser from './operand/parser';
 
 class PluginX86 extends Plugin {
     onAsm (asm) {
@@ -16,6 +18,8 @@ class PluginX86 extends Plugin {
                 case 'imm': return this.imm.apply(this, args);
             }
         });
+        asm.hooks.op.tap('PluginX86', operandParser);
+        asm.hooks.ops.tap('PluginX86', (operands, size) => new OperandsX86(operands, size));
         asm.hooks.instruction.tap('PluginX86', () => new InstructionX86());
     }
 /*
@@ -63,11 +67,11 @@ class PluginX86 extends Plugin {
     // > Also, in 64-bit mode, support is provided for some 64-bit displacement
     // > and immediate forms of the MOV instruction. See “Immediate Operand Size” in Volume 1 for more
     // > information on this.
-    mem(disp: number | number64): Memory {
+    mem(disp: number | number64): MemoryX86 {
         if(typeof disp === 'number')
-            return Memory.factory(this.asm.opts.addressSize).disp(disp as number);
+            return MemoryX86.factory(this.asm.opts.addressSize).disp(disp as number);
         else if((disp instanceof Array) && (disp.length == 2))
-            return Memory.factory(this.asm.opts.addressSize).disp(disp as number64);
+            return MemoryX86.factory(this.asm.opts.addressSize).disp(disp as number64);
         else
             throw TypeError('Displacement value must be of type number or number64.');
     }

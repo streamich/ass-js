@@ -1,6 +1,5 @@
 import * as o from '../../x86/operand';
-import {S, imm8} from '../../../table';
-import {r8, r16, r32, r64, rm8, rm16, rm32, rm64} from '../../x86/table';
+import {S, imm8, r8, r16, r32, r64, rm8, rm16, rm32, rm64} from '../atoms';
 
 
 function tpl_shrd(op = 0x0FAC) {

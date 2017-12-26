@@ -1,5 +1,5 @@
 import InstructionPart from './InstructionPart';
-import {DisplacementValue} from '../operand';
+import {DisplacementValue} from '../operand/displacement';
 
 class Displacement extends InstructionPart {
     value: DisplacementValue;

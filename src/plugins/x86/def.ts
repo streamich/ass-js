@@ -1,12 +1,33 @@
 import * as d from '../../def';
 import * as t from './table';
-import {isTnumber, Tnumber, SIZE, TUiOperand, TUiOperandNormalized,
-    Operand, Constant, Relative, Relative8, Relative16, Relative32} from "../../operand";
-import * as oo from '../../operand';
-import * as o from './operand';
+import * as oo from "../../operand";
+import {
+    isTnumber,
+    Operand,
+    Relative,
+    Relative16,
+    Relative32,
+    Relative8,
+    Tnumber,
+    TUiOperandNormalized
+} from "../../operand";
 import {extend} from '../../util';
 import {IVexDefinition} from "./parts/PrefixVex";
 import {IEvexDefinition} from "./parts/PrefixEvex";
+import {EXT, MODE} from "./consts";
+import {
+    Register16,
+    Register32,
+    Register64,
+    Register8,
+    RegisterMm,
+    RegisterSegment,
+    RegisterX86,
+    RegisterXmm,
+    RegisterYmm,
+    RegisterZmm
+} from "./operand/register";
+import {MemoryX86, Memory16, Memory32, Memory64, Memory8} from "./operand/memory";
 
 export class Def extends d.Def {
 
@@ -54,7 +75,7 @@ export class Def extends d.Def {
     }
 
     opreg: number;
-    operands: (t.TOperandTemplate[])[];
+    operands: (t.TTableOperandX86[])[];
     operandSizeDefault: number;
     lock: boolean;
     regInOp: boolean;
@@ -67,11 +88,11 @@ export class Def extends d.Def {
     rex: t.TRexDefinition;
     vex: IVexDefinition;
     evex: IEvexDefinition;
-    mode: t.MODE;
-    extensions: t.EXT[];
+    mode: MODE;
+    extensions: EXT[];
 
 
-    constructor(group: DefGroup, def: t.Definition) {
+    constructor(group: DefGroup, def: t.ITableDefinitionX86) {
         super(group, def);
 
         this.opreg              = def.or;
@@ -95,7 +116,7 @@ export class Def extends d.Def {
         else this.evex = def.evex as IEvexDefinition;
     }
 
-    protected matchOperandTemplate(tpl: t.TOperandTemplate, operand: TUiOperandNormalized): t.TOperandTemplate|any {
+    protected matchOperandTemplate(tpl: t.TTableOperandX86, operand: TUiOperandNormalized): t.TTableOperandX86|any {
         var OperandClass = tpl as any; // as typeof o.Operand;
         if((typeof OperandClass === 'function') && (OperandClass.name.indexOf('Immediate') === 0)) { // o.Immediate, o.ImmediateUnsigned, o.Immediate8, etc...
             if(!isTnumber(operand)) return null;
@@ -123,21 +144,21 @@ export class Def extends d.Def {
             if(operand === oo.ImmediateUnsigned16)  return 'immu16';
             if(operand === oo.ImmediateUnsigned32)  return 'immu32';
             if(operand === oo.ImmediateUnsigned64)  return 'immu64';
-            if(operand === o.Register)              return 'r';
-            if(operand === o.Register8)             return 'r8';
-            if(operand === o.Register16)            return 'r16';
-            if(operand === o.Register32)            return 'r32';
-            if(operand === o.Register64)            return 'r64';
-            if(operand === o.RegisterSegment)       return 'sreg';
-            if(operand === o.RegisterMm)            return 'mmx';
-            if(operand === o.RegisterXmm)           return 'xmm';
-            if(operand === o.RegisterYmm)           return 'ymm';
-            if(operand === o.RegisterZmm)           return 'zmm';
-            if(operand === o.Memory)                return 'm';
-            if(operand === o.Memory8)               return 'm8';
-            if(operand === o.Memory16)              return 'm16';
-            if(operand === o.Memory32)              return 'm32';
-            if(operand === o.Memory64)              return 'm64';
+            if(operand === RegisterX86)              return 'r';
+            if(operand === Register8)             return 'r8';
+            if(operand === Register16)            return 'r16';
+            if(operand === Register32)            return 'r32';
+            if(operand === Register64)            return 'r64';
+            if(operand === RegisterSegment)       return 'sreg';
+            if(operand === RegisterMm)            return 'mmx';
+            if(operand === RegisterXmm)           return 'xmm';
+            if(operand === RegisterYmm)           return 'ymm';
+            if(operand === RegisterZmm)           return 'zmm';
+            if(operand === MemoryX86)                return 'm';
+            if(operand === Memory8)               return 'm8';
+            if(operand === Memory16)              return 'm16';
+            if(operand === Memory32)              return 'm32';
+            if(operand === Memory64)              return 'm64';
             if(operand === Relative)                return 'rel';
             if(operand === Relative8)               return 'rel8';
             if(operand === Relative16)              return 'rel16';
@@ -167,28 +188,28 @@ export class Def extends d.Def {
 
         if(this.mode) {
             json.mode = [];
-            if(this.mode & t.MODE.X32) json.mode.push('x32');
-            if(this.mode & t.MODE.X64) json.mode.push('x64');
+            if(this.mode & MODE.X32) json.mode.push('x32');
+            if(this.mode & MODE.X64) json.mode.push('x64');
         }
 
         if(this.extensions) {
             json.extensions = [];
-            for(var ext of this.extensions) json.extensions.push(t.EXT[ext]);
+            for(var ext of this.extensions) json.extensions.push(EXT[ext]);
         }
 
         return json;
     }
 
     toString() {
-        var opregstr = '';
+        let opregstr = '';
         if(this.opreg > -1) opregstr = ' /' + this.opreg;
 
-        var lock = this.lock ? ' LOCK' : '';
-        var rex = this.rex ? ' REX ' + this.rex : '';
-        var vex = this.vex ? ' VEX ' + JSON.stringify(this.vex) : '';
-        var evex = this.evex ? ' EVEX ' + JSON.stringify(this.evex) : '';
+        const lock = this.lock ? ' LOCK' : '';
+        const rex = this.rex ? ' REX ' + this.rex : '';
+        const vex = this.vex ? ' VEX ' + JSON.stringify(this.vex) : '';
+        const evex = this.evex ? ' EVEX ' + JSON.stringify(this.evex) : '';
 
-        var dbit = '';
+        let dbit = '';
         if(this.opcodeDirectionBit) dbit = ' d-bit';
 
         return super.toString() + opregstr + lock + rex + vex + evex + dbit;
@@ -200,7 +221,7 @@ export class DefGroup extends d.DefGroup {
     DefClass = Def;
     defaultOperandSize: number;
 
-    createDefinitions(defs: t.Definition[], defaults: t.Definition) {
+    createDefinitions(defs: t.ITableDefinitionX86[], defaults: t.ITableDefinitionX86) {
         super.createDefinitions(defs, defaults);
 
         var [group_defaults, ] = defs;
