@@ -1,7 +1,7 @@
 import {ExpressionVolatile, SIZE_UNKNOWN} from '../../expression';
 
 // Aligns data to some byte boundary.
-export class Align extends ExpressionVolatile {
+class Align extends ExpressionVolatile {
 
     length = SIZE_UNKNOWN;
 
@@ -53,13 +53,13 @@ export class Align extends ExpressionVolatile {
     }
 
     toString(margin = '    ', comment = true) {
-        var cmt = '';
+        let cmt = '';
         if(comment) {
             if(this.length >= 0) {
-                var octets = '';
+                let octets = '';
                 if(this.length) {
                     octets = '0x' + this.octets.map(function (byte) {
-                        var str = byte.toString(16).toUpperCase();
+                        const str = byte.toString(16).toUpperCase();
                         return byte <= 0xF ? '0' + str : str;
                     }).join(' 0x');
                 }
@@ -69,3 +69,5 @@ export class Align extends ExpressionVolatile {
         return this.formatToString(margin, 'align ' + this.by, cmt);
     }
 }
+
+export default Align;

@@ -1,7 +1,7 @@
 import {SIZE, TUiOperand} from '../../operand';
 import * as code from '../x86/code';
 import * as d from '../x86/def';
-import {Instruction} from './instruction';
+import {InstructionX64} from './instruction';
 import * as t from './table';
 import {extend} from '../../util';
 
@@ -20,8 +20,6 @@ export class Code extends code.Code {
 
     table = Code.table;
 
-    ClassInstruction = Instruction;
+    ClassInstruction = InstructionX64;
 
-    operandSize = SIZE.D;
-    addressSize = SIZE.Q;
 }

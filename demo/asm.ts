@@ -1,13 +1,15 @@
-import Asm from '../src/Asm';
-import PluginData from '../src/plugins/data/PluginData';
+import {X64} from "../src/index";
 
-const asm = new Asm;
-new PluginData(asm);
+const asm = X64();
 
-
-// asm._('mov', ['rax', 25]);
-asm.$('db', 123);
-console.log(asm.expressions);
+asm.code(_ => {
+    // asm._('mov', ['rax', 25]);
+    _('db', 123);
+    _('dw', 123);
+    _('lock');
+    _('label', 'Hello there');
+    _('align', 4);
+    _('resb', 5);
+});
 
 console.log(asm.toString());
-

@@ -1,55 +1,16 @@
-import {SIZE} from '../../operand';
-import * as oo from '../../operand';
+import {SIZE, Constant, Operand, Immediate} from '../../operand';
 import * as o from './operand';
-import * as t from './table';
-import * as i from '../../instruction';
+import {Instruction, InstructionSet} from '../../instruction';
 import * as p from './parts';
 import * as d from './def';
 import * as c from './code';
 
 
-export const SIZE_UNKNOWN = -1;
-
-export abstract class Expression extends i.Expression {}
-
-
-export class TemplateLock extends i.Template {
-    name = 'lock';
-    octets = [p.PREFIX.LOCK];
+export interface IInstructionOptionsX86 {
+    size: SIZE;
 }
 
-export class TemplateRex extends i.Template {
-    name = 'rex';
-    args = [0, 0, 0, 0];
-
-    constructor(args) {
-        super(args);
-        var [W, R, X, B] = this.args;
-        var rex = new p.PrefixRex(W, R, X, B);
-        rex.write(this.octets);
-    }
-}
-
-
-export class Align extends i.Align {
-
-    static nop = [
-        [0x90],                                                 // 1 byte : NOP = XCHG (E)AX, (E)AX
-        [0x66, 0x90],                                           // 2 : 66 NOP
-        [0x0F, 0x1F, 0x00],                                     // 3 : NOP DWORD ptr [EAX]
-        [0x0F, 0x1F, 0x40, 0x00],                               // 4 : NOP DWORD ptr [EAX + 00H]
-        [0x0F, 0x1F, 0x44, 0x00, 0x00],                         // 5 : NOP DWORD ptr [EAX + EAX*1 + 00H]
-        [0x66, 0x0F, 0x1F, 0x44, 0x00, 0x00],                   // 6 : 66 NOP DWORD ptr [EAX + EAX*1 + 00H]
-        [0x0F, 0x1F, 0x80, 0x00, 0x00, 0x00, 0x00],             // 7 : NOP DWORD ptr [EAX + 00000000H]
-        [0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00],       // 8 : NOP DWORD ptr [EAX + EAX*1 + 00000000H]
-        [0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00], // 9 : 66 NOP DWORD ptr [EAX + EAX*1 + 00000000H]
-    ];
-    
-    templates = Align.nop;
-}
-
-
-export interface IInstruction {
+export interface IInstructionX86 {
     lock(): this;
     bt(): this;
     bnt(): this;
@@ -66,13 +27,12 @@ export interface IInstruction {
     gs(): this;
 }
 
-
 // ## x86_64 `Instruction`
 //
 // `Instruction` object is created using instruction `Definition` and `Operands` provided by the user,
 // out of those `Instruction` generates `InstructionPart`s, which then can be packaged into machine
 // code using `.write()` method.
-export class Instruction extends i.Instruction implements IInstruction {
+export class InstructionX86 extends Instruction implements IInstructionX86 {
     def: d.Def;
     ops: o.Operands;
     opts: c.IInstructionOptions;
@@ -95,7 +55,6 @@ export class Instruction extends i.Instruction implements IInstruction {
     // Direction for register-to-register `MOV` operations, whether REG field of Mod-R/M byte is destination.
     // We set this to `false` to be compatible with GAS assembly, which we use for testing.
     protected regToRegDirectionRegIsDst: boolean = false;
-
 
     build(): this {
         super.build();
@@ -151,7 +110,7 @@ export class Instruction extends i.Instruction implements IInstruction {
         if(this.displacement && this.displacement.value.variable) {
             var variable = this.displacement.value.variable;
             var val = variable.evaluatePreliminary(this);
-            var size = oo.Constant.sizeClass(val);
+            var size = Constant.sizeClass(val);
             if(size > o.DisplacementValue.SIZE.DISP8)   this.length += o.DisplacementValue.SIZE.DISP32 / 8;
             else                                        this.length += o.DisplacementValue.SIZE.DISP8 / 8;
         }
@@ -277,8 +236,8 @@ export class Instruction extends i.Instruction implements IInstruction {
     }
 
     protected needsOperandSizeOverride() {
-        if((this.code.operandSize === SIZE.D) && (this.def.operandSize === SIZE.W)) return true;
-        if((this.code.operandSize === SIZE.W) && (this.def.operandSize === SIZE.D)) return true;
+        if((this.asm.opts.operandSize === SIZE.D) && (this.def.operandSize === SIZE.W)) return true;
+        if((this.asm.opts.operandSize === SIZE.W) && (this.def.operandSize === SIZE.D)) return true;
         return false;
     }
 
@@ -286,7 +245,7 @@ export class Instruction extends i.Instruction implements IInstruction {
         var mem = this.ops.getMemoryOperand();
         if(mem) {
             var reg = mem.reg();
-            if(reg && (reg.size !== this.code.addressSize)) return true;
+            if(reg && (reg.size !== this.asm.opts.addressSize)) return true;
         }
         return false;
     }
@@ -428,7 +387,7 @@ export class Instruction extends i.Instruction implements IInstruction {
 
         if(def.regInOp) {
             // We have register encoded in op-code here.
-            if(!dst || (!(dst as oo.Operand).isRegister()))
+            if(!dst || (!(dst as Operand).isRegister()))
                 throw TypeError(`Operation needs destination Register.`);
             opcode.op = (opcode.op & p.Opcode.MASK_OP) | (dst as o.Register).get3bitId();
         } else {
@@ -711,7 +670,7 @@ export class Instruction extends i.Instruction implements IInstruction {
             } else {
                 var rel = this.ops.getRelative(j);
                 if(rel) {
-                    var immval = oo.Immediate.factory(rel.size, 0);
+                    var immval = Immediate.factory(rel.size, 0);
                     immp = new p.Immediate(immval);
                     this.immediates[j] = immp;
 
@@ -725,9 +684,10 @@ export class Instruction extends i.Instruction implements IInstruction {
 }
 
 
-// Wrapper around multiple instructions when different machine instructions can be used to perform the same task.
-// For example, `jmp` with `rel8` or `rel32` immediate, or when multiple instruction definitions match provided operands.
-export class InstructionSet extends i.InstructionSet implements IInstruction {
+// Wrapper around multiple instructions when different machine instructions
+// can be used to perform the same task. For example, `jmp` with `rel8` or
+// `rel32` immediate, or when multiple instruction definitions match provided operands.
+export class InstructionSetX86 extends InstructionSet implements IInstructionX86 {
 
     protected cloneOperands() {
         return this.ops.clone(o.Operands);

@@ -6,8 +6,6 @@ import {Code as CodeBase} from '../../code';
 import * as t from './table';
 import * as d from './def';
 import * as i from './instruction';
-import {number64, Tnumber} from '../../operand';
-import {UInt64, extend} from '../../util';
 
 
 export interface IInstructionOptions extends c.IInstructionOptions {
@@ -58,8 +56,8 @@ export class Code extends CodeBase {
 
     mode: t.MODE = t.MODE.X64;
 
-    ClassInstruction: any = i.Instruction;
-    ClassInstructionSet = i.InstructionSet;
+    ClassInstruction: any = i.InstructionX86;
+    ClassInstructionSet = i.InstructionSetX86;
     AlignExpression = i.Align;
     ClassOperands = o.Operands;
 
@@ -74,7 +72,7 @@ export class Code extends CodeBase {
             throw Error('Could not match operands to instruction definition.');
         }
 
-        var iset = new i.InstructionSet(ops, matches, {size: SIZE.ANY});
+        var iset = new i.InstructionSetX86(ops, matches, {size: SIZE.ANY});
         this.insert(iset);
 
         var insn = iset.pickShortestInstruction();
@@ -108,49 +106,4 @@ export class Code extends CodeBase {
 
         return matches;
     }
-
-    // Displacement is up to 4 bytes in size, and 8 bytes for some specific MOV instructions, AMD64 Vol.2 p.24:
-    //
-    // > The size of a displacement is 1, 2, or 4 bytes.
-    //
-    // > Also, in 64-bit mode, support is provided for some 64-bit displacement
-    // > and immediate forms of the MOV instruction. See “Immediate Operand Size” in Volume 1 for more
-    // > information on this.
-    mem(disp: number|number64): o.Memory {
-        if(typeof disp === 'number')
-            return o.Memory.factory(this.addressSize).disp(disp as number);
-        else if((disp instanceof Array) && (disp.length == 2))
-            return o.Memory.factory(this.addressSize).disp(disp as number64);
-        else
-            throw TypeError('Displacement value must be of type number or number64.');
-    }
-
-    disp(disp: number|number64): o.Memory {
-        return this.mem(disp);
-    }
-    
-    imm(value: Tnumber, signed = true) {
-        return signed ? new oo.Immediate(value) : new oo.ImmediateUnsigned(value);
-    }
-
-    lock() {
-        return this.tpl(i.TemplateLock);
-    }
-
-    rex(args: number[]) {
-        return this.tpl(i.TemplateRex, args);
-    }
-
-    build(injectable) {
-        const _ = (...args) => {
-            console.log('args', args);
-            this._.apply(this, args);
-        };
-        injectable(_);
-    }
 }
-
-
-// export interface Code {
-//     _(mnemonic: string, operands?: oo.TUiOperand|oo.TUiOperand[], options?: oo.SIZE|IInstructionOptions|any): i.Instruction;
-// }

@@ -14,11 +14,11 @@ export class Label extends Expression {
         this.symbol = new Symbol(this, 0, name);
     }
 
-    getName() {
+    getName () {
         return this.symbol.name;
     }
 
-    toString() {
+    toString () {
         return this.getName() + ':';
     }
 }
