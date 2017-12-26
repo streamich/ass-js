@@ -1,4 +1,4 @@
-import * as o from './x86/operand';
+import * as o from './plugins/x86/operand';
 import * as ii from './instruction';
 import {Code} from './code';
 
