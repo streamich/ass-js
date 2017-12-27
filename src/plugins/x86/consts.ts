@@ -10,6 +10,8 @@ export enum MODE {
     ALL = MODE.REAL | MODE.PROT | MODE.COMP | MODE.LEG | MODE.X32 | MODE.X64,
 }
 
+export const MODES = ['REAL', 'PROT', 'COMP', 'LEG', 'X32', 'X64'];
+
 // Instructions
 export enum INS {
     NONE = 0b0,

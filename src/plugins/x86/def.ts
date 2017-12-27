@@ -74,40 +74,8 @@ export class Def extends d.Def {
         return Def.parseVexString(estr) as IEvexDefinition;
     }
 
-    opreg: number;
-    operands: (t.TTableOperandX86[])[];
-    operandSizeDefault: number;
-    lock: boolean;
-    regInOp: boolean;
-    opcodeDirectionBit: boolean;
-    useModrm: boolean;
-    rep: boolean;
-    repne: boolean;
-    prefixes: number[];
-    opEncoding: string;
-    rex: t.TRexDefinition;
-    vex: IVexDefinition;
-    evex: IEvexDefinition;
-    mode: MODE;
-    extensions: EXT[];
-
-
     constructor(group: DefGroup, def: t.ITableDefinitionX86) {
         super(group, def);
-
-        this.opreg              = def.or;
-        this.operandSizeDefault = def.ds;
-        this.lock               = def.lock;
-        this.regInOp            = def.r;
-        this.opcodeDirectionBit = def.dbit;
-        this.rex                = def.rex;
-        this.useModrm           = def.mr;
-        this.rep                = def.rep;
-        this.repne              = def.repne;
-        this.prefixes           = def.pfx;
-        this.opEncoding         = def.en;
-        this.mode               = def.mod;
-        this.extensions         = def.ext;
 
         if(typeof def.vex === 'string') this.vex = Def.parseVexString(def.vex as string);
         else this.vex = def.vex as IVexDefinition;
@@ -164,40 +132,6 @@ export class Def extends d.Def {
             if(operand === Relative16)              return 'rel16';
             if(operand === Relative32)              return 'rel32';
         } else return super.toStringOperand(operand);
-    }
-
-    toJson() {
-        var json = super.toJson();
-
-        if(this.opreg > 0) json.opcodeExtensionInModrm = this.opreg;
-        if(this.regInOp) json.registerInOpcode = true;
-        json.operandEncoding = this.opEncoding;
-        if(this.lock) json.lock = true;
-
-        if(this.opcodeDirectionBit) json.setOpcodeDirectionBit = true;
-
-        if(this.vex) json.vex = this.vex;
-        if(this.evex) json.evex = this.evex;
-        if(this.prefixes) json.extraPrefixes = this.prefixes;
-
-        if(this.rep) json.prefixRep = true;
-        if(this.repne) json.prefixRepne = true;
-
-        if(this.rex) json.rex = this.rex;
-        if(!this.useModrm) json.skipMorm = true;
-
-        if(this.mode) {
-            json.mode = [];
-            if(this.mode & MODE.X32) json.mode.push('x32');
-            if(this.mode & MODE.X64) json.mode.push('x64');
-        }
-
-        if(this.extensions) {
-            json.extensions = [];
-            for(var ext of this.extensions) json.extensions.push(EXT[ext]);
-        }
-
-        return json;
     }
 
     toString() {

@@ -38,6 +38,7 @@
     "gulp": "3.9.1",
     "gulp-typescript": "3.2.1",
     "source-map-support": "0.4.15",
+    "mkdirp": "^0.5.1",
     "@types/node": "^8.0.24",
     "@types/mocha": "^2.2.41",
     "@types/chai": "^4.0.3",

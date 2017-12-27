@@ -9,6 +9,7 @@ import {S, rel, rel8, rel16, rel32, imm, imm8, imm16, imm32, imm64, immu, immu8,
     bnd, cr, dr, sreg,
     m, m8, m16, m32, m64, m128, m256, m512, rm8, rm16, rm32, rm64} from '../x86/atoms';
 import {EXT, INS} from "../x86/consts";
+import {cr0_7, dr0_7, ext_avx, ext_avx2, ext_mmx, ext_sse, ext_sse2} from "./atoms";
 
 declare const require;
 function lazy(part: string, mnemonic: string) {
@@ -154,12 +155,8 @@ _inc.push({o: 0x40, r: true, ops: [r32], mod: M.COMP | M.LEG});
 
 export const table: t.ITableX86 = {...t.table,
     // # A-letter
-    aaa: [{o: 0x37, mod: M.OLD}],
-    
-    aad: [{mod: M.OLD},
-        {o: 0xD50A},
-        {o: 0xD5, ops: [imm8]},
-    ],
+    aaa: require('./mnemonics/aaa').default,
+    aad: require('./mnemonics/aad').default,
     aam: [{mod: M.OLD},
         {o: 0xD40A},
         {o: 0xD4, ops: [imm8]},
@@ -186,11 +183,21 @@ export const table: t.ITableX86 = {...t.table,
     addss: [{o: 0xF30F58, ops: [xmm, [xmm, m]], ext: [EXT.SSE2]}],
     vaddss: [{o: 0x58, vex: 'NDS.LIG.F3.0F.WIG', en: 'rvm', ops: [xmm, xmm, [xmm, m]], ext: [EXT.AVX]}],
 
+
     addsubpd: [{o: 0x660FD0, ops: [xmm, [xmm, m]], ext: [EXT.SSE3]}],
     vaddsubpd: [{o: 0xD0, en: 'rvm', ext: [EXT.AVX]},
         {vex: 'NDS.128.66.0F.WIG', ops: [xmm, xmm, [xmm, m]]},
         {vex: 'NDS.256.66.0F.WIG', ops: [ymm, ymm, [ymm, m]]},
     ],
+
+
+
+
+
+
+
+
+    
 
     addsubps: [{o: 0xF20FD0, ops: [xmm, [xmm, m]], ext: [EXT.SSE3]}],
     vaddsubps: [{o: 0xD0, en: 'rvm', ext: [EXT.AVX]},
