@@ -1,0 +1,31 @@
+[
+    {
+        "mnemonic": "aesimc",
+        "mnemonicPrecise": "aesimcx",
+        "opcode": 997595,
+        "opcodeHex": "F38DB",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            102
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AES"
+        ]
+    }
+]

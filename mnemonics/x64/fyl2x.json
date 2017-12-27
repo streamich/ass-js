@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fyl2x",
+        "mnemonicPrecise": "fyl2x",
+        "opcode": 55793,
+        "opcodeHex": "D9F1",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

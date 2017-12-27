@@ -1,0 +1,38 @@
+[
+    {
+        "mnemonic": "fdivp",
+        "mnemonicPrecise": "fdivpt",
+        "opcode": 222,
+        "opcodeHex": "DE",
+        "operands": [
+            "RegisterSt",
+            "st0"
+        ],
+        "operandSize": 80,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fdivp",
+        "mnemonicPrecise": "fdivp",
+        "opcode": 57081,
+        "opcodeHex": "DEF9",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

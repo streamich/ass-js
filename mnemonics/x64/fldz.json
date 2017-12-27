@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fldz",
+        "mnemonicPrecise": "fldz",
+        "opcode": 55790,
+        "opcodeHex": "D9EE",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

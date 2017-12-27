@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fptan",
+        "mnemonicPrecise": "fptan",
+        "opcode": 55794,
+        "opcodeHex": "D9F2",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

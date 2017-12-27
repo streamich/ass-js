@@ -1,0 +1,22 @@
+[
+    {
+        "mnemonic": "cmpxchg16b",
+        "mnemonicPrecise": "cmpxchg16bx",
+        "opcode": 4039,
+        "opcodeHex": "FC7",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 128,
+        "opcodeExtensionInModrm": 1,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

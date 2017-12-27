@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "emms",
+        "mnemonicPrecise": "emms",
+        "opcode": 3959,
+        "opcodeHex": "F77",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

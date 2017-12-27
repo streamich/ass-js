@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "cmc",
+        "mnemonicPrecise": "cmc",
+        "opcode": 245,
+        "opcodeHex": "F5",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

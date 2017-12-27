@@ -1,0 +1,32 @@
+[
+    {
+        "mnemonic": "blendpd",
+        "mnemonicPrecise": "blendpdx",
+        "opcode": 997903,
+        "opcodeHex": "F3A0F",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            102
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE4_1"
+        ]
+    }
+]

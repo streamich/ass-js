@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fnop",
+        "mnemonicPrecise": "fnop",
+        "opcode": 55760,
+        "opcodeHex": "D9D0",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

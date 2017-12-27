@@ -1,0 +1,44 @@
+[
+    {
+        "mnemonic": "bndcl",
+        "mnemonicPrecise": "bndcld",
+        "opcode": 15929114,
+        "opcodeHex": "F30F1A",
+        "operands": [
+            "RegisterBounds",
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "X32"
+        ],
+        "extensions": [
+            "MPX"
+        ]
+    },
+    {
+        "mnemonic": "bndcl",
+        "mnemonicPrecise": "bndclq",
+        "opcode": 15929114,
+        "opcodeHex": "F30F1A",
+        "operands": [
+            "RegisterBounds",
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "MPX"
+        ]
+    }
+]

@@ -1,0 +1,134 @@
+[
+    {
+        "mnemonic": "dec",
+        "mnemonicPrecise": "decb",
+        "opcode": 254,
+        "opcodeHex": "FE",
+        "operands": [
+            [
+                "Register8",
+                "Memory"
+            ]
+        ],
+        "operandSize": 8,
+        "opcodeExtensionInModrm": 1,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "dec",
+        "mnemonicPrecise": "decw",
+        "opcode": 255,
+        "opcodeHex": "FF",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 16,
+        "opcodeExtensionInModrm": 1,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "dec",
+        "mnemonicPrecise": "decd",
+        "opcode": 255,
+        "opcodeHex": "FF",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "opcodeExtensionInModrm": 1,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "dec",
+        "mnemonicPrecise": "decq",
+        "opcode": 255,
+        "opcodeHex": "FF",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "opcodeExtensionInModrm": 1,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "dec",
+        "mnemonicPrecise": "decw",
+        "opcode": 72,
+        "opcodeHex": "48",
+        "operands": [
+            "Register16"
+        ],
+        "operandSize": 16,
+        "opcodeExtensionInModrm": 1,
+        "registerInOpcode": true,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    },
+    {
+        "mnemonic": "dec",
+        "mnemonicPrecise": "decd",
+        "opcode": 72,
+        "opcodeHex": "48",
+        "operands": [
+            "Register32"
+        ],
+        "operandSize": 32,
+        "opcodeExtensionInModrm": 1,
+        "registerInOpcode": true,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    }
+]

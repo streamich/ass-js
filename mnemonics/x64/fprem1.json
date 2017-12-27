@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fprem1",
+        "mnemonicPrecise": "fprem1",
+        "opcode": 55797,
+        "opcodeHex": "D9F5",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

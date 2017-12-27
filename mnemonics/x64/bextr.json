@@ -1,0 +1,51 @@
+[
+    {
+        "mnemonic": "bextr",
+        "mnemonicPrecise": "bextrd",
+        "opcode": 247,
+        "opcodeHex": "F7",
+        "operands": [
+            "Register32",
+            [
+                "Register32",
+                "Memory"
+            ],
+            "Register32"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rmv",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "BMI1"
+        ]
+    },
+    {
+        "mnemonic": "bextr",
+        "mnemonicPrecise": "bextrq",
+        "opcode": 247,
+        "opcodeHex": "F7",
+        "operands": [
+            "Register64",
+            [
+                "Register64",
+                "Memory"
+            ],
+            "Register64"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rmv",
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "BMI1"
+        ]
+    }
+]

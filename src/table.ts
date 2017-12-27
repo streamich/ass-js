@@ -11,22 +11,22 @@ export type TTableOperand =
     | (new (...args) => Memory)
     | (new (...args) => Relative)
     | (new (...args) => Immediate)
-    // | typeof Register
-    // | typeof Memory
-    // | typeof Relative
-    // | typeof Relative8
-    // | typeof Relative16
-    // | typeof Relative32
-    // | typeof Immediate
-    // | typeof Immediate8
-    // | typeof Immediate16
-    // | typeof Immediate32
-    // | typeof Immediate64
-    // | typeof ImmediateUnsigned
-    // | typeof ImmediateUnsigned8
-    // | typeof ImmediateUnsigned16
-    // | typeof ImmediateUnsigned32
-    // | typeof ImmediateUnsigned64
+    | typeof Register
+    | typeof Memory
+    | typeof Relative
+    | typeof Relative8
+    | typeof Relative16
+    | typeof Relative32
+    | typeof Immediate
+    | typeof Immediate8
+    | typeof Immediate16
+    | typeof Immediate32
+    | typeof Immediate64
+    | typeof ImmediateUnsigned
+    | typeof ImmediateUnsigned8
+    | typeof ImmediateUnsigned16
+    | typeof ImmediateUnsigned32
+    | typeof ImmediateUnsigned64
     ;
 
 export interface ITableDefinition {

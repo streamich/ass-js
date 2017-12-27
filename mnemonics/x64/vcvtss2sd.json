@@ -1,0 +1,29 @@
+[
+    {
+        "mnemonic": "vcvtss2sd",
+        "mnemonicPrecise": "vcvtss2sdx",
+        "opcode": 90,
+        "opcodeHex": "5A",
+        "operands": [
+            "RegisterXmm",
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rvm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

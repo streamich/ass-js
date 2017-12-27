@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "ftst",
+        "mnemonicPrecise": "ftst",
+        "opcode": 55780,
+        "opcodeHex": "D9E4",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

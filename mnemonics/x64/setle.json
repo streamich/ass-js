@@ -1,0 +1,24 @@
+[
+    {
+        "mnemonic": "setle",
+        "mnemonicPrecise": "setleb",
+        "opcode": 3998,
+        "opcodeHex": "F9E",
+        "operands": [
+            [
+                "Register8",
+                "Memory"
+            ]
+        ],
+        "operandSize": 8,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

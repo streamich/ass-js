@@ -1,0 +1,71 @@
+[
+    {
+        "mnemonic": "lfs",
+        "mnemonicPrecise": "lfsw",
+        "opcode": 4020,
+        "opcodeHex": "FB4",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ],
+            "Memory"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "lfs",
+        "mnemonicPrecise": "lfsd",
+        "opcode": 4020,
+        "opcodeHex": "FB4",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ],
+            "Memory"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "lfs",
+        "mnemonicPrecise": "lfsq",
+        "opcode": 4020,
+        "opcodeHex": "FB4",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ],
+            "Memory"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

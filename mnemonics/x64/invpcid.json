@@ -1,0 +1,46 @@
+[
+    {
+        "mnemonic": "invpcid",
+        "mnemonicPrecise": "invpcidd",
+        "opcode": 14466,
+        "opcodeHex": "3882",
+        "operands": [
+            "Register32",
+            "Memory"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            102,
+            15
+        ],
+        "modes": [
+            "X32"
+        ],
+        "extensions": [
+            "INVPCID"
+        ]
+    },
+    {
+        "mnemonic": "invpcid",
+        "mnemonicPrecise": "invpcidq",
+        "opcode": 14466,
+        "opcodeHex": "3882",
+        "operands": [
+            "Register64",
+            "Memory"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            102,
+            15
+        ],
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "INVPCID"
+        ]
+    }
+]

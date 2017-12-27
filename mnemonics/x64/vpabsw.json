@@ -1,0 +1,54 @@
+[
+    {
+        "mnemonic": "vpabsw",
+        "mnemonicPrecise": "vpabswx",
+        "opcode": 29,
+        "opcodeHex": "1D",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vpabsw",
+        "mnemonicPrecise": "vpabswz",
+        "opcode": 29,
+        "opcodeHex": "1D",
+        "operands": [
+            "RegisterYmm",
+            [
+                "RegisterYmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 256,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX2"
+        ]
+    }
+]

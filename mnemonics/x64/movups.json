@@ -1,0 +1,54 @@
+[
+    {
+        "mnemonic": "movups",
+        "mnemonicPrecise": "movupsx",
+        "opcode": 3856,
+        "opcodeHex": "F10",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE"
+        ]
+    },
+    {
+        "mnemonic": "movups",
+        "mnemonicPrecise": "movupsx",
+        "opcode": 3857,
+        "opcodeHex": "F11",
+        "operands": [
+            [
+                "RegisterXmm",
+                "Memory"
+            ],
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE"
+        ]
+    }
+]

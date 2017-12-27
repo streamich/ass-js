@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fldl2e",
+        "mnemonicPrecise": "fldl2e",
+        "opcode": 55786,
+        "opcodeHex": "D9EA",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,19 @@
+[
+    {
+        "mnemonic": "lodsb",
+        "mnemonicPrecise": "lodsbb",
+        "opcode": 172,
+        "opcodeHex": "AC",
+        "operands": [],
+        "operandSize": 8,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

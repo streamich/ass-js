@@ -1,0 +1,56 @@
+[
+    {
+        "mnemonic": "mulx",
+        "mnemonicPrecise": "mulxd",
+        "opcode": 246,
+        "opcodeHex": "F6",
+        "operands": [
+            "Register32",
+            "Register32",
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rvm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "BMI2"
+        ]
+    },
+    {
+        "mnemonic": "mulx",
+        "mnemonicPrecise": "mulxq",
+        "opcode": 246,
+        "opcodeHex": "F6",
+        "operands": [
+            "Register64",
+            "Register64",
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rvm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "BMI2"
+        ]
+    }
+]

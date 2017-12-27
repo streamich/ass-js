@@ -1,0 +1,42 @@
+[
+    {
+        "mnemonic": "movnti",
+        "mnemonicPrecise": "movntid",
+        "opcode": 4035,
+        "opcodeHex": "FC3",
+        "operands": [
+            "Memory32",
+            "Register32"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "movnti",
+        "mnemonicPrecise": "movntiq",
+        "opcode": 4035,
+        "opcodeHex": "FC3",
+        "operands": [
+            "Memory64",
+            "Register64"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

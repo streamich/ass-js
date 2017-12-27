@@ -1,0 +1,42 @@
+[
+    {
+        "mnemonic": "fimul",
+        "mnemonicPrecise": "fimuld",
+        "opcode": 218,
+        "opcodeHex": "DA",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 32,
+        "opcodeExtensionInModrm": 1,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fimul",
+        "mnemonicPrecise": "fimulq",
+        "opcode": 222,
+        "opcodeHex": "DE",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 64,
+        "opcodeExtensionInModrm": 1,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

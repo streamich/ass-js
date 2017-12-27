@@ -1,0 +1,26 @@
+[
+    {
+        "mnemonic": "vfmadd132pd",
+        "mnemonicPrecise": "vfmadd132pdx",
+        "opcode": 152,
+        "opcodeHex": "98",
+        "operands": [
+            "RegisterXmm",
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rvm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

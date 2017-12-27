@@ -1,0 +1,32 @@
+[
+    {
+        "mnemonic": "mulsd",
+        "mnemonicPrecise": "mulsdx",
+        "opcode": 89,
+        "opcodeHex": "59",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            242,
+            15
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    }
+]

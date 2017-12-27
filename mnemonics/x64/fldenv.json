@@ -1,0 +1,21 @@
+[
+    {
+        "mnemonic": "fldenv",
+        "mnemonicPrecise": "fldenv",
+        "opcode": 217,
+        "opcodeHex": "D9",
+        "operands": [
+            "Memory"
+        ],
+        "opcodeExtensionInModrm": 4,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

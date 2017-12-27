@@ -1,0 +1,29 @@
+[
+    {
+        "mnemonic": "vextractps",
+        "mnemonicPrecise": "vextractpsq",
+        "opcode": 23,
+        "opcodeHex": "17",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ],
+            "RegisterXmm",
+            "Immediate8"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

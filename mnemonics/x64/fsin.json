@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fsin",
+        "mnemonicPrecise": "fsin",
+        "opcode": 55806,
+        "opcodeHex": "D9FE",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

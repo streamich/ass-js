@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "syscall",
+        "mnemonicPrecise": "syscall",
+        "opcode": 3845,
+        "opcodeHex": "F05",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,56 @@
+[
+    {
+        "mnemonic": "vorpd",
+        "mnemonicPrecise": "vorpdx",
+        "opcode": 86,
+        "opcodeHex": "56",
+        "operands": [
+            "RegisterXmm",
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vorpd",
+        "mnemonicPrecise": "vorpdz",
+        "opcode": 86,
+        "opcodeHex": "56",
+        "operands": [
+            "RegisterYmm",
+            "RegisterYmm",
+            [
+                "RegisterYmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 256,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

@@ -1,0 +1,32 @@
+[
+    {
+        "mnemonic": "aeskeygenassist",
+        "mnemonicPrecise": "aeskeygenassistx",
+        "opcode": 998111,
+        "opcodeHex": "F3ADF",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            102
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AES"
+        ]
+    }
+]

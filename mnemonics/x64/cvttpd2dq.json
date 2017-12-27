@@ -1,0 +1,28 @@
+[
+    {
+        "mnemonic": "cvttpd2dq",
+        "mnemonicPrecise": "cvttpd2dqx",
+        "opcode": 6688742,
+        "opcodeHex": "660FE6",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    }
+]

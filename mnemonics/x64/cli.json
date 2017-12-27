@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "cli",
+        "mnemonicPrecise": "cli",
+        "opcode": 250,
+        "opcodeHex": "FA",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

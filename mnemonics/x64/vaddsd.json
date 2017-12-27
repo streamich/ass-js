@@ -2,9 +2,10 @@
     {
         "mnemonic": "vaddsd",
         "mnemonicPrecise": "vaddsdx",
-        "opcode": 15863640,
-        "opcodeHex": "F20F58",
+        "opcode": 88,
+        "opcodeHex": "58",
         "operands": [
+            "RegisterXmm",
             "RegisterXmm",
             [
                 "RegisterXmm",
@@ -12,7 +13,7 @@
             ]
         ],
         "operandSize": 128,
-        "operandEncoding": "rm",
+        "operandEncoding": "rvm",
         "modes": [
             "REAL",
             "PROT",
@@ -22,7 +23,7 @@
             "X64"
         ],
         "extensions": [
-            "SSE2"
+            "AVX"
         ]
     }
 ]

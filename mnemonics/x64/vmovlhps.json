@@ -1,0 +1,26 @@
+[
+    {
+        "mnemonic": "vmovlhps",
+        "mnemonicPrecise": "vmovlhpsx",
+        "opcode": 22,
+        "opcodeHex": "16",
+        "operands": [
+            "RegisterXmm",
+            "RegisterXmm",
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rvm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

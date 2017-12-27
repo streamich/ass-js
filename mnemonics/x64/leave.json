@@ -1,0 +1,44 @@
+[
+    {
+        "mnemonic": "leave",
+        "mnemonicPrecise": "leavew",
+        "opcode": 201,
+        "opcodeHex": "C9",
+        "operands": [],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "leave",
+        "mnemonicPrecise": "leaved",
+        "opcode": 201,
+        "opcodeHex": "C9",
+        "operands": [],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    },
+    {
+        "mnemonic": "leave",
+        "mnemonicPrecise": "leaveq",
+        "opcode": 201,
+        "opcodeHex": "C9",
+        "operands": [],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "X64"
+        ]
+    }
+]

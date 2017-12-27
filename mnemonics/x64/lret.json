@@ -1,0 +1,36 @@
+[
+    {
+        "mnemonic": "lret",
+        "mnemonicPrecise": "lret",
+        "opcode": 203,
+        "opcodeHex": "CB",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "lret",
+        "mnemonicPrecise": "lret",
+        "opcode": 202,
+        "opcodeHex": "CA",
+        "operands": [
+            "Immediate16"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

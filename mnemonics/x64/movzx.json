@@ -1,0 +1,117 @@
+[
+    {
+        "mnemonic": "movzx",
+        "mnemonicPrecise": "movzxw",
+        "opcode": 4022,
+        "opcodeHex": "FB6",
+        "operands": [
+            "Register16",
+            [
+                "Register8",
+                "Memory"
+            ]
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "movzx",
+        "mnemonicPrecise": "movzxd",
+        "opcode": 4022,
+        "opcodeHex": "FB6",
+        "operands": [
+            "Register32",
+            [
+                "Register8",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "movzx",
+        "mnemonicPrecise": "movzxq",
+        "opcode": 4022,
+        "opcodeHex": "FB6",
+        "operands": [
+            "Register64",
+            [
+                "Register8",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "movzx",
+        "mnemonicPrecise": "movzxd",
+        "opcode": 4023,
+        "opcodeHex": "FB7",
+        "operands": [
+            "Register32",
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "movzx",
+        "mnemonicPrecise": "movzxq",
+        "opcode": 4023,
+        "opcodeHex": "FB7",
+        "operands": [
+            "Register64",
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

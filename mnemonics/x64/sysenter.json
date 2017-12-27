@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "sysenter",
+        "mnemonicPrecise": "sysenter",
+        "opcode": 3892,
+        "opcodeHex": "F34",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

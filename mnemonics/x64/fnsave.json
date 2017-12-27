@@ -1,0 +1,21 @@
+[
+    {
+        "mnemonic": "fnsave",
+        "mnemonicPrecise": "fnsave",
+        "opcode": 221,
+        "opcodeHex": "DD",
+        "operands": [
+            "Memory"
+        ],
+        "opcodeExtensionInModrm": 6,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

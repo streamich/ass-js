@@ -1,0 +1,14 @@
+[
+    {
+        "mnemonic": "das",
+        "mnemonicPrecise": "das",
+        "opcode": 47,
+        "opcodeHex": "2F",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    }
+]

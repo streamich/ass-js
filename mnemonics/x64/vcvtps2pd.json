@@ -1,0 +1,54 @@
+[
+    {
+        "mnemonic": "vcvtps2pd",
+        "mnemonicPrecise": "vcvtps2pdx",
+        "opcode": 90,
+        "opcodeHex": "5A",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vcvtps2pd",
+        "mnemonicPrecise": "vcvtps2pdz",
+        "opcode": 90,
+        "opcodeHex": "5A",
+        "operands": [
+            "RegisterYmm",
+            [
+                "RegisterYmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 256,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

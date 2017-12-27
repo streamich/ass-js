@@ -1,0 +1,25 @@
+[
+    {
+        "mnemonic": "lmsw",
+        "mnemonicPrecise": "lmsww",
+        "opcode": 3841,
+        "opcodeHex": "F01",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 16,
+        "opcodeExtensionInModrm": 6,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

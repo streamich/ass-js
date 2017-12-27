@@ -1,0 +1,60 @@
+[
+    {
+        "mnemonic": "fild",
+        "mnemonicPrecise": "fildw",
+        "opcode": 223,
+        "opcodeHex": "DF",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fild",
+        "mnemonicPrecise": "fildd",
+        "opcode": 219,
+        "opcodeHex": "DB",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fild",
+        "mnemonicPrecise": "fildq",
+        "opcode": 223,
+        "opcodeHex": "DF",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 64,
+        "opcodeExtensionInModrm": 5,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

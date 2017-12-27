@@ -1,0 +1,22 @@
+[
+    {
+        "mnemonic": "movdq2q",
+        "mnemonicPrecise": "movdq2qx",
+        "opcode": 15863766,
+        "opcodeHex": "F20FD6",
+        "operands": [
+            "RegisterMm",
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

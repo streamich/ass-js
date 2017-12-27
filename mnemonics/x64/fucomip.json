@@ -1,0 +1,22 @@
+[
+    {
+        "mnemonic": "fucomip",
+        "mnemonicPrecise": "fucomipt",
+        "opcode": 223,
+        "opcodeHex": "DF",
+        "operands": [
+            "RegisterSt"
+        ],
+        "operandSize": 80,
+        "opcodeExtensionInModrm": 5,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,132 @@
+[
+    {
+        "mnemonic": "crc32",
+        "mnemonicPrecise": "crc32d",
+        "opcode": 997616,
+        "opcodeHex": "F38F0",
+        "operands": [
+            "Register32",
+            [
+                "Register8",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            242
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "crc32",
+        "mnemonicPrecise": "crc32d",
+        "opcode": 997617,
+        "opcodeHex": "F38F1",
+        "operands": [
+            "Register32",
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            242
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "crc32",
+        "mnemonicPrecise": "crc32d",
+        "opcode": 997617,
+        "opcodeHex": "F38F1",
+        "operands": [
+            "Register32",
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            242
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "crc32",
+        "mnemonicPrecise": "crc32q",
+        "opcode": 997616,
+        "opcodeHex": "F38F0",
+        "operands": [
+            "Register64",
+            [
+                "Register8",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            242
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "crc32",
+        "mnemonicPrecise": "crc32q",
+        "opcode": 997617,
+        "opcodeHex": "F38F1",
+        "operands": [
+            "Register64",
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            242
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,70 @@
+[
+    {
+        "mnemonic": "cmps",
+        "mnemonicPrecise": "cmpsb",
+        "opcode": 166,
+        "opcodeHex": "A6",
+        "operands": [],
+        "operandSize": 8,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmps",
+        "mnemonicPrecise": "cmpsw",
+        "opcode": 167,
+        "opcodeHex": "A7",
+        "operands": [],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmps",
+        "mnemonicPrecise": "cmpsd",
+        "opcode": 167,
+        "opcodeHex": "A7",
+        "operands": [],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmps",
+        "mnemonicPrecise": "cmpsq",
+        "opcode": 167,
+        "opcodeHex": "A7",
+        "operands": [],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

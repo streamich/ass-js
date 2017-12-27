@@ -1,0 +1,40 @@
+[
+    {
+        "mnemonic": "fiadd",
+        "mnemonicPrecise": "fiaddd",
+        "opcode": 218,
+        "opcodeHex": "DA",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fiadd",
+        "mnemonicPrecise": "fiaddw",
+        "opcode": 222,
+        "opcodeHex": "DE",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

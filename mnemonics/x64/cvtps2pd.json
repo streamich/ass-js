@@ -1,0 +1,28 @@
+[
+    {
+        "mnemonic": "cvtps2pd",
+        "mnemonicPrecise": "cvtps2pdx",
+        "opcode": 3930,
+        "opcodeHex": "F5A",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    }
+]

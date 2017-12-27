@@ -1,0 +1,38 @@
+[
+    {
+        "mnemonic": "jc",
+        "mnemonicPrecise": "jc",
+        "opcode": 114,
+        "opcodeHex": "72",
+        "operands": [
+            "Relative8"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "jc",
+        "mnemonicPrecise": "jc",
+        "opcode": 3970,
+        "opcodeHex": "F82",
+        "operands": [
+            "Relative32"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

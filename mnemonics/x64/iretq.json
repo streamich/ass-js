@@ -1,0 +1,24 @@
+[
+    {
+        "mnemonic": "iretq",
+        "mnemonicPrecise": "iretq",
+        "opcode": 207,
+        "opcodeHex": "CF",
+        "operands": [],
+        "operandEncoding": "rm",
+        "rex": [
+            1,
+            0,
+            0,
+            0
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

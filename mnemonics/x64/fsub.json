@@ -1,0 +1,82 @@
+[
+    {
+        "mnemonic": "fsub",
+        "mnemonicPrecise": "fsubd",
+        "opcode": 216,
+        "opcodeHex": "D8",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 32,
+        "opcodeExtensionInModrm": 4,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fsub",
+        "mnemonicPrecise": "fsubq",
+        "opcode": 220,
+        "opcodeHex": "DC",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 64,
+        "opcodeExtensionInModrm": 4,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fsub",
+        "mnemonicPrecise": "fsubt",
+        "opcode": 216,
+        "opcodeHex": "D8",
+        "operands": [
+            "st0",
+            "RegisterSt"
+        ],
+        "operandSize": 80,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fsub",
+        "mnemonicPrecise": "fsubt",
+        "opcode": 220,
+        "opcodeHex": "DC",
+        "operands": [
+            "RegisterSt",
+            "st0"
+        ],
+        "operandSize": 80,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

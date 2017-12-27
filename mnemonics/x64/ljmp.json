@@ -1,0 +1,22 @@
+[
+    {
+        "mnemonic": "ljmp",
+        "mnemonicPrecise": "ljmpq",
+        "opcode": 255,
+        "opcodeHex": "FF",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 64,
+        "opcodeExtensionInModrm": 5,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "cld",
+        "mnemonicPrecise": "cld",
+        "opcode": 252,
+        "opcodeHex": "FC",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

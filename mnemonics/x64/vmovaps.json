@@ -1,0 +1,110 @@
+[
+    {
+        "mnemonic": "vmovaps",
+        "mnemonicPrecise": "vmovapsx",
+        "opcode": 40,
+        "opcodeHex": "28",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovaps",
+        "mnemonicPrecise": "vmovapsx",
+        "opcode": 41,
+        "opcodeHex": "29",
+        "operands": [
+            [
+                "RegisterXmm",
+                "Memory"
+            ],
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "mr",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovaps",
+        "mnemonicPrecise": "vmovapsz",
+        "opcode": 40,
+        "opcodeHex": "28",
+        "operands": [
+            "RegisterYmm",
+            [
+                "RegisterYmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 256,
+        "operandEncoding": "rm",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovaps",
+        "mnemonicPrecise": "vmovapsz",
+        "opcode": 41,
+        "opcodeHex": "29",
+        "operands": [
+            [
+                "RegisterYmm",
+                "Memory"
+            ],
+            "RegisterYmm"
+        ],
+        "operandSize": 256,
+        "operandEncoding": "mr",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

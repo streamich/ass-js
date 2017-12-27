@@ -1,0 +1,94 @@
+[
+    {
+        "mnemonic": "idiv",
+        "mnemonicPrecise": "idivb",
+        "opcode": 246,
+        "opcodeHex": "F6",
+        "operands": [
+            [
+                "Register8",
+                "Memory"
+            ]
+        ],
+        "operandSize": 8,
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "idiv",
+        "mnemonicPrecise": "idivw",
+        "opcode": 247,
+        "opcodeHex": "F7",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 16,
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "idiv",
+        "mnemonicPrecise": "idivd",
+        "opcode": 247,
+        "opcodeHex": "F7",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "idiv",
+        "mnemonicPrecise": "idivq",
+        "opcode": 247,
+        "opcodeHex": "F7",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

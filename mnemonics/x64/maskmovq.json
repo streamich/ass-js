@@ -1,0 +1,22 @@
+[
+    {
+        "mnemonic": "maskmovq",
+        "mnemonicPrecise": "maskmovqx",
+        "opcode": 4087,
+        "opcodeHex": "FF7",
+        "operands": [
+            "RegisterMm",
+            "RegisterMm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

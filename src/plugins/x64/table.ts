@@ -9,7 +9,7 @@ import {S, rel, rel8, rel16, rel32, imm, imm8, imm16, imm32, imm64, immu, immu8,
     bnd, cr, dr, sreg,
     m, m8, m16, m32, m64, m128, m256, m512, rm8, rm16, rm32, rm64} from '../x86/atoms';
 import {EXT, INS} from "../x86/consts";
-import {cr0_7, dr0_7, ext_avx, ext_avx2, ext_mmx, ext_sse, ext_sse2} from "./atoms";
+import {cr0_7, dr0_7, ext_avx, ext_avx2, ext_mmx, ext_sse, ext_sse2, rvm} from "./atoms";
 
 declare const require;
 function lazy(part: string, mnemonic: string) {
@@ -153,7 +153,7 @@ _inc.push({o: 0x40, r: true, ops: [r16], mod: M.COMP | M.LEG});
 _inc.push({o: 0x40, r: true, ops: [r32], mod: M.COMP | M.LEG});
 
 
-export const table: t.ITableX86 = {...t.table,
+export const table = {...t.table,
     // # A-letter
     aaa: require('./mnemonics/aaa').default,
     aad: require('./mnemonics/aad').default,

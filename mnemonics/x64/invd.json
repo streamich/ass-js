@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "invd",
+        "mnemonicPrecise": "invd",
+        "opcode": 3848,
+        "opcodeHex": "F08",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

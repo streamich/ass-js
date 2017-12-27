@@ -1,0 +1,61 @@
+[
+    {
+        "mnemonic": "jmp",
+        "mnemonicPrecise": "jmp",
+        "opcode": 235,
+        "opcodeHex": "EB",
+        "operands": [
+            "Relative8"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "jmp",
+        "mnemonicPrecise": "jmp",
+        "opcode": 233,
+        "opcodeHex": "E9",
+        "operands": [
+            "Relative32"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "jmp",
+        "mnemonicPrecise": "jmpq",
+        "opcode": 255,
+        "opcodeHex": "FF",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "opcodeExtensionInModrm": 4,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

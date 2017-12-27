@@ -1,0 +1,21 @@
+[
+    {
+        "mnemonic": "xrstor",
+        "mnemonicPrecise": "xrstor",
+        "opcode": 4014,
+        "opcodeHex": "FAE",
+        "operands": [
+            "Memory"
+        ],
+        "opcodeExtensionInModrm": 5,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,14 @@
+[
+    {
+        "mnemonic": "lahf",
+        "mnemonicPrecise": "lahf",
+        "opcode": 159,
+        "opcodeHex": "9F",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    }
+]

@@ -1,0 +1,62 @@
+[
+    {
+        "mnemonic": "lea",
+        "mnemonicPrecise": "leaw",
+        "opcode": 141,
+        "opcodeHex": "8D",
+        "operands": [
+            "Register16",
+            "Memory"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "lea",
+        "mnemonicPrecise": "lead",
+        "opcode": 141,
+        "opcodeHex": "8D",
+        "operands": [
+            "Register32",
+            "Memory"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "lea",
+        "mnemonicPrecise": "leaq",
+        "opcode": 141,
+        "opcodeHex": "8D",
+        "operands": [
+            "Register64",
+            "Memory"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

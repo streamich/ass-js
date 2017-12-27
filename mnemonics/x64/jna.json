@@ -1,0 +1,38 @@
+[
+    {
+        "mnemonic": "jna",
+        "mnemonicPrecise": "jna",
+        "opcode": 118,
+        "opcodeHex": "76",
+        "operands": [
+            "Relative8"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "jna",
+        "mnemonicPrecise": "jna",
+        "opcode": 3974,
+        "opcodeHex": "F86",
+        "operands": [
+            "Relative32"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

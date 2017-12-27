@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "finit",
+        "mnemonicPrecise": "finit",
+        "opcode": 10214371,
+        "opcodeHex": "9BDBE3",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fninit",
+        "mnemonicPrecise": "fninit",
+        "opcode": 56291,
+        "opcodeHex": "DBE3",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

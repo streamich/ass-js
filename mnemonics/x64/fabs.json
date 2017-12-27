@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fabs",
+        "mnemonicPrecise": "fabs",
+        "opcode": 55777,
+        "opcodeHex": "D9E1",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

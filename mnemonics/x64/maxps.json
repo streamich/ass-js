@@ -1,0 +1,28 @@
+[
+    {
+        "mnemonic": "maxps",
+        "mnemonicPrecise": "maxpsx",
+        "opcode": 3935,
+        "opcodeHex": "F5F",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE"
+        ]
+    }
+]

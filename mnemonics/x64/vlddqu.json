@@ -1,0 +1,48 @@
+[
+    {
+        "mnemonic": "vlddqu",
+        "mnemonicPrecise": "vlddqux",
+        "opcode": 240,
+        "opcodeHex": "F0",
+        "operands": [
+            "RegisterXmm",
+            "Memory"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vlddqu",
+        "mnemonicPrecise": "vlddquz",
+        "opcode": 240,
+        "opcodeHex": "F0",
+        "operands": [
+            "RegisterYmm",
+            "Memory"
+        ],
+        "operandSize": 256,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

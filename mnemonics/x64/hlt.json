@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "hlt",
+        "mnemonicPrecise": "hlt",
+        "opcode": 244,
+        "opcodeHex": "F4",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,51 @@
+[
+    {
+        "mnemonic": "blsr",
+        "mnemonicPrecise": "blsrd",
+        "opcode": 243,
+        "opcodeHex": "F3",
+        "operands": [
+            "Register32",
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "opcodeExtensionInModrm": 1,
+        "operandEncoding": "vm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "BMI1"
+        ]
+    },
+    {
+        "mnemonic": "blsr",
+        "mnemonicPrecise": "blsrq",
+        "opcode": 243,
+        "opcodeHex": "F3",
+        "operands": [
+            "Register64",
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "opcodeExtensionInModrm": 1,
+        "operandEncoding": "vm",
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "BMI1"
+        ]
+    }
+]

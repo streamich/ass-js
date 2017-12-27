@@ -1,0 +1,71 @@
+[
+    {
+        "mnemonic": "lss",
+        "mnemonicPrecise": "lssw",
+        "opcode": 4018,
+        "opcodeHex": "FB2",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ],
+            "Memory"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "lss",
+        "mnemonicPrecise": "lssd",
+        "opcode": 4018,
+        "opcodeHex": "FB2",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ],
+            "Memory"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "lss",
+        "mnemonicPrecise": "lssq",
+        "opcode": 4018,
+        "opcodeHex": "FB2",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ],
+            "Memory"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

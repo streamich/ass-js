@@ -1,0 +1,62 @@
+[
+    {
+        "mnemonic": "fisttp",
+        "mnemonicPrecise": "fisttpw",
+        "opcode": 223,
+        "opcodeHex": "DF",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 16,
+        "opcodeExtensionInModrm": 1,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fisttp",
+        "mnemonicPrecise": "fisttpd",
+        "opcode": 219,
+        "opcodeHex": "DB",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 32,
+        "opcodeExtensionInModrm": 1,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fisttp",
+        "mnemonicPrecise": "fisttpq",
+        "opcode": 221,
+        "opcodeHex": "DD",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 64,
+        "opcodeExtensionInModrm": 1,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

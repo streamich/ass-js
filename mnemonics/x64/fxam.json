@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fxam",
+        "mnemonicPrecise": "fxam",
+        "opcode": 55781,
+        "opcodeHex": "D9E5",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

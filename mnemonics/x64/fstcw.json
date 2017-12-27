@@ -1,0 +1,22 @@
+[
+    {
+        "mnemonic": "fstcw",
+        "mnemonicPrecise": "fstcww",
+        "opcode": 39897,
+        "opcodeHex": "9BD9",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 16,
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

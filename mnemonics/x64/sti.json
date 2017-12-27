@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "sti",
+        "mnemonicPrecise": "sti",
+        "opcode": 251,
+        "opcodeHex": "FB",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

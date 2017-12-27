@@ -1,0 +1,48 @@
+[
+    {
+        "mnemonic": "vmovntpd",
+        "mnemonicPrecise": "vmovntpdx",
+        "opcode": 43,
+        "opcodeHex": "2B",
+        "operands": [
+            "Memory",
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovntpd",
+        "mnemonicPrecise": "vmovntpdz",
+        "opcode": 43,
+        "opcodeHex": "2B",
+        "operands": [
+            "Memory",
+            "RegisterYmm"
+        ],
+        "operandSize": 256,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

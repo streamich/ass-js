@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "frndint",
+        "mnemonicPrecise": "frndint",
+        "opcode": 55804,
+        "opcodeHex": "D9FC",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

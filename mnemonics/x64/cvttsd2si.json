@@ -1,0 +1,55 @@
+[
+    {
+        "mnemonic": "cvttsd2si",
+        "mnemonicPrecise": "cvttsd2sid",
+        "opcode": 3884,
+        "opcodeHex": "F2C",
+        "operands": [
+            "Register32",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            242
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    },
+    {
+        "mnemonic": "cvttsd2si",
+        "mnemonicPrecise": "cvttsd2siq",
+        "opcode": 3884,
+        "opcodeHex": "F2C",
+        "operands": [
+            "Register64",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            242
+        ],
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    }
+]

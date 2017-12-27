@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "sal",
+        "mnemonicPrecise": "sal",
+        "opcode": 0,
+        "opcodeHex": "0",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,106 @@
+[
+    {
+        "mnemonic": "vmovdqu",
+        "mnemonicPrecise": "vmovdqux",
+        "opcode": 111,
+        "opcodeHex": "6F",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovdqu",
+        "mnemonicPrecise": "vmovdqux",
+        "opcode": 127,
+        "opcodeHex": "7F",
+        "operands": [
+            [
+                "RegisterXmm",
+                "Memory"
+            ],
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovdqu",
+        "mnemonicPrecise": "vmovdquz",
+        "opcode": 111,
+        "opcodeHex": "6F",
+        "operands": [
+            "RegisterYmm",
+            [
+                "RegisterYmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 256,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovdqu",
+        "mnemonicPrecise": "vmovdquz",
+        "opcode": 127,
+        "opcodeHex": "7F",
+        "operands": [
+            [
+                "RegisterYmm",
+                "Memory"
+            ],
+            "RegisterYmm"
+        ],
+        "operandSize": 256,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

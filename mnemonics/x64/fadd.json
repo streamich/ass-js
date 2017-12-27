@@ -1,0 +1,80 @@
+[
+    {
+        "mnemonic": "fadd",
+        "mnemonicPrecise": "faddd",
+        "opcode": 216,
+        "opcodeHex": "D8",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fadd",
+        "mnemonicPrecise": "faddq",
+        "opcode": 220,
+        "opcodeHex": "DC",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fadd",
+        "mnemonicPrecise": "faddt",
+        "opcode": 216,
+        "opcodeHex": "D8",
+        "operands": [
+            "st0",
+            "RegisterSt"
+        ],
+        "operandSize": 80,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fadd",
+        "mnemonicPrecise": "faddt",
+        "opcode": 220,
+        "opcodeHex": "DC",
+        "operands": [
+            "RegisterSt",
+            "st0"
+        ],
+        "operandSize": 80,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

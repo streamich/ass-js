@@ -1,0 +1,30 @@
+[
+    {
+        "mnemonic": "vinsertps",
+        "mnemonicPrecise": "vinsertpsx",
+        "opcode": 33,
+        "opcodeHex": "21",
+        "operands": [
+            "RegisterXmm",
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rvm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

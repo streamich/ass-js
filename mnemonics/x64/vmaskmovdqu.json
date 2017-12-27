@@ -1,0 +1,25 @@
+[
+    {
+        "mnemonic": "vmaskmovdqu",
+        "mnemonicPrecise": "vmaskmovdqux",
+        "opcode": 247,
+        "opcodeHex": "F7",
+        "operands": [
+            "RegisterXmm",
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

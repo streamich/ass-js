@@ -1,0 +1,21 @@
+[
+    {
+        "mnemonic": "prefetchw",
+        "mnemonicPrecise": "prefetchw",
+        "opcode": 3853,
+        "opcodeHex": "F0D",
+        "operands": [
+            "Memory"
+        ],
+        "opcodeExtensionInModrm": 1,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

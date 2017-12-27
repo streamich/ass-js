@@ -1,0 +1,21 @@
+[
+    {
+        "mnemonic": "xsavec",
+        "mnemonicPrecise": "xsavec",
+        "opcode": 4039,
+        "opcodeHex": "FC7",
+        "operands": [
+            "Memory"
+        ],
+        "opcodeExtensionInModrm": 4,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

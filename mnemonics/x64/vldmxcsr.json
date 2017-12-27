@@ -1,0 +1,24 @@
+[
+    {
+        "mnemonic": "vldmxcsr",
+        "mnemonicPrecise": "vldmxcsr",
+        "opcode": 174,
+        "opcodeHex": "AE",
+        "operands": [
+            "Memory"
+        ],
+        "opcodeExtensionInModrm": 2,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

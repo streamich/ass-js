@@ -1,0 +1,62 @@
+[
+    {
+        "mnemonic": "nop",
+        "mnemonicPrecise": "nop",
+        "opcode": 144,
+        "opcodeHex": "90",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "nop",
+        "mnemonicPrecise": "nopw",
+        "opcode": 3871,
+        "opcodeHex": "F1F",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "nop",
+        "mnemonicPrecise": "nopd",
+        "opcode": 3871,
+        "opcodeHex": "F1F",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

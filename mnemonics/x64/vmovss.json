@@ -1,0 +1,96 @@
+[
+    {
+        "mnemonic": "vmovss",
+        "mnemonicPrecise": "vmovssx",
+        "opcode": 16,
+        "opcodeHex": "10",
+        "operands": [
+            "RegisterXmm",
+            "RegisterXmm",
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rvm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovss",
+        "mnemonicPrecise": "vmovssx",
+        "opcode": 16,
+        "opcodeHex": "10",
+        "operands": [
+            "RegisterXmm",
+            "Memory"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovss",
+        "mnemonicPrecise": "vmovssx",
+        "opcode": 17,
+        "opcodeHex": "11",
+        "operands": [
+            "RegisterXmm",
+            "RegisterXmm",
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "mvr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovss",
+        "mnemonicPrecise": "vmovssx",
+        "opcode": 17,
+        "opcodeHex": "11",
+        "operands": [
+            "Memory",
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

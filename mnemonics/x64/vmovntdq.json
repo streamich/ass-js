@@ -1,0 +1,48 @@
+[
+    {
+        "mnemonic": "vmovntdq",
+        "mnemonicPrecise": "vmovntdqx",
+        "opcode": 231,
+        "opcodeHex": "E7",
+        "operands": [
+            "Memory",
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovntdq",
+        "mnemonicPrecise": "vmovntdqz",
+        "opcode": 231,
+        "opcodeHex": "E7",
+        "operands": [
+            "Memory",
+            "RegisterYmm"
+        ],
+        "operandSize": 256,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

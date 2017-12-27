@@ -1,0 +1,28 @@
+[
+    {
+        "mnemonic": "movntps",
+        "mnemonicPrecise": "movntpsx",
+        "opcode": 43,
+        "opcodeHex": "2B",
+        "operands": [
+            "Memory",
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "mr",
+        "extraPrefixes": [
+            15
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE"
+        ]
+    }
+]

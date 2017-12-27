@@ -1,0 +1,98 @@
+[
+    {
+        "mnemonic": "not",
+        "mnemonicPrecise": "notb",
+        "opcode": 246,
+        "opcodeHex": "F6",
+        "operands": [
+            [
+                "Register8",
+                "Memory"
+            ]
+        ],
+        "operandSize": 8,
+        "opcodeExtensionInModrm": 2,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "not",
+        "mnemonicPrecise": "notw",
+        "opcode": 247,
+        "opcodeHex": "F7",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 16,
+        "opcodeExtensionInModrm": 2,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "not",
+        "mnemonicPrecise": "notd",
+        "opcode": 247,
+        "opcodeHex": "F7",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "opcodeExtensionInModrm": 2,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "not",
+        "mnemonicPrecise": "notq",
+        "opcode": 247,
+        "opcodeHex": "F7",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "opcodeExtensionInModrm": 2,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

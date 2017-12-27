@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "pushf",
+        "mnemonicPrecise": "pushf",
+        "opcode": 156,
+        "opcodeHex": "9C",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

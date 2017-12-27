@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fsqrt",
+        "mnemonicPrecise": "fsqrt",
+        "opcode": 55802,
+        "opcodeHex": "D9FA",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

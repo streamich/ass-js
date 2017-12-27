@@ -1,0 +1,29 @@
+[
+    {
+        "mnemonic": "cmpsd",
+        "mnemonicPrecise": "cmpsdx",
+        "opcode": 15863746,
+        "opcodeHex": "F20FC2",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    }
+]

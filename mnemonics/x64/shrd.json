@@ -1,0 +1,146 @@
+[
+    {
+        "mnemonic": "shrd",
+        "mnemonicPrecise": "shrdw",
+        "opcode": 4012,
+        "opcodeHex": "FAC",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ],
+            "Register16",
+            "Immediate8"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "shrd",
+        "mnemonicPrecise": "shrdw",
+        "opcode": 4013,
+        "opcodeHex": "FAD",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ],
+            "Register16",
+            "cl"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "shrd",
+        "mnemonicPrecise": "shrdd",
+        "opcode": 4012,
+        "opcodeHex": "FAC",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ],
+            "Register32",
+            "Immediate8"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "shrd",
+        "mnemonicPrecise": "shrdq",
+        "opcode": 4012,
+        "opcodeHex": "FAC",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ],
+            "Register64",
+            "Immediate8"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "shrd",
+        "mnemonicPrecise": "shrdd",
+        "opcode": 4013,
+        "opcodeHex": "FAD",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ],
+            "Register32",
+            "cl"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "shrd",
+        "mnemonicPrecise": "shrdq",
+        "opcode": 4013,
+        "opcodeHex": "FAD",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ],
+            "Register64",
+            "cl"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

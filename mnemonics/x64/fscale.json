@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fscale",
+        "mnemonicPrecise": "fscale",
+        "opcode": 55805,
+        "opcodeHex": "D9FD",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,23 @@
+[
+    {
+        "mnemonic": "jecxz",
+        "mnemonicPrecise": "jecxz",
+        "opcode": 227,
+        "opcodeHex": "E3",
+        "operands": [
+            "Relative8"
+        ],
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            103
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

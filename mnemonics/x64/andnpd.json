@@ -1,0 +1,28 @@
+[
+    {
+        "mnemonic": "andnpd",
+        "mnemonicPrecise": "andnpdx",
+        "opcode": 6688597,
+        "opcodeHex": "660F55",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    }
+]

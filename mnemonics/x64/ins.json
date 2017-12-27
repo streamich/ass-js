@@ -1,0 +1,53 @@
+[
+    {
+        "mnemonic": "ins",
+        "mnemonicPrecise": "insb",
+        "opcode": 108,
+        "opcodeHex": "6C",
+        "operands": [],
+        "operandSize": 8,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "ins",
+        "mnemonicPrecise": "insw",
+        "opcode": 109,
+        "opcodeHex": "6D",
+        "operands": [],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "ins",
+        "mnemonicPrecise": "insd",
+        "opcode": 109,
+        "opcodeHex": "6D",
+        "operands": [],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "f2xm1",
+        "mnemonicPrecise": "f2xm1",
+        "opcode": 55792,
+        "opcodeHex": "D9F0",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

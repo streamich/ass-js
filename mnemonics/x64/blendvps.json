@@ -1,0 +1,31 @@
+[
+    {
+        "mnemonic": "blendvps",
+        "mnemonicPrecise": "blendvpsx",
+        "opcode": 997396,
+        "opcodeHex": "F3814",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            102
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE4_1"
+        ]
+    }
+]

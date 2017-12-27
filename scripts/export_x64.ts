@@ -85,11 +85,7 @@ export default ${varName};
     fs.writeFileSync(filePath, code);
 };
 
-for (const file of fileList) {
-    const mnemonicName = file.substr(0, file.length - 3);
-    const filePath = join(DIR_X64, file);
-    const list = require(filePath).default;
-
+const processMnemonic = (mnemonicName: string, list: ITableDefinitionX86[]) => {
     // First definition may be just defaults.
     let groupDefaults = {
         ...x86TableDefinitionDefaults,
@@ -123,4 +119,17 @@ for (const file of fileList) {
     fs.writeFileSync(outFilePath, JSON.stringify(output, null, 4));
 
     writeGenerated(mnemonicVariations, groupDefaults);
+};
+
+const table = require('../src/plugins/x64/table').table;
+for (const mnemonicName in table) {
+    processMnemonic(mnemonicName, table[mnemonicName]);
 }
+
+// for (const file of fileList) {
+//     const mnemonicName = file.substr(0, file.length - 3);
+//     const filePath = join(DIR_X64, file);
+//     const list = require(filePath).default;
+//
+//     processMnemonic(mnemonicName, list);
+// }

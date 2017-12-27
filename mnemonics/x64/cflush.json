@@ -1,0 +1,21 @@
+[
+    {
+        "mnemonic": "cflush",
+        "mnemonicPrecise": "cflush",
+        "opcode": 4014,
+        "opcodeHex": "FAE",
+        "operands": [
+            "Memory"
+        ],
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

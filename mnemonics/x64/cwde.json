@@ -1,0 +1,19 @@
+[
+    {
+        "mnemonic": "cwde",
+        "mnemonicPrecise": "cwded",
+        "opcode": 152,
+        "opcodeHex": "98",
+        "operands": [],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,21 @@
+[
+    {
+        "mnemonic": "fbld",
+        "mnemonicPrecise": "fbld",
+        "opcode": 223,
+        "opcodeHex": "DF",
+        "operands": [
+            "Memory"
+        ],
+        "opcodeExtensionInModrm": 4,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

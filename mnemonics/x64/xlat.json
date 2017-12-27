@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "xlat",
+        "mnemonicPrecise": "xlat",
+        "opcode": 215,
+        "opcodeHex": "D7",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

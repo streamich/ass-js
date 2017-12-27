@@ -1,0 +1,29 @@
+[
+    {
+        "mnemonic": "movntdq",
+        "mnemonicPrecise": "movntdqx",
+        "opcode": 231,
+        "opcodeHex": "E7",
+        "operands": [
+            "Memory128",
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "mr",
+        "extraPrefixes": [
+            102,
+            15
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    }
+]

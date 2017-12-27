@@ -1,0 +1,24 @@
+[
+    {
+        "mnemonic": "setg",
+        "mnemonicPrecise": "setgb",
+        "opcode": 3999,
+        "opcodeHex": "F9F",
+        "operands": [
+            [
+                "Register8",
+                "Memory"
+            ]
+        ],
+        "operandSize": 8,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

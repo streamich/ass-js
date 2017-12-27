@@ -1,0 +1,21 @@
+[
+    {
+        "mnemonic": "enter",
+        "mnemonicPrecise": "enter",
+        "opcode": 200,
+        "opcodeHex": "C8",
+        "operands": [
+            "Immediate16",
+            "Immediate8"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

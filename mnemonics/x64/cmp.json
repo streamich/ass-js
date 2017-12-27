@@ -1,0 +1,446 @@
+[
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpb",
+        "opcode": 60,
+        "opcodeHex": "3C",
+        "operands": [
+            "al",
+            "Immediate8"
+        ],
+        "operandSize": 8,
+        "operandEncoding": "rm",
+        "skipMorm": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpw",
+        "opcode": 61,
+        "opcodeHex": "3D",
+        "operands": [
+            "ax",
+            "Immediate16"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "skipMorm": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpd",
+        "opcode": 61,
+        "opcodeHex": "3D",
+        "operands": [
+            "eax",
+            "Immediate32"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "skipMorm": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpq",
+        "opcode": 61,
+        "opcodeHex": "3D",
+        "operands": [
+            "rax",
+            "Immediate32"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "skipMorm": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpb",
+        "opcode": 128,
+        "opcodeHex": "80",
+        "operands": [
+            [
+                "Register8",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 8,
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpw",
+        "opcode": 129,
+        "opcodeHex": "81",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ],
+            "Immediate16"
+        ],
+        "operandSize": 16,
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpd",
+        "opcode": 129,
+        "opcodeHex": "81",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ],
+            "Immediate32"
+        ],
+        "operandSize": 32,
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpq",
+        "opcode": 129,
+        "opcodeHex": "81",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ],
+            "Immediate32"
+        ],
+        "operandSize": 64,
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpw",
+        "opcode": 131,
+        "opcodeHex": "83",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 16,
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpd",
+        "opcode": 131,
+        "opcodeHex": "83",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 32,
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpq",
+        "opcode": 131,
+        "opcodeHex": "83",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 64,
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpb",
+        "opcode": 56,
+        "opcodeHex": "38",
+        "operands": [
+            [
+                "Register8",
+                "Memory"
+            ],
+            "Register8"
+        ],
+        "operandSize": 8,
+        "operandEncoding": "mr",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpb",
+        "opcode": 58,
+        "opcodeHex": "3A",
+        "operands": [
+            "Register8",
+            [
+                "Register8",
+                "Memory"
+            ]
+        ],
+        "operandSize": 8,
+        "operandEncoding": "rm",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpw",
+        "opcode": 57,
+        "opcodeHex": "39",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ],
+            "Register16"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "mr",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpw",
+        "opcode": 59,
+        "opcodeHex": "3B",
+        "operands": [
+            "Register16",
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpd",
+        "opcode": 57,
+        "opcodeHex": "39",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ],
+            "Register32"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "mr",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpd",
+        "opcode": 59,
+        "opcodeHex": "3B",
+        "operands": [
+            "Register32",
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpq",
+        "opcode": 57,
+        "opcodeHex": "39",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ],
+            "Register64"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "mr",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmp",
+        "mnemonicPrecise": "cmpq",
+        "opcode": 59,
+        "opcodeHex": "3B",
+        "operands": [
+            "Register64",
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,61 @@
+[
+    {
+        "mnemonic": "packssdw",
+        "mnemonicPrecise": "packssdwx",
+        "opcode": 107,
+        "opcodeHex": "6B",
+        "operands": [
+            "RegisterMm",
+            [
+                "RegisterMm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rvm",
+        "extraPrefixes": [
+            15
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "MMX"
+        ]
+    },
+    {
+        "mnemonic": "packssdw",
+        "mnemonicPrecise": "packssdwx",
+        "opcode": 107,
+        "opcodeHex": "6B",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rvm",
+        "extraPrefixes": [
+            102,
+            15
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    }
+]

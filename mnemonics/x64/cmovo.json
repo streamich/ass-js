@@ -1,0 +1,71 @@
+[
+    {
+        "mnemonic": "cmovo",
+        "mnemonicPrecise": "cmovow",
+        "opcode": 3904,
+        "opcodeHex": "F40",
+        "operands": [
+            "Register16",
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmovo",
+        "mnemonicPrecise": "cmovod",
+        "opcode": 3904,
+        "opcodeHex": "F40",
+        "operands": [
+            "Register32",
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmovo",
+        "mnemonicPrecise": "cmovoq",
+        "opcode": 3904,
+        "opcodeHex": "F40",
+        "operands": [
+            "Register64",
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]
