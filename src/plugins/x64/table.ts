@@ -197,7 +197,7 @@ export const table: t.ITableX86 = {...t.table,
 
 
 
-    
+
 
     addsubps: [{o: 0xF20FD0, ops: [xmm, [xmm, m]], ext: [EXT.SSE3]}],
     vaddsubps: [{o: 0xD0, en: 'rvm', ext: [EXT.AVX]},

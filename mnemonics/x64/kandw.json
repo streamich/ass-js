@@ -1,0 +1,21 @@
+[
+    {
+        "mnemonic": "kandw",
+        "mnemonicPrecise": "kandw",
+        "opcode": 65,
+        "opcodeHex": "41",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX512F"
+        ]
+    }
+]

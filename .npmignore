@@ -12,3 +12,4 @@ node_modules
 coverage
 package-lock.json
 yarn.lock
+/mnemonics/

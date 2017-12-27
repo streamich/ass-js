@@ -2,6 +2,21 @@ import {Constant, Memory, Operand, Register, Relative, Relative16, Relative32, R
 import {TTableOperand} from "./table";
 
 export class Mnemonic {
+    static toStringOperand (operand) {
+        const typeofOperand = typeof operand;
+
+        if (typeofOperand === 'number')     return operand;
+        if (typeofOperand === 'string')     return operand;
+
+        if ((typeofOperand === 'object') || (typeofOperand === 'function')) {
+            if (typeof operand.name === 'string')           return operand.name;
+            if (typeof operand.atomName === 'string')       return operand.atomName;
+            if (typeof operand.toString === 'function')     return operand.toString();
+        }
+
+        return String(operand);
+    }
+
     mnemonic: string = '';
     operandSize: SIZE = SIZE.NONE;
     opcode: number = 0x00;
@@ -55,20 +70,6 @@ export class Mnemonic {
         return matches;
     }
 */
-    toStringOperand (operand) {
-        const typeofOperand = typeof operand;
-
-        if (typeofOperand === 'number')     return operand;
-        if (typeofOperand === 'string')     return operand;
-
-        if ((typeofOperand === 'object') || (typeofOperand === 'function')) {
-            if (typeof operand.name === 'string')           return operand.name;
-            if (typeof operand.displayName === 'string')    return operand.displayName;
-            if (typeof operand.toString === 'function')     return operand.toString();
-        }
-
-        return String(operand);
-    }
 
     getMnemonic (): string {
         const size = this.operandSize;
@@ -80,7 +81,7 @@ export class Mnemonic {
         let ops = [];
         for(let operandTemplate of this.operands) {
             let arr = [];
-            for(let op of operandTemplate) arr.push(this.toStringOperand(op));
+            for(let op of operandTemplate) arr.push(Mnemonic.toStringOperand(op));
             if(arr.length > 1) ops.push(arr);
             else ops.push(arr[0]);
         }
@@ -108,7 +109,7 @@ export class Mnemonic {
         for(let ops of this.operands) {
             let opsarr = [];
             for(let op of ops) {
-                opsarr.push(this.toStringOperand(op));
+                opsarr.push(Mnemonic.toStringOperand(op));
             }
             operands.push(opsarr.join('/'));
         }

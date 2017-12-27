@@ -1,0 +1,139 @@
+[
+    {
+        "mnemonic": "vaddps",
+        "mnemonicPrecise": "vaddpsx",
+        "opcode": 88,
+        "opcodeHex": "58",
+        "operands": [
+            "RegisterXmm",
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rvm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vaddps",
+        "mnemonicPrecise": "vaddpsz",
+        "opcode": 88,
+        "opcodeHex": "58",
+        "operands": [
+            "RegisterYmm",
+            "RegisterYmm",
+            [
+                "RegisterYmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 256,
+        "operandEncoding": "rvm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vaddps",
+        "mnemonicPrecise": "vaddpsx",
+        "opcode": 88,
+        "opcodeHex": "58",
+        "operands": [
+            "RegisterXmm",
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rvm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX512VL",
+            "AVX512F"
+        ]
+    },
+    {
+        "mnemonic": "vaddps",
+        "mnemonicPrecise": "vaddpsz",
+        "opcode": 88,
+        "opcodeHex": "58",
+        "operands": [
+            "RegisterYmm",
+            "RegisterYmm",
+            [
+                "RegisterYmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 256,
+        "operandEncoding": "rvm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX512VL",
+            "AVX512F"
+        ]
+    },
+    {
+        "mnemonic": "vaddps",
+        "mnemonicPrecise": "vaddpsi",
+        "opcode": 88,
+        "opcodeHex": "58",
+        "operands": [
+            "RegisterZmm",
+            "RegisterZmm",
+            [
+                "RegisterZmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 512,
+        "operandEncoding": "rvm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX512F"
+        ]
+    }
+]

@@ -95,7 +95,9 @@ export class Register512 extends RegisterGP {
 }
 
 export class RegisterRip extends RegisterX86 {
-    name = 'rip';
+    static atomName = 'rip';
+
+    name = RegisterRip.atomName;
 
     constructor() {
         super(0, SIZE.Q);
@@ -109,20 +111,25 @@ export class RegisterBounds extends RegisterX86 {
 }
 
 export class RegisterFloatingPoint extends RegisterX86 {
+    static atomName = 'fp';
 
 }
 
 export class RegisterMm extends RegisterFloatingPoint {
+    static atomName = 'mm';
+
     constructor(id: number) {
         super(id, SIZE.O);
-        this.name = 'mm' + id;
+        this.name = RegisterMm.atomName + id;
     }
 }
 
 export class RegisterSt extends RegisterFloatingPoint {
+    static atomName = 'st';
+
     constructor(id: number) {
         super(id, SIZE.T);
-        this.name = 'st' + id;
+        this.name = RegisterSt.atomName + id;
     }
 }
 
@@ -131,44 +138,56 @@ export class RegisterVector extends RegisterX86 {
 }
 
 export class RegisterXmm extends RegisterVector {
+    static atomName = 'xmm';
+
     constructor(id: number) {
         super(id, SIZE.O);
-        this.name = 'xmm' + id;
+        this.name = RegisterXmm.atomName + id;
     }
 }
 
 export class RegisterYmm extends RegisterVector {
+    static atomName = 'ymm';
+
     constructor(id: number) {
         super(id, SIZE.H);
-        this.name = 'ymm' + id;
+        this.name = RegisterYmm.atomName + id;
     }
 }
 
 export class RegisterZmm extends RegisterVector {
+    static atomName = 'zmm';
+
     constructor(id: number) {
         super(id, SIZE.I);
-        this.name = 'zmm' + id;
+        this.name = RegisterZmm.atomName + id;
     }
 }
 
 export class RegisterK extends RegisterX86 {
+    static atomName = 'k';
+
     constructor(id: number) {
         super(id, SIZE.Q);
-        this.name = 'k' + id;
+        this.name = RegisterK.atomName + id;
     }
 }
 
 export class RegisterCr extends RegisterX86 { // Control registers.
+    static atomName = 'cr';
+
     constructor(id: number) {
         super(id, SIZE.Q);
-        this.name = 'cr' + id;
+        this.name = RegisterCr.atomName + id;
     }
 }
 
 export class RegisterDr extends RegisterX86 { // Debug registers.
+    static atomName = 'dr';
+
     constructor(id: number) {
         super(id, SIZE.Q);
-        this.name = 'dr' + id;
+        this.name = RegisterDr.atomName + id;
     }
 }
 

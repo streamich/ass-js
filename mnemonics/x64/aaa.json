@@ -1,0 +1,14 @@
+[
+    {
+        "mnemonic": "aaa",
+        "mnemonicPrecise": "aaa",
+        "opcode": 55,
+        "opcodeHex": "37",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    }
+]

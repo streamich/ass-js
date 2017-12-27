@@ -266,7 +266,7 @@ export class Constant extends Operand {
 
 
 export class Immediate extends Constant {
-    static displayName = 'imm';
+    static atomName = 'imm';
 
     static factory(size, value: number|number64 = 0, signed = true) {
         switch(size) {
@@ -304,7 +304,7 @@ export class Immediate extends Constant {
 }
 
 export class ImmediateUnsigned extends Immediate {
-    static displayName = 'immu';
+    static atomName = 'immu';
 
     constructor(value: number|number64 = 0) {
         super(value, false);
@@ -312,7 +312,7 @@ export class ImmediateUnsigned extends Immediate {
 }
 
 export class Immediate8 extends Immediate {
-    static displayName = 'imm8';
+    static atomName = 'imm8';
 
     setValue(value: number|number64) {
         Immediate.throwIfLarger(value, SIZE.B, this.signed);
@@ -322,7 +322,7 @@ export class Immediate8 extends Immediate {
 }
 
 export class ImmediateUnsigned8 extends Immediate8 {
-    static displayName = 'immu8';
+    static atomName = 'immu8';
 
     constructor(value: number|number64 = 0) {
         super(value, false);
@@ -330,7 +330,7 @@ export class ImmediateUnsigned8 extends Immediate8 {
 }
 
 export class Immediate16 extends Immediate {
-    static displayName = 'imm16';
+    static atomName = 'imm16';
 
     setValue(value: number|number64) {
         Immediate.throwIfLarger(value, SIZE.W, this.signed);
@@ -340,7 +340,7 @@ export class Immediate16 extends Immediate {
 }
 
 export class ImmediateUnsigned16 extends Immediate16 {
-    static displayName = 'immu16';
+    static atomName = 'immu16';
 
     constructor(value: number|number64 = 0) {
         super(value, false);
@@ -348,7 +348,7 @@ export class ImmediateUnsigned16 extends Immediate16 {
 }
 
 export class Immediate32 extends Immediate {
-    static displayName = 'imm32';
+    static atomName = 'imm32';
 
     setValue(value: number|number64) {
         Immediate.throwIfLarger(value, SIZE.D, this.signed);
@@ -358,7 +358,7 @@ export class Immediate32 extends Immediate {
 }
 
 export class ImmediateUnsigned32 extends Immediate32 {
-    static displayName = 'immu32';
+    static atomName = 'immu32';
 
     constructor(value: number|number64 = 0) {
         super(value, false);
@@ -366,7 +366,7 @@ export class ImmediateUnsigned32 extends Immediate32 {
 }
 
 export class Immediate64 extends Immediate {
-    static displayName = 'imm64';
+    static atomName = 'imm64';
 
     setValue(value: number|number64) {
         Immediate.throwIfLarger(value, SIZE.Q, this.signed);
@@ -376,7 +376,7 @@ export class Immediate64 extends Immediate {
 }
 
 export class ImmediateUnsigned64 extends Immediate64 {
-    static displayName = 'immu64';
+    static atomName = 'immu64';
 
     constructor(value: number|number64 = 0) {
         super(value, false);
@@ -388,7 +388,7 @@ export class ImmediateUnsigned64 extends Immediate64 {
 //
 // `Register` represents one of `%rax`, `%rbx`, etc. registers.
 export abstract class Register extends Operand {
-    static displayName = 'r';
+    static atomName = 'r';
 
     id: number = 0; // Number value of register.
     name: string = 'reg';
@@ -438,7 +438,7 @@ export abstract class Register extends Operand {
 //
 // `Memory` is RAM addresses which `Register`s can *dereference*.
 export class Memory extends Operand {
-    static displayName = 'm';
+    static atomName = 'm';
 
     base: Register = null;
 
@@ -495,7 +495,7 @@ export function isTvariable(val) {
 
 // Relative jump targets for jump instructions.
 export class Relative extends Variable {
-    static displayName = 'rel';
+    static atomName = 'rel';
     static size = SIZE.ANY;
 
     static fromExpression(expr: Expression) {
@@ -590,23 +590,23 @@ export class Relative extends Variable {
 }
 
 export class Relative8 extends Relative {
-    static displayName = 'rel8';
+    static atomName = 'rel8';
     static size = SIZE.B;
 }
 
 export class Relative16 extends Relative {
-    static displayName = 'rel16';
+    static atomName = 'rel16';
     static size = SIZE.W;
 }
 
 export class Relative32 extends Relative {
-    static displayName = 'rel32';
+    static atomName = 'rel32';
     static size = SIZE.D;
 }
 
 
 export class Symbol extends Relative {
-    static displayName = 'sym';
+    static atomName = 'sym';
     private static cnt = 0;
 
     name: string;
