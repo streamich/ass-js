@@ -24,8 +24,8 @@ const formatOpName = (op: TTableOperandX86) =>  {
     if ((typeofOperand === 'object') || (typeofOperand === 'function')) {
         const opObj = op as any;
         if (typeof opObj.atomName === 'string')       return 'a.' + opObj.atomName;
-        if (typeof opObj.name === 'string')           return opObj.name;
-        if (typeof opObj.toString === 'function')     return opObj.toString();
+        if (typeof opObj.name === 'string')           return 'a.' + opObj.name;
+        if (typeof opObj.toString === 'function')     return 'a.' + opObj.toString();
     }
 
     return String(op);
@@ -45,10 +45,28 @@ const formatOperands = (operands: TTableOperandX86[][]) => {
 
 const formatGeneratedMnemonic = (mnemonic: MnemonicX86, index: number) => {
     const instance = `mnemonic_add_${index}`;
+
     let code = `
 const ${instance} = new MnemonicX86;
-${instance}.opcode = ${mnemonic.opcode};
-${instance}.operands = ${formatOperands(mnemonic.operands)};
+${instance}.mnemonic                = ${JSON.stringify(mnemonic.mnemonic)};
+${instance}.operandSize             = ${JSON.stringify(mnemonic.operandSize)};
+${instance}.opcode                  = ${JSON.stringify(mnemonic.opcode)};
+${instance}.operandTemplates        = ${formatOperands(mnemonic.operandTemplates)};
+${instance}.opreg                   = ${JSON.stringify(mnemonic.opreg)};
+${instance}.operandSizeDefault      = ${JSON.stringify(mnemonic.operandSizeDefault)};
+${instance}.lock                    = ${JSON.stringify(mnemonic.lock)};
+${instance}.regInOp                 = ${JSON.stringify(mnemonic.regInOp)};
+${instance}.opcodeDirectionBit      = ${JSON.stringify(mnemonic.opcodeDirectionBit)};
+${instance}.useModrm                = ${JSON.stringify(mnemonic.useModrm)};
+${instance}.rep                     = ${JSON.stringify(mnemonic.rep)};
+${instance}.repne                   = ${JSON.stringify(mnemonic.repne)};
+${instance}.prefixes                = ${JSON.stringify(mnemonic.prefixes)};
+${instance}.opEncoding              = ${JSON.stringify(mnemonic.opEncoding)};
+${instance}.rex                     = ${JSON.stringify(mnemonic.rex)};
+${instance}.vex                     = ${JSON.stringify(mnemonic.vex)};
+${instance}.evex                    = ${JSON.stringify(mnemonic.evex)};
+${instance}.mode                    = ${JSON.stringify(mnemonic.mode)};
+${instance}.extensions              = ${JSON.stringify(mnemonic.extensions)};
 `;
 
     return [instance, code];
@@ -122,9 +140,20 @@ const processMnemonic = (mnemonicName: string, list: ITableDefinitionX86[]) => {
 };
 
 const table = require('../src/plugins/x64/table').table;
+const map = {};
 for (const mnemonicName in table) {
-    processMnemonic(mnemonicName, table[mnemonicName]);
+    const mnemonic = table[mnemonicName];
+    processMnemonic(mnemonicName, mnemonic);
+    map[mnemonicName] = 1;
 }
+
+fs.writeFileSync(join(DIR_X64_GENERATED, '__map.ts'), `
+const x64_mnemonic_map = ${JSON.stringify(map, null, 4)};
+
+export default x64_mnemonic_map;
+`);
+
+
 
 // for (const file of fileList) {
 //     const mnemonicName = file.substr(0, file.length - 3);

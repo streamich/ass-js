@@ -13,6 +13,14 @@
         ],
         "operandSize": 256,
         "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "",
+            "L": 1,
+            "pp": 1,
+            "mmmmm": 2,
+            "W": 0,
+            "WIG": false
+        },
         "modes": [
             "REAL",
             "PROT",

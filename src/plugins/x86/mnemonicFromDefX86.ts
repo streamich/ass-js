@@ -1,6 +1,8 @@
 import {ITableDefinitionX86, TTableOperandX86} from "./table";
 import MnemonicX86 from "./MnemonicX86";
 import {Register, SIZE} from "../../operand";
+import parseVexString from "./parseVexString";
+import parseEvexString from "./parseEvexString";
 
 const mnemonicFromDefX86: (def: ITableDefinitionX86) => MnemonicX86 = def => {
     const mnemonic = new MnemonicX86;
@@ -8,7 +10,7 @@ const mnemonicFromDefX86: (def: ITableDefinitionX86) => MnemonicX86 = def => {
     mnemonic.opcode               = def.o;
     mnemonic.mnemonic             = def.mn;
     mnemonic.operandSize          = def.s;
-    mnemonic.operands             = [];
+    mnemonic.operandTemplates     = [];
     mnemonic.opreg                = def.or;
     mnemonic.operandSizeDefault   = def.ds;
     mnemonic.lock                 = def.lock;
@@ -22,6 +24,22 @@ const mnemonicFromDefX86: (def: ITableDefinitionX86) => MnemonicX86 = def => {
     mnemonic.opEncoding           = def.en;
     mnemonic.mode                 = def.mod;
     mnemonic.extensions           = def.ext;
+
+    if (def.vex) {
+        if (typeof def.vex === 'string') {
+            mnemonic.vex = parseVexString(def.vex);
+        } else {
+            mnemonic.vex = def.vex;
+        }
+    }
+
+    if (def.evex) {
+        if (typeof def.evex === 'string') {
+            mnemonic.evex = parseEvexString(def.evex);
+        } else {
+            mnemonic.evex = def.evex;
+        }
+    }
 
     // Operand template.
     if(def.ops && def.ops.length) {
@@ -53,7 +71,7 @@ const mnemonicFromDefX86: (def: ITableDefinitionX86) => MnemonicX86 = def => {
             }, []);
             operand = flattened;
 
-            mnemonic.operands.push(operand as TTableOperandX86[]);
+            mnemonic.operandTemplates.push(operand as TTableOperandX86[]);
         }
 
         if(mnemonic.operandSize <= SIZE.NONE) {

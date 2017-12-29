@@ -1,11 +1,12 @@
 import {Expression, ExpressionVolatile, SIZE_UNKNOWN} from './expression';
-import {Def, DefMatchList} from './def';
+import Mnemonic from './Mnemonic';
 import * as o from './operand';
 import * as t from './table';
-import {Relative} from './operand';
+import {Operands, Relative} from './operand';
+import {Match} from "./plugins/x86/MnemonicX86";
 
 export class Instruction extends ExpressionVolatile {
-    def: Def = null; // Definition on how to construct this instruction.
+    mnemonic: Mnemonic = null; // Definition on how to construct this instruction.
     opts: object = null; // Instruction options provided by user.
 
     build(): this {
@@ -19,7 +20,7 @@ export class Instruction extends ExpressionVolatile {
 
     protected toStringExpression() {
         var parts = [];
-        parts.push(this.def.getMnemonic());
+        parts.push(this.mnemonic.getName());
         if((parts.join(' ')).length < 8) parts.push((new Array(7 - (parts.join(' ')).length)).join(' '));
         if(this.ops.list.length) parts.push(this.ops.toString());
         return parts.join(' ');
@@ -42,12 +43,12 @@ export class Instruction extends ExpressionVolatile {
 // Wrapper around multiple instructions when different machine instructions can be used to perform the same task.
 // For example, `jmp` with `rel8` or `rel32` immediate, or when multiple instruction definitions match provided operands.
 export class InstructionSet extends ExpressionVolatile {
-    matches: DefMatchList = null;
+    matches: Match[] = null;
     insn: Instruction[] = [];
     picked: number = -1; // Index of instruction that was eventually chosen.
     opts: object = null; // Instruction options provided by user.
 
-    constructor(ops: o.Operands, matches: DefMatchList, opts: object) {
+    constructor(ops: Operands, matches: Match[], opts: object) {
         super(ops);
         this.matches = matches;
         this.opts = opts;
@@ -195,41 +196,42 @@ export class InstructionSet extends ExpressionVolatile {
 
     build() {
         super.build();
-        var matches = this.matches.list;
-        var len = matches.length;
-        this.insn = new Array(len);
-        for(var j = 0; j < len; j++) {
-            var match = matches[j];
 
-            var insn = this.asm.instruction();
+        const {matches} = this;
+        const len = matches.length;
+
+        this.insn = [];
+        for(let j = 0; j < len; j++) {
+            const match = matches[j];
+
+            const insn = this.asm.instruction();
             insn.index = this.index;
-            insn.def = match.def;
+            insn.mnemonic = match.mnemonic;
             insn.opts = this.opts;
 
-            var ops = this.createInstructionOperands(insn, match.opTpl);
+            const ops = this.createInstructionOperands(insn, match.operandMatch);
             ops.validateSize();
             insn.ops = ops;
 
             insn.asm = this.asm;
             insn.build();
-            this.insn[j] = insn;
+
+            this.insn.push(insn);
         }
     }
 
     toString(margin = '    ', comment = true) {
         if(this.picked === -1) {
-            var expression = '(one of:)';
-            var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
+            let expression = '(one of:)';
+            const spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
+
             expression += spaces + `; ${this.formatOffset()} max ${this.bytesMax()} bytes\n`;
 
-            var lines = [];
-            // for(var j = 0; j < this.insn.length; j++) {
-            //     if(this.insn[j].ops) lines.push(this.insn[j].toString(margin, hex));
-            //     else lines.push('    ' + this.matches.list[j].def.toString());
-            // }
-            for(var match of this.matches.list) {
-                lines.push(margin + match.def.toString());
-            }
+            const lines = [];
+
+            for(const match of this.matches)
+                lines.push(margin + match.mnemonic.toString());
+
             return expression + lines.join('\n');
         } else {
             var picked = this.getPicked();

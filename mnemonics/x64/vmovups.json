@@ -13,6 +13,14 @@
         ],
         "operandSize": 128,
         "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "",
+            "L": 0,
+            "pp": 0,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": true
+        },
         "modes": [
             "REAL",
             "PROT",
@@ -39,6 +47,14 @@
         ],
         "operandSize": 256,
         "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "",
+            "L": 1,
+            "pp": 0,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": true
+        },
         "modes": [
             "REAL",
             "PROT",
@@ -65,6 +81,14 @@
         ],
         "operandSize": 128,
         "operandEncoding": "mr",
+        "vex": {
+            "vvvv": "",
+            "L": 0,
+            "pp": 0,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": true
+        },
         "modes": [
             "REAL",
             "PROT",
@@ -91,6 +115,14 @@
         ],
         "operandSize": 256,
         "operandEncoding": "mr",
+        "vex": {
+            "vvvv": "",
+            "L": 1,
+            "pp": 0,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": true
+        },
         "modes": [
             "REAL",
             "PROT",

@@ -6,6 +6,14 @@
         "opcodeHex": "41",
         "operands": [],
         "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "",
+            "L": 0,
+            "pp": 0,
+            "mmmmm": 1,
+            "W": 0,
+            "WIG": false
+        },
         "modes": [
             "REAL",
             "PROT",

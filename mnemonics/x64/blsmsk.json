@@ -14,6 +14,14 @@
         "operandSize": 32,
         "opcodeExtensionInModrm": 2,
         "operandEncoding": "vm",
+        "vex": {
+            "vvvv": "NDD",
+            "L": 0,
+            "pp": 0,
+            "mmmmm": 2,
+            "W": 0,
+            "WIG": false
+        },
         "modes": [
             "REAL",
             "PROT",
@@ -41,6 +49,14 @@
         "operandSize": 64,
         "opcodeExtensionInModrm": 2,
         "operandEncoding": "vm",
+        "vex": {
+            "vvvv": "NDD",
+            "L": 0,
+            "pp": 0,
+            "mmmmm": 2,
+            "W": 1,
+            "WIG": false
+        },
         "modes": [
             "X64"
         ],

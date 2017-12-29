@@ -15,6 +15,14 @@
         ],
         "operandSize": 128,
         "operandEncoding": "rvmr",
+        "vex": {
+            "vvvv": "NDS",
+            "L": 0,
+            "pp": 1,
+            "mmmmm": 3,
+            "W": 0,
+            "WIG": false
+        },
         "modes": [
             "REAL",
             "PROT",
@@ -43,6 +51,14 @@
         ],
         "operandSize": 256,
         "operandEncoding": "rvmr",
+        "vex": {
+            "vvvv": "NDS",
+            "L": 1,
+            "pp": 1,
+            "mmmmm": 3,
+            "W": 0,
+            "WIG": false
+        },
         "modes": [
             "REAL",
             "PROT",

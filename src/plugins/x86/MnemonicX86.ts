@@ -1,32 +1,51 @@
-import {SIZE, Register} from '../../operand';
-import {ITableDefinitionX86, TRexDefinition, TTableOperandX86} from "./table";
+import {isTnumber, Relative, SIZE, TOperand} from '../../operand';
+import {TRexDefinition} from "./table";
 import {IVexDefinition} from "./parts/PrefixVex";
 import {IEvexDefinition} from "./parts/PrefixEvex";
 import {EXT, MODE, MODES} from "./consts";
 import Mnemonic from "../../Mnemonic";
+import {defaults} from './table';
+import {OperandsX86} from "./operand/index";
+import {IInstructionOptionsX86} from "./instruction";
+import {TTableOperand} from "../../table";
+
+export type TOperandTemplate = TTableOperand[];
+export type TOperandMatch = TTableOperand[];
+
+const OPS = [];
+
+export class Match {
+    mnemonic: MnemonicX86;
+    operandMatch: TOperandMatch;
+
+    constructor (mnemonic: MnemonicX86, operandMatch: TOperandMatch) {
+        this.mnemonic = mnemonic;
+        this.operandMatch = operandMatch;
+    }
+}
 
 class MnemonicX86 extends Mnemonic {
-    mnemonic: string = '';
-    operandSize: SIZE = SIZE.NONE;
-    opcode: number = 0x00;
-    operands: TTableOperandX86[][];
-    opreg: number;
-    operandSizeDefault: number;
-    lock: boolean;
-    regInOp: boolean;
-    opcodeDirectionBit: boolean;
-    useModrm: boolean;
-    rep: boolean;
-    repne: boolean;
-    prefixes: number[];
-    opEncoding: string;
-    rex: TRexDefinition;
-    vex: IVexDefinition;
-    evex: IEvexDefinition;
-    mode: MODE;
-    extensions: EXT[];
+    mnemonic: string = defaults.mn;
+    operandSize: SIZE = defaults.s;
+    opcode: number = defaults.o;
+    operandTemplates: TOperandTemplate[] = OPS;
+    opreg: number = defaults.or;
+    operandSizeDefault: number = defaults.ds;
+    lock: boolean = defaults.lock;
+    regInOp: boolean = defaults.r;
+    opcodeDirectionBit: boolean = defaults.dbit;
+    useModrm: boolean = defaults.mr;
+    rep: boolean = defaults.rep;
+    repne: boolean = defaults.repne;
+    prefixes: number[] = defaults.pfx;
+    opEncoding: string = defaults.en;
+    rex: TRexDefinition = defaults.rex;
+    vex: IVexDefinition = null;
+    evex: IEvexDefinition = null;
+    mode: MODE = defaults.mod;
+    extensions: EXT[] = defaults.ext;
 
-    toJson() {
+    toJson () {
         let json = super.toJson();
 
         if (this.opreg > 0) json.opcodeExtensionInModrm = this.opreg;
@@ -61,106 +80,89 @@ class MnemonicX86 extends Mnemonic {
         return json;
     }
 
-/*
-    protected matchOperandTemplate(tpl: t.TTableOperand, operand: o.TOperand): t.TTableOperand|any {
-        if(typeof tpl === 'number') {
-            if((tpl as any) === operand) return tpl;
+    toString () {
+        let opregstr = '';
+        if (this.opreg > -1) opregstr = ' /' + this.opreg;
+
+        const lock = this.lock ? ' LOCK' : '';
+        const rex = this.rex ? ' REX ' + this.rex : '';
+        const vex = this.vex ? ' VEX ' + JSON.stringify(this.vex) : '';
+        const evex = this.evex ? ' EVEX ' + JSON.stringify(this.evex) : '';
+
+        let dbit = '';
+        if (this.opcodeDirectionBit) dbit = ' d-bit';
+
+        return super.toString() + opregstr + lock + rex + vex + evex + dbit;
+    }
+
+    protected matchOperandTemplateCase (tpl: TTableOperand, operand: TOperand): TTableOperand {
+        if (typeof tpl === 'number') {
+            if (tpl === operand) return tpl;
             else return null;
-        } else if(typeof tpl === 'object') { // Object: rax, rbx, r8, etc...
-            if((tpl as any) === operand) return tpl;
+        } else if (typeof tpl === 'object') {
+            // Object: rax, rbx, r8, etc...
+            if(tpl === operand) return tpl;
             else return null;
-        } else if(typeof tpl === 'function') { // Class: o.Register, o.Memory, o.Immediate, etc...
-            var OperandClass = tpl as any; // as typeof o.Operand;
-            if(OperandClass.name.indexOf('Relative') === 0) { // as typeof o.Relative
+        } else if(typeof tpl === 'function') {
+            // Class: o.Register, o.Memory, o.Immediate, etc...
+            if (tpl.prototype instanceof Relative) { // as typeof o.Relative
                 // Here we cannot yet check any sizes even cannot check if number
                 // fits the immediate size because we will have to rebase the o.Relative
                 // to the currenct instruction Expression.
-                if(o.isTnumber(operand)) return OperandClass;
-                else if(operand instanceof o.Relative) return OperandClass;
+                if (isTnumber(operand)) return tpl;
+                else if (operand instanceof Relative) return tpl;
                 else return null;
-            } else { // o.Register, o.Memory
-                if(operand instanceof OperandClass) return OperandClass;
+            } else {
+                // o.Register, o.Memory
+                if(operand instanceof tpl) return tpl;
                 else return null;
             }
         } else
             throw TypeError('Invalid operand definition.'); // Should never happen.
     }
 
-    protected matchOperandTemplates(templates: t.TTableOperand[], operand: o.TOperand): t.TTableOperand|any {
-        for(let tpl of templates) {
-            var match = this.matchOperandTemplate(tpl, operand);
-            if(match) return match;
+    protected matchOperandTemplate (template: TOperandTemplate, operand: TOperand): TTableOperand {
+        for (const tpl of template) {
+            let match = this.matchOperandTemplateCase(tpl, operand);
+            if (match) return match;
         }
-        return null;
     }
 
-    matchOperands(ops: o.Operands): (any|t.TTableOperand)[] {
-        if(!this.operands) return null;
-        if(this.operands.length !== ops.list.length) return null;
-        if(!ops.list.length) return [];
-        var matches: t.TTableOperand[] = [];
-        for(let i = 0; i < ops.list.length; i++) {
-            let templates = this.operands[i];
-            let operand = ops.list[i];
-            var match = this.matchOperandTemplates(templates, operand);
+    match (ops: OperandsX86, opts: IInstructionOptionsX86): Match {
+        if(opts.size !== SIZE.ANY) {
+            if(opts.size !== this.operandSize) return null;
+        }
+        if (!this.operandTemplates) return null;
+        if (this.operandTemplates.length !== ops.list.length) return null;
 
-            if(!match) return null;
+        console.log('HERE');
+
+        // If registers are 5-bit wide, we can encode them only with EVEX, not VEX.
+        if(this.vex && ops.has5bitRegister()) return null;
+
+        if (!ops.list.length) return new Match(this, []);
+
+        const matches: TOperandMatch = [];
+
+        for(let i = 0; i < ops.list.length; i++) {
+            const template = this.operandTemplates[i];
+            const operand = ops.list[i];
+            const match = this.matchOperandTemplate(template, operand);
+
+            if (!match) return null;
+
             matches.push(match);
         }
-        return matches;
+
+        return new Match(this, matches);
     }
 
-    toStringOperand(operand) {
-        if(typeof operand === 'number') return operand;
-        if(typeof operand === 'string') return operand;
-        if(operand instanceof o.Operand) return operand.toString();
-        else if(typeof operand === 'function') {
-            if(operand === o.Register)      return 'r';
-            if(operand === o.Memory)        return 'm';
-            if(operand === o.Relative)      return 'rel';
-            if(operand === o.Relative8)     return 'rel8';
-            if(operand === o.Relative16)    return 'rel16';
-            if(operand === o.Relative32)    return 'rel32';
-        } else return 'operand';
-    }
+/*
 
     getMnemonic(): string {
         var size = this.operandSize;
         if((size === o.SIZE.ANY) || (size === o.SIZE.NONE)) return this.mnemonic;
         return this.mnemonic + o.SIZE[size].toLowerCase();
-    }
-
-    toJsonOperands() {
-        var ops = [];
-        for(var op_tpl of this.operands) {
-            var op_out = [];
-            for(var op of op_tpl) {
-                op_out.push(this.toStringOperand(op));
-            }
-            if(op_out.length > 1) ops.push(op_out);
-            else ops.push(op_out[0]);
-        }
-        return ops;
-    }
-
-    toString() {
-        var opcode = ' ' + (new o.Constant(this.opcode, false)).toString();
-
-        var operands = [];
-        for(var ops of this.operands) {
-            var opsarr = [];
-            for(var op of ops) {
-                opsarr.push(this.toStringOperand(op));
-            }
-            operands.push(opsarr.join('/'));
-        }
-        var operandsstr = '';
-        if(operands.length) operandsstr = ' ' + operands.join(',');
-
-        var size = '';
-        if(this.operandSize > 0) size = ' ' + this.operandSize + '-bit';
-
-        return this.mnemonic + size + opcode + operandsstr;
     }
     */
 }

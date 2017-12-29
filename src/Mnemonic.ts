@@ -1,4 +1,4 @@
-import {Constant, Memory, Operand, Register, Relative, Relative16, Relative32, Relative8, SIZE} from "./operand";
+import {Constant, SIZE, TOperand} from "./operand";
 import {TTableOperand} from "./table";
 
 export class Mnemonic {
@@ -20,66 +20,17 @@ export class Mnemonic {
     mnemonic: string = '';
     operandSize: SIZE = SIZE.NONE;
     opcode: number = 0x00;
-    operands: TTableOperand[][];
-/*
-    protected matchOperandTemplate(tpl: t.TTableOperand, operand: o.TOperand): t.TTableOperand|any {
-        if(typeof tpl === 'number') {
-            if((tpl as any) === operand) return tpl;
-            else return null;
-        } else if(typeof tpl === 'object') { // Object: rax, rbx, r8, etc...
-            if((tpl as any) === operand) return tpl;
-            else return null;
-        } else if(typeof tpl === 'function') { // Class: o.Register, o.Memory, o.Immediate, etc...
-            var OperandClass = tpl as any; // as typeof o.Operand;
-            if(OperandClass.name.indexOf('Relative') === 0) { // as typeof o.Relative
-                // Here we cannot yet check any sizes even cannot check if number
-                // fits the immediate size because we will have to rebase the o.Relative
-                // to the currenct instruction Expression.
-                if(o.isTnumber(operand)) return OperandClass;
-                else if(operand instanceof o.Relative) return OperandClass;
-                else return null;
-            } else { // o.Register, o.Memory
-                if(operand instanceof OperandClass) return OperandClass;
-                else return null;
-            }
-        } else
-            throw TypeError('Invalid operand definition.'); // Should never happen.
-    }
+    operandTemplates: TTableOperand[][];
 
-    protected matchOperandTemplates(templates: t.TTableOperand[], operand: o.TOperand): t.TTableOperand|any {
-        for(let tpl of templates) {
-            var match = this.matchOperandTemplate(tpl, operand);
-            if(match) return match;
-        }
-        return null;
-    }
-
-    matchOperands(ops: o.Operands): (any|t.TTableOperand)[] {
-        if(!this.operands) return null;
-        if(this.operands.length !== ops.list.length) return null;
-        if(!ops.list.length) return [];
-        var matches: t.TTableOperand[] = [];
-        for(let i = 0; i < ops.list.length; i++) {
-            let templates = this.operands[i];
-            let operand = ops.list[i];
-            var match = this.matchOperandTemplates(templates, operand);
-
-            if(!match) return null;
-            matches.push(match);
-        }
-        return matches;
-    }
-*/
-
-    getMnemonic (): string {
+    getName (): string {
         const size = this.operandSize;
         if((size === SIZE.ANY) || (size === SIZE.NONE)) return this.mnemonic;
         return this.mnemonic + SIZE[size].toLowerCase();
     }
 
-    toJsonOperands() {
+    toJsonOperands () {
         let ops = [];
-        for(let operandTemplate of this.operands) {
+        for(let operandTemplate of this.operandTemplates) {
             let arr = [];
             for(let op of operandTemplate) arr.push(Mnemonic.toStringOperand(op));
             if(arr.length > 1) ops.push(arr);
@@ -88,10 +39,10 @@ export class Mnemonic {
         return ops;
     }
 
-    toJson() {
+    toJson () {
         let json: any = {
             mnemonic: this.mnemonic,
-            mnemonicPrecise: this.getMnemonic(),
+            mnemonicPrecise: this.getName(),
             opcode: this.opcode,
             opcodeHex: this.opcode.toString(16).toUpperCase(),
             operands: this.toJsonOperands(),
@@ -102,11 +53,11 @@ export class Mnemonic {
         return json;
     }
 
-    toString() {
+    toString () {
         const opcode = ' ' + (new Constant(this.opcode, false)).toString();
 
         let operands = [];
-        for(let ops of this.operands) {
+        for(let ops of this.operandTemplates) {
             let opsarr = [];
             for(let op of ops) {
                 opsarr.push(Mnemonic.toStringOperand(op));

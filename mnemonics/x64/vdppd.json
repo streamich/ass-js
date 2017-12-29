@@ -15,6 +15,14 @@
         ],
         "operandSize": 128,
         "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "NDS",
+            "L": 0,
+            "pp": 1,
+            "mmmmm": 3,
+            "W": 1,
+            "WIG": true
+        },
         "modes": [
             "REAL",
             "PROT",

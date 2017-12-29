@@ -3,7 +3,7 @@ import {number64, Tnumber, Immediate, ImmediateUnsigned} from '../../operand';
 import {TemplateX86Lock, TemplateX86Rex} from './template';
 import {MemoryX86} from './operand/memory';
 import {InstructionX86} from './instruction';
-import {OperandsX86} from "./operand/index";
+import {OperandsX86} from "./operand";
 import operandParser from './operand/parser';
 
 class PluginX86 extends Plugin {

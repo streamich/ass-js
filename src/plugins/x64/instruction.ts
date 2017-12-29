@@ -11,12 +11,12 @@ export class InstructionX64 extends InstructionX86 {
 
     protected needs32To64OperandSizeChange() {
         // Default operand size in x64 mode is 32 bits.
-        return this.def.operandSize === SIZE.Q;
+        return this.mnemonic.operandSize === SIZE.Q;
     }
 
     protected needsRexPrefix() {
         if(this.pfxEx) return false; // VEX or EVEX already set
-        if(this.def.rex) return true;
+        if(this.mnemonic.rex) return true;
         if(!this.ops.list.length) return false;
         // if(!this.ops.hasRegisterOrMemory()) return false;
         
@@ -29,7 +29,7 @@ export class InstructionX64 extends InstructionX86 {
         if((dst === o.sil) || (dst === o.dil) || (dst === o.spl) || (dst === o.bpl) ||
             (src === o.sil) || (src === o.dil) || (src === o.spl) || (src === o.bpl)) return true;
 
-        if(this.def.operandSizeDefault === SIZE.Q) return false;
+        if(this.mnemonic.operandSizeDefault === SIZE.Q) return false;
         if(this.needs32To64OperandSizeChange()) return true;
         return false;
     }
@@ -44,14 +44,14 @@ export class InstructionX64 extends InstructionX86 {
         if((dst instanceof Register8High) || (src instanceof Register8High))
             throw Error('Cannot encode REX prefix with high 8-bit register.');
 
-        if(this.def.opEncoding === 'mr')
+        if(this.mnemonic.opEncoding === 'mr')
             [dst, src] = [src, dst];
 
         var W = 0, R = 0, X = 0, B = 0;
 
-        if(this.needs32To64OperandSizeChange() && (this.def.operandSizeDefault !== SIZE.Q)) W = 1;
+        if(this.needs32To64OperandSizeChange() && (this.mnemonic.operandSizeDefault !== SIZE.Q)) W = 1;
 
-        var pos = this.def.opEncoding.indexOf('m');
+        var pos = this.mnemonic.opEncoding.indexOf('m');
         if(pos > -1) {
             var m = this.ops.getMemoryOperand() as MemoryX86; // Memory operand is only one.
             if(m) {
@@ -95,8 +95,8 @@ export class InstructionX64 extends InstructionX86 {
 
             // Encode `Modrm.reg` field.
             var reg = 0;
-            if(this.def.opreg > -1) {
-                reg = this.def.opreg;
+            if(this.mnemonic.opreg > -1) {
+                reg = this.mnemonic.opreg;
             } else {
                 var r = this.ops.getRegisterOperand();
                 if(r) reg = r.get3bitId();

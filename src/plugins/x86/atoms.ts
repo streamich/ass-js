@@ -6,6 +6,7 @@ import {MODE as M, EXT, INS} from './consts';
 import {Memory} from "../../operand";
 import {Memory128, Memory16, Memory256, Memory32, Memory512, Memory64, Memory8} from "./operand/memory";
 
+export * from './operand/generator';
 export * from '../../atoms';
 
 export {

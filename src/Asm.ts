@@ -13,9 +13,9 @@ export interface IAsmOptions {
     plugins: Plugin[],
 }
 
-class Asm {
+class Asm<TOptions extends IAsmOptions> {
     expressions: Expression[] = [];
-    opts: IAsmOptions;
+    opts: TOptions;
 
     hooks = {
         mnemonic: new Hook(['mnemonic', 'operands', 'opts']),
@@ -26,7 +26,7 @@ class Asm {
         instruction: new Hook([]),
     };
 
-    constructor (opts: IAsmOptions) {
+    constructor (opts: TOptions) {
         if (typeof opts !== 'object' || !opts)
             throw new TypeError('Need to provide options object to Asm.');
 

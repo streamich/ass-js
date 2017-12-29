@@ -2,17 +2,16 @@ import {Constant, Immediate, Operand, SIZE} from '../../operand';
 import * as o from './operand';
 import {Instruction, InstructionSet} from '../../instruction';
 import * as p from './parts';
-import * as d from './def';
-import * as c from './code';
 import {DisplacementValue} from "./operand/displacement";
 import {RegisterK, RegisterX86} from "./operand/register";
 import {MemoryX86} from "./operand/memory";
+import MnemonicX86 from "./MnemonicX86";
 
 
 export interface IInstructionOptionsX86 {
     size: SIZE;
     mask?: RegisterK;
-    z: number | boolean;
+    z?: number | boolean;
 }
 
 export interface IInstructionX86 {
@@ -38,7 +37,7 @@ export interface IInstructionX86 {
 // out of those `Instruction` generates `InstructionPart`s, which then can be packaged into machine
 // code using `.write()` method.
 export class InstructionX86 extends Instruction implements IInstructionX86 {
-    def: d.Def;
+    mnemonic: MnemonicX86;
     ops: o.OperandsX86;
     opts: IInstructionOptionsX86;
 
@@ -155,8 +154,8 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
     }
 
     lock(): this {
-        if(!this.def.lock)
-            throw Error(`Instruction "${this.def.mnemonic}" does not support LOCK.`);
+        if(!this.mnemonic.lock)
+            throw Error(`Instruction "${this.mnemonic.mnemonic}" does not support LOCK.`);
 
         this.pfxLock = new p.PrefixLock;
         this.length++;
@@ -173,15 +172,15 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
     }
 
     rep(): this {
-        if(p.PrefixRep.supported.indexOf(this.def.mnemonic) === -1)
-            throw Error(`Instruction "${this.def.mnemonic}" does not support REP prefix.`);
+        if(p.PrefixRep.supported.indexOf(this.mnemonic.mnemonic) === -1)
+            throw Error(`Instruction "${this.mnemonic.mnemonic}" does not support REP prefix.`);
         this.pfxRep = new p.PrefixRep;
         return this;
     }
 
     repe() {
-        if(p.PrefixRepe.supported.indexOf(this.def.mnemonic) === -1)
-            throw Error(`Instruction "${this.def.mnemonic}" does not support REPE/REPZ prefix.`);
+        if(p.PrefixRepe.supported.indexOf(this.mnemonic.mnemonic) === -1)
+            throw Error(`Instruction "${this.mnemonic.mnemonic}" does not support REPE/REPZ prefix.`);
         this.pfxRep = new p.PrefixRepe;
         return this;
     }
@@ -191,8 +190,8 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
     }
 
     repne(): this {
-        if(p.PrefixRepne.supported.indexOf(this.def.mnemonic) === -1)
-            throw Error(`Instruction "${this.def.mnemonic}" does not support REPNE/REPNZ prefix.`);
+        if(p.PrefixRepne.supported.indexOf(this.mnemonic.mnemonic) === -1)
+            throw Error(`Instruction "${this.mnemonic.mnemonic}" does not support REPNE/REPNZ prefix.`);
         this.pfxRepne = new p.PrefixRepne;
         return this;
     }
@@ -241,8 +240,8 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
     }
 
     protected needsOperandSizeOverride() {
-        if((this.asm.opts.operandSize === SIZE.D) && (this.def.operandSize === SIZE.W)) return true;
-        if((this.asm.opts.operandSize === SIZE.W) && (this.def.operandSize === SIZE.D)) return true;
+        if((this.asm.opts.operandSize === SIZE.D) && (this.mnemonic.operandSize === SIZE.W)) return true;
+        if((this.asm.opts.operandSize === SIZE.W) && (this.mnemonic.operandSize === SIZE.D)) return true;
         return false;
     }
 
@@ -267,17 +266,17 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
             this.lengthMax++;
         }
 
-        if(this.def.vex) this.createVexPrefix();
-        else if(this.def.evex) this.createEvexPrefix();
+        if(this.mnemonic.vex) this.createVexPrefix();
+        else if(this.mnemonic.evex) this.createEvexPrefix();
 
 
         // Mandatory prefixes required by op-code.
-        if(this.def.prefixes) {
-            for(var val of this.def.prefixes) {
+        if(this.mnemonic.prefixes) {
+            for(var val of this.mnemonic.prefixes) {
                 this.prefixes.push(new p.PrefixStatic(val));
             }
-            this.length += this.def.prefixes.length;
-            this.lengthMax += this.def.prefixes.length;
+            this.length += this.mnemonic.prefixes.length;
+            this.lengthMax += this.mnemonic.prefixes.length;
         }
     }
 
@@ -285,21 +284,21 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
         // These bits in VEX are inverted, so they actually all mean "0" zeros.
         var R = 1, X = 1, B = 1, vvvv = 0b1111;
 
-        var pos = this.def.opEncoding.indexOf('v');
+        var pos = this.mnemonic.opEncoding.indexOf('v');
         if(pos > -1) {
             var reg = this.ops.getAtIndexOfClass(pos, RegisterX86) as RegisterX86;
             if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode VEX.vvvv`);
             vvvv = (~reg.get4bitId()) & 0b1111; // Inverted
         }
 
-        pos = this.def.opEncoding.indexOf('r');
+        pos = this.mnemonic.opEncoding.indexOf('r');
         if(pos > -1) {
             var reg = this.ops.getAtIndexOfClass(pos, RegisterX86) as RegisterX86;
             if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode VEX.R`);
             if(reg.idSize() > 3) R = 0; // Inverted
         }
 
-        pos = this.def.opEncoding.indexOf('m');
+        pos = this.mnemonic.opEncoding.indexOf('m');
         if(pos > -1) {
             var reg = this.ops.getAtIndexOfClass(pos, RegisterX86) as RegisterX86;
             if(reg && (reg.idSize() > 3)) B = 0; // Inverted
@@ -311,17 +310,17 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
             if (mem.index && (mem.index.idSize() > 3)) X = 0;
         }
 
-        this.pfxEx = new p.PrefixVex(this.def.vex, R, X, B, vvvv);
+        this.pfxEx = new p.PrefixVex(this.mnemonic.vex, R, X, B, vvvv);
         this.length += (this.pfxEx as p.PrefixVex).bytes;
         this.lengthMax += (this.pfxEx as p.PrefixVex).bytes;
     }
 
     protected createEvexPrefix() {
-        var evex = this.pfxEx = new p.PrefixEvex(this.def.evex);
+        var evex = this.pfxEx = new p.PrefixEvex(this.mnemonic.evex);
         this.length += 3;
         this.lengthMax += 3;
 
-        var pos = this.def.opEncoding.indexOf('v');
+        var pos = this.mnemonic.opEncoding.indexOf('v');
         if(pos > -1) {
             var reg = this.ops.getAtIndexOfClass(pos, RegisterX86) as RegisterX86;
             if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode EVEX.vvvv`);
@@ -329,7 +328,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
             evex.Vp = reg.id & 0b10000 ? 0 : 1; // Inverted
         }
 
-        pos = this.def.opEncoding.indexOf('r');
+        pos = this.mnemonic.opEncoding.indexOf('r');
         if(pos > -1) {
             var reg = this.ops.getAtIndexOfClass(pos, RegisterX86) as RegisterX86;
             if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode VEX.R`);
@@ -342,7 +341,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
             }
         }
 
-        pos = this.def.opEncoding.indexOf('m');
+        pos = this.mnemonic.opEncoding.indexOf('m');
         if(pos > -1) {
             var reg = this.ops.getAtIndexOfClass(pos, RegisterX86) as RegisterX86;
             if(reg) {
@@ -384,7 +383,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
     }
 
     protected createOpcode() {
-        var def = this.def;
+        var def = this.mnemonic;
         var opcode = this.opcode;
         opcode.op = def.opcode;
 
@@ -397,7 +396,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
             opcode.op = (opcode.op & p.Opcode.MASK_OP) | (dst as RegisterX86).get3bitId();
         } else {
             // Direction bit `d`
-            if(this.def.opcodeDirectionBit) {
+            if(this.mnemonic.opcodeDirectionBit) {
                 var direction = p.Opcode.DIRECTION.REG_IS_DST;
 
                 if(src instanceof RegisterX86) {
@@ -426,23 +425,23 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
     }
 
     protected createModrm() {
-        if(!this.def.useModrm) return;
+        if(!this.mnemonic.useModrm) return;
         if(!this.ops.hasRegisterOrMemory()) return;
 
-        var encoding = this.def.opEncoding;
+        var encoding = this.mnemonic.opEncoding;
         var mod = 0, reg = 0, rm = 0;
 
         var [dst, src] = this.ops.list;
-        var has_opreg = (this.def.opreg > -1);
-        var dst_in_modrm = !this.def.regInOp && !!dst; // Destination operand is NOT encoded in main op-code byte.
+        var has_opreg = (this.mnemonic.opreg > -1);
+        var dst_in_modrm = !this.mnemonic.regInOp && !!dst; // Destination operand is NOT encoded in main op-code byte.
         if(has_opreg || dst_in_modrm) {
 
             // var reg_is_dst = !!(this.opcode.op & p.Opcode.DIRECTION.REG_IS_DST);
-            var reg_is_dst = this.def.opEncoding[0] !== 'm' ? true : false;
+            var reg_is_dst = this.mnemonic.opEncoding[0] !== 'm' ? true : false;
 
             if(has_opreg) {
                 // If we have `opreg`, then instruction has up to one operand.
-                reg = this.def.opreg;
+                reg = this.mnemonic.opreg;
                 var r: RegisterX86 = this.ops.getRegisterOperand() as RegisterX86;
                 if (r) {
                     mod = p.Modrm.MOD.REG_TO_REG;

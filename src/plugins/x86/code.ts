@@ -42,58 +42,5 @@ export class Code extends CodeBase {
     }
     */
 
-    _(mnemonic: string, operands: o.TUiOperand|o.TUiOperand[] = [], options: o.SIZE|IInstructionOptions|any = {size: o.SIZE.ANY}): i.Instruction|i.InstructionSet {
-        if(typeof mnemonic !== 'string') throw TypeError('`mnemonic` argument must be a string.');
 
-        let opts: IInstructionOptions;
-        if(typeof options === 'number') {
-            opts = {size: options as number};
-        } else if(typeof options === 'object') {
-            opts = options;
-        } else
-            throw TypeError(`options must be a number or object.`);
-        if(typeof opts.size === 'undefined') opts.size = o.SIZE.ANY;
-
-        if(!(operands instanceof Array)) operands = [operands] as o.TUiOperand[];
-        const ops = new this.ClassOperands(operands as o.TUiOperand[], opts.size);
-        ops.normalizeExpressionToRelative();
-
-        const matches = this.matchDefinitions(mnemonic, ops, opts);
-
-        const iset = new this.ClassInstructionSet(ops, matches, opts);
-        this.insert(iset);
-
-        const insn = iset.pickShortestInstruction();
-        if(insn) {
-            this.replace(insn, iset.index);
-            return insn;
-        } else
-            return iset;
-    }
-
-    protected matchDefinitions(mnemonic: string, ops: o.OperandsX86, opts: IInstructionOptions): d.DefMatchList {
-        var matches = this.table.matchDefinitions(mnemonic, ops, opts);
-        if(!matches.list.length)
-            throw Error(`Could not match operands to instruction definition ${mnemonic}.`);
-
-        for(var j = matches.list.length - 1; j >= 0; j--) {
-            var def = matches.list[j].def as d.Def;
-
-            // Check mode of CPU.
-            if(!(this.mode & def.mode)) {
-                matches.list.splice(j, 1);
-                continue;
-            }
-
-            // If EVEX-specific options provided by user,
-            // remove instruction definition matches that don't have EVEX prefix.
-            var needs_evex = opts.mask || (typeof opts.z !== 'undefined');
-            if(needs_evex) {
-                if(!def.evex) matches.list.splice(j, 1);
-                continue;
-            }
-        }
-
-        return matches;
-    }
 }

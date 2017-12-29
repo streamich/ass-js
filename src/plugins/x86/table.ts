@@ -24,9 +24,10 @@ export type TRexDefinition = [number, number, number, number];
 
 
 export interface ITableDefinitionX86 extends ITableDefinition {
+    ops?: (TTableOperandX86|TTableOperandX86[])[];  // Operands this instruction accepts.
+
     ds?: number;                                    // Default size, usually 32 bits on x64, some instructions default to 64 bits.
     lock?: boolean;                                 // Whether LOCK prefix allowed.
-    ops?: (TTableOperandX86|TTableOperandX86[])[];  // Operands this instruction accepts.
     or?: number;                                    // Opreg - 3bit opcode part in modrm.reg field, -1 if none.
     i?: number;                                     // Hex octet, when +i provided in x87 floating point operations.
     r?: boolean;                                    // 3bit register encoded in lowest opcode bits.

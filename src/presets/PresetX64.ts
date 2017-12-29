@@ -4,6 +4,7 @@ import PluginX86 from '../plugins/x86/PluginX86';
 import PluginX64 from '../plugins/x64/PluginX64';
 import PluginTemplate from '../plugins/template/PluginTemplate';
 import {SIZE} from '../operand';
+import {MODE} from "../plugins/x86/consts";
 
 const PresetX64 = (opts = {}) => {
     const plugins = [
@@ -17,6 +18,7 @@ const PresetX64 = (opts = {}) => {
     return {
         operandSize: SIZE.D,
         addressSize: SIZE.Q,
+        mode: MODE.ALL,
         ...opts,
         plugins
     };
