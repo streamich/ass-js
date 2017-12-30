@@ -17,15 +17,19 @@ export class Instruction extends ExpressionVolatile {
     write(arr: IPushable) {}
 
     protected toStringExpression() {
-        var parts = [];
+        const parts = [];
+
         parts.push(this.mnemonic.getName());
-        if((parts.join(' ')).length < 8) parts.push((new Array(7 - (parts.join(' ')).length)).join(' '));
-        if(this.ops.list.length) parts.push(this.ops.toString());
+        if ((parts.join(' ')).length < 8)
+            parts.push((new Array(7 - (parts.join(' ')).length)).join(' '));
+        if (this.ops.list.length)
+            parts.push(this.ops.toString());
+
         return parts.join(' ');
     }
 
     toString (margin = '    ', comment = true) {
-        const expression = margin + this.toStringExpression();
+        const expression = this.toStringExpression();
         let cmt = '';
 
         if(comment) {

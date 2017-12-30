@@ -623,14 +623,14 @@ export type TOperand = (Tnumber|Operand|Expression);
 // Collection of operands an `Expression` might have.
 export class Operands {
 
-    static findSize(ops: TUiOperand[]): SIZE {
+    static findSize (ops: TUiOperand[]): SIZE {
         for(var operand of ops) {
             if(operand instanceof Register) return (operand as Register).size;
         }
         return SIZE.NONE;
     }
 
-    static uiOpsNormalize(ops: TUiOperand[]): TUiOperandNormalized[] {
+    static uiOpsNormalize (ops: TUiOperand[]): TUiOperandNormalized[] {
         var i = require('./instruction');
         // Wrap `Expression` into `Relative`.
         for(var j = 0; j < ops.length; j++) {
@@ -646,19 +646,19 @@ export class Operands {
     size: SIZE = SIZE.ANY; // Size of each operand.
 
 
-    constructor(list: TOperand[] = [], size: SIZE = SIZE.ANY) {
+    constructor (list: TOperand[] = [], size: SIZE = SIZE.ANY) {
         this.size = size;
         this.list = list;
     }
 
-    clone(Clazz: typeof Operands = Operands) {
+    clone (Clazz: typeof Operands = Operands) {
         var list = [];
         for(var op of this.list) list.push(op);
         return new Clazz(list, this.size);
     }
 
     // Wrap `Expression` into `Relative`.
-    normalizeExpressionToRelative() {
+    normalizeExpressionToRelative () {
         var i = require('./instruction');
         var ops = this.list;
         for(var j = 0; j < ops.length; j++) {
@@ -668,7 +668,7 @@ export class Operands {
         }
     }
 
-    validateSize() {
+    validateSize () {
         // Verify operand sizes.
         for(var op of this.list) {
             // We can determine operand size only by Register; Memory and Immediate and others don't tell us the right size.
@@ -681,18 +681,18 @@ export class Operands {
         }
     }
 
-    setSize(size: SIZE) {
+    setSize (size: SIZE) {
         if(this.size === SIZE.ANY) this.size = size;
         else throw TypeError('Operand size mismatch.');
     }
 
-    getAtIndexOfClass(index, Clazz) {
+    getAtIndexOfClass (index, Clazz) {
         var op = this.list[index];
         if(op instanceof Clazz) return op;
         else return null;
     }
 
-    getFirstOfClass(Clazz, skip = 0) {
+    getFirstOfClass (Clazz, skip = 0) {
         for(var op of this.list) {
             if(op instanceof Clazz) {
                 if(!skip) return op;
@@ -702,53 +702,53 @@ export class Operands {
         return null;
     }
 
-    getRegisterOperand(skip = 0): Register {
+    getRegisterOperand (skip = 0): Register {
         return this.getFirstOfClass(Register, skip) as Register;
     }
 
-    getMemoryOperand(skip = 0): Memory {
+    getMemoryOperand (skip = 0): Memory {
         return this.getFirstOfClass(Memory, skip) as Memory;
     }
 
-    getVariable(skip = 0): Variable {
+    getVariable (skip = 0): Variable {
         return this.getFirstOfClass(Variable, skip) as Variable;
     }
 
-    getRelative(skip = 0): Relative {
+    getRelative (skip = 0): Relative {
         return this.getFirstOfClass(Relative, skip) as Relative;
     }
 
-    getImmediate(skip = 0): Immediate {
+    getImmediate (skip = 0): Immediate {
         return this.getFirstOfClass(Immediate, skip) as Immediate;
     }
 
-    getAddressSize(): SIZE {
+    getAddressSize (): SIZE {
         var mem = this.getMemoryOperand();
         if(mem) return mem.size;
         else return SIZE.NONE;
     }
 
-    hasRegister(): boolean {
+    hasRegister (): boolean {
         return !!this.getRegisterOperand();
     }
 
-    hasMemory(): boolean {
+    hasMemory (): boolean {
         return !!this.getMemoryOperand();
     }
 
-    hasVariable(): boolean {
+    hasVariable (): boolean {
         return !!this.getMemoryOperand();
     }
 
-    hasRelative(): boolean {
+    hasRelative (): boolean {
         return !!this.getRelative();
     }
 
-    hasRegisterOrMemory(): boolean {
+    hasRegisterOrMemory (): boolean {
         return this.hasRegister() || this.hasMemory();
     }
 
-    canEvaluate(owner: Expression): boolean {
+    canEvaluate (owner: Expression): boolean {
         for(var op of this.list) {
             if(op instanceof Variable)
                 if(!(op as Variable).canEvaluate(owner)) return false;
@@ -756,25 +756,25 @@ export class Operands {
         return true;
     }
 
-    evaluate(owner: Expression) {
+    evaluate (owner: Expression) {
         for(var op of this.list)
             if(op instanceof Variable) (op as Variable).evaluate(owner);
     }
 
     // EVEX may encode up to 4 operands, 32 registers, so register can be up to 5-bits wide,
     // we need to check for that because in that case we cannot use VEX.
-    has5bitRegister() {
-        for(var j = 0; j < 4; j++) {
-            var op = this.list[j];
-            if(!op) break;
-            if(op instanceof Register) {
-                if((op as Register).idSize() > 4) return true;
+    has5bitRegister () {
+        for(let j = 0; j < 4; j++) {
+            const op = this.list[j];
+            if (!op) break;
+            if (op instanceof Register) {
+                if ((op as Register).idSize() > 4) return true;
             }
         }
         return false;
     }
 
-    toString() {
+    toString () {
         return this.list.map((op) => { return op.toString(); }).join(', ');
     }
 }

@@ -231,11 +231,13 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
     }
 
     protected toStringExpression() {
-        var expression = super.toStringExpression();
-        if(this.pfxLock) expression += ` {${this.pfxLock.toString()}}`;
-        if(this.pfxSegment) expression += ` {${this.pfxSegment.toString()}}`;
-        if(this.opts.mask) expression += ` {${this.opts.mask.toString()}}`;
-        if(this.opts.z) expression += ` {z}`;
+        let expression = super.toStringExpression();
+
+        if (this.pfxLock) expression += ` {${this.pfxLock.toString()}}`;
+        if (this.pfxSegment) expression += ` {${this.pfxSegment.toString()}}`;
+        if (this.opts.mask) expression += ` {${this.opts.mask.toString()}}`;
+        if (this.opts.z) expression += ` {z}`;
+
         return expression;
     }
 

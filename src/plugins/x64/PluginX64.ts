@@ -2,9 +2,10 @@ import Plugin from "../Plugin";
 import {InstructionX64} from './instruction';
 import MNEMONICS from './__generated/__map';
 import MnemonicVariationsX86 from "../x86/MnemonicVariationsX86";
-import {SIZE, TUiOperand} from "../../operand";
+import {Register, SIZE, TUiOperand} from "../../operand";
 import {IInstructionOptionsX86, InstructionSetX86} from "../x86/instruction";
 import {Match} from "../x86/MnemonicX86";
+import {OperandsX86} from "../x86/operand/index";
 
 
 class PluginX64 extends Plugin {
@@ -52,9 +53,22 @@ class PluginX64 extends Plugin {
         const variations: MnemonicVariationsX86 = require('./__generated/' + name + '.ts').default;
         const uiOperands: TUiOperand[] = args[0];
         const options: IInstructionOptionsX86 = this.normalizeInstructionOptions(args[1]);
-        const operands = this.asm.ops(uiOperands, options.size);
+        const operands: OperandsX86 = this.asm.ops(uiOperands, options.size);
+
+        // If operand size not specified, try inferring it from register size.
+        if (options.size <= 0) {
+            for (const operand of operands.list) {
+                if (operand instanceof Register) {
+                    options.size = operand.size;
+                    break;
+                }
+            }
+        }
+
         const matches = variations.matches(operands, options, this.matchFilter(options));
 
+        if (!matches.length)
+            throw Error(`Could not match operands to instruction definition ${JSON.stringify(name)}.`);
 
         const instructionSet = new InstructionSetX86 (operands, matches, options);
         this.asm.insert(instructionSet);

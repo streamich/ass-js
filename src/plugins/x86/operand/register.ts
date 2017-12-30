@@ -195,6 +195,8 @@ export class RegisterDr extends RegisterX86 { // Debug registers.
 //
 // `Register` represents one of `%rax`, `%rbx`, etc. registers.
 export class RegisterSegment extends RegisterX86 {
+    static atomName = 'sreg';
+
     constructor(id) {
         super(id, SIZE.W);
     }

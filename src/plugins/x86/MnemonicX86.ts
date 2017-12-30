@@ -1,4 +1,4 @@
-import {isTnumber, Relative, SIZE, TOperand} from '../../operand';
+import {Immediate, isTnumber, Relative, SIZE, Tnumber, TOperand} from '../../operand';
 import {TRexDefinition} from "./table";
 import {IVexDefinition} from "./parts/PrefixVex";
 import {IEvexDefinition} from "./parts/PrefixEvex";
@@ -112,6 +112,15 @@ class MnemonicX86 extends Mnemonic {
                 if (isTnumber(operand)) return tpl;
                 else if (operand instanceof Relative) return tpl;
                 else return null;
+            } else if (tpl.prototype instanceof Immediate) {
+                if (!isTnumber(operand)) return null;
+                const ImmediateClass = tpl as typeof Immediate;
+                try { // Try if our immediate value fits into our immediate type
+                    new ImmediateClass(operand as Tnumber);
+                    return ImmediateClass;
+                } catch(e) {
+                    return null;
+                }
             } else {
                 // o.Register, o.Memory
                 if(operand instanceof tpl) return tpl;

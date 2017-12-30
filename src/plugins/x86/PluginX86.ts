@@ -27,43 +27,6 @@ class PluginX86 extends Plugin {
         asm.hooks.ops.tap('PluginX86', (operands, size) => this.ops(operands, size));
         asm.hooks.instruction.tap('PluginX86', () => new InstructionX86());
     }
-/*
-    protected matchDefinitions(mnemonic: string, ops: o.Operands, opts: IInstructionOptions): d.DefMatchList {
-        var matches = this.table.matchDefinitions(mnemonic, ops, opts);
-        if(!matches.list.length)
-            throw Error(`Could not match operands to instruction definition ${mnemonic}.`);
-        return matches;
-    }
-
-    _(mnemonic: string, operands: o.TUiOperand|o.TUiOperand[] = [], options: o.SIZE|IInstructionOptions|any = {size: o.SIZE.ANY}): i.Instruction|i.InstructionSet {
-        if(typeof mnemonic !== 'string') throw TypeError('`mnemonic` argument must be a string.');
-
-        let opts: IInstructionOptions;
-        if(typeof options === 'number') {
-            opts = {size: options as number};
-        } else if(typeof options === 'object') {
-            opts = options;
-        } else
-            throw TypeError(`options must be a number or object.`);
-        if(typeof opts.size === 'undefined') opts.size = o.SIZE.ANY;
-
-        if(!(operands instanceof Array)) operands = [operands] as o.TUiOperand[];
-        const ops = new this.ClassOperands(operands as o.TUiOperand[], opts.size);
-        ops.normalizeExpressionToRelative();
-
-        const matches = this.matchDefinitions(mnemonic, ops, opts);
-
-        const iset = new this.ClassInstructionSet(ops, matches, opts);
-        this.insert(iset);
-
-        const insn = iset.pickShortestInstruction();
-        if(insn) {
-            this.replace(insn, iset.index);
-            return insn;
-        } else
-            return iset;
-    }
-    */
 
     // Displacement is up to 4 bytes in size, and 8 bytes for some specific MOV instructions, AMD64 Vol.2 p.24:
     //
@@ -89,7 +52,7 @@ class PluginX86 extends Plugin {
         if (Array.isArray(operands)) {
             operands = operands.map(op => {
                 if (typeof op === 'string') {
-                    op = operandMap[op];
+                    op = operandMap[op as string];
                     if (!op) throw new Error(`Unknown operand ${JSON.stringify(op)}.`);
                 }
 

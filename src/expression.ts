@@ -1,6 +1,7 @@
 import Asm from './Asm';
 import {Relative} from './operand';
 import {Operands} from './operand';
+import {repeat} from "./util";
 
 export const SIZE_UNKNOWN = -Infinity;
 export const OFFSET_UNKNOWN = -Infinity;
@@ -118,8 +119,8 @@ export abstract class Expression {
 
     formatToString (margin, expression, comment = '') {
         expression = margin + expression;
-        var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
-        return expression + spaces + `; ${this.formatOffset()} ` + comment;
+        const spaces = repeat(' ', Math.max(0, Expression.commentColls - expression.length));
+        return `${expression}${spaces}; ${this.formatOffset()} ` + comment;
     }
 
     toString (margin = '', comment = true): string {

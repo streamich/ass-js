@@ -1,6 +1,15 @@
 export const noop = () => {};
 export const extend = require('fast-extend');
 
+export const repeat = (str: string, length: number) => {
+    while (str.length < length) str += str;
+
+    if (str.length > length)
+        str = str.substr(0, length);
+
+    return str;
+};
+
 export class UInt64 {
 
     static hi(a: number, lo: number = UInt64.lo(a)): number {
