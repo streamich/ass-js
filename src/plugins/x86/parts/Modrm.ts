@@ -2,6 +2,7 @@ import InstructionPart from './InstructionPart';
 import {R64} from '../regfile';
 import {MemoryX86} from '../operand/memory';
 import {DisplacementValue} from "../operand/displacement";
+import {IPushable} from "../../../expression";
 
 // ## Mod-R/M
 //
@@ -50,9 +51,8 @@ class Modrm extends InstructionPart {
         this.rm = rm;
     }
 
-    write(arr: number[] = []): number[] {
+    write(arr: IPushable) {
         arr.push((this.mod << 6) | (this.reg << 3) | this.rm);
-        return arr;
     }
 }
 

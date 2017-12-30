@@ -1,5 +1,6 @@
 import InstructionPart from './InstructionPart';
 import {DisplacementValue} from '../operand/displacement';
+import {IPushable} from "../../../expression";
 
 class Displacement extends InstructionPart {
     value: DisplacementValue;
@@ -9,7 +10,7 @@ class Displacement extends InstructionPart {
         this.value = value;
     }
 
-    write(arr: number[] = []): number[] {
+    write(arr: IPushable = []): IPushable {
         this.value.octets.forEach((octet) => { arr.push(octet); });
         return arr;
     }

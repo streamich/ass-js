@@ -1,4 +1,5 @@
 import Prefix from './Prefix';
+import {IPushable} from "../../../expression";
 
 // "VEX.DDS.LIG.66.0F38.W1" => {vvvv: 'DDS', L: 0, pp: 1, mmmmm: 2, W: 1}
 export interface IVexDefinition {
@@ -86,7 +87,7 @@ class PrefixVex extends Prefix {
         this.bytes = 3;
     }
 
-    write(arr: number[]): number[] {
+    write(arr: IPushable) {
         if(this.bytes === 2) { // 2-byte VEX
             arr.push(0b11000101); // 0xC5
             arr.push((this.R << 7) | (this.vvvv << 3) | (this.L << 2) | this.pp);
@@ -95,7 +96,6 @@ class PrefixVex extends Prefix {
             arr.push((this.R << 7) | (this.X << 6) | (this.B << 5) | this.mmmmm);
             arr.push((this.W << 7) | (this.vvvv << 3) | (this.L << 2) | this.pp);
         }
-        return arr;
     }
 }
 

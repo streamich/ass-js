@@ -5,7 +5,7 @@ import Label from '../../Label';
 import {Operands} from "../../operand";
 
 class PluginUtil extends Plugin {
-    onAsm (asm: Asm) {
+    onAsm (asm: Asm<any>) {
         asm.hooks.command.tap('PluginData', (name, args) => {
             switch (name) {
                 case 'align': return this.align(...args);

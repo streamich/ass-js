@@ -4,6 +4,7 @@ import Hook from './hooks/Hook';
 import Label from './Label';
 import Plugin from './plugins/Plugin';
 import {Instruction} from './instruction';
+import Compilation from "./Compilation";
 
 export interface IAsmOptions {
     main?: string,
@@ -20,10 +21,10 @@ class Asm<TOptions extends IAsmOptions> {
     hooks = {
         mnemonic: new Hook(['mnemonic', 'operands', 'opts']),
         command: new Hook(['name', 'args']),
-        compilation: new Hook(['compilation']),
         op: new Hook(['operand']),
         ops: new Hook(['operands', 'size']),
         instruction: new Hook([]),
+        compilation: new Hook(['compilation']),
     };
 
     constructor (opts: TOptions) {
@@ -104,6 +105,13 @@ class Asm<TOptions extends IAsmOptions> {
 
     instruction (): Instruction {
         return this.hooks.instruction.call();
+    }
+
+    compile (container?: number[]): Buffer | number[] {
+        const compilation = new Compilation(this);
+        this.hooks.compilation.call(compilation);
+
+        return compilation.compile(container);
     }
 
     toString (lineNumbers = true, hex = true) {

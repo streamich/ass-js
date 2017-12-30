@@ -1,4 +1,5 @@
 import {ExpressionVolatile, SIZE_UNKNOWN} from '../../expression';
+import CodeBuffer from "../../CodeBuffer";
 
 // Aligns data to some byte boundary.
 class Align extends ExpressionVolatile {
@@ -24,9 +25,8 @@ class Align extends ExpressionVolatile {
         return this.by - 1;
     }
 
-    write(arr: number[]): number[] {
-        arr = arr.concat(this.octets);
-        return arr;
+    write(bin: CodeBuffer) {
+        bin.pushArray(this.octets);
     }
 
     protected generateOctets() {

@@ -1,4 +1,5 @@
 import Prefix, {PREFIX} from './Prefix';
+import {IPushable} from "../../../expression";
 
 // Prefixes that consist of a single static byte.
 class PrefixStatic extends Prefix {
@@ -9,12 +10,11 @@ class PrefixStatic extends Prefix {
         this.value = value;
     }
 
-    write(arr: number[]): number[] {
+    write (arr: IPushable) {
         arr.push(this.value);
-        return arr;
     }
 
-    toString() {
+    toString () {
         return PREFIX[this.value].toLowerCase();
     }
 }

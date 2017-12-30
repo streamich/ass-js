@@ -135,8 +135,6 @@ class MnemonicX86 extends Mnemonic {
         if (!this.operandTemplates) return null;
         if (this.operandTemplates.length !== ops.list.length) return null;
 
-        console.log('HERE');
-
         // If registers are 5-bit wide, we can encode them only with EVEX, not VEX.
         if(this.vex && ops.has5bitRegister()) return null;
 
@@ -156,15 +154,6 @@ class MnemonicX86 extends Mnemonic {
 
         return new Match(this, matches);
     }
-
-/*
-
-    getMnemonic(): string {
-        var size = this.operandSize;
-        if((size === o.SIZE.ANY) || (size === o.SIZE.NONE)) return this.mnemonic;
-        return this.mnemonic + o.SIZE[size].toLowerCase();
-    }
-    */
 }
 
 export default MnemonicX86;

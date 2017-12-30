@@ -1,10 +1,11 @@
 import Plugin from "../Plugin";
-import {number64, Tnumber, Immediate, ImmediateUnsigned} from '../../operand';
+import {number64, Tnumber, Immediate, ImmediateUnsigned, TUiOperand} from '../../operand';
 import {TemplateX86Lock, TemplateX86Rex} from './template';
 import {MemoryX86} from './operand/memory';
 import {InstructionX86} from './instruction';
 import {OperandsX86} from "./operand";
 import operandParser from './operand/parser';
+import * as operandMap from './operand/generator';
 
 class PluginX86 extends Plugin {
     onAsm (asm) {
@@ -16,10 +17,14 @@ class PluginX86 extends Plugin {
                 case 'disp':
                     return this.mem(args[0]);
                 case 'imm': return this.imm.apply(this, args);
+                default: {
+                    const operand = operandMap[name];
+                    if (operand) return operand;
+                }
             }
         });
         asm.hooks.op.tap('PluginX86', operandParser);
-        asm.hooks.ops.tap('PluginX86', (operands, size) => new OperandsX86(operands, size));
+        asm.hooks.ops.tap('PluginX86', (operands, size) => this.ops(operands, size));
         asm.hooks.instruction.tap('PluginX86', () => new InstructionX86());
     }
 /*
@@ -67,7 +72,7 @@ class PluginX86 extends Plugin {
     // > Also, in 64-bit mode, support is provided for some 64-bit displacement
     // > and immediate forms of the MOV instruction. See “Immediate Operand Size” in Volume 1 for more
     // > information on this.
-    mem(disp: number | number64): MemoryX86 {
+    mem (disp: number | number64): MemoryX86 {
         if(typeof disp === 'number')
             return MemoryX86.factory(this.asm.opts.addressSize).disp(disp as number);
         else if((disp instanceof Array) && (disp.length == 2))
@@ -76,8 +81,23 @@ class PluginX86 extends Plugin {
             throw TypeError('Displacement value must be of type number or number64.');
     }
 
-    imm(value: Tnumber, signed = true) {
+    imm (value: Tnumber, signed = true) {
         return signed ? new Immediate(value) : new ImmediateUnsigned(value);
+    }
+
+    ops (operands: TUiOperand[], size?: number) {
+        if (Array.isArray(operands)) {
+            operands = operands.map(op => {
+                if (typeof op === 'string') {
+                    op = operandMap[op];
+                    if (!op) throw new Error(`Unknown operand ${JSON.stringify(op)}.`);
+                }
+
+                return op;
+            });
+        }
+
+        return new OperandsX86(operands, size)
     }
 }
 

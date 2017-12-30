@@ -1,3 +1,5 @@
+import {IPushable} from "../../../expression";
+
 // # x86_64 Instruction
 //
 // Each CPU instruction is encoded in the following form, where only
@@ -12,8 +14,9 @@
 //     |---------|---------|---------|---------|---------|                     ...
 //     |optional |required |optional |optional |optional |
 //     |-------------------------------------------------|
+//
 abstract class InstructionPart {
-    abstract write(arr: number[]): number[];
+    abstract write (arr: IPushable);
 }
 
 export default InstructionPart;

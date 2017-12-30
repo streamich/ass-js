@@ -1,4 +1,5 @@
-import {Expression} from '../../expression';
+import {Expression, IPushable} from '../../expression';
+import CodeBuffer from "../../CodeBuffer";
 
 export class DataUninitialized extends Expression {
     length: number;
@@ -8,9 +9,8 @@ export class DataUninitialized extends Expression {
         this.length = length;
     }
 
-    write(arr: number[]): number[] {
-        arr = arr.concat(new Array(this.length));
-        return arr;
+    write(buf: CodeBuffer) {
+        buf.skip(this.length);
     }
 
     bytes(): number {

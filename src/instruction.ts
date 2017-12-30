@@ -1,4 +1,4 @@
-import {Expression, ExpressionVolatile, SIZE_UNKNOWN} from './expression';
+import {Expression, ExpressionVolatile, IPushable, SIZE_UNKNOWN} from './expression';
 import Mnemonic from './Mnemonic';
 import * as o from './operand';
 import * as t from './table';
@@ -14,9 +14,7 @@ export class Instruction extends ExpressionVolatile {
         return this;
     }
 
-    write(arr: number[]): number[] {
-        return arr;
-    }
+    write(arr: IPushable) {}
 
     protected toStringExpression() {
         var parts = [];
@@ -26,11 +24,15 @@ export class Instruction extends ExpressionVolatile {
         return parts.join(' ');
     }
 
-    toString(margin = '    ', comment = true) {
-        var expression = margin + this.toStringExpression();
-        var cmt = '';
+    toString (margin = '    ', comment = true) {
+        const expression = margin + this.toStringExpression();
+        let cmt = '';
+
         if(comment) {
-            var octets = this.write([]).map(function(byte) {
+            let octets = [];
+
+            this.write(octets);
+            octets = octets.map(function(byte) {
                 return byte <= 0xF ? '0' + byte.toString(16).toUpperCase() : byte.toString(16).toUpperCase();
             });
             cmt = `0x` + octets.join(', 0x') + ` ${this.bytes()} bytes`;// + ' / ' + this.def.toString();
@@ -54,10 +56,10 @@ export class InstructionSet extends ExpressionVolatile {
         this.opts = opts;
     }
 
-    write(arr: number[]): number[] {
+    write(arr: IPushable) {
         if(this.picked === -1)
             throw Error('Instruction candidates not reduced.');
-        return this.getPicked().write(arr);
+        this.getPicked().write(arr);
     }
 
     getPicked() {

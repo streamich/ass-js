@@ -1,5 +1,6 @@
 import InstructionPart from './InstructionPart';
 import {R64} from '../regfile';
+import {IPushable} from "../../../expression";
 
 // ## SIB
 //
@@ -57,9 +58,8 @@ class Sib extends InstructionPart {
         }
     }
 
-    write(arr: number[] = []): number[] {
+    write(arr: IPushable) {
         arr.push((this.S << 6) | (this.I << 3) | this.B);
-        return arr;
     }
 }
 

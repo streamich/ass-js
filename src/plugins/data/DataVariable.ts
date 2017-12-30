@@ -1,11 +1,12 @@
 import Data from './Data';
 import {Expression, ExpressionVariable} from '../../expression';
-import {Toctets} from './Data';
+import {TOctets} from './Data';
 import {Operands, SIZE, Tnumber, isTnumber, Relative} from '../../operand';
+import CodeBuffer from "../../CodeBuffer";
 
 export class DataVariable extends ExpressionVariable {
 
-    octets: Toctets;
+    octets: TOctets;
 
     littleEndian;
 
@@ -47,9 +48,8 @@ export class DataVariable extends ExpressionVariable {
         return super.evaluate();
     }
 
-    write(arr: number[]): number[] {
-        arr = arr.concat(this.octets);
-        return arr;
+    write(buf: CodeBuffer) {
+        buf.pushArray(this.octets);
     }
 
     toString(margin = '    ', comment = true) {

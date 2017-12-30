@@ -1,4 +1,5 @@
 import InstructionPart from './InstructionPart';
+import {IPushable} from "../../../expression";
 
 // ## Op-code
 //
@@ -47,13 +48,12 @@ class Opcode extends InstructionPart {
         return 1;
     }
 
-    write(arr: number[]): number[] {
+    write(arr: IPushable) {
         // Op-code can be up to 3 bytes long.
         var op = this.op;
         if(op > 0xFFFF) arr.push((op & 0xFF0000) >> 16);
         if(op > 0xFF) arr.push((op & 0xFF00) >> 8);
         arr.push(op & 0xFF);
-        return arr;
     }
 }
 

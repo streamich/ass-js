@@ -8,7 +8,7 @@ import {Tnumber, Operands, Relative} from '../../operand';
 import {UInt64} from '../../util';
 
 class PluginData extends Plugin {
-    onAsm (asm: Asm) {
+    onAsm (asm: Asm<any>) {
         asm.hooks.command.tap('PluginData', (name, args) => {
             switch (name) {
                 case 'dbv': return this.dbv.apply(this, args);

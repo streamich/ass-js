@@ -6,6 +6,7 @@ import {DisplacementValue} from "./operand/displacement";
 import {RegisterK, RegisterX86} from "./operand/register";
 import {MemoryX86} from "./operand/memory";
 import MnemonicX86 from "./MnemonicX86";
+import {IPushable} from "../../expression";
 
 
 export interface IInstructionOptionsX86 {
@@ -89,7 +90,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
         return this;
     }
 
-    protected writePrefixes(arr: number[]) {
+    protected writePrefixes(arr: IPushable) {
         if(this.pfxLock)        this.pfxLock.write(arr);
         if(this.pfxRep)         this.pfxRep.write(arr);
         if(this.pfxRepne)       this.pfxRepne.write(arr);
@@ -100,14 +101,13 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
         if(this.pfxEx)          this.pfxEx.write(arr);
     }
 
-    write(arr: number[]): number[] {
+    write (arr: IPushable) {
         this.writePrefixes(arr);
         this.opcode.write(arr);
-        if(this.modrm)              this.modrm.write(arr);
-        if(this.sib)                this.sib.write(arr);
-        if(this.displacement)       this.displacement.write(arr);
-        if(this.immediates.length)  for(var imm of this.immediates) imm.write(arr);
-        return arr;
+        if (this.modrm)              this.modrm.write(arr);
+        if (this.sib)                this.sib.write(arr);
+        if (this.displacement)       this.displacement.write(arr);
+        if (this.immediates.length)  for (var imm of this.immediates) imm.write(arr);
     }
 
     protected fixDisplacementSize() {

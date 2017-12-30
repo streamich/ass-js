@@ -5,7 +5,11 @@ import {Operands} from './operand';
 export const SIZE_UNKNOWN = -Infinity;
 export const OFFSET_UNKNOWN = -Infinity;
 
-export class Expression {
+export interface IPushable {
+    push(byte: number);
+}
+
+export abstract class Expression {
     static commentColls = 44;
 
     // Index where instruction was inserted in `Code`s buffer.
@@ -18,7 +22,7 @@ export class Expression {
     // Same as `offset` but for instructions that we don't know byte size yet we assume `MAX_SIZE`.
     offsetMax: number = OFFSET_UNKNOWN;
 
-    asm: Asm = null;
+    asm: Asm<any> = null;
 
     // Size in bytes of the instruction.
     bytes(): number {
@@ -85,20 +89,18 @@ export class Expression {
         }
     }
 
-    rel(offset = 0): Relative {
+    rel (offset = 0): Relative {
         var rel = new Relative(this, offset);
         return rel;
     }
 
-    write(arr: number[]): number[] {
-        return arr;
-    }
+    write (arr: IPushable) {}
 
-    toNumber(): number {
+    toNumber (): number {
         return this.offset;
     }
 
-    formatOffset() {
+    formatOffset () {
         var offset = '______';
         if(this.offset >= 0) {
             offset = this.offset.toString(16).toUpperCase();
@@ -114,20 +116,20 @@ export class Expression {
         return offset + '|' + max_offset;
     }
 
-    formatToString(margin, expression, comment = '') {
+    formatToString (margin, expression, comment = '') {
         expression = margin + expression;
         var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
         return expression + spaces + `; ${this.formatOffset()} ` + comment;
     }
 
-    toString(margin = '', comment = true): string {
+    toString (margin = '', comment = true): string {
         return this.formatToString(margin, '[expression]');
     }
 }
 
 // Expressions that have operands, operands might reference (in case of `Relative`) other expressions, which
 // have not been insert into code yet, so we might not know the how those operands evaluate on first two passes.
-export class ExpressionVariable extends Expression {
+export abstract class ExpressionVariable extends Expression {
     ops: Operands = null; // Operands provided by user.
 
     isEvaluated = false;

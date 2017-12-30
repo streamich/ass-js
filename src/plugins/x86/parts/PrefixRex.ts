@@ -1,5 +1,6 @@
 import {PREFIX} from './Prefix';
 import Prefix from './Prefix';
+import {IPushable} from "../../../expression";
 
 // ## REX
 //
@@ -31,9 +32,8 @@ class PrefixRex extends Prefix {
         this.B = B;
     }
 
-    write(arr: number[]): number[] {
+    write(arr: IPushable) {
         arr.push(PREFIX.REX | (this.W << 3) | (this.R << 2) | (this.X << 1) | this.B);
-        return arr;
     }
 }
 

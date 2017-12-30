@@ -1,8 +1,9 @@
-import {Expression} from '../../expression';
+import {Expression, IPushable} from '../../expression';
 import {SIZE, Tnumber, number64} from '../../operand';
 import {UInt64} from '../../util';
+import CodeBuffer from "../../CodeBuffer";
 
-export type Toctets = number[];
+export type TOctets = number[];
 
 export class Data extends Expression {
 
@@ -12,7 +13,7 @@ export class Data extends Expression {
         return octet <= 0xF ? neg + '0x0' + octet.toString(16).toUpperCase() : neg + '0x' + octet.toString(16).toUpperCase();
     }
 
-    static numbersToOctets(numbers: Tnumber[], size: SIZE, littleEndian = true): Toctets {
+    static numbersToOctets(numbers: Tnumber[], size: SIZE, littleEndian = true): TOctets {
         if(size === SIZE.Q) return Data.quadsToOctets(numbers, littleEndian);
 
         var num = numbers as number[];
@@ -28,15 +29,15 @@ export class Data extends Expression {
         return octets;
     }
 
-    static wordsToOctets(words: number[], littleEndian = true): Toctets {
+    static wordsToOctets(words: number[], littleEndian = true): TOctets {
         return Data.numbersToOctets(words, 2, littleEndian);
     }
 
-    static doublesToOctets(doubles: number[], littleEndian = true): Toctets {
+    static doublesToOctets(doubles: number[], littleEndian = true): TOctets {
         return Data.numbersToOctets(doubles, 4, littleEndian);
     }
 
-    static quadsToOctets(quads: Tnumber[], littleEndian = true): Toctets {
+    static quadsToOctets(quads: Tnumber[], littleEndian = true): TOctets {
         if(!(quads instanceof Array))
             throw TypeError('Quads must be and array of number or [number, number].');
         if(!quads.length) return [];
@@ -74,17 +75,16 @@ export class Data extends Expression {
         return Data.doublesToOctets(doubles, littleEndian);
     }
 
-    octets: Toctets;
+    octets: TOctets;
 
-    constructor(octets: Toctets = []) {
+    constructor(octets: TOctets = []) {
         super();
         this.octets = octets;
         this.length = octets.length;
     }
 
-    write(arr: number[]): number[] {
-        arr = arr.concat(this.octets);
-        return arr;
+    write(buf: CodeBuffer) {
+        buf.pushArray(this.octets);
     }
 
     bytes(): number {

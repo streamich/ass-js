@@ -1,5 +1,6 @@
 import Prefix from './Prefix';
 import {IVexDefinition} from './PrefixVex';
+import {IPushable} from "../../../expression";
 
 export interface IEvexDefinition extends IVexDefinition {}
 
@@ -53,12 +54,11 @@ class PrefixEvex extends Prefix {
         this.W = evexdef.W;
     }
 
-    write(arr: number[]): number[] {
+    write(arr: IPushable) {
         arr.push(0x62);
         arr.push((this.R << 7) | (this.X << 6) | (this.B << 5) | (this.Rp << 4) | this.mm);
         arr.push((this.W << 7) | (this.vvvv << 3) | 0b00000100 | this.pp);
         arr.push((this.z << 7) | (this.LL << 5) | (this.b << 4) | (this.Vp << 3) | this.aaa);
-        return arr;
     }
 }
 
