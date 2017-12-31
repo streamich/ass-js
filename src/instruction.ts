@@ -1,9 +1,9 @@
 import {Expression, ExpressionVolatile, IPushable, SIZE_UNKNOWN} from './expression';
 import Mnemonic from './Mnemonic';
-import * as o from './operand';
 import * as t from './table';
-import {Operands, Relative} from './operand';
+import {Immediate, isTnumber, Operand, Operands, Relative, Tnumber} from './operand';
 import {Match} from "./plugins/x86/MnemonicX86";
+import {repeat} from "./util";
 
 export class Instruction extends ExpressionVolatile {
     mnemonic: Mnemonic = null; // Definition on how to construct this instruction.
@@ -48,9 +48,9 @@ export class Instruction extends ExpressionVolatile {
 
 // Wrapper around multiple instructions when different machine instructions can be used to perform the same task.
 // For example, `jmp` with `rel8` or `rel32` immediate, or when multiple instruction definitions match provided operands.
-export class InstructionSet extends ExpressionVolatile {
+export class InstructionSet<TInstruction extends Instruction> extends ExpressionVolatile {
     matches: Match[] = null;
-    insn: Instruction[] = [];
+    insn: TInstruction[] = [];
     picked: number = -1; // Index of instruction that was eventually chosen.
     opts: object = null; // Instruction options provided by user.
 
@@ -70,24 +70,37 @@ export class InstructionSet extends ExpressionVolatile {
         return this.insn[this.picked];
     }
 
-    getFixedSizeExpression(): Expression {
-        var shortest_ind = -1;
-        var shortest_len = Infinity;
-        for(var m = 0; m < this.ops.list.length; m++) {
-            var op = this.ops.list[m];
-            if(op instanceof o.Relative) {
-                for(var j = 0; j < this.insn.length; j++) {
-                    var ins = this.insn[j] as Instruction;
-                    var rel = ins.ops.list[m] as o.Relative; // Relative of instruction.
-                    var success = rel.canHoldMaxOffset(this);
+    allInstructionsSameSize (): boolean {
+        const size = this.insn[0].bytes();
 
-                    if(success) { // potential candidate.
-                        if(shortest_ind === -1) {
-                            [shortest_ind, shortest_len] = [j, ins.bytes()];
+        for (let i = 1; i < this.insn.length; i++) {
+            if (size !== this.insn[i].bytes()) return false;
+        }
+
+        return true;
+    }
+
+    getFixedSizeExpression(): Expression {
+        let shortestInd = -1;
+        let shortestLen = Infinity;
+
+        for (let m = 0; m < this.ops.list.length; m++) {
+            const op = this.ops.list[m];
+
+            if (op instanceof Relative) {
+                for (let j = 0; j < this.insn.length; j++) {
+                    const ins = this.insn[j] as TInstruction;
+                    const rel = ins.ops.list[m] as Relative; // Relative of instruction.
+                    const success = rel.canHoldMaxOffset(this);
+
+                    if (success) { // potential candidate.
+                        if(shortestInd === -1) {
+                            [shortestInd, shortestLen] = [j, ins.bytes()];
                         } else {
-                            var bytes = ins.bytes();
-                            if(bytes < shortest_len) {
-                                [shortest_ind, shortest_len] = [j, bytes];
+                            const bytes = ins.bytes();
+
+                            if (bytes < shortestLen) {
+                                [shortestInd, shortestLen] = [j, bytes];
                             }
                         }
                     }
@@ -95,23 +108,29 @@ export class InstructionSet extends ExpressionVolatile {
             }
         }
 
-        if(shortest_ind === -1)
-            throw Error(`Could not fix size for [${this.index}] Expression.`);
+        if(shortestInd === -1) {
+            const instruction = this.pickShortestInstruction();
 
-        this.picked = shortest_ind;
+            if (!instruction)
+                throw Error(`Could not fix size for [${this.index}] Expression.\n${this.toString()}`);
+
+            return instruction;
+        }
+
+        this.picked = shortestInd;
         return this.getPicked();
     }
 
-    evaluate() {
+    evaluate () {
         var picked = this.getPicked();
         return picked.evaluate();
     }
 
-    bytes() {
+    bytes () {
         return this.picked === -1 ? SIZE_UNKNOWN : this.getPicked().bytes();
     }
 
-    bytesMax() {
+    bytesMax () {
         var max = 0;
         for(var ins of this.insn) {
             if(ins) {
@@ -122,7 +141,7 @@ export class InstructionSet extends ExpressionVolatile {
         return bytes;
     }
 
-    calcOffset() {
+    calcOffset () {
         super.calcOffset();
         var picked = this.getPicked();
         if(picked) {
@@ -130,17 +149,18 @@ export class InstructionSet extends ExpressionVolatile {
         }
     }
 
-    pickShortestInstruction(): Instruction {
+    pickShortestInstruction (): Instruction {
         if(this.insn.length === 1)
             return this.insn[0];
 
         if(this.ops.hasRelative()) return null;
 
         // Pick the shortest instruction if we know all instruction sizes, otherwise don't pick any.
-        var size = SIZE_UNKNOWN;
-        var isize = 0;
-        for(var j = 0; j < this.insn.length; j++) {
-            var insn = this.insn[j];
+        let size = SIZE_UNKNOWN;
+        let isize = 0;
+        for(let j = 0; j < this.insn.length; j++) {
+            const insn = this.insn[j];
+
             isize = insn.bytes();
             if(isize === SIZE_UNKNOWN) {
                 this.picked = -1;
@@ -154,27 +174,27 @@ export class InstructionSet extends ExpressionVolatile {
         return this.getPicked();
     }
 
-    protected cloneOperands() {
-        return this.ops.clone(o.Operands);
+    protected cloneOperands () {
+        return this.ops.clone(Operands);
     }
 
-    protected createInstructionOperands(insn: Instruction, tpls: t.TTableOperand[]): o.Operands {
+    protected createInstructionOperands (insn: Instruction, tpls: t.TTableOperand[]): Operands {
         var ops = this.cloneOperands();
         for(var j = 0; j < ops.list.length; j++) {
             var op = ops.list[j];
-            if(op instanceof o.Operand) {
-                if(op instanceof o.Relative) {
+            if(op instanceof Operand) {
+                if(op instanceof Relative) {
                     var Clazz = tpls[j] as any;
                     if(Clazz.name.indexOf('Relative') === 0) {
-                        var RelativeClass = Clazz as typeof o.Relative;
+                        var RelativeClass = Clazz as typeof Relative;
                         var rel = op.clone();
                         rel.cast(RelativeClass);
                         ops.list[j] = rel;
                     }
                 }
-            } else if(o.isTnumber(op)) {
+            } else if(isTnumber(op)) {
                 var tpl = tpls[j] as any;
-                var num = op as any as o.Tnumber;
+                var num = op as any as Tnumber;
                 if(typeof tpl === 'number') {
                     // Skip number
                     // `int 3`, for example, is just `0xCC` instruction.
@@ -182,12 +202,12 @@ export class InstructionSet extends ExpressionVolatile {
                 } else if(typeof tpl === 'function') {
                     var Clazz = tpl as any;
                     if(Clazz.name.indexOf('Relative') === 0) {
-                        var RelativeClass = Clazz as typeof o.Relative;
-                        var rel = new o.Relative(insn, num as number);
+                        var RelativeClass = Clazz as typeof Relative;
+                        var rel = new Relative(insn, num as number);
                         rel.cast(RelativeClass);
                         ops.list[j] = rel;
                     } else if (Clazz.name.indexOf('Immediate') === 0) {
-                        var ImmediateClass = Clazz as typeof o.Immediate;
+                        var ImmediateClass = Clazz as typeof Immediate;
                         var imm = new ImmediateClass(num);
                         ops.list[j] = imm;
                     } else
@@ -200,7 +220,7 @@ export class InstructionSet extends ExpressionVolatile {
         return ops;
     }
 
-    build() {
+    build () {
         super.build();
 
         const {matches} = this;
@@ -210,7 +230,7 @@ export class InstructionSet extends ExpressionVolatile {
         for(let j = 0; j < len; j++) {
             const match = matches[j];
 
-            const insn = this.asm.instruction();
+            const insn = this.asm.instruction() as TInstruction;
             insn.index = this.index;
             insn.mnemonic = match.mnemonic;
             insn.opts = this.opts;
@@ -229,7 +249,7 @@ export class InstructionSet extends ExpressionVolatile {
     toString(margin = '    ', comment = true) {
         if(this.picked === -1) {
             let expression = '(one of:)';
-            const spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
+            const spaces = repeat(' ', Math.max(0, Expression.commentColls - expression.length));
 
             expression += spaces + `; ${this.formatOffset()} max ${this.bytesMax()} bytes\n`;
 
@@ -240,7 +260,8 @@ export class InstructionSet extends ExpressionVolatile {
 
             return expression + lines.join('\n');
         } else {
-            var picked = this.getPicked();
+            const picked = this.getPicked();
+
             return picked.toString(margin, comment) + ' ' + picked.bytes() + ' bytes';
         }
     }

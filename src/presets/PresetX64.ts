@@ -18,7 +18,7 @@ const PresetX64 = (opts = {}) => {
     return {
         operandSize: SIZE.D,
         addressSize: SIZE.Q,
-        mode: MODE.ALL,
+        mode: MODE.X32_64,
         ...opts,
         plugins
     };

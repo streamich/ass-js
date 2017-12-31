@@ -69,6 +69,11 @@ export const defaults: ITableDefinitionX86 = {
 };
 
 export const table = {
-    cpuid: 'common',
-    int: 'common',
+    cpuid: [{o: 0x0FA2}],
+    int: [{},
+        // CC INT 3 NP Valid Valid Interrupt 3—trap to debugger.
+        {o: 0xCC, ops: [3]},
+        // CD ib INT imm8 I Valid Valid Interrupt vector specified by immediate byte.
+        {o: 0xCD, ops: [immu8]},
+    ],
 };

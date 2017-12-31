@@ -74,7 +74,7 @@ class MnemonicX86 extends Mnemonic {
 
         if (this.extensions) {
             json.extensions = [];
-            for(var ext of this.extensions) json.extensions.push(EXT[ext]);
+            for(const ext of this.extensions) json.extensions.push(EXT[ext]);
         }
 
         return json;
@@ -146,7 +146,6 @@ class MnemonicX86 extends Mnemonic {
 
         // If registers are 5-bit wide, we can encode them only with EVEX, not VEX.
         if(this.vex && ops.has5bitRegister()) return null;
-
         if (!ops.list.length) return new Match(this, []);
 
         const matches: TOperandMatch = [];

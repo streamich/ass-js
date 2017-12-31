@@ -657,17 +657,6 @@ export class Operands {
         return new Clazz(list, this.size);
     }
 
-    // Wrap `Expression` into `Relative`.
-    normalizeExpressionToRelative () {
-        var i = require('./instruction');
-        var ops = this.list;
-        for(var j = 0; j < ops.length; j++) {
-            if(ops[j] instanceof i.Expression) {
-                ops[j] = (ops[j] as Expression).rel();
-            }
-        }
-    }
-
     validateSize () {
         // Verify operand sizes.
         for(var op of this.list) {

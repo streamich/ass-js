@@ -132,12 +132,14 @@ export abstract class Expression {
 // have not been insert into code yet, so we might not know the how those operands evaluate on first two passes.
 export abstract class ExpressionVariable extends Expression {
     ops: Operands = null; // Operands provided by user.
+    opts: object;
 
     isEvaluated = false;
 
-    constructor(ops: Operands = null) {
+    constructor(ops: Operands = null, opts?: object) {
         super();
         this.ops = ops;
+        this.opts = opts;
     }
 
     evaluate(): boolean {

@@ -21,6 +21,7 @@ class PluginData extends Plugin {
                 case 'resd': return this.resd(args[0]);
                 case 'resq': return this.resq(args[0]);
                 case 'rest': return this.rest(args[0]);
+                case 'incbin': return this.incbin.apply(this, args);
             }
         });
     }

@@ -49,6 +49,8 @@ export const bnd = createRegisterGenerator<RegisterBounds>(RegisterBounds, 0, 3)
 export const cr = createRegisterGenerator<RegisterCr>(RegisterCr, 0, 15);
 export const dr = createRegisterGenerator<RegisterDr>(RegisterDr, 0, 15);
 
+export const st0 = st(0);
+
 export const al = rb(R8.AL);
 export const bl = rb(R8.BL);
 export const cl = rb(R8.CL);

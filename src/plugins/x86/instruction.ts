@@ -112,9 +112,10 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
 
     protected fixDisplacementSize() {
         if(this.displacement && this.displacement.value.variable) {
-            var variable = this.displacement.value.variable;
-            var val = variable.evaluatePreliminary(this);
-            var size = Constant.sizeClass(val);
+            const {variable} = this.displacement.value;
+            const val = variable.evaluatePreliminary(this);
+            const size = Constant.sizeClass(val);
+
             if(size > DisplacementValue.SIZE.DISP8)   this.length += DisplacementValue.SIZE.DISP32 / 8;
             else                                        this.length += DisplacementValue.SIZE.DISP8 / 8;
         }
@@ -233,10 +234,10 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
     protected toStringExpression() {
         let expression = super.toStringExpression();
 
-        if (this.pfxLock) expression += ` {${this.pfxLock.toString()}}`;
-        if (this.pfxSegment) expression += ` {${this.pfxSegment.toString()}}`;
-        if (this.opts.mask) expression += ` {${this.opts.mask.toString()}}`;
-        if (this.opts.z) expression += ` {z}`;
+        if (this.pfxLock)       expression += ` {${this.pfxLock.toString()}}`;
+        if (this.pfxSegment)    expression += ` {${this.pfxSegment.toString()}}`;
+        if (this.opts.mask)     expression += ` {${this.opts.mask.toString()}}`;
+        if (this.opts.z)        expression += ` {z}`;
 
         return expression;
     }
@@ -693,66 +694,70 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
 // Wrapper around multiple instructions when different machine instructions
 // can be used to perform the same task. For example, `jmp` with `rel8` or
 // `rel32` immediate, or when multiple instruction definitions match provided operands.
-export class InstructionSetX86 extends InstructionSet implements IInstructionX86 {
-
+export class InstructionSetX86 extends InstructionSet<InstructionX86> implements IInstructionX86 {
     protected cloneOperands() {
         return this.ops.clone(o.OperandsX86);
     }
 
-    lock() {
+    proxy (method: string, args: any[] = []): this {
+        for (const ins of this.insn) ins[method].apply(ins, args);
         return this;
     }
 
-    bt(){
-        return this;
+    lock (): this {
+        return this.proxy('lock');
     }
 
-    bnt(){
-        return this;
+    bt () {
+        return this.proxy('bt');
     }
 
-    rep(){
-        return this;
+    bnt (){
+        return this.proxy('bnt');
     }
 
-    repe(){
-        return this;
+    rep (){
+        return this.proxy('rep');
     }
 
-    repz(){
-        return this;
+    repe (){
+        return this.proxy('repe');
     }
 
-    repnz(){
-        return this;
+    repz (){
+        return this.proxy('repz');
     }
 
-    repne(){
-        return this;
+    repnz (){
+        return this.proxy('repnz');
     }
 
-    cs(){
-        return this;
+    repne (){
+        return this.proxy('repne');
     }
 
-    ss(){
-        return this;
+    cs (){
+        return this.proxy('cs');
     }
 
-    ds(){
-        return this;
+    ss (){
+        return this.proxy('ss');
     }
 
-    es(){
-        return this;
+    ds (){
+        return this.proxy('ds');
     }
 
-    fs(){
-        return this;
+    es (){
+        return this.proxy('es');
     }
 
-    gs(){
-        return this;
+    fs (){
+        return this.proxy('fs');
+    }
+
+    gs (){
+        return this.proxy('gs');
     }
 }
 

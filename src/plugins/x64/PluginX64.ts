@@ -51,7 +51,12 @@ class PluginX64 extends Plugin {
 
     mnemonic (name: string, args: any[]) {
         const variations: MnemonicVariationsX86 = require('./__generated/' + name + '.ts').default;
-        const uiOperands: TUiOperand[] = args[0];
+
+        let uiOperands: TUiOperand[] = args[0];
+        if (uiOperands && !Array.isArray(uiOperands)) {
+            uiOperands = [uiOperands];
+        }
+
         const options: IInstructionOptionsX86 = this.normalizeInstructionOptions(args[1]);
         const operands: OperandsX86 = this.asm.ops(uiOperands, options.size);
 
@@ -70,15 +75,29 @@ class PluginX64 extends Plugin {
         if (!matches.length)
             throw Error(`Could not match operands to instruction definition ${JSON.stringify(name)}.`);
 
-        const instructionSet = new InstructionSetX86 (operands, matches, options);
-        this.asm.insert(instructionSet);
+        if (matches.length === 1) {
+            const instruction = this.asm.instruction() as InstructionX64;
 
-        const insn = instructionSet.pickShortestInstruction();
-        if(insn) {
-            this.asm.replace(insn, instructionSet.index);
-            return instructionSet;
-        } else
-            return instructionSet;
+            instruction.ops = operands;
+            instruction.opts = options;
+            instruction.mnemonic = matches[0].mnemonic;
+            instruction.asm = this.asm;
+
+            this.asm.insert(instruction);
+
+            return instruction;
+        } else {
+            const instructionSet = new InstructionSetX86 (operands, matches, options);
+            const insn = instructionSet.pickShortestInstruction();
+
+            if (insn) {
+                this.asm.insert(insn);
+                return insn;
+            } else {
+                this.asm.insert(instructionSet);
+                return instructionSet;
+            }
+        }
     }
 }
 

@@ -16,6 +16,20 @@ export class Mnemonic {
 
         return String(operand);
     }
+    static toStringOperandShort (operand) {
+        const typeofOperand = typeof operand;
+
+        if (typeofOperand === 'number')     return operand;
+        if (typeofOperand === 'string')     return operand;
+
+        if ((typeofOperand === 'object') || (typeofOperand === 'function')) {
+            if (typeof operand.atomName === 'string')       return operand.atomName;
+            if (typeof operand.name === 'string')           return operand.name;
+            if (typeof operand.toString === 'function')     return operand.toString();
+        }
+
+        return String(operand);
+    }
 
     mnemonic: string = '';
     operandSize: SIZE = SIZE.NONE;
@@ -58,15 +72,12 @@ export class Mnemonic {
 
         let operands = [];
         for(let ops of this.operandTemplates) {
-            let opsarr = [];
-            for(let op of ops) {
-                opsarr.push(Mnemonic.toStringOperand(op));
-            }
+            let opsarr = ops.map(op => Mnemonic.toStringOperandShort(op));
             operands.push(opsarr.join('/'));
         }
 
         let operandsstr = '';
-        if(operands.length) operandsstr = ' ' + operands.join(',');
+        if(operands.length) operandsstr = ' ' + operands.join(', ');
 
         let size = '';
         if(this.operandSize > 0) size = ' ' + this.operandSize + '-bit';

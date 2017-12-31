@@ -6,6 +6,7 @@ import {InstructionX86} from './instruction';
 import {OperandsX86} from "./operand";
 import operandParser from './operand/parser';
 import * as operandMap from './operand/generator';
+import {Expression} from "../../expression";
 
 class PluginX86 extends Plugin {
     onAsm (asm) {
@@ -54,6 +55,8 @@ class PluginX86 extends Plugin {
                 if (typeof op === 'string') {
                     op = operandMap[op as string];
                     if (!op) throw new Error(`Unknown operand ${JSON.stringify(op)}.`);
+                } else if (op instanceof Expression) {
+                    op = op.rel();
                 }
 
                 return op;

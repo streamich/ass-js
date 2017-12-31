@@ -16,14 +16,6 @@ Array [
 ]
 `;
 
-exports[`mov capture snapshots movq [rax], rax 2`] = `
-Array [
-  72,
-  137,
-  0,
-]
-`;
-
 exports[`mov capture snapshots movq [rbp * 8 + -0x123], rsp 1`] = `
 Array [
   72,

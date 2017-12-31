@@ -68,6 +68,7 @@ class Compilation {
         this.doPass((expression, index) => {
             if(expression instanceof ExpressionVolatile) {
                 const fixedExpression = expression.getFixedSizeExpression();
+
                 this.asm.replace(fixedExpression, index);
                 fixedExpression.calcOffset();
             } else {
