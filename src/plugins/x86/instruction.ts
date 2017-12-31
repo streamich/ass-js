@@ -319,11 +319,13 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
     }
 
     protected createEvexPrefix() {
-        var evex = this.pfxEx = new p.PrefixEvex(this.mnemonic.evex);
-        this.length += 3;
-        this.lengthMax += 3;
+        const evex = this.pfxEx = new p.PrefixEvex(this.mnemonic.evex);
 
-        var pos = this.mnemonic.opEncoding.indexOf('v');
+        this.length += 4;
+        this.lengthMax += 4;
+
+        let pos = this.mnemonic.opEncoding.indexOf('v');
+
         if(pos > -1) {
             var reg = this.ops.getAtIndexOfClass(pos, RegisterX86) as RegisterX86;
             if(!reg) throw Error(`Could not find Register operand at position ${pos} to encode EVEX.vvvv`);

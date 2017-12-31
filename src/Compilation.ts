@@ -28,7 +28,7 @@ class Compilation {
         this.asm = asm;
     }
 
-    compile(container?: number[]): TOctets | Buffer {
+    compile (container?: number[]): TOctets | Buffer {
         // 1st pass is performed as instructions are `insert`ed,
         // `.offsetMax` is calculated, and possibly `.offset`.
 
@@ -64,7 +64,7 @@ class Compilation {
         return new CodeBuffer(maxLength);
     }
 
-    do2ndPass() {
+    do2ndPass () {
         this.doPass((expression, index) => {
             if(expression instanceof ExpressionVolatile) {
                 const fixedExpression = expression.getFixedSizeExpression();
@@ -77,7 +77,7 @@ class Compilation {
         });
     }
 
-    do3rdPass(buffer: IPushable) {
+    do3rdPass (buffer: IPushable) {
         this.doPass((expression, index) => {
             if (expression instanceof ExpressionVariable)
                 expression.evaluate();

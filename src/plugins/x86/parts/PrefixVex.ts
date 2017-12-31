@@ -87,14 +87,14 @@ class PrefixVex extends Prefix {
         this.bytes = 3;
     }
 
-    write(arr: IPushable) {
+    write(bin: IPushable) {
         if(this.bytes === 2) { // 2-byte VEX
-            arr.push(0b11000101); // 0xC5
-            arr.push((this.R << 7) | (this.vvvv << 3) | (this.L << 2) | this.pp);
+            bin.push(0b11000101); // 0xC5
+            bin.push((this.R << 7) | (this.vvvv << 3) | (this.L << 2) | this.pp);
         } else { // 3-byte VEX
-            arr.push(0b11000100); // 0xC4
-            arr.push((this.R << 7) | (this.X << 6) | (this.B << 5) | this.mmmmm);
-            arr.push((this.W << 7) | (this.vvvv << 3) | (this.L << 2) | this.pp);
+            bin.push(0b11000100); // 0xC4
+            bin.push((this.R << 7) | (this.X << 6) | (this.B << 5) | this.mmmmm);
+            bin.push((this.W << 7) | (this.vvvv << 3) | (this.L << 2) | this.pp);
         }
     }
 }

@@ -9,16 +9,16 @@ class CodeBuffer implements IPushable {
         this.buf = Buffer.alloc(length);
     }
 
-    push(uint8: number) {
+    push (uint8: number) {
         this.buf[this.cursor] = uint8;
         this.cursor++;
     }
 
-    pushArray(octets: TOctets) {
+    pushArray (octets: TOctets) {
         for (const octet of octets) this.push(octet);
     }
 
-    skip(length: number) {
+    skip (length: number) {
         this.cursor += length;
     }
 
