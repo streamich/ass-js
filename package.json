@@ -1,7 +1,7 @@
 {
   "name": "ass-js",
   "description": "Assembler.js",
-  "version": "1.0.6",
+  "version": "2.0.0",
   "keywords": [
     "x86",
     "x64",
@@ -22,7 +22,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/streamich/ass-js"
+    "url": "https://github.com/streamich/ass-js"
   },
   "main": "lib/index.js",
   "dependencies": {
@@ -44,14 +44,16 @@
     "static-buffer": "^1.0.1",
     "rimraf": "^2.6.2",
     "@types/node": "^8.0.24",
-    "@types/jest": "^20.0.8"
+    "@types/jest": "^20.0.8",
+    "semantic-release": "^11.0.2"
   },
   "scripts": {
     "build": "npm run clean && npm run build-ts",
     "build-ts": "gulp build-ts",
     "clean": "rimraf lib/",
     "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "semantic-release": "semantic-release"
   },
   "jest": {
     "moduleFileExtensions": [
