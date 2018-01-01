@@ -1,6 +1,5 @@
 {X64} = require "../src/index";
 {rax, rbx} = require '../src/plugins/x86/operand';
-{Compiler} = require "../src/Compilation";
 
 tpl = (_) ->
   _ 'db', 123

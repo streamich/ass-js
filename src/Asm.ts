@@ -27,6 +27,9 @@ class Asm<TOptions extends IAsmOptions> {
         compilation: new Hook(['compilation']),
     };
 
+    _: any = (name: string, ...args: any[]) =>
+        this.command.apply(this, [name, ...args]);
+
     constructor (opts: TOptions) {
         if (typeof opts !== 'object' || !opts)
             throw new TypeError('Need to provide options object to Asm.');
@@ -44,14 +47,16 @@ class Asm<TOptions extends IAsmOptions> {
         }
 
         this.opts = opts;
+
+        this._.lbl = this.lbl.bind(this);
+        this._.op = this.op.bind(this);
+        this._.ops = this.ops.bind(this);
+        this._.insert = this.insert.bind(this);
     }
 
     command (name: string, ...args: any[]) {
        return this.hooks.command.call(name, args);
     }
-
-    _ = (name: string, ...args: any[]) =>
-        this.command.apply(this, [name, ...args]);
 
     code (template) {
         template(this._);

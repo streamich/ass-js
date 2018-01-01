@@ -24,7 +24,7 @@
     "type": "git",
     "url": "http://github.com/streamich/ass-js"
   },
-  "main": "index.js",
+  "main": "lib/index.js",
   "dependencies": {
     "fast-extend": "^0.0.2"
   },

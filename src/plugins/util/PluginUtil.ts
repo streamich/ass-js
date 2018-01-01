@@ -15,7 +15,7 @@ class PluginUtil extends Plugin {
         asm.hooks.ops.tap('PluginData', (operands, size) => new Operands(operands, size));
     }
 
-    align(bytes = 4, fill: number|number[][] = null) {
+    align (bytes = 4, fill: number|number[][] = null) {
         const align = new Align(bytes);
         if(fill !== null) {
             if(typeof fill === 'number') align.templates = [[fill]] as number[][];
@@ -24,7 +24,7 @@ class PluginUtil extends Plugin {
         return this.asm.insert(align);
     }
 
-    label(name: string): Label {
+    label (name: string): Label {
         return this.asm.insert(this.asm.lbl(name)) as Label;
     }
 }

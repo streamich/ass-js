@@ -7,11 +7,13 @@ import {OperandsX86} from "./operand";
 import operandParser from './operand/parser';
 import * as operandMap from './operand/generator';
 import {Expression} from "../../expression";
+import AlignX86 from "./AlignX86";
 
 class PluginX86 extends Plugin {
     onAsm (asm) {
         asm.hooks.command.tap('PluginX86', (name, args) => {
             switch (name) {
+                case 'align': return this.align(...args);
                 case 'lock': return asm._('tpl', TemplateX86Lock);
                 case 'rex': return asm._('tpl', TemplateX86Rex, args);
                 case 'mem':
@@ -27,6 +29,15 @@ class PluginX86 extends Plugin {
         asm.hooks.op.tap('PluginX86', operandParser);
         asm.hooks.ops.tap('PluginX86', (operands, size) => this.ops(operands, size));
         asm.hooks.instruction.tap('PluginX86', () => new InstructionX86());
+    }
+
+    align (bytes = 4, fill: number|number[][] = null) {
+        const align = new AlignX86(bytes);
+        if(fill !== null) {
+            if(typeof fill === 'number') align.templates = [[fill]] as number[][];
+            else align.templates = fill;
+        }
+        return this.asm.insert(align);
     }
 
     // Displacement is up to 4 bytes in size, and 8 bytes for some specific MOV instructions, AMD64 Vol.2 p.24:
