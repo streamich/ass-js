@@ -1,5 +1,5 @@
 import Plugin from "../Plugin";
-import {number64, Tnumber, Immediate, ImmediateUnsigned, TUiOperand} from '../../operand';
+import {number64, Tnumber, Immediate, ImmediateUnsigned, TUiOperand, Constant, isTnumber} from '../../operand';
 import {TemplateX86Lock, TemplateX86Rex} from './template';
 import {MemoryX86} from './operand/memory';
 import {InstructionX86} from './instruction';

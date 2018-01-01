@@ -6,7 +6,7 @@ import {MemoryX86} from "./memory";
 export class OperandsX86 extends Operands {
 
     static findSize(ops: TUiOperand[]): SIZE {
-        for(var operand of ops) {
+        for(const operand of ops) {
             if(operand instanceof RegisterX86) return (operand as RegisterX86).size;
         }
         return SIZE.NONE;
@@ -17,11 +17,12 @@ export class OperandsX86 extends Operands {
     }
 
     hasExtendedRegister(): boolean {
-        for(var op of this.list) {
+        for(const op of this.list) {
             if(op instanceof Register) {
                 if((op as Register).idSize() > 3) return true;
             } else if(op instanceof Memory) {
-                var mem = op as MemoryX86;
+                const mem = op as MemoryX86;
+
                 if(mem.base && (mem.base.idSize() > 3)) return true;
                 if(mem.index && (mem.index.idSize() > 3)) return true;
             }

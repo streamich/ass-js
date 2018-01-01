@@ -64,9 +64,12 @@ describe('AVX', function() {
             expect([0xC5, 0xEB, 0x5E, 0xCB]).toEqual(bin);
         });
 
-        it('vdivsd xmm1 {k1} {z}, xmm2, xmm3', function() { // 62 f1 ef 89 5e cb    	vdivsd %xmm3,%xmm2,%xmm1{%k1}{z}
+        it('vdivsd xmm1 {k1} {z}, xmm2, xmm3', function() {
             const _ = X64();
+
+            // 62 f1 ef 89 5e cb -> vdivsd %xmm3,%xmm2,%xmm1{%k1}{z}
             _._('vdivsd', [xmm(1), xmm(2), xmm(3)], {mask: k(1), z: 1});
+
             const bin = compile(_);
             expect([0x62, 0xF1, 0xEF, 0x89, 0x5E, 0xCB]).toEqual(bin);
         });

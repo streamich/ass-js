@@ -46,28 +46,12 @@ class Asm<TOptions extends IAsmOptions> {
         this.opts = opts;
     }
 
-    // mnemonic (mnemonic: string, operands?: any[], opts?: object) {
-    //     return this.hooks.mnemonic.call(mnemonic, operands, opts);
-    // }
-    //
-    // _ = (mnemonic: string, operands?: any[], opts?: object) =>
-    //     this.mnemonic(mnemonic, operands, opts);
-
     command (name: string, ...args: any[]) {
        return this.hooks.command.call(name, args);
     }
 
     _ = (name: string, ...args: any[]) =>
         this.command.apply(this, [name, ...args]);
-
-    _8      = (name, operands) => this._(name, operands, 8);
-    _16     = (name, operands) => this._(name, operands, 16);
-    _32     = (name, operands) => this._(name, operands, 32);
-    _64     = (name, operands) => this._(name, operands, 64);
-    _128    = (name, operands) => this._(name, operands, 128);
-    _256    = (name, operands) => this._(name, operands, 256);
-    _512    = (name, operands) => this._(name, operands, 512);
-    _1024   = (name, operands) => this._(name, operands, 1024);
 
     code (template) {
         template(this._);

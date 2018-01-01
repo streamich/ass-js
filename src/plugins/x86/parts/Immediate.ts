@@ -3,7 +3,7 @@ import {Immediate as ImmediateOperand} from '../../../operand';
 import {IPushable} from "../../../expression";
 
 // Immediate constant value that follows other instruction bytes.
-class Immediate extends InstructionPart {
+class ImmediatePart extends InstructionPart {
     value: ImmediateOperand;
 
     constructor(value: ImmediateOperand) {
@@ -16,4 +16,4 @@ class Immediate extends InstructionPart {
     }
 }
 
-export default Immediate;
+export default ImmediatePart;

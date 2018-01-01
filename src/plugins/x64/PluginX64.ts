@@ -2,7 +2,7 @@ import Plugin from "../Plugin";
 import {InstructionX64} from './instruction';
 import MNEMONICS from './__generated/__map';
 import MnemonicVariationsX86 from "../x86/MnemonicVariationsX86";
-import {Register, SIZE, TUiOperand} from "../../operand";
+import {Operands, Register, SIZE, TUiOperand} from "../../operand";
 import {IInstructionOptionsX86, InstructionSetX86} from "../x86/instruction";
 import {Match} from "../x86/MnemonicX86";
 import {OperandsX86} from "../x86/operand/index";
@@ -27,12 +27,13 @@ class PluginX64 extends Plugin {
             options = {
                 size: opts as number
             };
-        } else if (typeof options === 'object') {
+        } else if (typeof opts === 'object') {
             options = opts;
         } else
             throw TypeError(`options must be a number or object.`);
 
-        if (options.size === void 0) options.size = SIZE.ANY;
+        if (options.size === void 0)
+            options.size = SIZE.ANY;
 
         return options;
     }
@@ -71,33 +72,17 @@ class PluginX64 extends Plugin {
         }
 
         const matches = variations.matches(operands, options, this.matchFilter(options));
+        const instructionSet = new InstructionSetX86 (operands, matches, options);
 
-        if (!matches.length)
-            throw Error(`Could not match operands to instruction definition ${JSON.stringify(name)}.`);
+        this.asm.insert(instructionSet);
 
-        if (matches.length === 1) {
-            const instruction = this.asm.instruction() as InstructionX64;
+        const insn = instructionSet.pickShortestInstruction();
 
-            instruction.ops = operands;
-            instruction.opts = options;
-            instruction.mnemonic = matches[0].mnemonic;
-            instruction.asm = this.asm;
-
-            this.asm.insert(instruction);
-
-            return instruction;
-        } else {
-            const instructionSet = new InstructionSetX86 (operands, matches, options);
-            const insn = instructionSet.pickShortestInstruction();
-
-            if (insn) {
-                this.asm.insert(insn);
-                return insn;
-            } else {
-                this.asm.insert(instructionSet);
-                return instructionSet;
-            }
-        }
+        if (insn) {
+            this.asm.replace(insn, instructionSet.index);
+            return insn;
+        } else
+            return instructionSet;
     }
 }
 

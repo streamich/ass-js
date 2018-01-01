@@ -7,6 +7,7 @@ import {RegisterK, RegisterX86} from "./operand/register";
 import {MemoryX86} from "./operand/memory";
 import MnemonicX86 from "./MnemonicX86";
 import {IPushable} from "../../expression";
+import ImmediatePart from "./parts/Immediate";
 
 
 export interface IInstructionOptionsX86 {
@@ -55,7 +56,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
     modrm: p.Modrm = null;
     sib: p.Sib = null;
     displacement: p.Displacement = null;
-    immediates: p.Immediate[] = [];
+    immediates: ImmediatePart[] = [];
 
     // Direction for register-to-register `MOV` operations, whether REG field of Mod-R/M byte is destination.
     // We set this to `false` to be compatible with GAS assembly, which we use for testing.
@@ -80,6 +81,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
 
         this.length = 0;
         this.lengthMax = 0;
+
         this.createPrefixes();
         this.createOpcode();
         this.createModrm();
@@ -652,10 +654,12 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
     }
 
     protected createImmediates() {
-        var max = 2; // Up to 2 immediates.
-        for(var j = 0; j < max; j++) {
-            var imm = this.ops.getImmediate(j);
-            var immp: p.Immediate;
+        const max = 2; // Up to 2 immediates.
+
+        for(let j = 0; j < max; j++) {
+            const imm = this.ops.getImmediate(j);
+            let immp: ImmediatePart;
+
             if(imm) {
                 // If immediate does not have concrete size, use the size of instruction operands.
                 // if(imm.constructor === o.Immediate) {
@@ -670,7 +674,7 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
 
                 // if (this.displacement && (this.displacement.value.size === SIZE.Q))
                 //     throw TypeError(`Cannot have Immediate with ${SIZE.Q} bit Displacement.`);
-                immp = new p.Immediate(imm);
+                immp = new ImmediatePart(imm);
                 this.immediates[j] = immp;
 
                 var size = immp.value.size >> 3;
@@ -679,8 +683,8 @@ export class InstructionX86 extends Instruction implements IInstructionX86 {
             } else {
                 var rel = this.ops.getRelative(j);
                 if(rel) {
-                    var immval = Immediate.factory(rel.size, 0);
-                    immp = new p.Immediate(immval);
+                    const immval = Immediate.factory(rel.size, 0);
+                    immp = new ImmediatePart(immval);
                     this.immediates[j] = immp;
 
                     var size = rel.size >> 3;

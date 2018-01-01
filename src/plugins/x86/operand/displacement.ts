@@ -1,5 +1,4 @@
-import * as o from "../../../operand";
-import {Immediate, number64, SIZE} from "../../../operand";
+import {Immediate, isTnumber, number64, Relative, SIZE, Tnumber, Tvariable, Variable} from "../../../operand";
 import {Expression} from "../../../expression";
 
 export class DisplacementValue extends Immediate {
@@ -9,19 +8,22 @@ export class DisplacementValue extends Immediate {
     };
 
     static fromExpression(expr: Expression) {
-        var rel = o.Relative.fromExpression(expr);
+        const rel = Relative.fromExpression(expr);
+
         return DisplacementValue.fromVariable(rel);
     }
 
-    static fromVariable(value: o.Tvariable) {
-        var disp: DisplacementValue;
-        if (value instanceof o.Variable) {
+    static fromVariable(value: Tvariable) {
+        let disp: DisplacementValue;
+
+        if (value instanceof Variable) {
             disp = new DisplacementValue(0);
-            disp.setVariable(value as o.Variable);
-        } else if (o.isTnumber(value)) {
-            disp = new DisplacementValue(value as o.Tnumber);
+            disp.setVariable(value as Variable);
+        } else if (isTnumber(value)) {
+            disp = new DisplacementValue(value as Tnumber);
         } else
             throw TypeError('Displacement must be of type Tvariable.');
+
         return disp;
     }
 

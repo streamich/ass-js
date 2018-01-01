@@ -84,8 +84,8 @@ export function isTnumber(num) {
 }
 
 
-export type TUiOperand           = Register|Memory|Tnumber|Relative|Expression;
-export type TUiOperandNormalized = Register|Memory|Tnumber|Relative; // `Expression` gets converted to `Relative`.
+export type TUiOperand           = Operand|Register|Memory|Tnumber|Relative|Expression;
+export type TUiOperandNormalized = Operand|Register|Memory|Tnumber|Relative; // `Expression` gets converted to `Relative`.
 
 
 // General operand used in our assembly "language".
@@ -121,14 +121,14 @@ export abstract class Operand {
 // Constants are everything where we directly type in a `number` value.
 export class Constant extends Operand {
 
-    static sizeClass(value) {
+    static sizeClass (value) {
         if((value <= 0x7f) && (value >= -0x80))             return SIZE.B;
         if((value <= 0x7fff) && (value >= -0x8000))         return SIZE.W;
         if((value <= 0x7fffffff) && (value >= -0x80000000)) return SIZE.D;
         return SIZE.Q;
     }
 
-    static sizeClassUnsigned(value) {
+    static sizeClassUnsigned (value) {
         if(value <= 0xff)           return SIZE.B;
         if(value <= 0xffff)         return SIZE.W;
         if(value <= 0xffffffff)     return SIZE.D;
@@ -152,16 +152,16 @@ export class Constant extends Operand {
         if(isNumber64(value)) {
             this.setValue64(value as number64);
         } else if(typeof value === 'number') {
-            var clazz = this.signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
+            const Klass = this.signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
             /* JS integers are 53-bit, so split here `number`s over 32 bits into [number, number]. */
-            if(clazz === SIZE.Q) this.setValue64([UInt64.lo(value), UInt64.hi(value)]);
+            if(Klass === SIZE.Q) this.setValue64([UInt64.lo(value), UInt64.hi(value)]);
             else                 this.setValue32(value);
         } else
-            throw TypeError('Constant value must be of type Tnumber.');
+            throw TypeError(`Constant value must be of type TNumber, "${String(value)}" given.`);
     }
 
     protected setValue32(value: number) {
-        var size = this.signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
+        const size = this.signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
         this.size = size;
         this.value = value;
         this.octets = [value & 0xFF];
@@ -175,7 +175,7 @@ export class Constant extends Operand {
     protected setValue64(value: number64) {
         this.size = SIZE.Q;
         this.value = value;
-        var [lo, hi] = value;
+        const [lo, hi] = value;
         this.octets = [
             (lo) & 0xFF,
             (lo >> 8) & 0xFF,
@@ -264,11 +264,11 @@ export class Constant extends Operand {
     }
 }
 
-
+// A constant that can be a variable.
 export class Immediate extends Constant {
     static atomName = 'imm';
 
-    static factory(size, value: number|number64 = 0, signed = true) {
+    static factory (size, value: number|number64 = 0, signed = true) {
         switch(size) {
             case SIZE.B:    return new Immediate8(value, signed);
             case SIZE.W:    return new Immediate16(value, signed);
@@ -278,26 +278,22 @@ export class Immediate extends Constant {
         }
     }
 
-    static isImmediateClass(Clazz: any) {
-        return Clazz.name.indexOf('Immediate') === 0;
-    }
-
-    static throwIfLarger(value, size, signed) {
+    static throwIfLarger (value, size, signed) {
         var val_size = signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
         if(val_size > size) throw TypeError(`Value ${value} too big for imm8.`);
     }
 
     variable: Variable = null;
 
-    setVariable(variable: Variable) {
+    setVariable (variable: Variable) {
         this.variable = variable;
     }
 
-    cast(ImmediateClass: typeof Immediate) {
+    cast (ImmediateClass: typeof Immediate) {
         return new ImmediateClass(this.value);
     }
 
-    toString() {
+    toString () {
         if(this.variable) return this.variable.toString();
         else return super.toString();
     }
@@ -622,25 +618,6 @@ export type TOperand = (Tnumber|Operand|Expression);
 
 // Collection of operands an `Expression` might have.
 export class Operands {
-
-    static findSize (ops: TUiOperand[]): SIZE {
-        for(var operand of ops) {
-            if(operand instanceof Register) return (operand as Register).size;
-        }
-        return SIZE.NONE;
-    }
-
-    static uiOpsNormalize (ops: TUiOperand[]): TUiOperandNormalized[] {
-        var i = require('./instruction');
-        // Wrap `Expression` into `Relative`.
-        for(var j = 0; j < ops.length; j++) {
-            if(ops[j] instanceof Expression) {
-                ops[j] = (ops[j] as Expression).rel();
-            }
-        }
-        return ops as TUiOperandNormalized[];
-    }
-
     list: TOperand[] = [];
 
     size: SIZE = SIZE.ANY; // Size of each operand.
@@ -651,15 +628,15 @@ export class Operands {
         this.list = list;
     }
 
-    clone (Clazz: typeof Operands = Operands) {
-        var list = [];
-        for(var op of this.list) list.push(op);
-        return new Clazz(list, this.size);
+    clone (Klass: typeof Operands = Operands) {
+        const list = [];
+        for (const op of this.list) list.push(op);
+        return new Klass(list, this.size);
     }
 
     validateSize () {
         // Verify operand sizes.
-        for(var op of this.list) {
+        for(let op of this.list) {
             // We can determine operand size only by Register; Memory and Immediate and others don't tell us the right size.
             if(op instanceof Register) {
                 if (this.size !== SIZE.ANY) {
@@ -676,14 +653,14 @@ export class Operands {
     }
 
     getAtIndexOfClass (index, Clazz) {
-        var op = this.list[index];
-        if(op instanceof Clazz) return op;
+        const op = this.list[index];
+        if (op instanceof Clazz) return op;
         else return null;
     }
 
     getFirstOfClass (Clazz, skip = 0) {
-        for(var op of this.list) {
-            if(op instanceof Clazz) {
+        for (const op of this.list) {
+            if (op instanceof Clazz) {
                 if(!skip) return op;
                 else skip--;
             }
@@ -738,7 +715,7 @@ export class Operands {
     }
 
     canEvaluate (owner: Expression): boolean {
-        for(var op of this.list) {
+        for(const op of this.list) {
             if(op instanceof Variable)
                 if(!(op as Variable).canEvaluate(owner)) return false;
         }
@@ -746,7 +723,7 @@ export class Operands {
     }
 
     evaluate (owner: Expression) {
-        for(var op of this.list)
+        for(const op of this.list)
             if(op instanceof Variable) (op as Variable).evaluate(owner);
     }
 
@@ -764,6 +741,6 @@ export class Operands {
     }
 
     toString () {
-        return this.list.map((op) => { return op.toString(); }).join(', ');
+        return this.list.map(op => op.toString()).join(', ');
     }
 }

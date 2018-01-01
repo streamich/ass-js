@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "jest": "^21.1.0",
+    "jest-tap-reporter": "^1.8.2",
     "ts-jest": "^21.0.1",
     "mocha": "3.4.2",
     "chai": "4.1.0",
@@ -48,10 +49,8 @@
   "scripts": {
     "build": "npm run build-ts",
     "build-ts": "gulp build-ts",
-    "test": "npm run test-basic-ts",
-    "test-basic-ts": "mocha --require ts-node/register test/**/**/**/**/**/*.test.ts",
-    "test-watch-ts": "mocha --require ts-node/register test/**/**/**/**/**/*.test.ts --watch",
-    "test-coverage-ts": "nyc --per-file mocha --require ts-node/register --require source-map-support/register --full-trace --bail **/**/**/**/**/*.test.ts"
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -63,6 +62,9 @@
     "transform": {
       "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
-    "testRegex": ".*/__tests__/.*\\.(test|spec)\\.(jsx?|tsx?)$"
+    "testRegex": ".*/__tests__/.*\\.(test|spec)\\.(jsx?|tsx?)$",
+    "reporters": [
+      "jest-tap-reporter"
+    ]
   }
 }
