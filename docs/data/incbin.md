@@ -12,13 +12,13 @@ Include a whole file
 _('incbin', __filename);
 ```
 
-Include all file skipping first 100 bytes
+Skip first 100 bytes of a file
 
 ```js
 _('incbin', __filename, 100);
 ```
 
-Include only bytes *3-6* of a file
+Include only bytes *3 to 6* of a file
 
 ```js
 _('incbin', __filename, 3, 6);

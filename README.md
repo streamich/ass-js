@@ -59,11 +59,16 @@ asm.code(template);
       - `d*` - [add binary data](./docs/data/db.md)
       - `res*` - [add uninitialized data](./docs/data/resb.md)
       - `incbin` - [include binary file](./docs/data/incbin.md)
-
-## Examples
-
-  - [Hello world](./docs/examples/hello_world.md)
-  - [`cpuid`](./docs/examples/cpuid.md)
+    - Util
+      - `label` - [insert a label using `label` and `lbl`](./docs/util/label.md)
+      - `align` - [align code to some factor boundary](./docs/util/align.md)
+  - Reference
+    - `Asm`
+    - `Expression`
+    - `Compilation`
+  - Examples
+    - [Hello world](./docs/examples/hello_world.md)
+    - [`cpuid`](./docs/examples/cpuid.md)
 
 ## License
 
