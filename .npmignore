@@ -13,3 +13,7 @@ coverage
 package-lock.json
 yarn.lock
 /mnemonics/
+/docs/
+/demo/
+/notes/
+/scripts/
