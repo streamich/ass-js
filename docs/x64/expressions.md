@@ -6,7 +6,7 @@ Every instruction you add in Assembler.js returns an `Expression` instance.
 const movExpression = asm._('mov', [rax, 0xBABE]);
 ```
 
-Expressions X64 expressions implement `IInstructionX86` interface
+All X64 expressions implement `IInstructionX86` interface
 
 ```ts
 export interface IInstructionX86 {

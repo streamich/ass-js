@@ -3,7 +3,7 @@ import {X64} from "../src/index";
 const asm = X64();
 
 // asm._('db', 123);
-// asm._('db', 1, 4);
+asm._('db', 1, 3);
 // asm._('db', [1, 2, 3]);
 // asm._('db', [1, 2, 3], 2);
 // asm._('db', 'foo');

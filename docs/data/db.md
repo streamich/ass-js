@@ -23,6 +23,13 @@ Repeat a number 3 times
 _('db', 1, 3);
 ```
 
+Resutl:
+
+```shell
+000 main:
+001     db 0x01, 0x01, 0x01                     ; 000000|000000 3 bytes
+```
+
 Add an array treating each element as a byte
 
 ```js

@@ -38,6 +38,13 @@ _('mov', [rbx, rax.ref()]);
 _('mov', [rbx, _('rax').ref()]);
 ```
 
+Use displacement
+
+```js
+_('mov', [rax, rax.ref().disp(10)]);
+_('mov', [rax, rax.disp(10)]);
+```
+
 Use absolute address value
 
 ```js

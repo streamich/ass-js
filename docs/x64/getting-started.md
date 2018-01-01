@@ -18,18 +18,28 @@ Print human-friendly representation to terminal
 
 ```js
 console.log(asm.toString());
+// or
+console.log(String(asm));
 ```
 
-Compile your code into `Buffer`
+Compile your code into a Node.js `Buffer`
 
 ```js
-const buf = asm.compile();
-console.log(buf);
+console.log(asm.compile());
 ```
 
-Or compile into a plain JavaScript array
+Or compile into a plain JavaScript `Array`
 
 ```js
-const bin = asm.compile([]);
-console.log(bin);
+console.log(asm.compile([]));
+```
+
+Use code templates
+
+```js
+const template = _ => {
+    _('mov', ['rax', 0xBABE]);
+};
+
+asm.code(template);
 ```

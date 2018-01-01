@@ -1,4 +1,4 @@
-`label` - Insert Label
+# `label` - Insert Label
 
 `label` command inserts a `Label` expression into the code.
 
@@ -23,7 +23,7 @@ asm.compile();
 console.log(String(asm));
 ```
 
-## Custom label
+## Custom label `lbl`
 
 Create a label manually using `_.lbl()` method and insert it into the code
 manualy using `_.insert()` method.
