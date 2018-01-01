@@ -37,15 +37,33 @@ console.log(String(code));
 // 001   movq rax, 0x0000BABE ; 000000|000000 0x48, 0xC7, 0xC0, 0xBE, 0xBA, 0x00, 0x00 7 bytes
 ```
 
+Use templates
+
+```js
+const template = _ => {
+    _('mov', ['rdx', 0xC001]);
+    _('mov', ['rax', 0xBABE]);
+};
+
+asm.code(template);
+```
+
 ## Docs
 
   - [Plugins](./docs/plugins.md)
-    - [X64](./docs/x64.md)
-    - [Data](./docs/data.md)
+    - X64
+      - [Getting started](./docs/x64/getting-started.md)
+      - [Operands](./docs/x64/operands.md)
+      - [Expressions](./docs/x64/expressions.md)
+    - Data
+      - `d*` - [add binary data](./docs/data/db.md)
+      - `res*` - [add uninitialized data](./docs/data/resb.md)
+      - `incbin` - [include binary file](./docs/data/incbin.md)
 
 ## Examples
 
   - [Hello world](./docs/examples/hello_world.md)
+  - [`cpuid`](./docs/examples/cpuid.md)
 
 ## License
 

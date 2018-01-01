@@ -1,7 +1,11 @@
-import {X64} from "../src/index";
-import {rip} from "../src/plugins/x86/operand/generator";
-import {StaticBuffer} from 'static-buffer/buffer';
+# `cpuid`
 
+In this example we will create a JavaScript function that calls X64 `cpuid`
+method with different arguments and returns results.
+
+First write our X64 assembly that calls `cpuid` instruction with given arguments:
+
+```js
 const tpl = _ => {
     // Save rbx, rcx, and rdx registers on stack.
     _('push', 'rbx');
@@ -46,14 +50,25 @@ const tpl = _ => {
     _.insert(resultEcx);
     _('dd', 0);
 };
+```
 
+Above in assembly we have written a *"function"* that receives two arguments
+and uses those to call `cpuid` instruction. After the call it stores the
+results in a space allocated right after the return `ret` instruction of the function.
 
+Now compile our code:
+
+```js
 const asm = X64();
 asm.code(tpl);
 
 const bin = asm.compile([]);
+```
 
+And create a JavaScript wrapper function that receives two arguments and
+executes the `cpuid` instruction:
 
+```js
 function cpuid (eax, ecx) {
     const sb = StaticBuffer.from(bin, 'rwe');
 
@@ -66,5 +81,4 @@ function cpuid (eax, ecx) {
         sb.readInt32LE(sb.length - 4),
     ];
 }
-
-console.log(cpuid(0, 0));
+```

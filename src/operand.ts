@@ -438,26 +438,28 @@ export class Memory extends Operand {
 
     base: Register = null;
 
-    reg(): Register {
+    reg (): Register {
         return this.base;
     }
 
-    getAddressSize(): SIZE {
-        var reg = this.reg();
+    getAddressSize (): SIZE {
+        const reg = this.reg();
+
         if(reg) return reg.size;
+
         return SIZE.NONE;
     }
 
-    getOperandSize(): SIZE {
+    getOperandSize (): SIZE {
         return this.size;
     }
 
-    ref(base: Register): this {
+    ref (base: Register): this {
         this.base = base;
         return this;
     }
 
-    toString() {
+    toString () {
         return `[${this.base.toString()}]`;
     }
 }

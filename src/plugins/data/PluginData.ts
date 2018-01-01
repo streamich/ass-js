@@ -6,6 +6,7 @@ import DataUninitialized from './DataUninitialized';
 import {Expression} from '../../expression';
 import {Tnumber, Operands, Relative} from '../../operand';
 import {UInt64} from '../../util';
+import * as fs from 'fs';
 
 class PluginData extends Plugin {
     onAsm (asm: Asm<any>) {
@@ -44,8 +45,9 @@ class PluginData extends Plugin {
             if(typeof c === 'boolean') littleEndian = c;
             ops = this.asm.ops([expr.rel()], size);
         } else if(a instanceof Relative) {
-            var rel = a as Relative;
-            var size = b as number;
+            const rel = a as Relative;
+            let size = b as number;
+
             if(typeof size !== 'number') size = this.asm.opts.operandSize;
             else size = size << 3;
             if(typeof c === 'boolean') littleEndian = c;
@@ -62,28 +64,36 @@ class PluginData extends Plugin {
     }
 
     db(num: number, times?: number): Data;
-    db(str: string, encoding?: string): Data;
-    db(octets: number[]): Data;
-    db(buf: Buffer): Data;
+    db(str: string, encoding?: string | number, times?: number): Data;
+    db(octets: number[], times?: number): Data;
+    db(buf: Buffer, times?: number): Data;
     db(expr: Expression, size: number, littleEndian: boolean): DataVariable;
     db(rel: Relative, size: number, littleEndian: boolean): DataVariable;
     db(ops: Operands, littleEndian: boolean): DataVariable;
     db(a: any, b?: any, c?: any): Data {
         let octets: number[];
 
-        if(typeof a === 'number') {
-            const arr = [a];
-            const times = typeof b === 'number' ? b : 1;
-            for(let j = 1; j < times; j++) arr.push(a);
-            return this.db(arr);
-        } else if(Array.isArray(a)) {
+        if(typeof a === 'number') return this.db([a], b);
+        else if(Array.isArray(a)) {
             octets = a as number[];
+
+            if (typeof b === 'number') {
+                let res = octets;
+
+                for (let i = 1; i < b; i++) res = res.concat(octets);
+                octets = res;
+            }
         } else if(typeof a === 'string') {
             const encoding = typeof b === 'string' ? b : 'ascii';
             const buf = new Buffer(a, encoding);
             octets = Array.prototype.slice.call(buf, 0);
-        } else if(a instanceof Buffer) {
+
+            if (typeof b === 'number') return this.db(octets, b);
+            else return this.db(octets, c);
+        } else if(Buffer.isBuffer(a)) {
             octets = Array.prototype.slice.call(a, 0);
+
+            return this.db(octets, b);
         } else if(a instanceof Expression)    return this.dbv(a, b, c);
         else if(a instanceof Relative)        return this.dbv(a, b, c);
         else if(a instanceof Operands)        return this.dbv(a, b); else
@@ -95,12 +105,12 @@ class PluginData extends Plugin {
     }
 
     dw(words: number|number[], littleEndian = this.asm.opts.littleEndian): Data {
-        if(typeof words === 'number') return this.dw([words as number]);
+        if(typeof words === 'number') return this.dw([words as number], littleEndian);
         return this.db(Data.numbersToOctets(words as number[], 2, littleEndian));
     }
 
     dd(doubles: number|number[], littleEndian = this.asm.opts.littleEndian): Data {
-        if(typeof doubles === 'number') return this.dd([doubles as number]);
+        if(typeof doubles === 'number') return this.dd([doubles as number], littleEndian);
         return this.db(Data.numbersToOctets(doubles as number[], 4, littleEndian));
     }
 
@@ -140,8 +150,6 @@ class PluginData extends Plugin {
     }
 
     incbin(filepath: string, offset?: number, len?: number): Data {
-        var fs = require('fs');
-
         if(typeof offset === 'undefined') { // incbin(filepath);
             return this.db(fs.readFileSync(filepath));
 
@@ -161,7 +169,7 @@ class PluginData extends Plugin {
 
             while((bytes > 0) && (total_len < bytes)) {
                 buf = new Buffer(4096);
-                bytes = fs.readSync(fd, buf, 0, CHUNK);
+                bytes = fs.readSync(fd, buf, 0, CHUNK,  null);
                 if(bytes > 0) {
                     data.push(buf.slice(0, bytes));
                     total_len += bytes;

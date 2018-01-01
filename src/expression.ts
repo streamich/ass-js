@@ -91,8 +91,7 @@ export abstract class Expression {
     }
 
     rel (offset = 0): Relative {
-        var rel = new Relative(this, offset);
-        return rel;
+        return new Relative(this, offset);
     }
 
     write (arr: IPushable) {}
@@ -102,13 +101,13 @@ export abstract class Expression {
     }
 
     formatOffset () {
-        var offset = '______';
+        let offset = '______';
         if(this.offset >= 0) {
             offset = this.offset.toString(16).toUpperCase();
             offset = (new Array(7 - offset.length)).join('0') + offset;
         }
 
-        var max_offset = '______';
+        let max_offset = '______';
         if(this.offsetMax >= 0) {
             max_offset = this.offsetMax.toString(16).toUpperCase();
             max_offset = (new Array(7 - max_offset.length)).join('0') + max_offset;
