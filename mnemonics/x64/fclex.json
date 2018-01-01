@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fclex",
+        "mnemonicPrecise": "fclex",
+        "opcode": 10214370,
+        "opcodeHex": "9BDBE2",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

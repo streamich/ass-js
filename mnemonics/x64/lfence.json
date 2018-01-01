@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "lfence",
+        "mnemonicPrecise": "lfence",
+        "opcode": 1027816,
+        "opcodeHex": "FAEE8",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

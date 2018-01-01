@@ -1,0 +1,80 @@
+[
+    {
+        "mnemonic": "popcnt",
+        "mnemonicPrecise": "popcntw",
+        "opcode": 4024,
+        "opcodeHex": "FB8",
+        "operands": [
+            "Register16",
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            243
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "popcnt",
+        "mnemonicPrecise": "popcntd",
+        "opcode": 4024,
+        "opcodeHex": "FB8",
+        "operands": [
+            "Register32",
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            243
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "popcnt",
+        "mnemonicPrecise": "popcntq",
+        "opcode": 4024,
+        "opcodeHex": "FB8",
+        "operands": [
+            "Register64",
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            243
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

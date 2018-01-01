@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "sysret",
+        "mnemonicPrecise": "sysret",
+        "opcode": 3847,
+        "opcodeHex": "F07",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

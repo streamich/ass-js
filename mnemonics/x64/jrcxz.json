@@ -1,0 +1,20 @@
+[
+    {
+        "mnemonic": "jrcxz",
+        "mnemonicPrecise": "jrcxz",
+        "opcode": 227,
+        "opcodeHex": "E3",
+        "operands": [
+            "Relative8"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

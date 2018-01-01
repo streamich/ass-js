@@ -1,0 +1,21 @@
+[
+    {
+        "mnemonic": "frstor",
+        "mnemonicPrecise": "frstor",
+        "opcode": 221,
+        "opcodeHex": "DD",
+        "operands": [
+            "Memory"
+        ],
+        "opcodeExtensionInModrm": 4,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

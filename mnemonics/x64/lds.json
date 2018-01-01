@@ -1,0 +1,34 @@
+[
+    {
+        "mnemonic": "lds",
+        "mnemonicPrecise": "ldsw",
+        "opcode": 197,
+        "opcodeHex": "C5",
+        "operands": [
+            "Register16",
+            "Memory"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    },
+    {
+        "mnemonic": "lds",
+        "mnemonicPrecise": "ldsd",
+        "opcode": 197,
+        "opcodeHex": "C5",
+        "operands": [
+            "Register32",
+            "Memory"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    }
+]

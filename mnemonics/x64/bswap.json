@@ -1,0 +1,42 @@
+[
+    {
+        "mnemonic": "bswap",
+        "mnemonicPrecise": "bswapd",
+        "opcode": 4040,
+        "opcodeHex": "FC8",
+        "operands": [
+            "Register32"
+        ],
+        "operandSize": 32,
+        "registerInOpcode": true,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "bswap",
+        "mnemonicPrecise": "bswapq",
+        "opcode": 4040,
+        "opcodeHex": "FC8",
+        "operands": [
+            "Register64"
+        ],
+        "operandSize": 64,
+        "registerInOpcode": true,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

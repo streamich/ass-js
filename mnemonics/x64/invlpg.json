@@ -1,0 +1,21 @@
+[
+    {
+        "mnemonic": "invlpg",
+        "mnemonicPrecise": "invlpg",
+        "opcode": 3841,
+        "opcodeHex": "F01",
+        "operands": [
+            "Memory"
+        ],
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

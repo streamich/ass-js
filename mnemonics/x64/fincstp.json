@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fincstp",
+        "mnemonicPrecise": "fincstp",
+        "opcode": 55799,
+        "opcodeHex": "D9F7",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

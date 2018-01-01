@@ -1,0 +1,34 @@
+[
+    {
+        "mnemonic": "bound",
+        "mnemonicPrecise": "boundw",
+        "opcode": 98,
+        "opcodeHex": "62",
+        "operands": [
+            "Register16",
+            "Memory"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    },
+    {
+        "mnemonic": "bound",
+        "mnemonicPrecise": "boundd",
+        "opcode": 98,
+        "opcodeHex": "62",
+        "operands": [
+            "Register32",
+            "Memory"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    }
+]

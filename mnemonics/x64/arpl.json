@@ -1,0 +1,21 @@
+[
+    {
+        "mnemonic": "arpl",
+        "mnemonicPrecise": "arplw",
+        "opcode": 99,
+        "opcodeHex": "63",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ],
+            "Register16"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    }
+]

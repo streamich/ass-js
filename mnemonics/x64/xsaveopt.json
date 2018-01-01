@@ -1,0 +1,21 @@
+[
+    {
+        "mnemonic": "xsaveopt",
+        "mnemonicPrecise": "xsaveopt",
+        "opcode": 4014,
+        "opcodeHex": "FAE",
+        "operands": [
+            "Memory"
+        ],
+        "opcodeExtensionInModrm": 6,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

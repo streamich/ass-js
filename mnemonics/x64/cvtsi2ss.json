@@ -1,0 +1,60 @@
+[
+    {
+        "mnemonic": "cvtsi2ss",
+        "mnemonicPrecise": "cvtsi2ssd",
+        "opcode": 3882,
+        "opcodeHex": "F2A",
+        "operands": [
+            "RegisterXmm",
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            243
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE"
+        ]
+    },
+    {
+        "mnemonic": "cvtsi2ss",
+        "mnemonicPrecise": "cvtsi2ssq",
+        "opcode": 3882,
+        "opcodeHex": "F2A",
+        "operands": [
+            "RegisterXmm",
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            243
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE"
+        ]
+    }
+]

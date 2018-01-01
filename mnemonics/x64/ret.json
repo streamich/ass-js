@@ -1,0 +1,36 @@
+[
+    {
+        "mnemonic": "ret",
+        "mnemonicPrecise": "ret",
+        "opcode": 195,
+        "opcodeHex": "C3",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "ret",
+        "mnemonicPrecise": "ret",
+        "opcode": 194,
+        "opcodeHex": "C2",
+        "operands": [
+            "Immediate16"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,54 @@
+[
+    {
+        "mnemonic": "movss",
+        "mnemonicPrecise": "movssx",
+        "opcode": 15929104,
+        "opcodeHex": "F30F10",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE"
+        ]
+    },
+    {
+        "mnemonic": "movss",
+        "mnemonicPrecise": "movssx",
+        "opcode": 15929105,
+        "opcodeHex": "F30F11",
+        "operands": [
+            [
+                "RegisterXmm",
+                "Memory"
+            ],
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE"
+        ]
+    }
+]

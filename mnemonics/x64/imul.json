@@ -1,0 +1,307 @@
+[
+    {
+        "mnemonic": "imul",
+        "mnemonicPrecise": "imulb",
+        "opcode": 246,
+        "opcodeHex": "F6",
+        "operands": [
+            [
+                "Register8",
+                "Memory"
+            ]
+        ],
+        "operandSize": 8,
+        "opcodeExtensionInModrm": 5,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "imul",
+        "mnemonicPrecise": "imulw",
+        "opcode": 247,
+        "opcodeHex": "F7",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 16,
+        "opcodeExtensionInModrm": 5,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "imul",
+        "mnemonicPrecise": "imuld",
+        "opcode": 247,
+        "opcodeHex": "F7",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "opcodeExtensionInModrm": 5,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "imul",
+        "mnemonicPrecise": "imulq",
+        "opcode": 247,
+        "opcodeHex": "F7",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "opcodeExtensionInModrm": 5,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "imul",
+        "mnemonicPrecise": "imulw",
+        "opcode": 4015,
+        "opcodeHex": "FAF",
+        "operands": [
+            "Register16",
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "imul",
+        "mnemonicPrecise": "imuld",
+        "opcode": 4015,
+        "opcodeHex": "FAF",
+        "operands": [
+            "Register32",
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "imul",
+        "mnemonicPrecise": "imulq",
+        "opcode": 4015,
+        "opcodeHex": "FAF",
+        "operands": [
+            "Register64",
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "imul",
+        "mnemonicPrecise": "imulw",
+        "opcode": 107,
+        "opcodeHex": "6B",
+        "operands": [
+            "Register16",
+            [
+                "Register16",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "imul",
+        "mnemonicPrecise": "imuld",
+        "opcode": 107,
+        "opcodeHex": "6B",
+        "operands": [
+            "Register32",
+            [
+                "Register32",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "imul",
+        "mnemonicPrecise": "imulq",
+        "opcode": 107,
+        "opcodeHex": "6B",
+        "operands": [
+            "Register64",
+            [
+                "Register64",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "imul",
+        "mnemonicPrecise": "imulw",
+        "opcode": 105,
+        "opcodeHex": "69",
+        "operands": [
+            "Register16",
+            [
+                "Register16",
+                "Memory"
+            ],
+            "Immediate16"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "imul",
+        "mnemonicPrecise": "imuld",
+        "opcode": 105,
+        "opcodeHex": "69",
+        "operands": [
+            "Register32",
+            [
+                "Register32",
+                "Memory"
+            ],
+            "Immediate32"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "imul",
+        "mnemonicPrecise": "imulq",
+        "opcode": 105,
+        "opcodeHex": "69",
+        "operands": [
+            "Register64",
+            [
+                "Register64",
+                "Memory"
+            ],
+            "Immediate32"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

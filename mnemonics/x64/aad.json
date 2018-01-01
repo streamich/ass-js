@@ -1,0 +1,28 @@
+[
+    {
+        "mnemonic": "aad",
+        "mnemonicPrecise": "aad",
+        "opcode": 54538,
+        "opcodeHex": "D50A",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    },
+    {
+        "mnemonic": "aad",
+        "mnemonicPrecise": "aad",
+        "opcode": 213,
+        "opcodeHex": "D5",
+        "operands": [
+            "Immediate8"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    }
+]

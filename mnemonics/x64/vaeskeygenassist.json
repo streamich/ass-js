@@ -1,0 +1,38 @@
+[
+    {
+        "mnemonic": "vaeskeygenassist",
+        "mnemonicPrecise": "vaeskeygenassistx",
+        "opcode": 223,
+        "opcodeHex": "DF",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "",
+            "L": 0,
+            "pp": 1,
+            "mmmmm": 3,
+            "W": 1,
+            "WIG": true
+        },
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AES",
+            "AVX"
+        ]
+    }
+]

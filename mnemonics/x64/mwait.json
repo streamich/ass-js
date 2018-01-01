@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "mwait",
+        "mnemonicPrecise": "mwait",
+        "opcode": 983497,
+        "opcodeHex": "F01C9",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

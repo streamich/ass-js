@@ -1,0 +1,25 @@
+[
+    {
+        "mnemonic": "cvtpi2pd",
+        "mnemonicPrecise": "cvtpi2pdx",
+        "opcode": 6688554,
+        "opcodeHex": "660F2A",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

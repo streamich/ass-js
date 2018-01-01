@@ -1,0 +1,65 @@
+[
+    {
+        "mnemonic": "vmovlpd",
+        "mnemonicPrecise": "vmovlpdx",
+        "opcode": 18,
+        "opcodeHex": "12",
+        "operands": [
+            "RegisterXmm",
+            "RegisterXmm",
+            "Memory64"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rvm",
+        "vex": {
+            "vvvv": "NDS",
+            "L": 0,
+            "pp": 1,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": true
+        },
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovlpd",
+        "mnemonicPrecise": "vmovlpdx",
+        "opcode": 19,
+        "opcodeHex": "13",
+        "operands": [
+            "Memory64",
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "mr",
+        "vex": {
+            "vvvv": "",
+            "L": 0,
+            "pp": 1,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": true
+        },
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

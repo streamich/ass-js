@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fcos",
+        "mnemonicPrecise": "fcos",
+        "opcode": 55807,
+        "opcodeHex": "D9FF",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

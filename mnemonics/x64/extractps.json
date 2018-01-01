@@ -1,0 +1,29 @@
+[
+    {
+        "mnemonic": "extractps",
+        "mnemonicPrecise": "extractpsd",
+        "opcode": 997911,
+        "opcodeHex": "F3A17",
+        "operands": [
+            "Register32",
+            "RegisterXmm",
+            "Immediate8"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "mr",
+        "extraPrefixes": [
+            102
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE4_1"
+        ]
+    }
+]

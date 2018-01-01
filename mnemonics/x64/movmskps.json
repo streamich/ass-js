@@ -1,0 +1,25 @@
+[
+    {
+        "mnemonic": "movmskps",
+        "mnemonicPrecise": "movmskpsx",
+        "opcode": 3920,
+        "opcodeHex": "F50",
+        "operands": [
+            "Register",
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE"
+        ]
+    }
+]

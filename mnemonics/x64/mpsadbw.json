@@ -1,0 +1,34 @@
+[
+    {
+        "mnemonic": "mpsadbw",
+        "mnemonicPrecise": "mpsadbwx",
+        "opcode": 66,
+        "opcodeHex": "42",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            102,
+            15,
+            58
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE4_1"
+        ]
+    }
+]

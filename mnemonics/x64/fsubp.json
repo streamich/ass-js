@@ -1,0 +1,38 @@
+[
+    {
+        "mnemonic": "fsubp",
+        "mnemonicPrecise": "fsubpt",
+        "opcode": 222,
+        "opcodeHex": "DE",
+        "operands": [
+            "RegisterSt",
+            "st0"
+        ],
+        "operandSize": 80,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fsubp",
+        "mnemonicPrecise": "fsubp",
+        "opcode": 57065,
+        "opcodeHex": "DEE9",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

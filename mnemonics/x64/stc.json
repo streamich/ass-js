@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "stc",
+        "mnemonicPrecise": "stc",
+        "opcode": 249,
+        "opcodeHex": "F9",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

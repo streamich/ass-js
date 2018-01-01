@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "popf",
+        "mnemonicPrecise": "popf",
+        "opcode": 157,
+        "opcodeHex": "9D",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

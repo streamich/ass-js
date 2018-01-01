@@ -1,0 +1,70 @@
+[
+    {
+        "mnemonic": "scas",
+        "mnemonicPrecise": "scasb",
+        "opcode": 174,
+        "opcodeHex": "AE",
+        "operands": [],
+        "operandSize": 8,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "scas",
+        "mnemonicPrecise": "scasw",
+        "opcode": 175,
+        "opcodeHex": "AF",
+        "operands": [],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "scas",
+        "mnemonicPrecise": "scasd",
+        "opcode": 175,
+        "opcodeHex": "AF",
+        "operands": [],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "scas",
+        "mnemonicPrecise": "scasq",
+        "opcode": 175,
+        "opcodeHex": "AF",
+        "operands": [],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

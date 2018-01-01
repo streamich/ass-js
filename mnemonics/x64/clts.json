@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "clts",
+        "mnemonicPrecise": "clts",
+        "opcode": 3846,
+        "opcodeHex": "F06",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "monitor",
+        "mnemonicPrecise": "monitor",
+        "opcode": 983496,
+        "opcodeHex": "F01C8",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

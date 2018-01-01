@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fchs",
+        "mnemonicPrecise": "fchs",
+        "opcode": 55776,
+        "opcodeHex": "D9E0",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

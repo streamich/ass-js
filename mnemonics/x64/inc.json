@@ -1,0 +1,128 @@
+[
+    {
+        "mnemonic": "inc",
+        "mnemonicPrecise": "incb",
+        "opcode": 254,
+        "opcodeHex": "FE",
+        "operands": [
+            [
+                "Register8",
+                "Memory"
+            ]
+        ],
+        "operandSize": 8,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "inc",
+        "mnemonicPrecise": "incw",
+        "opcode": 255,
+        "opcodeHex": "FF",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "inc",
+        "mnemonicPrecise": "incd",
+        "opcode": 255,
+        "opcodeHex": "FF",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "inc",
+        "mnemonicPrecise": "incq",
+        "opcode": 255,
+        "opcodeHex": "FF",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "inc",
+        "mnemonicPrecise": "incw",
+        "opcode": 64,
+        "opcodeHex": "40",
+        "operands": [
+            "Register16"
+        ],
+        "operandSize": 16,
+        "registerInOpcode": true,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    },
+    {
+        "mnemonic": "inc",
+        "mnemonicPrecise": "incd",
+        "opcode": 64,
+        "opcodeHex": "40",
+        "operands": [
+            "Register32"
+        ],
+        "operandSize": 32,
+        "registerInOpcode": true,
+        "operandEncoding": "rm",
+        "lock": true,
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    }
+]

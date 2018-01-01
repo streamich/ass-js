@@ -1,0 +1,38 @@
+[
+    {
+        "mnemonic": "int",
+        "mnemonicPrecise": "int",
+        "opcode": 204,
+        "opcodeHex": "CC",
+        "operands": [
+            3
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "int",
+        "mnemonicPrecise": "int",
+        "opcode": 205,
+        "opcodeHex": "CD",
+        "operands": [
+            "ImmediateUnsigned8"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

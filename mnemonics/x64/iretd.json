@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "iretd",
+        "mnemonicPrecise": "iretd",
+        "opcode": 207,
+        "opcodeHex": "CF",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,16 @@
+[
+    {
+        "mnemonic": "fxsave64",
+        "mnemonicPrecise": "fxsave64i",
+        "opcode": 4014,
+        "opcodeHex": "FAE",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 512,
+        "operandEncoding": "rm",
+        "modes": [
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,138 @@
+[
+    {
+        "mnemonic": "vmovdqa",
+        "mnemonicPrecise": "vmovdqax",
+        "opcode": 111,
+        "opcodeHex": "6F",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "",
+            "L": 0,
+            "pp": 1,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": true
+        },
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovdqa",
+        "mnemonicPrecise": "vmovdqax",
+        "opcode": 127,
+        "opcodeHex": "7F",
+        "operands": [
+            [
+                "RegisterXmm",
+                "Memory"
+            ],
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "mr",
+        "vex": {
+            "vvvv": "",
+            "L": 0,
+            "pp": 1,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": true
+        },
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovdqa",
+        "mnemonicPrecise": "vmovdqaz",
+        "opcode": 111,
+        "opcodeHex": "6F",
+        "operands": [
+            "RegisterYmm",
+            [
+                "RegisterYmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 256,
+        "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "",
+            "L": 1,
+            "pp": 1,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": true
+        },
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovdqa",
+        "mnemonicPrecise": "vmovdqaz",
+        "opcode": 127,
+        "opcodeHex": "7F",
+        "operands": [
+            [
+                "RegisterYmm",
+                "Memory"
+            ],
+            "RegisterYmm"
+        ],
+        "operandSize": 256,
+        "operandEncoding": "mr",
+        "vex": {
+            "vvvv": "",
+            "L": 1,
+            "pp": 1,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": true
+        },
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

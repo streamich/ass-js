@@ -1,0 +1,112 @@
+[
+    {
+        "mnemonic": "movd",
+        "mnemonicPrecise": "movdd",
+        "opcode": 3950,
+        "opcodeHex": "F6E",
+        "operands": [
+            "RegisterMm",
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "MMX"
+        ]
+    },
+    {
+        "mnemonic": "movd",
+        "mnemonicPrecise": "movdd",
+        "opcode": 3966,
+        "opcodeHex": "F7E",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ],
+            "RegisterMm"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "MMX"
+        ]
+    },
+    {
+        "mnemonic": "movd",
+        "mnemonicPrecise": "movdd",
+        "opcode": 3950,
+        "opcodeHex": "F6E",
+        "operands": [
+            "RegisterXmm",
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            102
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    },
+    {
+        "mnemonic": "movd",
+        "mnemonicPrecise": "movdd",
+        "opcode": 3966,
+        "opcodeHex": "F7E",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ],
+            "RegisterXmm"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            102
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    }
+]

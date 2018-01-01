@@ -1,0 +1,33 @@
+[
+    {
+        "mnemonic": "vcvtph2ps",
+        "mnemonicPrecise": "vcvtph2psz",
+        "opcode": 19,
+        "opcodeHex": "13",
+        "operands": [
+            "RegisterYmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 256,
+        "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "",
+            "L": 1,
+            "pp": 1,
+            "mmmmm": 2,
+            "W": 0,
+            "WIG": false
+        },
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

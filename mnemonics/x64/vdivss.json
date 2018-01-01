@@ -1,0 +1,37 @@
+[
+    {
+        "mnemonic": "vdivss",
+        "mnemonicPrecise": "vdivssx",
+        "opcode": 94,
+        "opcodeHex": "5E",
+        "operands": [
+            "RegisterXmm",
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rvm",
+        "vex": {
+            "vvvv": "NDS",
+            "L": 0,
+            "pp": 2,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": true
+        },
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

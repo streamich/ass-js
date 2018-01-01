@@ -1,0 +1,143 @@
+[
+    {
+        "mnemonic": "bts",
+        "mnemonicPrecise": "btsw",
+        "opcode": 4011,
+        "opcodeHex": "FAB",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ],
+            "Register16"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "bts",
+        "mnemonicPrecise": "btsd",
+        "opcode": 4011,
+        "opcodeHex": "FAB",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ],
+            "Register32"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "bts",
+        "mnemonicPrecise": "btsq",
+        "opcode": 4011,
+        "opcodeHex": "FAB",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ],
+            "Register64"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "bts",
+        "mnemonicPrecise": "btsw",
+        "opcode": 4026,
+        "opcodeHex": "FBA",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 16,
+        "opcodeExtensionInModrm": 4,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "bts",
+        "mnemonicPrecise": "btsd",
+        "opcode": 4026,
+        "opcodeHex": "FBA",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 32,
+        "opcodeExtensionInModrm": 4,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "bts",
+        "mnemonicPrecise": "btsq",
+        "opcode": 4026,
+        "opcodeHex": "FBA",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ],
+            "Immediate8"
+        ],
+        "operandSize": 64,
+        "opcodeExtensionInModrm": 4,
+        "operandEncoding": "mr",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

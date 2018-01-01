@@ -1,0 +1,19 @@
+[
+    {
+        "mnemonic": "cdq",
+        "mnemonicPrecise": "cdqd",
+        "opcode": 153,
+        "opcodeHex": "99",
+        "operands": [],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

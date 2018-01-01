@@ -1,0 +1,128 @@
+[
+    {
+        "mnemonic": "out",
+        "mnemonicPrecise": "outb",
+        "opcode": 230,
+        "opcodeHex": "E6",
+        "operands": [
+            "Immediate8",
+            "al"
+        ],
+        "operandSize": 8,
+        "operandEncoding": "rm",
+        "skipMorm": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "out",
+        "mnemonicPrecise": "outw",
+        "opcode": 231,
+        "opcodeHex": "E7",
+        "operands": [
+            "Immediate8",
+            "ax"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "skipMorm": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "out",
+        "mnemonicPrecise": "outd",
+        "opcode": 231,
+        "opcodeHex": "E7",
+        "operands": [
+            "Immediate8",
+            "eax"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "skipMorm": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "out",
+        "mnemonicPrecise": "outb",
+        "opcode": 238,
+        "opcodeHex": "EE",
+        "operands": [
+            "dx",
+            "al"
+        ],
+        "operandSize": 8,
+        "operandEncoding": "rm",
+        "skipMorm": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "out",
+        "mnemonicPrecise": "outw",
+        "opcode": 239,
+        "opcodeHex": "EF",
+        "operands": [
+            "dx",
+            "ax"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "skipMorm": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "out",
+        "mnemonicPrecise": "outd",
+        "opcode": 239,
+        "opcodeHex": "EF",
+        "operands": [
+            "dx",
+            "eax"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "skipMorm": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

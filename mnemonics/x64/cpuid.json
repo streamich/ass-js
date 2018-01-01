@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "cpuid",
+        "mnemonicPrecise": "cpuid",
+        "opcode": 4002,
+        "opcodeHex": "FA2",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

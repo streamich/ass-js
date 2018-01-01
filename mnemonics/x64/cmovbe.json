@@ -1,0 +1,71 @@
+[
+    {
+        "mnemonic": "cmovbe",
+        "mnemonicPrecise": "cmovbew",
+        "opcode": 3910,
+        "opcodeHex": "F46",
+        "operands": [
+            "Register16",
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmovbe",
+        "mnemonicPrecise": "cmovbed",
+        "opcode": 3910,
+        "opcodeHex": "F46",
+        "operands": [
+            "Register32",
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "cmovbe",
+        "mnemonicPrecise": "cmovbeq",
+        "opcode": 3910,
+        "opcodeHex": "F46",
+        "operands": [
+            "Register64",
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

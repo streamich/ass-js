@@ -1,0 +1,28 @@
+[
+    {
+        "mnemonic": "addsubpd",
+        "mnemonicPrecise": "addsubpdx",
+        "opcode": 6688720,
+        "opcodeHex": "660FD0",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE3"
+        ]
+    }
+]

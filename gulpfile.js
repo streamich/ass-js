@@ -3,13 +3,18 @@ var ts = require('gulp-typescript');
 
 
 gulp.task('build-ts', function () {
-    return gulp.src('src/**/*.ts')
+    return gulp.src([
+      'src/**/*.ts',
+      '!src/__tests__/**/*.*',
+      '!src/**/__tests__/**/*.*',
+    ])
         .pipe(ts({
             "target": "es5",
             "module": "commonjs",
-            "removeComments": false,
+            "removeComments": true,
             "noImplicitAny": false,
             "sourceMap": false,
+            "compileOnly": true,
         }))
         .pipe(gulp.dest('lib'));
 });

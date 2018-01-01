@@ -1,0 +1,28 @@
+[
+    {
+        "mnemonic": "hsubps",
+        "mnemonicPrecise": "hsubpsx",
+        "opcode": 15863677,
+        "opcodeHex": "F20F7D",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE3"
+        ]
+    }
+]

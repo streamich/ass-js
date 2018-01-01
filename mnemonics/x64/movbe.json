@@ -1,0 +1,128 @@
+[
+    {
+        "mnemonic": "movbe",
+        "mnemonicPrecise": "movbew",
+        "opcode": 997616,
+        "opcodeHex": "F38F0",
+        "operands": [
+            "Register16",
+            "Memory16"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "movbe",
+        "mnemonicPrecise": "movbed",
+        "opcode": 997616,
+        "opcodeHex": "F38F0",
+        "operands": [
+            "Register32",
+            "Memory32"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "movbe",
+        "mnemonicPrecise": "movbeq",
+        "opcode": 997616,
+        "opcodeHex": "F38F0",
+        "operands": [
+            "Register64",
+            "Memory64"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "movbe",
+        "mnemonicPrecise": "movbew",
+        "opcode": 997617,
+        "opcodeHex": "F38F1",
+        "operands": [
+            "Memory16",
+            "Register16"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "movbe",
+        "mnemonicPrecise": "movbed",
+        "opcode": 997617,
+        "opcodeHex": "F38F1",
+        "operands": [
+            "Memory32",
+            "Register32"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "movbe",
+        "mnemonicPrecise": "movbeq",
+        "opcode": 997617,
+        "opcodeHex": "F38F1",
+        "operands": [
+            "Memory64",
+            "Register64"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "setOpcodeDirectionBit": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

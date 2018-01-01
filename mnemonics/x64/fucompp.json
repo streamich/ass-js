@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fucompp",
+        "mnemonicPrecise": "fucompp",
+        "opcode": 56041,
+        "opcodeHex": "DAE9",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

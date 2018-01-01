@@ -1,0 +1,25 @@
+[
+    {
+        "mnemonic": "movsxd",
+        "mnemonicPrecise": "movsxdq",
+        "opcode": 99,
+        "opcodeHex": "63",
+        "operands": [
+            "Register64",
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

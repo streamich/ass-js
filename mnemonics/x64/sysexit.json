@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "sysexit",
+        "mnemonicPrecise": "sysexit",
+        "opcode": 3893,
+        "opcodeHex": "F35",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

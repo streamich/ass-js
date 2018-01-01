@@ -1,0 +1,28 @@
+[
+    {
+        "mnemonic": "aam",
+        "mnemonicPrecise": "aam",
+        "opcode": 54282,
+        "opcodeHex": "D40A",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    },
+    {
+        "mnemonic": "aam",
+        "mnemonicPrecise": "aam",
+        "opcode": 212,
+        "opcodeHex": "D4",
+        "operands": [
+            "Immediate8"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    }
+]

@@ -1,0 +1,34 @@
+[
+    {
+        "mnemonic": "vextractf128",
+        "mnemonicPrecise": "vextractf128x",
+        "opcode": 25,
+        "opcodeHex": "19",
+        "operands": [
+            [
+                "RegisterXmm",
+                "Memory"
+            ],
+            "RegisterYmm",
+            "Immediate8"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "",
+            "L": 1,
+            "pp": 1,
+            "mmmmm": 3,
+            "W": 0,
+            "WIG": false
+        },
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

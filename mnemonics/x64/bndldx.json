@@ -1,0 +1,25 @@
+[
+    {
+        "mnemonic": "bndldx",
+        "mnemonicPrecise": "bndldxx",
+        "opcode": 3866,
+        "opcodeHex": "F1A",
+        "operands": [
+            "RegisterBounds",
+            "Memory"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "MPX"
+        ]
+    }
+]

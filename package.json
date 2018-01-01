@@ -1,19 +1,37 @@
 {
   "name": "ass-js",
   "description": "Assembler.js",
-  "version": "1.0.6",
+  "version": "2.0.0",
   "keywords": [
-    "x86", "x64", "x86_64", "arm", "arm64",
-    "native", "native-code", "machine-code", "asm", "compiler",
-    "assembler", "compiler", "intel", "amd", "nasm",
+    "x86",
+    "x64",
+    "x86_64",
+    "arm",
+    "arm64",
+    "native",
+    "native-code",
+    "machine-code",
+    "asm",
+    "compiler",
+    "assembler",
+    "compiler",
+    "intel",
+    "amd",
+    "nasm",
     "gasm"
   ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/streamich/ass-js"
+    "url": "https://github.com/streamich/ass-js"
   },
-  "main": "index.js",
+  "main": "lib/index.js",
+  "dependencies": {
+    "fast-extend": "^0.0.2"
+  },
   "devDependencies": {
+    "jest": "^21.1.0",
+    "jest-tap-reporter": "^1.8.2",
+    "ts-jest": "^21.0.1",
     "mocha": "3.4.2",
     "chai": "4.1.0",
     "typescript": "2.4.2",
@@ -21,43 +39,35 @@
     "gulp": "3.9.1",
     "gulp-typescript": "3.2.1",
     "source-map-support": "0.4.15",
-    "nyc": "11.1.0",
-    "watch": "^1.0.0",
+    "mkdirp": "^0.5.1",
+    "coffee-register": "^0.1.2",
+    "static-buffer": "^1.0.1",
+    "rimraf": "^2.6.2",
     "@types/node": "^8.0.24",
-    "@types/mocha": "^2.2.41",
-    "@types/chai": "^4.0.3"
-  },
-  "nyc": {
-    "per-file": true,
-    "include": [
-      "**/*.ts"
-    ],
-    "exclude": [
-      "**/*.test.ts"
-    ],
-    "extension": [
-      ".ts"
-    ],
-    "require": [
-      "ts-node/register"
-    ],
-    "reporter": [
-      "text",
-      "json",
-      "lcov",
-      "text-summary"
-    ],
-    "sourceMap": true,
-    "instrument": true,
-    "cache": true
+    "@types/jest": "^20.0.8",
+    "semantic-release": "^11.0.2"
   },
   "scripts": {
-    "build": "npm run build-ts",
+    "build": "npm run clean && npm run build-ts",
     "build-ts": "gulp build-ts",
-    "test": "npm run test-basic-ts",
-    "test-basic-ts": "mocha --require ts-node/register test/**/**/**/**/**/*.test.ts",
-    "test-watch-ts": "mocha --require ts-node/register test/**/**/**/**/**/*.test.ts --watch",
-    "test-coverage-ts": "nyc --per-file mocha --require ts-node/register --require source-map-support/register --full-trace --bail **/**/**/**/**/*.test.ts",
-    "watch": "watch 'npm run build' ./src"
+    "clean": "rimraf lib/",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "semantic-release": "semantic-release"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": ".*/__tests__/.*\\.(test|spec)\\.(jsx?|tsx?)$",
+    "reporters": [
+      "jest-tap-reporter"
+    ]
   }
 }

@@ -1,0 +1,95 @@
+[
+    {
+        "mnemonic": "call",
+        "mnemonicPrecise": "call",
+        "opcode": 232,
+        "opcodeHex": "E8",
+        "operands": [
+            "Relative16"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    },
+    {
+        "mnemonic": "call",
+        "mnemonicPrecise": "call",
+        "opcode": 232,
+        "opcodeHex": "E8",
+        "operands": [
+            "Relative32"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "call",
+        "mnemonicPrecise": "callw",
+        "opcode": 255,
+        "opcodeHex": "FF",
+        "operands": [
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 16,
+        "opcodeExtensionInModrm": 2,
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    },
+    {
+        "mnemonic": "call",
+        "mnemonicPrecise": "calld",
+        "opcode": 255,
+        "opcodeHex": "FF",
+        "operands": [
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "opcodeExtensionInModrm": 2,
+        "operandEncoding": "rm",
+        "modes": [
+            "COMP",
+            "LEG"
+        ]
+    },
+    {
+        "mnemonic": "call",
+        "mnemonicPrecise": "callq",
+        "opcode": 255,
+        "opcodeHex": "FF",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "opcodeExtensionInModrm": 2,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

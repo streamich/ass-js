@@ -1,0 +1,226 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`mov capture snapshots movq [r11], r10 1`] = `
+Array [
+  77,
+  137,
+  19,
+]
+`;
+
+exports[`mov capture snapshots movq [rax], rax 1`] = `
+Array [
+  72,
+  137,
+  0,
+]
+`;
+
+exports[`mov capture snapshots movq [rbp * 8 + -0x123], rsp 1`] = `
+Array [
+  72,
+  137,
+  36,
+  237,
+  221,
+  254,
+  255,
+  255,
+]
+`;
+
+exports[`mov capture snapshots movq [rbp], rbx 1`] = `
+Array [
+  72,
+  137,
+  93,
+  0,
+]
+`;
+
+exports[`mov capture snapshots movq [rcx], rbx 1`] = `
+Array [
+  72,
+  137,
+  25,
+]
+`;
+
+exports[`mov capture snapshots movq [rsp + rbp * 2], rbx 1`] = `
+Array [
+  72,
+  137,
+  28,
+  108,
+]
+`;
+
+exports[`mov capture snapshots movq [rsp], rbx 1`] = `
+Array [
+  72,
+  137,
+  28,
+  36,
+]
+`;
+
+exports[`mov capture snapshots movq r9, r8 1`] = `
+Array [
+  77,
+  137,
+  193,
+]
+`;
+
+exports[`mov capture snapshots movq r13, [r12] 1`] = `
+Array [
+  77,
+  139,
+  44,
+  36,
+]
+`;
+
+exports[`mov capture snapshots movq rax, 0x1 1`] = `
+Array [
+  72,
+  199,
+  192,
+  1,
+  0,
+  0,
+  0,
+]
+`;
+
+exports[`mov capture snapshots movq rax, 0x1 2`] = `
+Array [
+  72,
+  199,
+  197,
+  205,
+  204,
+  255,
+  255,
+]
+`;
+
+exports[`mov capture snapshots movq rax, rax 1`] = `
+Array [
+  72,
+  137,
+  192,
+]
+`;
+
+exports[`mov capture snapshots movq rbp, [0x1] 1`] = `
+Array [
+  72,
+  139,
+  44,
+  37,
+  1,
+  0,
+  0,
+  0,
+]
+`;
+
+exports[`mov capture snapshots movq rbp, [rdx * 2] 1`] = `
+Array [
+  72,
+  139,
+  44,
+  85,
+  0,
+  0,
+  0,
+  0,
+]
+`;
+
+exports[`mov capture snapshots movq rbx, [rbp + rax * 8] 1`] = `
+Array [
+  72,
+  139,
+  92,
+  197,
+  0,
+]
+`;
+
+exports[`mov capture snapshots movq rbx, r13 1`] = `
+Array [
+  76,
+  137,
+  235,
+]
+`;
+
+exports[`mov capture snapshots movq rbx, rax 1`] = `
+Array [
+  72,
+  137,
+  195,
+]
+`;
+
+exports[`mov capture snapshots movq rcx, [rax + rbx * 4 + 0x1234] 1`] = `
+Array [
+  72,
+  139,
+  140,
+  152,
+  52,
+  18,
+  0,
+  0,
+]
+`;
+
+exports[`mov capture snapshots movq rcx, [rbx + 0x11] 1`] = `
+Array [
+  72,
+  139,
+  75,
+  17,
+]
+`;
+
+exports[`mov capture snapshots movq rdx, [rbx] 1`] = `
+Array [
+  72,
+  139,
+  19,
+]
+`;
+
+exports[`mov capture snapshots movq rsi, [rcx + rdx] 1`] = `
+Array [
+  72,
+  139,
+  52,
+  17,
+]
+`;
+
+exports[`mov capture snapshots movq rsp, [0x1] 1`] = `
+Array [
+  72,
+  139,
+  36,
+  37,
+  1,
+  0,
+  0,
+  0,
+]
+`;
+
+exports[`mov capture snapshots movq rsp, rbx 1`] = `
+Array [
+  72,
+  137,
+  220,
+]
+`;

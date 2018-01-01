@@ -1,0 +1,25 @@
+[
+    {
+        "mnemonic": "cvtps2pi",
+        "mnemonicPrecise": "cvtps2pix",
+        "opcode": 3885,
+        "opcodeHex": "F2D",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

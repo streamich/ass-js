@@ -1,0 +1,89 @@
+[
+    {
+        "mnemonic": "lzcnt",
+        "mnemonicPrecise": "lzcntw",
+        "opcode": 4029,
+        "opcodeHex": "FBD",
+        "operands": [
+            "Register16",
+            [
+                "Register16",
+                "Memory"
+            ]
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            243
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "LZCNT"
+        ]
+    },
+    {
+        "mnemonic": "lzcnt",
+        "mnemonicPrecise": "lzcntd",
+        "opcode": 4029,
+        "opcodeHex": "FBD",
+        "operands": [
+            "Register32",
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            243
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "LZCNT"
+        ]
+    },
+    {
+        "mnemonic": "lzcnt",
+        "mnemonicPrecise": "lzcntq",
+        "opcode": 4029,
+        "opcodeHex": "FBD",
+        "operands": [
+            "Register64",
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            243
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "LZCNT"
+        ]
+    }
+]

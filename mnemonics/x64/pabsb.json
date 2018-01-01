@@ -1,0 +1,63 @@
+[
+    {
+        "mnemonic": "pabsb",
+        "mnemonicPrecise": "pabsbx",
+        "opcode": 28,
+        "opcodeHex": "1C",
+        "operands": [
+            "RegisterMm",
+            [
+                "RegisterMm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            15,
+            56
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSSE3"
+        ]
+    },
+    {
+        "mnemonic": "pabsb",
+        "mnemonicPrecise": "pabsbx",
+        "opcode": 28,
+        "opcodeHex": "1C",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            102,
+            15,
+            56
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSSE3"
+        ]
+    }
+]

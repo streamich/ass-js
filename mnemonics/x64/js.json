@@ -1,0 +1,38 @@
+[
+    {
+        "mnemonic": "js",
+        "mnemonicPrecise": "js",
+        "opcode": 120,
+        "opcodeHex": "78",
+        "operands": [
+            "Relative8"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "js",
+        "mnemonicPrecise": "js",
+        "opcode": 3976,
+        "opcodeHex": "F88",
+        "operands": [
+            "Relative32"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

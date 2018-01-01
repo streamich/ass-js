@@ -1,0 +1,55 @@
+[
+    {
+        "mnemonic": "adcx",
+        "mnemonicPrecise": "adcxd",
+        "opcode": 997622,
+        "opcodeHex": "F38F6",
+        "operands": [
+            "Register32",
+            [
+                "Register32",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            102
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "ADX"
+        ]
+    },
+    {
+        "mnemonic": "adcx",
+        "mnemonicPrecise": "adcxq",
+        "opcode": 997622,
+        "opcodeHex": "F38F6",
+        "operands": [
+            "Register64",
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            102
+        ],
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "ADX"
+        ]
+    }
+]

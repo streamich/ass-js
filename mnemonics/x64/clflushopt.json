@@ -1,0 +1,21 @@
+[
+    {
+        "mnemonic": "clflushopt",
+        "mnemonicPrecise": "clflushopt",
+        "opcode": 6688686,
+        "opcodeHex": "660FAE",
+        "operands": [
+            "Memory"
+        ],
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

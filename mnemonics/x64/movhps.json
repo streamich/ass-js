@@ -1,0 +1,56 @@
+[
+    {
+        "mnemonic": "movhps",
+        "mnemonicPrecise": "movhpsx",
+        "opcode": 22,
+        "opcodeHex": "16",
+        "operands": [
+            "RegisterXmm",
+            "Memory64"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "setOpcodeDirectionBit": true,
+        "extraPrefixes": [
+            15
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE"
+        ]
+    },
+    {
+        "mnemonic": "movhps",
+        "mnemonicPrecise": "movhpsx",
+        "opcode": 23,
+        "opcodeHex": "17",
+        "operands": [
+            "Memory64",
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "mr",
+        "setOpcodeDirectionBit": true,
+        "extraPrefixes": [
+            15
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE"
+        ]
+    }
+]

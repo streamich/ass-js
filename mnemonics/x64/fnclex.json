@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fnclex",
+        "mnemonicPrecise": "fnclex",
+        "opcode": 56290,
+        "opcodeHex": "DBE2",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

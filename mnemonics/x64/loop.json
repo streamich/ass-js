@@ -1,0 +1,20 @@
+[
+    {
+        "mnemonic": "loop",
+        "mnemonicPrecise": "loop",
+        "opcode": 226,
+        "opcodeHex": "E2",
+        "operands": [
+            "Relative8"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,67 @@
+[
+    {
+        "mnemonic": "bzhi",
+        "mnemonicPrecise": "bzhid",
+        "opcode": 245,
+        "opcodeHex": "F5",
+        "operands": [
+            "Register32",
+            [
+                "Register32",
+                "Memory"
+            ],
+            "Register32"
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rmv",
+        "vex": {
+            "vvvv": "NDS",
+            "L": 0,
+            "pp": 0,
+            "mmmmm": 2,
+            "W": 0,
+            "WIG": false
+        },
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "BMI2"
+        ]
+    },
+    {
+        "mnemonic": "bzhi",
+        "mnemonicPrecise": "bzhiq",
+        "opcode": 245,
+        "opcodeHex": "F5",
+        "operands": [
+            "Register64",
+            [
+                "Register64",
+                "Memory"
+            ],
+            "Register64"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rmv",
+        "vex": {
+            "vvvv": "NDS",
+            "L": 0,
+            "pp": 0,
+            "mmmmm": 2,
+            "W": 1,
+            "WIG": false
+        },
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "BMI2"
+        ]
+    }
+]

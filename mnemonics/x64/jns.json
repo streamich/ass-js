@@ -1,0 +1,38 @@
+[
+    {
+        "mnemonic": "jns",
+        "mnemonicPrecise": "jns",
+        "opcode": 121,
+        "opcodeHex": "79",
+        "operands": [
+            "Relative8"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "jns",
+        "mnemonicPrecise": "jns",
+        "opcode": 3977,
+        "opcodeHex": "F89",
+        "operands": [
+            "Relative32"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

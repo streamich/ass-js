@@ -1,0 +1,42 @@
+[
+    {
+        "mnemonic": "fstsw",
+        "mnemonicPrecise": "fstsww",
+        "opcode": 39901,
+        "opcodeHex": "9BDD",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 16,
+        "opcodeExtensionInModrm": 7,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fstsw",
+        "mnemonicPrecise": "fstsww",
+        "opcode": 10215392,
+        "opcodeHex": "9BDFE0",
+        "operands": [
+            "ax"
+        ],
+        "operandSize": 16,
+        "operandEncoding": "rm",
+        "skipMorm": true,
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

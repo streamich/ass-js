@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "lock",
+        "mnemonicPrecise": "lock",
+        "opcode": 240,
+        "opcodeHex": "F0",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

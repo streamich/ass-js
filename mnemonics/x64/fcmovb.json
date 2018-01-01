@@ -1,0 +1,21 @@
+[
+    {
+        "mnemonic": "fcmovb",
+        "mnemonicPrecise": "fcmovbt",
+        "opcode": 218,
+        "opcodeHex": "DA",
+        "operands": [
+            "RegisterSt"
+        ],
+        "operandSize": 80,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

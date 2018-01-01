@@ -1,0 +1,42 @@
+[
+    {
+        "mnemonic": "fisubr",
+        "mnemonicPrecise": "fisubrd",
+        "opcode": 218,
+        "opcodeHex": "DA",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 32,
+        "opcodeExtensionInModrm": 5,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "fisubr",
+        "mnemonicPrecise": "fisubrw",
+        "opcode": 222,
+        "opcodeHex": "DE",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 16,
+        "opcodeExtensionInModrm": 5,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

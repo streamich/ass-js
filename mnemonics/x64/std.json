@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "std",
+        "mnemonicPrecise": "std",
+        "opcode": 253,
+        "opcodeHex": "FD",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

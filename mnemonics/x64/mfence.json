@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "mfence",
+        "mnemonicPrecise": "mfence",
+        "opcode": 1027824,
+        "opcodeHex": "FAEF0",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

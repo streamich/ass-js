@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "xgetbv",
+        "mnemonicPrecise": "xgetbv",
+        "opcode": 983504,
+        "opcodeHex": "F01D0",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

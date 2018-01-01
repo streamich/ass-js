@@ -1,14 +1,14 @@
+export const noop = () => {};
+export const extend = require('fast-extend');
 
-export function noop() {}
+export const repeat = (str: string, length: number) => {
+    while (str.length < length) str += str;
 
+    if (str.length > length)
+        str = str.substr(0, length);
 
-export function extend<T> (obj1: T, obj2: T, ...objs: T[]): T {
-    if(typeof obj2 === 'object') for(var i in obj2) obj1[i] = obj2[i];
-
-    if(objs.length) return extend.apply(null, [obj1, ...objs]);
-    else return obj1;
-}
-
+    return str;
+};
 
 export class UInt64 {
 

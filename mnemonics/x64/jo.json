@@ -1,0 +1,38 @@
+[
+    {
+        "mnemonic": "jo",
+        "mnemonicPrecise": "jo",
+        "opcode": 112,
+        "opcodeHex": "70",
+        "operands": [
+            "Relative8"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    },
+    {
+        "mnemonic": "jo",
+        "mnemonicPrecise": "jo",
+        "opcode": 3968,
+        "opcodeHex": "F80",
+        "operands": [
+            "Relative32"
+        ],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

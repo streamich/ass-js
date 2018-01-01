@@ -1,0 +1,141 @@
+[
+    {
+        "mnemonic": "vmovq",
+        "mnemonicPrecise": "vmovqq",
+        "opcode": 110,
+        "opcodeHex": "6E",
+        "operands": [
+            "RegisterXmm",
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "",
+            "L": 0,
+            "pp": 1,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": false
+        },
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovq",
+        "mnemonicPrecise": "vmovqq",
+        "opcode": 126,
+        "opcodeHex": "7E",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ],
+            "RegisterXmm"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "mr",
+        "vex": {
+            "vvvv": "",
+            "L": 0,
+            "pp": 1,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": false
+        },
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovq",
+        "mnemonicPrecise": "vmovqx",
+        "opcode": 126,
+        "opcodeHex": "7E",
+        "operands": [
+            "RegisterXmm",
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "",
+            "L": 0,
+            "pp": 2,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": true
+        },
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovq",
+        "mnemonicPrecise": "vmovqq",
+        "opcode": 126,
+        "opcodeHex": "7E",
+        "operands": [
+            "RegisterXmm",
+            "Memory64"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "",
+            "L": 0,
+            "pp": 2,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": true
+        },
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vmovq",
+        "mnemonicPrecise": "vmovqq",
+        "opcode": 214,
+        "opcodeHex": "D6",
+        "operands": [
+            [
+                "RegisterXmm",
+                "Memory64"
+            ],
+            "RegisterXmm"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "mr",
+        "vex": {
+            "vvvv": "",
+            "L": 0,
+            "pp": 1,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": true
+        },
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

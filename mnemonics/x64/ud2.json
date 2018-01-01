@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "ud2",
+        "mnemonicPrecise": "ud2",
+        "opcode": 3851,
+        "opcodeHex": "F0B",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,64 @@
+[
+    {
+        "mnemonic": "bndmov",
+        "mnemonicPrecise": "bndmovx",
+        "opcode": 26,
+        "opcodeHex": "1A",
+        "operands": [
+            "RegisterBounds",
+            [
+                "RegisterBounds",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "setOpcodeDirectionBit": true,
+        "extraPrefixes": [
+            102,
+            15
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "MPX"
+        ]
+    },
+    {
+        "mnemonic": "bndmov",
+        "mnemonicPrecise": "bndmovx",
+        "opcode": 27,
+        "opcodeHex": "1B",
+        "operands": [
+            [
+                "RegisterBounds",
+                "Memory"
+            ],
+            "RegisterBounds"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "mr",
+        "setOpcodeDirectionBit": true,
+        "extraPrefixes": [
+            102,
+            15
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "MPX"
+        ]
+    }
+]

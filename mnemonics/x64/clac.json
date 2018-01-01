@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "clac",
+        "mnemonicPrecise": "clac",
+        "opcode": 983498,
+        "opcodeHex": "F01CA",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

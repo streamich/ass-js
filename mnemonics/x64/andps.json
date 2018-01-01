@@ -1,0 +1,28 @@
+[
+    {
+        "mnemonic": "andps",
+        "mnemonicPrecise": "andpsx",
+        "opcode": 3924,
+        "opcodeHex": "F54",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE"
+        ]
+    }
+]

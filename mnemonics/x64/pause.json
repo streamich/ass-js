@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "pause",
+        "mnemonicPrecise": "pause",
+        "opcode": 62352,
+        "opcodeHex": "F390",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

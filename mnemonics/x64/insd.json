@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "insd",
+        "mnemonicPrecise": "insd",
+        "opcode": 109,
+        "opcodeHex": "6D",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

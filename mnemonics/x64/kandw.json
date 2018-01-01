@@ -1,0 +1,29 @@
+[
+    {
+        "mnemonic": "kandw",
+        "mnemonicPrecise": "kandw",
+        "opcode": 65,
+        "opcodeHex": "41",
+        "operands": [],
+        "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "",
+            "L": 0,
+            "pp": 0,
+            "mmmmm": 1,
+            "W": 0,
+            "WIG": false
+        },
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX512F"
+        ]
+    }
+]

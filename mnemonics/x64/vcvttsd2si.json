@@ -1,0 +1,65 @@
+[
+    {
+        "mnemonic": "vcvttsd2si",
+        "mnemonicPrecise": "vcvttsd2sid",
+        "opcode": 44,
+        "opcodeHex": "2C",
+        "operands": [
+            "Register32",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "",
+            "L": 0,
+            "pp": 3,
+            "mmmmm": 1,
+            "W": 0,
+            "WIG": false
+        },
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    },
+    {
+        "mnemonic": "vcvttsd2si",
+        "mnemonicPrecise": "vcvttsd2siq",
+        "opcode": 44,
+        "opcodeHex": "2C",
+        "operands": [
+            "Register64",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "vex": {
+            "vvvv": "",
+            "L": 0,
+            "pp": 3,
+            "mmmmm": 1,
+            "W": 1,
+            "WIG": false
+        },
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "AVX"
+        ]
+    }
+]

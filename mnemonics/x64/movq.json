@@ -1,0 +1,176 @@
+[
+    {
+        "mnemonic": "movq",
+        "mnemonicPrecise": "movqq",
+        "opcode": 3950,
+        "opcodeHex": "F6E",
+        "operands": [
+            "RegisterMm",
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "MMX"
+        ]
+    },
+    {
+        "mnemonic": "movq",
+        "mnemonicPrecise": "movqq",
+        "opcode": 3966,
+        "opcodeHex": "F7E",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ],
+            "RegisterMm"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "MMX"
+        ]
+    },
+    {
+        "mnemonic": "movq",
+        "mnemonicPrecise": "movqq",
+        "opcode": 3950,
+        "opcodeHex": "F6E",
+        "operands": [
+            "RegisterXmm",
+            [
+                "Register64",
+                "Memory"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            102
+        ],
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    },
+    {
+        "mnemonic": "movq",
+        "mnemonicPrecise": "movqq",
+        "opcode": 3966,
+        "opcodeHex": "F7E",
+        "operands": [
+            [
+                "Register64",
+                "Memory"
+            ],
+            "RegisterXmm"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "extraPrefixes": [
+            102
+        ],
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    },
+    {
+        "mnemonic": "movq",
+        "mnemonicPrecise": "movqq",
+        "opcode": 3951,
+        "opcodeHex": "F6F",
+        "operands": [
+            "RegisterMm",
+            [
+                "RegisterMm",
+                "Memory64"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "MMX"
+        ]
+    },
+    {
+        "mnemonic": "movq",
+        "mnemonicPrecise": "movqq",
+        "opcode": 3967,
+        "opcodeHex": "F7F",
+        "operands": [
+            [
+                "RegisterMm",
+                "Memory64"
+            ],
+            "RegisterMm"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "mr",
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "MMX"
+        ]
+    },
+    {
+        "mnemonic": "movq",
+        "mnemonicPrecise": "movqq",
+        "opcode": 15929214,
+        "opcodeHex": "F30F7E",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory64"
+            ]
+        ],
+        "operandSize": 64,
+        "operandEncoding": "rm",
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    },
+    {
+        "mnemonic": "movq",
+        "mnemonicPrecise": "movqq",
+        "opcode": 6688726,
+        "opcodeHex": "660FD6",
+        "operands": [
+            [
+                "RegisterXmm",
+                "Memory64"
+            ],
+            "RegisterXmm"
+        ],
+        "operandSize": 64,
+        "operandEncoding": "mr",
+        "modes": [
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    }
+]

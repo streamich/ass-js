@@ -1,0 +1,64 @@
+[
+    {
+        "mnemonic": "movapd",
+        "mnemonicPrecise": "movapdx",
+        "opcode": 40,
+        "opcodeHex": "28",
+        "operands": [
+            "RegisterXmm",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 128,
+        "operandEncoding": "rm",
+        "setOpcodeDirectionBit": true,
+        "extraPrefixes": [
+            102,
+            15
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    },
+    {
+        "mnemonic": "movapd",
+        "mnemonicPrecise": "movapdx",
+        "opcode": 41,
+        "opcodeHex": "29",
+        "operands": [
+            [
+                "RegisterXmm",
+                "Memory"
+            ],
+            "RegisterXmm"
+        ],
+        "operandSize": 128,
+        "operandEncoding": "mr",
+        "setOpcodeDirectionBit": true,
+        "extraPrefixes": [
+            102,
+            15
+        ],
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    }
+]

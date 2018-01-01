@@ -1,0 +1,22 @@
+[
+    {
+        "mnemonic": "lcall",
+        "mnemonicPrecise": "lcalld",
+        "opcode": 255,
+        "opcodeHex": "FF",
+        "operands": [
+            "Memory"
+        ],
+        "operandSize": 32,
+        "opcodeExtensionInModrm": 3,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]

@@ -1,0 +1,28 @@
+[
+    {
+        "mnemonic": "cvtsd2si",
+        "mnemonicPrecise": "cvtsd2sid",
+        "opcode": 15863597,
+        "opcodeHex": "F20F2D",
+        "operands": [
+            "Register32",
+            [
+                "RegisterXmm",
+                "Memory"
+            ]
+        ],
+        "operandSize": 32,
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ],
+        "extensions": [
+            "SSE2"
+        ]
+    }
+]

@@ -1,0 +1,18 @@
+[
+    {
+        "mnemonic": "fxtract",
+        "mnemonicPrecise": "fxtract",
+        "opcode": 55796,
+        "opcodeHex": "D9F4",
+        "operands": [],
+        "operandEncoding": "rm",
+        "modes": [
+            "REAL",
+            "PROT",
+            "COMP",
+            "LEG",
+            "X32",
+            "X64"
+        ]
+    }
+]
