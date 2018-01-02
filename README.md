@@ -1,18 +1,20 @@
 # Assembler.js
 
+[![][npm-badge]][npm-url] [![][travis-badge]][travis-url]
+
 Assembler implemented in JavaScript:
 
   - Pluggable design, X64 architecture implemented
   - See [supported mnemonics](./mnemonics/x64/)
   - Standalone, use it in browser or Node.js
 
-## Installation
+## Install
 
 ```shell
 npm i ass-js
 ```
 
-## Getting started
+## Getting Started
 
 Store `0xBABE` in `RAX` register
 
@@ -73,3 +75,10 @@ asm.code(template);
 ## License
 
 [Unlicense](./LICENSE) - public domain.
+
+
+
+[npm-url]: https://www.npmjs.com/package/ass-js
+[npm-badge]: https://img.shields.io/npm/v/ass-js.svg
+[travis-url]: https://travis-ci.org/streamich/ass-js
+[travis-badge]: https://travis-ci.org/streamich/ass-js.svg?branch=master
