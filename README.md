@@ -14,7 +14,7 @@ Assembler implemented in JavaScript:
 npm i ass-js
 ```
 
-## Getting started
+## Getting Started
 
 Store `0xBABE` in `RAX` register
 

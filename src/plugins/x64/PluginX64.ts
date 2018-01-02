@@ -51,7 +51,7 @@ class PluginX64 extends Plugin {
     };
 
     mnemonic (name: string, args: any[]) {
-        const variations: MnemonicVariationsX86 = require('./__generated/' + name + '.ts').default;
+        const variations: MnemonicVariationsX86 = require('./__generated/' + name).default;
 
         let uiOperands: TUiOperand[] = args[0];
         if (uiOperands && !Array.isArray(uiOperands)) {

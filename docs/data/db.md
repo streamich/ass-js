@@ -23,7 +23,7 @@ Repeat a number 3 times
 _('db', 1, 3);
 ```
 
-Resutl:
+Result:
 
 ```shell
 000 main:
