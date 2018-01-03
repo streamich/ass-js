@@ -3,7 +3,8 @@ import {opcodes} from './table';
 import {InstructionEthereum} from "./instruction";
 import MnemonicEthereum from "./MnemonicEthereum";
 import {ConstantEthereum, SIZE_ETHEREUM, TOctetsEthereum} from "./operand";
-import {Constant, Operand, Operands} from "../../operand";
+import {Constant, Operand, Operands, Relative} from "../../operand";
+import {Expression} from "../../expression";
 
 class PluginEthereum extends Plugin {
     onAsm (asm) {
@@ -30,9 +31,13 @@ class PluginEthereum extends Plugin {
         });
     }
 
-    mnemonic (name, opcode, octets: number[]) {
-        if (octets && octets.length) {
-            this.push(octets);
+    mnemonic (name, opcode, args: any[]) {
+        if (args && args.length) {
+            if (args[0] instanceof Expression) {
+                console.log('A', args[0].rel());
+            } else if (typeof args[0] === 'number') {
+                this.push(args);
+            }
         }
 
         const instruction = new InstructionEthereum(new MnemonicEthereum(name, opcode));
@@ -70,6 +75,10 @@ class PluginEthereum extends Plugin {
                 return this.pushX(octets.slice(cursor), diff);
             }
         } while (true);
+    }
+
+    pushRelative (relative: Relative) {
+
     }
 }
 
