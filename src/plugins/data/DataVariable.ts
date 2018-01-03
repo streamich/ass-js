@@ -3,6 +3,8 @@ import {Expression, ExpressionVariable} from '../../expression';
 import {TOctets} from './Data';
 import {Operands, SIZE, Tnumber, isTnumber, Relative} from '../../operand';
 import CodeBuffer from "../../CodeBuffer";
+import formatOctet from "./formatOctet";
+import formatOctets from "./formatOctets";
 
 export class DataVariable extends ExpressionVariable {
 
@@ -53,28 +55,20 @@ export class DataVariable extends ExpressionVariable {
     }
 
     toString(margin = '    ', comment = true) {
-        var datastr = '';
-        var bytes = this.bytes();
-        if(bytes < 200) {
-            datastr = this.ops.list.map(function(op) {
-                return typeof op === 'number' ? Data.formatOctet(op) : op.toString();
-            }).join(', ');
-        } else {
-            datastr = `[${bytes} bytes]`;
-        }
+        const datastr = formatOctets(this.octets);
+        const expression = margin + 'dbv ' + datastr;
+        let cmt = '';
 
-        var expression = margin + 'dbv ' + datastr;
-
-        var cmt = '';
         if(comment) {
             var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
-            cmt = `${spaces}; ${this.formatOffset()} ${bytes} bytes`;
+            cmt = `${spaces}; ${this.formatOffset()} ${this.bytes()} bytes`;
             if(this.isEvaluated) {
                 cmt += ' ' + this.octets.map(function(octet) {
-                    return Data.formatOctet(octet);
+                    return formatOctet(octet);
                 }).join(', ');
             }
         }
+
         return expression + cmt;
     }
 }

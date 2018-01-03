@@ -20,10 +20,13 @@ export class Instruction extends ExpressionVolatile {
         const parts = [];
 
         parts.push(this.mnemonic.getName());
+
         if ((parts.join(' ')).length < 8)
             parts.push((new Array(7 - (parts.join(' ')).length)).join(' '));
-        if (this.ops.list.length)
-            parts.push(this.ops.toString());
+
+        if (this.ops)
+            if (this.ops.list.length)
+                parts.push(this.ops.toString());
 
         return parts.join(' ');
     }

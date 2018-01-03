@@ -91,7 +91,7 @@ export type TUiOperandNormalized = Operand|Register|Memory|Tnumber|Relative; // 
 // General operand used in our assembly "language".
 export abstract class Operand {
     // Size in bits.
-    size: SIZE = SIZE.ANY;
+    size: SIZE | number = SIZE.ANY;
 
     // Convenience method to get `Register` associated with `Register` or `Memory`.
     reg(): Register {
@@ -250,7 +250,8 @@ export class Constant extends Operand {
     }
 
     fitsSize(num: Tnumber) {
-        var size = this.signed ? Constant.sizeClass(num) : Constant.sizeClassUnsigned(num);
+        const size = this.signed ? Constant.sizeClass(num) : Constant.sizeClassUnsigned(num);
+
         return size <= this.size;
     }
 
@@ -660,9 +661,9 @@ export class Operands {
         else return null;
     }
 
-    getFirstOfClass (Clazz, skip = 0) {
+    getFirstOfClass (Klass, skip = 0) {
         for (const op of this.list) {
-            if (op instanceof Clazz) {
+            if (op instanceof Klass) {
                 if(!skip) return op;
                 else skip--;
             }
