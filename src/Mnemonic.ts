@@ -31,10 +31,15 @@ export class Mnemonic {
         return String(operand);
     }
 
-    mnemonic: string = '';
-    operandSize: SIZE = SIZE.NONE;
-    opcode: number = 0x00;
+    mnemonic: string;
+    operandSize: SIZE | number = SIZE.NONE;
+    opcode: number;
     operandTemplates: TTableOperand[][];
+
+    constructor (mnemonic: string = '', opcode: number = 0x00) {
+        this.mnemonic = mnemonic;
+        this.opcode = opcode;
+    }
 
     getName (): string {
         const size = this.operandSize;

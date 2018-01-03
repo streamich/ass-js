@@ -2,17 +2,12 @@ import {Expression, IPushable} from '../../expression';
 import {SIZE, Tnumber, number64} from '../../operand';
 import {UInt64} from '../../util';
 import CodeBuffer from "../../CodeBuffer";
+import formatOctet from "./formatOctet";
+import formatOctets from "./formatOctets";
 
 export type TOctets = number[];
 
 export class Data extends Expression {
-
-    static formatOctet(octet) {
-        var neg = octet < 0 ? '-' : '';
-        octet = Math.abs(octet);
-        return octet <= 0xF ? neg + '0x0' + octet.toString(16).toUpperCase() : neg + '0x' + octet.toString(16).toUpperCase();
-    }
-
     static numbersToOctets(numbers: Tnumber[], size: SIZE, littleEndian = true): TOctets {
         if(size === SIZE.Q) return Data.quadsToOctets(numbers, littleEndian);
 
@@ -92,21 +87,13 @@ export class Data extends Expression {
     }
 
     toString(margin = '    ', comment = true) {
-        var datastr = '';
-        var bytes = this.bytes();
-        if(bytes < 200) {
-            datastr = this.octets.map(function(octet) {
-                return Data.formatOctet(octet);
-            }).join(', ');
-        } else {
-            datastr = `[${this.bytes()} bytes]`;
-        }
+        const datastr = formatOctets(this.octets);
+        const expression = margin + 'db ' + datastr;
+        let cmt = '';
 
-        var expression = margin + 'db ' + datastr;
-        var cmt = '';
         if(comment) {
-            var spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
-            cmt = `${spaces}; ${this.formatOffset()} ${bytes} bytes`;
+            const spaces = (new Array(1 + Math.max(0, Expression.commentColls - expression.length))).join(' ');
+            cmt = `${spaces}; ${this.formatOffset()} ${this.bytes()} bytes`;
         }
 
         return expression + cmt;

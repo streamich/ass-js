@@ -91,7 +91,7 @@ export type TUiOperandNormalized = Operand|Register|Memory|Tnumber|Relative; // 
 // General operand used in our assembly "language".
 export abstract class Operand {
     // Size in bits.
-    size: SIZE = SIZE.ANY;
+    size: SIZE | number = SIZE.ANY;
 
     // Convenience method to get `Register` associated with `Register` or `Memory`.
     reg(): Register {
@@ -250,7 +250,8 @@ export class Constant extends Operand {
     }
 
     fitsSize(num: Tnumber) {
-        var size = this.signed ? Constant.sizeClass(num) : Constant.sizeClassUnsigned(num);
+        const size = this.signed ? Constant.sizeClass(num) : Constant.sizeClassUnsigned(num);
+
         return size <= this.size;
     }
 
@@ -514,6 +515,7 @@ export class Relative extends Variable {
     canEvaluate(owner) {
         if(!owner || (owner.offset === -1)) return false;
         if(this.target.offset === -1) return false;
+
         return true;
     }
 
@@ -527,8 +529,9 @@ export class Relative extends Variable {
     }
 
     canHoldMaxOffset(owner: Expression) {
-        var value = this.evaluatePreliminary(owner);
-        var size = this.signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
+        const value = this.evaluatePreliminary(owner);
+        const size = this.signed ? Constant.sizeClass(value) : Constant.sizeClassUnsigned(value);
+
         return size <= this.size;
     }
 
@@ -564,24 +567,27 @@ export class Relative extends Variable {
     }
 
     toString() {
-        var result = '';
-        if(this.result !== null) {
-            result = ' = ' + this.result;
-        }
+        let result = '';
 
-        if(this.target instanceof require('./Label').default) {
-            var lbl = this.target as Label;
-            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
+        if (this.result !== null)
+            result = ' = ' + this.result;
+
+        if (this.target instanceof require('./Label').default) {
+            const lbl = this.target as Label;
+            const off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
+
             return `<${lbl.getName()}${off}${result}>`;
-        } else if(this.target.asm) {
+        } else if (this.target.asm) {
             // var lbl = this.target.asm.getStartLabel();
             const lbl = this.target.asm.expressions[0] as any as Label;
-            var expr = `+[${this.target.index}]`;
-            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
+            const expr = `+[${this.target.index}]`;
+            const off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
+
             return `<${lbl.getName()}${expr}${off}${result}>`;
         } else {
-            var expr = `+[${this.target.index}]`;
-            var off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
+            const expr = `+[${this.target.index}]`;
+            const off = this.offset ? '+' + (new Constant(this.offset)).toString() : '';
+
             return `<${expr}${off}${result}>`;
         }
     }
@@ -660,9 +666,9 @@ export class Operands {
         else return null;
     }
 
-    getFirstOfClass (Clazz, skip = 0) {
+    getFirstOfClass (Klass, skip = 0) {
         for (const op of this.list) {
-            if (op instanceof Clazz) {
+            if (op instanceof Klass) {
                 if(!skip) return op;
                 else skip--;
             }
