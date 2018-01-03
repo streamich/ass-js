@@ -54,3 +54,61 @@
 //
 // ```
 
+import {Ethereum} from "../../src/index";
+
+const asm = Ethereum();
+
+asm.code(_ => {
+    _('PUSH', 3);
+    _('MUL', 3);
+
+    _('PUSH', 0xF);
+    _('JUMP');
+
+    _('PUSH', 27);
+    _('PUSH', 0);
+    _('PUSH', 0);
+    _('LOG1');
+    _('JUMPDEST');
+
+    _('PUSH2', 1, 0xA5);
+    _('PUSH', 0);
+    _('PUSH1', 0);
+
+    _('LOG1');
+
+    _('PUSH', 1);
+    _('SWAP1');
+    _('SUB');
+
+    _('DUP1');
+    _('ISZERO');
+    _('ISZERO');
+    _('PUSH', 15);
+    _('JUMPI');
+
+    _('PUSH', 6);
+    _('PUSH', 0);
+    _('PUSH', 0);
+    _('LOG1');
+});
+
+console.log(String(asm));
+
+const code = (asm.compile() as Buffer).toString('hex');
+
+console.log(code);
+
+const VM = require('ethereumjs-vm');
+const vm = new VM();
+
+vm.on('step', function (data) {
+    console.log(data.opcode.name)
+});
+
+vm.runCode({
+    code: Buffer.from(code, 'hex'),
+    gasLimit: Buffer.from('ffffffff', 'hex')
+}, function(err, results){
+    console.log('returned: ' + results.return.toString('hex'));
+});

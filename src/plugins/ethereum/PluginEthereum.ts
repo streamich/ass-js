@@ -22,7 +22,7 @@ class PluginEthereum extends Plugin {
                         return this.pushX(args, size);
                     }
                 } else {
-                    return this.mnemonic(name, opcode);
+                    return this.mnemonic(name, opcode, Array.isArray(args[0]) ? args[0] : args);
                 }
             } else if (name === 'PUSH') {
                 return this.push.call(this, Array.isArray(args[0]) ? args[0] : args);
@@ -30,7 +30,11 @@ class PluginEthereum extends Plugin {
         });
     }
 
-    mnemonic (name, opcode) {
+    mnemonic (name, opcode, octets: number[]) {
+        if (octets && octets.length) {
+            this.push(octets);
+        }
+
         const instruction = new InstructionEthereum(new MnemonicEthereum(name, opcode));
 
         return this.asm.insert(instruction);
@@ -53,7 +57,6 @@ class PluginEthereum extends Plugin {
     }
 
     push (octets: number[]) {
-        console.log('HERE')
         let cursor = 0;
         const MAX = 32;
 

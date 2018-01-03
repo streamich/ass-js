@@ -4,8 +4,9 @@
 
 Assembler implemented in JavaScript:
 
-  - Pluggable design, X64 architecture implemented
-  - See [supported mnemonics](./mnemonics/x64/)
+  - Pluggable design
+  - X64 and Ethereum assembler
+  - See [supported X64 mnemonics](./mnemonics/x64/)
   - Standalone, use it in browser or Node.js
 
 ## Install
@@ -57,6 +58,7 @@ asm.code(template);
       - [Getting started](./docs/x64/getting-started.md)
       - [Operands](./docs/x64/operands.md)
       - [Expressions](./docs/x64/expressions.md)
+    - [Ethereum](./docs/ethereum/ethereum.md)
     - Data
       - `d*` - [add binary data](./docs/data/db.md)
       - `res*` - [add uninitialized data](./docs/data/resb.md)
