@@ -1,4 +1,4 @@
-function formatOctet(octet) {
+function formatOctet(octet): string {
     const neg = octet < 0 ? '-' : '';
 
     octet = Math.abs(octet);

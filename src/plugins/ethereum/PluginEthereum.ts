@@ -13,14 +13,19 @@ class PluginEthereum extends Plugin {
             const opcode = opcodes[name];
 
             if (typeof opcode === 'number') {
-                if (name === 'PUSH') {
-                    this.push.apply(this, args);
-                } else if ((name[0] === 'P') && (name.substr(0, 4) === 'PUSH')) {
+                if ((name[0] === 'P') && (name.substr(0, 4) === 'PUSH')) {
                     const size = parseInt(name.substr(4));
-                    return this.pushX(args[0], size);
+
+                    if (Array.isArray(args[0])) {
+                        return this.pushX(args[0], size);
+                    } else {
+                        return this.pushX(args, size);
+                    }
                 } else {
                     return this.mnemonic(name, opcode);
                 }
+            } else if (name === 'PUSH') {
+                return this.push.call(this, Array.isArray(args[0]) ? args[0] : args);
             }
         });
     }
@@ -32,6 +37,9 @@ class PluginEthereum extends Plugin {
     }
 
     pushX (octets: TOctetsEthereum, X = 1) {
+        if (octets.length !== X)
+            throw new Error(`PUSH${X} command expects ${X} byte immediate, ${octets.length} given. Consider using variadic PUSH command instead.`);
+
         const name = 'PUSH' + X;
         const mnemonic = new MnemonicEthereum(name, opcodes[name]);
 
@@ -44,12 +52,21 @@ class PluginEthereum extends Plugin {
         return this.asm.insert(instruction);
     }
 
-    push (data, size = 8) {
+    push (octets: number[]) {
+        console.log('HERE')
+        let cursor = 0;
+        const MAX = 32;
 
-    }
+        do {
+            let diff = octets.length - cursor;
 
-    operands (uiOperands) {
-        const operands = new Operands();
+            if (diff > MAX) {
+                this.pushX(octets.slice(cursor, cursor + MAX), MAX);
+                cursor += MAX;
+            } else {
+                return this.pushX(octets.slice(cursor), diff);
+            }
+        } while (true);
     }
 }
 

@@ -1,6 +1,6 @@
 import formatOctet from "./formatOctet";
 
-function formatOctets (octets: number[] | Buffer | Uint8Array, maxLength = 200) {
+function formatOctets (octets: number[] | Buffer | Uint8Array, maxLength = 200): string {
     if (octets.length < maxLength) {
         const out = [];
 
@@ -9,7 +9,7 @@ function formatOctets (octets: number[] | Buffer | Uint8Array, maxLength = 200) 
 
         return out.join(', ');
     } else
-        return `[${this.bytes()} bytes]`;
+        return `[${octets.length} bytes]`;
 }
 
 export default formatOctets;

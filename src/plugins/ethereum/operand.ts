@@ -34,6 +34,6 @@ export class ConstantEthereum extends Operand {
     }
 
     toString () {
-        return formatOctets(this.octets);
+        return formatOctets(this.octets, 5);
     }
 }
