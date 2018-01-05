@@ -52,7 +52,7 @@
     "ethereumjs-vm": "2.3.2",
     "semantic-release": "11.2.0",
     "@types/node": "8.5.5",
-    "@types/jest": "20.0.8"
+    "@types/jest": "22.0.1"
   },
   "scripts": {
     "build": "npm run clean && npm run build-ts",
