@@ -47,7 +47,7 @@
     "static-buffer": "1.0.1",
     "rimraf": "2.6.2",
     "ethereumjs-vm": "2.3.2",
-    "semantic-release": "12.2.0",
+    "semantic-release": "12.2.1",
     "@types/node": "8.5.8",
     "@types/jest": "22.0.1"
   },
