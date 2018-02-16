@@ -1,4 +1,6 @@
-# Assembler.js
+<div align="center">
+<h1>(‿*‿) <br/> Assembler.js</h1>
+</div>
 
 [![][npm-badge]][npm-url] [![][travis-badge]][travis-url]
 
