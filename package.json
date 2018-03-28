@@ -41,7 +41,7 @@
     "typescript": "2.9.2",
     "ts-node": "3.3.0",
     "gulp": "3.9.1",
-    "gulp-typescript": "3.2.4",
+    "gulp-typescript": "4.0.2",
     "mkdirp": "0.5.1",
     "coffee-register": "2.0.0",
     "static-buffer": "1.0.1",
