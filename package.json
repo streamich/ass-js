@@ -43,7 +43,7 @@
     "gulp": "3.9.1",
     "gulp-typescript": "3.2.4",
     "mkdirp": "0.5.1",
-    "coffee-register": "0.1.3",
+    "coffee-register": "2.0.0",
     "static-buffer": "1.0.1",
     "rimraf": "2.6.2",
     "ethereumjs-vm": "2.3.5",
