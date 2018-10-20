@@ -78,7 +78,7 @@ asm.code(template);
 
 ## License
 
-[Unlicense](./LICENSE) - public domain.
+[Unlicense](./LICENSE) &mdash; public domain.
 
 
 
