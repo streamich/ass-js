@@ -1522,9 +1522,9 @@ export const table = {...t.table,
     // ADC Add with carry
     get adc() {return lazy('common', 'adc')},
     // SUB Subtract
-    get sub() {return lazy('common', 'adc')},
+    get sub() {return lazy('common', 'sub')},
     // SBB Subtract with borrow
-    get sbb() {return lazy('common', 'adc')},
+    get sbb() {return lazy('common', 'sbb')},
     // IMUL Signed multiply
     imul: [{},
         // F6 /5 IMUL r/m8* M Valid Valid AX← AL ∗ r/m byte.
