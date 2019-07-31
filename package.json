@@ -46,7 +46,7 @@
     "coffee-register": "2.2.0",
     "static-buffer": "1.0.1",
     "rimraf": "2.6.3",
-    "ethereumjs-vm": "2.6.0",
+    "ethereumjs-vm": "3.0.0",
     "semantic-release": "15.13.19",
     "@types/node": "8.10.51",
     "@types/jest": "23.3.14",
