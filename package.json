@@ -37,7 +37,7 @@
   "devDependencies": {
     "jest": "26.6.3",
     "jest-tap-reporter": "1.9.0",
-    "ts-jest": "23.1.4",
+    "ts-jest": "23.10.5",
     "typescript": "2.9.2",
     "ts-node": "7.0.1",
     "gulp": "4.0.2",
