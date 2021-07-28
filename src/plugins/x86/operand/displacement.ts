@@ -20,7 +20,7 @@ export class DisplacementValue extends Immediate {
             disp = new DisplacementValue(0);
             disp.setVariable(value as Variable);
         } else if (isTnumber(value)) {
-            disp = new DisplacementValue(value as Tnumber);
+            disp = new DisplacementValue(value as any);
         } else
             throw TypeError('Displacement must be of type Tvariable.');
 

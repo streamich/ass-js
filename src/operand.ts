@@ -145,7 +145,7 @@ export class Constant extends Operand {
     constructor(value: Tnumber = 0, signed = true) {
         super();
         this.signed = signed;
-        this.setValue(value);
+        this.setValue(value as any);
     }
 
     setValue(value: number|number64) {
@@ -190,7 +190,7 @@ export class Constant extends Operand {
 
     protected setValue128(value: number128) {
         this.size = SIZE.O;
-        this.value = value;
+        this.value = value as any;
         var [b0, b1, b2, b3] = value;
         this.octets = [
             (b0) & 0xFF,

@@ -2,8 +2,8 @@
     {
         "mnemonic": "sbb",
         "mnemonicPrecise": "sbbb",
-        "opcode": 20,
-        "opcodeHex": "14",
+        "opcode": 28,
+        "opcodeHex": "1C",
         "operands": [
             "al",
             "Immediate8"
@@ -24,8 +24,8 @@
     {
         "mnemonic": "sbb",
         "mnemonicPrecise": "sbbw",
-        "opcode": 21,
-        "opcodeHex": "15",
+        "opcode": 29,
+        "opcodeHex": "1D",
         "operands": [
             "ax",
             "Immediate16"
@@ -46,8 +46,8 @@
     {
         "mnemonic": "sbb",
         "mnemonicPrecise": "sbbd",
-        "opcode": 21,
-        "opcodeHex": "15",
+        "opcode": 29,
+        "opcodeHex": "1D",
         "operands": [
             "eax",
             "Immediate32"
@@ -68,8 +68,8 @@
     {
         "mnemonic": "sbb",
         "mnemonicPrecise": "sbbq",
-        "opcode": 21,
-        "opcodeHex": "15",
+        "opcode": 29,
+        "opcodeHex": "1D",
         "operands": [
             "rax",
             "Immediate32"
@@ -100,7 +100,7 @@
             "Immediate8"
         ],
         "operandSize": 8,
-        "opcodeExtensionInModrm": 2,
+        "opcodeExtensionInModrm": 3,
         "operandEncoding": "rm",
         "lock": true,
         "modes": [
@@ -125,7 +125,7 @@
             "Immediate16"
         ],
         "operandSize": 16,
-        "opcodeExtensionInModrm": 2,
+        "opcodeExtensionInModrm": 3,
         "operandEncoding": "rm",
         "lock": true,
         "modes": [
@@ -150,7 +150,7 @@
             "Immediate32"
         ],
         "operandSize": 32,
-        "opcodeExtensionInModrm": 2,
+        "opcodeExtensionInModrm": 3,
         "operandEncoding": "rm",
         "lock": true,
         "modes": [
@@ -175,7 +175,7 @@
             "Immediate32"
         ],
         "operandSize": 64,
-        "opcodeExtensionInModrm": 2,
+        "opcodeExtensionInModrm": 3,
         "operandEncoding": "rm",
         "lock": true,
         "modes": [
@@ -200,7 +200,7 @@
             "Immediate8"
         ],
         "operandSize": 16,
-        "opcodeExtensionInModrm": 2,
+        "opcodeExtensionInModrm": 3,
         "operandEncoding": "rm",
         "lock": true,
         "modes": [
@@ -225,7 +225,7 @@
             "Immediate8"
         ],
         "operandSize": 32,
-        "opcodeExtensionInModrm": 2,
+        "opcodeExtensionInModrm": 3,
         "operandEncoding": "rm",
         "lock": true,
         "modes": [
@@ -250,7 +250,7 @@
             "Immediate8"
         ],
         "operandSize": 64,
-        "opcodeExtensionInModrm": 2,
+        "opcodeExtensionInModrm": 3,
         "operandEncoding": "rm",
         "lock": true,
         "modes": [
@@ -265,8 +265,8 @@
     {
         "mnemonic": "sbb",
         "mnemonicPrecise": "sbbb",
-        "opcode": 16,
-        "opcodeHex": "10",
+        "opcode": 24,
+        "opcodeHex": "18",
         "operands": [
             [
                 "Register8",
@@ -290,8 +290,8 @@
     {
         "mnemonic": "sbb",
         "mnemonicPrecise": "sbbb",
-        "opcode": 18,
-        "opcodeHex": "12",
+        "opcode": 26,
+        "opcodeHex": "1A",
         "operands": [
             "Register8",
             [
@@ -315,8 +315,8 @@
     {
         "mnemonic": "sbb",
         "mnemonicPrecise": "sbbw",
-        "opcode": 17,
-        "opcodeHex": "11",
+        "opcode": 25,
+        "opcodeHex": "19",
         "operands": [
             [
                 "Register16",
@@ -340,8 +340,8 @@
     {
         "mnemonic": "sbb",
         "mnemonicPrecise": "sbbw",
-        "opcode": 19,
-        "opcodeHex": "13",
+        "opcode": 27,
+        "opcodeHex": "1B",
         "operands": [
             "Register16",
             [
@@ -365,8 +365,8 @@
     {
         "mnemonic": "sbb",
         "mnemonicPrecise": "sbbd",
-        "opcode": 17,
-        "opcodeHex": "11",
+        "opcode": 25,
+        "opcodeHex": "19",
         "operands": [
             [
                 "Register32",
@@ -390,8 +390,8 @@
     {
         "mnemonic": "sbb",
         "mnemonicPrecise": "sbbd",
-        "opcode": 19,
-        "opcodeHex": "13",
+        "opcode": 27,
+        "opcodeHex": "1B",
         "operands": [
             "Register32",
             [
@@ -415,8 +415,8 @@
     {
         "mnemonic": "sbb",
         "mnemonicPrecise": "sbbq",
-        "opcode": 17,
-        "opcodeHex": "11",
+        "opcode": 25,
+        "opcodeHex": "19",
         "operands": [
             [
                 "Register64",
@@ -440,8 +440,8 @@
     {
         "mnemonic": "sbb",
         "mnemonicPrecise": "sbbq",
-        "opcode": 19,
-        "opcodeHex": "13",
+        "opcode": 27,
+        "opcodeHex": "1B",
         "operands": [
             "Register64",
             [
