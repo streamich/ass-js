@@ -38,7 +38,7 @@
     "jest": "27.4.5",
     "jest-tap-reporter": "1.9.0",
     "ts-jest": "27.1.1",
-    "typescript": "4.5.3",
+    "typescript": "4.5.4",
     "ts-node": "10.4.0",
     "gulp": "4.0.2",
     "gulp-typescript": "5.0.1",
