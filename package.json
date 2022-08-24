@@ -49,7 +49,7 @@
     "ethereumjs-vm": "4.2.0",
     "semantic-release": "19.0.5",
     "@types/node": "16.11.55",
-    "@types/jest": "28.1.7",
+    "@types/jest": "28.1.8",
     "mol-conventional-changelog": "1.4.2"
   },
   "scripts": {
