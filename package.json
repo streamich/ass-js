@@ -35,7 +35,7 @@
     "fast-extend": "^0.0.2"
   },
   "devDependencies": {
-    "jest": "29.1.1",
+    "jest": "29.1.2",
     "jest-tap-reporter": "1.9.0",
     "ts-jest": "29.0.3",
     "typescript": "4.8.4",
@@ -49,7 +49,7 @@
     "ethereumjs-vm": "4.2.0",
     "semantic-release": "19.0.5",
     "@types/node": "16.11.62",
-    "@types/jest": "29.1.0",
+    "@types/jest": "29.1.1",
     "mol-conventional-changelog": "1.4.3"
   },
   "scripts": {
