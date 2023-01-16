@@ -42,7 +42,7 @@
     "ts-node": "10.9.1",
     "gulp": "4.0.2",
     "gulp-typescript": "5.0.1",
-    "mkdirp": "1.0.4",
+    "mkdirp": "2.0.0",
     "coffee-register": "2.2.0",
     "static-buffer": "1.0.1",
     "rimraf": "4.0.7",
