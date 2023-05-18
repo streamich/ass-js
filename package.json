@@ -45,7 +45,7 @@
     "mkdirp": "3.0.1",
     "coffee-register": "2.2.0",
     "static-buffer": "1.0.1",
-    "rimraf": "5.0.0",
+    "rimraf": "5.0.1",
     "ethereumjs-vm": "4.2.0",
     "semantic-release": "21.0.2",
     "@types/node": "18.16.12",
