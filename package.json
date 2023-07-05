@@ -47,7 +47,7 @@
     "static-buffer": "1.0.1",
     "rimraf": "5.0.1",
     "ethereumjs-vm": "4.2.0",
-    "semantic-release": "21.0.6",
+    "semantic-release": "21.0.7",
     "@types/node": "18.16.19",
     "@types/jest": "29.5.2",
     "mol-conventional-changelog": "1.4.3"
