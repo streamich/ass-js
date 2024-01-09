@@ -48,7 +48,7 @@
     "rimraf": "5.0.5",
     "ethereumjs-vm": "4.2.0",
     "semantic-release": "22.0.12",
-    "@types/node": "20.10.7",
+    "@types/node": "20.10.8",
     "@types/jest": "29.5.11",
     "mol-conventional-changelog": "1.4.3"
   },
