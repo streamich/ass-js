@@ -40,7 +40,7 @@
     "ts-jest": "29.1.2",
     "typescript": "5.4.3",
     "ts-node": "10.9.2",
-    "gulp": "4.0.2",
+    "gulp": "5.0.0",
     "gulp-typescript": "5.0.1",
     "mkdirp": "3.0.1",
     "coffee-register": "2.2.0",
