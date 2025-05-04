@@ -2,7 +2,7 @@
 
 In this example we will write "Hello World!" to console using *Assembler.js*. We will
 start with a basic example where we first hard-code all the values and gradually
-progress to a complete solution where we just input the variablees and all the
+progress to a complete solution where we just input the variables and all the
 offsets are calculated automatically.
 
 First we `require` the X64 assembler generator:
